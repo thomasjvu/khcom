@@ -1,0 +1,12 @@
+name: Tactics rules
+on:
+  push:
+    paths: ['tactics/**', 'tests/tactics_test.c', 'tools/test_tactics.sh', '.github/workflows/tactics.yml']
+  pull_request:
+    paths: ['tactics/**', 'tests/tactics_test.c', 'tools/test_tactics.sh', '.github/workflows/tactics.yml']
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: sh tools/test_tactics.sh

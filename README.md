@@ -1,3 +1,14 @@
+# KH Tactics
+
+A work-in-progress GBA tactics roguelike ROM hack based on khcom.
+
+- [Implementation plan](tactics/PLAN.md)
+- [Local setup and validation](tactics/BUILD.md)
+- First milestone: Sora versus two Shadows on an 8×6 grid.
+- Current prototype: host-tested rules; ROM integration is pending.
+
+---
+
 # Kingdom Hearts: Chain of Memories (GBA)
 
 [![Build Status]][actions] [![us]][progress] [![jp]][progress] [![eu]][progress]
