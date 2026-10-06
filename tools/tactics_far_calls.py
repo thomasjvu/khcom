@@ -3,7 +3,7 @@ import re
 import sys
 from pathlib import Path
 TARGETS=('__divsi3','__udivsi3','__modsi3','__umodsi3','memcpy',
-         'm4aSongNumStart','m4aSoundInit','m4aSoundVSyncOn','m4aSoundVSync','m4aSoundMain')
+         'm4aSongNumStart','m4aSoundInit','m4aSoundVSyncOn','m4aSoundVSync','m4aSoundMain','InitSystem','ResetGameState','SetupSoraNewGame','EnterFloorWorld','ModeRequest','EnableVBlankIntr','UpdateKeyState','ModeUpdate','ApplyIntrCallbacks','VBlankIntrWait','Mode_MapFld_0','MapEnmCheckAttacked','GetMapFloorRoom','TaskKill','MapEnmUpdateAnim','GetKeysPressed','UpdateMapField','ColliderSetDisabled','MapEnmUpdateSpawner','ColliderUpdateAll','DrawMapField','CreateMapRoom','SetCurrentMapRoom','DebugTextInit','DebugTextLoadPalette','DebugTextPrint','DebugTextDraw','DebugTextClear','DebugTextFree','Mode_MapFld_2','MapEnmSetAnim','SeedRandom','MapEnmSetupArgs','TaskCreate','MapCellIsFreeOfType','FldPosPlaceAtCell','_call_via_r3','_call_via_r1','MapReserveArea')
 
 def rewrite(path):
     p=Path(path);s=p.read_text()

@@ -1,4 +1,4 @@
-/* All callees are Thumb functions with at most three register arguments. */
+/* Thumb tail veneers; four-argument calls preserve r3 via ip. */
 .section .text
 .thumb
 .balign 4
@@ -81,3 +81,413 @@ TacFar_m4aSoundMain:
  bx r3
 .balign 4
 1: .word m4aSoundMain + 1
+
+.balign 4
+.global TacFar_InitSystem
+.thumb_func
+TacFar_InitSystem:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word InitSystem + 1
+
+
+.balign 4
+.global TacFar_ResetGameState
+.thumb_func
+TacFar_ResetGameState:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word ResetGameState + 1
+
+
+.balign 4
+.global TacFar_SetupSoraNewGame
+.thumb_func
+TacFar_SetupSoraNewGame:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word SetupSoraNewGame + 1
+
+
+.balign 4
+.global TacFar_EnterFloorWorld
+.thumb_func
+TacFar_EnterFloorWorld:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word EnterFloorWorld + 1
+
+
+.balign 4
+.global TacFar_ModeRequest
+.thumb_func
+TacFar_ModeRequest:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word ModeRequest + 1
+
+
+.balign 4
+.global TacFar_EnableVBlankIntr
+.thumb_func
+TacFar_EnableVBlankIntr:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word EnableVBlankIntr + 1
+
+
+.balign 4
+.global TacFar_UpdateKeyState
+.thumb_func
+TacFar_UpdateKeyState:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word UpdateKeyState + 1
+
+
+.balign 4
+.global TacFar_ModeUpdate
+.thumb_func
+TacFar_ModeUpdate:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word ModeUpdate + 1
+
+
+.balign 4
+.global TacFar_ApplyIntrCallbacks
+.thumb_func
+TacFar_ApplyIntrCallbacks:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word ApplyIntrCallbacks + 1
+
+
+.balign 4
+.global TacFar_VBlankIntrWait
+.thumb_func
+TacFar_VBlankIntrWait:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word VBlankIntrWait + 1
+
+
+.balign 4
+.global TacFar_Mode_MapFld_0
+.thumb_func
+TacFar_Mode_MapFld_0:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word Mode_MapFld_0 + 1
+
+
+.balign 4
+.global TacFar_MapEnmCheckAttacked
+.thumb_func
+TacFar_MapEnmCheckAttacked:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word MapEnmCheckAttacked + 1
+
+
+.balign 4
+.global TacFar_GetMapFloorRoom
+.thumb_func
+TacFar_GetMapFloorRoom:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word GetMapFloorRoom + 1
+
+
+.balign 4
+.global TacFar_TaskKill
+.thumb_func
+TacFar_TaskKill:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word TaskKill + 1
+
+
+.balign 4
+.global TacFar_MapEnmUpdateAnim
+.thumb_func
+TacFar_MapEnmUpdateAnim:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word MapEnmUpdateAnim + 1
+
+
+.balign 4
+.global TacFar_GetKeysPressed
+.thumb_func
+TacFar_GetKeysPressed:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word GetKeysPressed + 1
+
+
+.balign 4
+.global TacFar_UpdateMapField
+.thumb_func
+TacFar_UpdateMapField:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word UpdateMapField + 1
+
+
+.balign 4
+.global TacFar_ColliderSetDisabled
+.thumb_func
+TacFar_ColliderSetDisabled:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word ColliderSetDisabled + 1
+
+
+.balign 4
+.global TacFar_MapEnmUpdateSpawner
+.thumb_func
+TacFar_MapEnmUpdateSpawner:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word MapEnmUpdateSpawner + 1
+
+
+.balign 4
+.global TacFar_ColliderUpdateAll
+.thumb_func
+TacFar_ColliderUpdateAll:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word ColliderUpdateAll + 1
+
+
+.balign 4
+.global TacFar_DrawMapField
+.thumb_func
+TacFar_DrawMapField:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word DrawMapField + 1
+
+
+.balign 4
+.global TacFar_CreateMapRoom
+.thumb_func
+TacFar_CreateMapRoom:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word CreateMapRoom + 1
+
+
+.balign 4
+.global TacFar_SetCurrentMapRoom
+.thumb_func
+TacFar_SetCurrentMapRoom:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word SetCurrentMapRoom + 1
+
+.balign 4
+.global TacFar_DebugTextInit
+.thumb_func
+TacFar_DebugTextInit:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word DebugTextInit + 1
+
+
+.balign 4
+.global TacFar_DebugTextLoadPalette
+.thumb_func
+TacFar_DebugTextLoadPalette:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word DebugTextLoadPalette + 1
+
+
+.balign 4
+.global TacFar_DebugTextPrint
+.thumb_func
+TacFar_DebugTextPrint:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word DebugTextPrint + 1
+
+
+.balign 4
+.global TacFar_DebugTextDraw
+.thumb_func
+TacFar_DebugTextDraw:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word DebugTextDraw + 1
+
+
+.balign 4
+.global TacFar_DebugTextClear
+.thumb_func
+TacFar_DebugTextClear:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word DebugTextClear + 1
+
+
+.balign 4
+.global TacFar_DebugTextFree
+.thumb_func
+TacFar_DebugTextFree:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word DebugTextFree + 1
+
+
+.balign 4
+.global TacFar_Mode_MapFld_2
+.thumb_func
+TacFar_Mode_MapFld_2:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word Mode_MapFld_2 + 1
+
+
+.balign 4
+.global TacFar_MapEnmSetAnim
+.thumb_func
+TacFar_MapEnmSetAnim:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word MapEnmSetAnim + 1
+
+.balign 4
+.global TacFar_SeedRandom
+.thumb_func
+TacFar_SeedRandom:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word SeedRandom + 1
+
+
+.balign 4
+.global TacFar_MapEnmSetupArgs
+.thumb_func
+TacFar_MapEnmSetupArgs:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word MapEnmSetupArgs + 1
+
+
+.balign 4
+.global TacFar_TaskCreate
+.thumb_func
+TacFar_TaskCreate:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word TaskCreate + 1
+
+.balign 4
+.global TacFar_MapCellIsFreeOfType
+.thumb_func
+TacFar_MapCellIsFreeOfType:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word MapCellIsFreeOfType + 1
+
+
+.balign 4
+.global TacFar_FldPosPlaceAtCell
+.thumb_func
+TacFar_FldPosPlaceAtCell:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word FldPosPlaceAtCell + 1
+
+.balign 4
+.global TacFar__call_via_r3
+.thumb_func
+TacFar__call_via_r3:
+ bx r3
+
+.balign 4
+.global TacFar__call_via_r1
+.thumb_func
+TacFar__call_via_r1:
+ bx r1
+
+.balign 4
+.global TacFar_MapReserveArea
+.thumb_func
+TacFar_MapReserveArea:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word MapReserveArea + 1

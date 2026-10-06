@@ -1,16 +1,22 @@
 # KH Tactics
 
-A playable GBA tactics roguelike ROM hack based on the Kingdom Hearts:
-Chain of Memories decompilation. Current version: **0.1.0 alpha**, US ROM only.
+A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
+The current **0.2 field prototype** runs in the original 2.5D engine with full
+Sora/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
-Fight through three floors of Castle Oblivion on an 8×6 grid. Move and play a
-card each turn, dodge telegraphed attacks, break enemy cards, combine sleights,
-and build a deck from rewards. Branching rooms include battles, elites, rests
-and floor bosses. Defeat ends the run; suspend saves preserve it between sessions.
+Rooms are generated from a seed using each world's assets. They are not copies
+of the original room layouts. A 12-room graph includes optional branches and
+reward rooms; the prototype progresses through Traverse Town, Agrabah and
+Castle Oblivion. Movement and attacks have turn budgets, and enemies act when
+you end your turn. Combat stays in the field.
 
-- [Play and controls](tactics/PLAY.md)
-- [Build and validation](tactics/BUILD.md)
-- [Design and roadmap](tactics/PLAN.md)
+The earlier flat-board prototype's card/deck/sleight and suspend-save systems
+remain in the rules code and tests. Their integration into the native field
+version is still pending; this is not a feature-complete release.
+
+- [Controls and current scope](tactics/PLAY.md)
+- [Build and verification](tactics/BUILD.md)
+- [Implementation plan](tactics/PLAN.md)
 
 ```sh
 .venv/bin/python configure.py --tactics
@@ -18,8 +24,8 @@ and floor bosses. Defeat ends the run; suspend saves preserve it between session
 # Open build/tactics-us/kh_tactics.gba in mGBA.
 ```
 
-The original matching build remains available with `configure.py --version us`.
-ROMs, extracted assets, generated actor data and build outputs stay local.
+The matching build remains available with `configure.py --version us`.
+ROMs, extracted assets and build outputs stay local.
 
 ---
 

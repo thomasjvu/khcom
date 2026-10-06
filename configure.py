@@ -269,14 +269,13 @@ if missing_assets:
 
 tactics_objects = []
 if args.tactics:
-    from tactics_assets import generate as generate_tactics_assets
-    generate_tactics_assets(version, Path(build_dir) / "gen/tactics_assets.h")
-    for source in ("tactics/tactics.c", "tactics/save.c", "tactics/gba.c"):
+    for source in ("tactics/tactics.c", "tactics/save.c", "tactics/worldgen.c", "tactics/native.c"):
         obj = f"{build_dir}/tactics/{Path(source).stem}.o"
         units.append((Path(source), obj, None))
         tactics_objects.append(obj)
         edges.append((obj, "tactics_cc", Path(source), sorted(str(p) for p in Path("tactics").glob("*.h"))
-                      + [f"{build_dir}/gen/tactics_assets.h", "tools/tactics_far_calls.py"], None))
+                      + ["tools/tactics_far_calls.py"]
+                      + (headers + generated_headers if source == "tactics/native.c" else []), None))
 if args.tactics:
     obj = f"{build_dir}/tactics/far_calls.o"
     units.append((Path("tactics/far_calls.s"), obj, None))
@@ -382,8 +381,9 @@ with out.open("w") as f:
     )
     n.rule(
         "rom",
-        command=f'$objcopy -O binary --only-section=.text --pad-to=0x0A000000 --gap-fill=0xFF $in $out'
-                f' && python3 tools/gbafix.py $out "{ROM_TITLE}" {code} {ROM_MAKER_CODE}',
+        command=f'$objcopy -O binary --only-section=.text --pad-to=0x0A000000 --gap-fill=0xFF $in $out' +
+                (f' && python3 tools/tactics_native_hooks.py $in $out' if args.tactics else '')
+                + f' && python3 tools/gbafix.py $out "{ROM_TITLE}" {code} {ROM_MAKER_CODE}',
         description="ROM $out",
     )
     n.rule(
@@ -455,7 +455,7 @@ with out.open("w") as f:
         implicit=[ldscript, str(legacy_linker)],
         variables={"ldscript": ldscript, "map": mapfile},
     )
-    n.build(rom, "rom", elf, implicit=["tools/gbafix.py"])
+    n.build(rom, "rom", elf, implicit=["tools/gbafix.py"] + (["tools/tactics_native_hooks.py"] if args.tactics else []))
     n.build(f"{build_dir}/ok", "check", rom, implicit_outputs=[verified])
     n.newline()
 

@@ -113,7 +113,7 @@ intr_vector:
 	.word INTR_VECTOR
 agb_main:
 .ifdef TACTICS
-	.word TacticsMain + 1
+	.word TacticsNativeMain + 1
 .else
 	.word AgbMain + 1
 .endif
