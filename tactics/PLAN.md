@@ -96,6 +96,26 @@ Acceptance: suspend/resume reproduces run state, corrupt/older saves recover saf
 - Do not reuse gameplay RNG for procedural content or save into presumed spare bytes.
 - Existing upstream CI depends on an external build container and private ROM availability. The fork needs independent host-test CI; ROM builds remain local unless authorized inputs are configured.
 
-## Immediate next task
+## Current implementation (0.1.0 alpha)
 
-The matching US build is verified. Next add a separate tactics build target and debug mode displaying the board. The initial host rules prototype is scaffolding, not a playable ROM hack; porting and emulator validation are still required.
+Milestones 0–4 are implemented as a complete, compact run. Milestone 5 has
+versioned suspend saves and a locally verified BPS patch; public release and
+physical-hardware testing remain pending.
+
+The ROM uses a standalone tactics boot path and bitmap renderer instead of
+registering a debug mode in the original mode/task graph. Original assets and
+music are reused, with the original matching build preserved. This avoids
+legacy real-time updates controlling the simulation.
+
+Implemented: orthogonal pathfinding, separate move/card budgets, four card
+types, values and breaks, three-card area sleights with encounter exhaustion,
+draw/discard/reload, locked attack intents, four enemy archetypes with movement
+and area threats, seeded branching rooms, persistent HP/deck, rewards/rests,
+three floor bosses, defeat/clear summaries, seed selection and dual-slot saves.
+Room modifiers currently select terrain layouts; collectible map cards and
+persistent unlocks are future extensions.
+
+Next content work: distinct authored boss mechanics per floor, more encounter
+layouts and card effects, player balance testing, and hardware/audio timing
+measurements. Maintain the matching build, host replay invariants and emulator
+input replay while expanding content.

@@ -1,11 +1,25 @@
 # KH Tactics
 
-A work-in-progress GBA tactics roguelike ROM hack based on khcom.
+A playable GBA tactics roguelike ROM hack based on the Kingdom Hearts:
+Chain of Memories decompilation. Current version: **0.1.0 alpha**, US ROM only.
 
-- [Implementation plan](tactics/PLAN.md)
-- [Local setup and validation](tactics/BUILD.md)
-- First milestone: Sora versus two Shadows on an 8×6 grid.
-- Current prototype: host-tested rules; ROM integration is pending.
+Fight through three floors of Castle Oblivion on an 8×6 grid. Move and play a
+card each turn, dodge telegraphed attacks, break enemy cards, combine sleights,
+and build a deck from rewards. Branching rooms include battles, elites, rests
+and floor bosses. Defeat ends the run; suspend saves preserve it between sessions.
+
+- [Play and controls](tactics/PLAY.md)
+- [Build and validation](tactics/BUILD.md)
+- [Design and roadmap](tactics/PLAN.md)
+
+```sh
+.venv/bin/python configure.py --tactics
+.venv/bin/ninja
+# Open build/tactics-us/kh_tactics.gba in mGBA.
+```
+
+The original matching build remains available with `configure.py --version us`.
+ROMs, extracted assets, generated actor data and build outputs stay local.
 
 ---
 
