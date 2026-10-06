@@ -28,7 +28,7 @@ brew install arm-none-eabi-gcc
 git clone https://github.com/pret/agbcc.git build/agbcc-source
 (cd build/agbcc-source && ./build.sh && ./install.sh /Users/area/kh-tactics)
 sh tools/fetch_gbagfx.sh
-.venv/bin/python tools/setup_legacy_toolchain.py
+SSL_CERT_FILE="$(.venv/bin/python -m certifi)" .venv/bin/python tools/setup_legacy_toolchain.py
 .venv/bin/python tools/extract_assets.py us
 .venv/bin/python configure.py --version us
 .venv/bin/ninja
@@ -48,3 +48,15 @@ arm-none-eabi-as -mcpu=arm7tdmi -o build/tactics/rules.o build/tactics/rules.s
 ```
 
 This is a compiler compatibility check, not a linked ROM or emulator test.
+
+## Verified baseline (2026-10-06)
+
+The complete 605-step US build passed its upstream SHA-1 check. Both
+`build/us/com_us.gba` and `build/us/verified.gba` hash to
+`10729bd884f8fdca7a310b6d606c52e46657aa48`, matching the original input.
+Host rules checks and agbcc compilation also passed. Emulator validation
+and linking the tactics core into a modified ROM remain pending.
+
+The local Python installation needed the certifi certificate bundle for
+toolchain downloads. The first GNU mirror was slow; its pinned archive
+was fetched from the upstream-listed kernel.org mirror and SHA-256 verified.

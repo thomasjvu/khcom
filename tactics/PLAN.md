@@ -33,7 +33,7 @@ The supplied ROM matches the US SHA-1 `10729bd884f8fdca7a310b6d606c52e46657aa48`
 | Mode dispatch | `src/mode.c`, `include/mode.h` | Add a separate tactics mode and debug launch path. |
 | Battle initialization and tick | `src/btl/mode_battle.c` | Reuse only audited presentation setup; do not let legacy real-time actor updates resolve tactics combat. |
 | Actor projection and resources | `src/btl/battle_runtime.c`, `include/btl/btl.h` | Adapt sprite presentation to board coordinates; keep authoritative positions in grid cells. |
-| Tasks and animation | `src/taskpool.c`, `src/anim` references, sprite APIs | Continue rendering while waiting for input; run presentation after a committed simulation action. Verify actual animation interfaces before integration. |
+| Tasks and animation | `src/taskpool.c`, `include/anim.h`, sprite APIs | Continue rendering while waiting for input; run presentation after a committed simulation action. Verify actual animation interfaces before integration. |
 | Cards | `include/card/`, `src/card/` | Introduce a small tactics card catalog mapped to original visual IDs. Avoid treating real-time combat definitions as tactics rules. |
 | Input | `src/key.c`, `src/key_state.c` | Edge-trigger commands, cancelable previews, no actions on held input repeat. |
 | Save | `src/save.c`, `src/save_data.c`, `include/save_types.h` | Audit capacity and checksums before selecting a versioned run-save layout. |
@@ -98,4 +98,4 @@ Acceptance: suspend/resume reproduces run state, corrupt/older saves recover saf
 
 ## Immediate next task
 
-Finish the matching US build, then add a separate tactics build target and debug mode displaying the board. The initial host rules prototype is scaffolding, not a playable ROM hack; porting and emulator validation are still required.
+The matching US build is verified. Next add a separate tactics build target and debug mode displaying the board. The initial host rules prototype is scaffolding, not a playable ROM hack; porting and emulator validation are still required.
