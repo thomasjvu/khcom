@@ -91,7 +91,9 @@ interactions. Do not replace field actors with icons or flatten elevations.
    Card selection has read-only mock checks; controller-only opening remains
    pending in `all-rooms-facing-chests-evidence`. R+Dpad now faces the active
    character without movement, budget use or card cycling; 32 input-only native
-   checks pass across all eight directions. Walking to face caused the earlier
+   checks pass across all eight directions for Sora. Donald and Goofy each pass
+   33 checks including controller-only assembly selection and the same facing
+   state/budget checks (`donald-facing-evidence`, `goofy-facing-evidence`). Walking to face caused the earlier
    chest approach to oscillate; that incomplete replay is preserved. Approach diagnostics exposed
    a replay bug: the walking preview needed cancellation before facing/attacking
    a chest. That fix is in the new run. The first chest attempt stalled

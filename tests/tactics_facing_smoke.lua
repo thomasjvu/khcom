@@ -7,9 +7,14 @@ local initial,selected
 local function check(ok,message) out:write((ok and 'PASS ' or 'FAIL ')..message..'\n');out:flush() end
 callbacks:add('frame',function()
  frame=frame+1
- if frame==180 then emu:setKeys(1) end
+ if frame==180 then emu:setKeys((testParty or 0)>0 and 256 or 1) end
  if frame==184 then emu:setKeys(0) end
+ if frame==190 and testParty==2 then emu:setKeys(256) end
+ if frame==194 then emu:setKeys(0) end
+ if frame==200 and (testParty or 0)>0 then emu:setKeys(1) end
+ if frame==204 then emu:setKeys(0) end
  if frame==210 then
+  check(emu:read16(gNativeParty)==(testParty or 0),'assembly selects the requested controllable hero')
   local p=emu:read32(gFieldState)
   initial={emu:read32(p+0x18),emu:read32(p+0x1c),emu:read32(p+0x20)}
   selected=emu:read8(gNativeDeck+73)
