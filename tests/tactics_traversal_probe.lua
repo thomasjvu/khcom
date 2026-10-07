@@ -21,6 +21,8 @@ local completedRuns=0
 local optionalRoute={0,1,2,3,4,9,8,1,2,3,4,5,10,11,10,5,6,7}
 local routeStep=1
 local roomVisitMasks={0,0,0}
+local observedChests=0
+local chestDebugFrame=0
 local victoryHealth=nil
 local function signed(v) if v>=2147483648 then return v-4294967296 end return v end
 local function pos()
@@ -28,6 +30,32 @@ local function pos()
  return signed(emu:read32(p+0x18)),signed(emu:read32(p+0x1c))+signed(emu:read32(p+0x20)),signed(emu:read32(p+0x20))
 end
 local function cell(x,y,z) return math.floor((x+2048)/4096)..':'..math.floor((y+1024)/2048)..':'..math.floor(z/2048) end
+local function chestGoal()
+ local node=emu:read32(emu:read32(gFieldState)+0x80)
+ while node~=0 do
+  local task=emu:read32(node)
+  if emu:read32(task)==gTaskDescMapGmk01 then
+   local work=emu:read32(task+4);local placement=emu:read32(work)
+   if (emu:read16(placement)&2)==0 then
+    local z=signed(emu:read32(work+12))
+    return signed(emu:read32(work+4)),signed(emu:read32(work+8))+z+4096,z
+   end
+  end
+  node=emu:read32(node+8)
+ end
+end
+local function chestCardKey()
+ local slot=0;local wanted=nil
+ for i=0,emu:read8(gNativeDeck+72)-1 do
+  if emu:read8(gNativeDeck+48+i)==1 then
+   if emu:read8(gNativeDeck+i)==0 and not wanted then wanted=slot end
+   slot=slot+1
+  end
+ end
+ if slot==0 then return 768 end
+ if emu:read8(gNativeDeck+73)~=(wanted or 0) then return 256 end
+ return 1
+end
 local function door()
  local p=emu:read32(gFieldState)
  local n=emu:read32(p+0x80)
@@ -194,6 +222,10 @@ local function replayFrame()
  if done or f<180 or (suspendStage==2 and f<nextFrame) then return end
  local room=emu:read8(gMapFloorState+6)
  local world=emu:read16(gNativeFloor)
+ if collectChests and emu:read16(gNativeChests)~=observedChests then
+  observedChests=emu:read16(gNativeChests)
+  out:write('CHESTS '..observedChests..' frame='..f..'\n');out:flush()
+ end
  if allRooms and world<3 then roomVisitMasks[world+1]=roomVisitMasks[world+1]|(1<<room) end
  if emu:read32(gCurrentMode)~=sNativeMode or (emu:read32(gCurrentModeUpdate)&0xfffffffe)~=NativeUpdate then
   out:write('MODE current='..string.format('%x',emu:read32(gCurrentMode))..' update='..string.format('%x',emu:read32(gCurrentModeUpdate))..' pending='..string.format('%x',emu:read32(gPendingMode))..' busy='..emu:read16(gNativeBusy)..'\n')
@@ -218,6 +250,7 @@ local function replayFrame()
     out:write('ROOM MASKS '..roomVisitMasks[1]..','..roomVisitMasks[2]..','..roomVisitMasks[3]..'\n');out:flush()
     valid=valid and roomVisitMasks[1]==4095 and roomVisitMasks[2]==4095 and roomVisitMasks[3]==4095
    end
+   if collectChests then valid=valid and emu:read16(gNativeChests)==9 end
    if not valid then finish(false,'terminal state or required recruitment changed');return end
    completedRuns=completedRuns+1
    out:write('RUN COMPLETE '..completedRuns..' frame='..f..'\n');out:flush()
@@ -226,6 +259,7 @@ local function replayFrame()
     victoryFrame=nil;victoryHealth=nil;cloudRecruited=false;cloudDeployed=false
     previousWorld=0;previousRoom=-1;suspendStage=0
     routeStep=1;roomVisitMasks={0,0,0}
+    observedChests=0
     terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+120
    else
     finish(true,'completed '..completedRuns..' three-world runs; terminal floor and Sora HP remain stable for 120 frames')
@@ -327,6 +361,11 @@ local function replayFrame()
  local dx,dy,dz=door()
  if not dx then finish(false,'forward door missing');return end
  local ex,ey,ez=encounterGoal()
+ local chest=false
+ if collectChests and not ex then
+  local cx,cy,cz=chestGoal()
+  if cx then dx,dy,dz=cx,cy,cz;chest=true end
+ end
  if ex then
   dx,dy,dz=ex,ey,ez
   local x,y,z=pos()
@@ -340,6 +379,16 @@ local function replayFrame()
  end
  if phase=='scan' and index==1 then
   local x,y,z=pos()
+  if chest and math.abs(x-dx)<2048 and math.abs(y-dy)<4096 and math.abs(z-dz)<2048 and
+     (emu:read8(emu:read32(gFieldState)+0x2c)~=0 or (y>=dy-4096 and y<=dy+1024)) then
+   if emu:read16(gNativeActionLeft)==0 then requestTurn();return end
+   local key=emu:read8(emu:read32(gFieldState)+0x2c)~=0 and 64 or chestCardKey()
+   if f-chestDebugFrame>=1000 then
+    out:write('CHEST INPUT frame='..f..' position='..x..','..y..','..z..' goal='..dx..','..dy..','..dz..' key='..key..' angle='..emu:read8(emu:read32(gFieldState)+0x2c)..'\n');out:flush()
+    emu:screenshot('@OUTPUT@/chest-approach.png');chestDebugFrame=f
+   end
+   emu:setKeys(key);phase='release';nextFrame=f+4;return
+  end
   local key=combatInput()
   if key then emu:setKeys(key);phase='release';nextFrame=f+4;return end
   if (visits[cell(x,y,z)] or 0)>=3 and emu:read16(gNativeActionLeft)==0 then

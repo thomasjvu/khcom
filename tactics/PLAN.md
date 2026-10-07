@@ -84,7 +84,13 @@ interactions. Do not replace field actors with icons or flatten elevations.
    complete physical navigation inside each room. The input-only traversal driver
    now has `--all-rooms`: visit 0–1–2–3–4–9–8–1–2–3–4–5–10–11–10–5–6–7
    in each world, and require all twelve room bits before terminal PASS.
-   The first Cloud/suspend run is pending in `all-rooms-cloud-navigation-evidence`.
+   The first Cloud/suspend replay hit its 180000-frame bound in Castle room 5
+   after both earlier worlds traversed all rooms. This is incomplete coverage,
+   not a room impossibility finding. The longer bound is now 300000 frames.
+   `--collect-chests` requires nine native chest opens as well as all room bits.
+   Card selection has read-only mock checks; controller-only opening remains
+   pending in `all-rooms-chest-approach-evidence`. The first chest attempt stalled
+   and is preserved in `all-rooms-chests-cloud-evidence`.
    It checks original generated geometry with actual controller movement;
    successful replay coverage still does not prove a generation guarantee.
 2. **Authoritative field combat.** Party/enemy occupancy now uses continuous segment/open-box intersection with overlap-exit handling. Host checks compare 5,000 three-dimensional segments and their reverse directions against an independent floating-point slab oracle. Enemy quarter-terrain probes interpolate height. Eight native movement overlay checks pass; a Cloud-route full run passes in `swept-occupancy-cloud-full-run-evidence` (victory 83630 HP80, stable PASS 83750, 16 kills, 598 commands, verified suspend/reset). Nine native player-route checks reject party/enemy corner crossings, keep the reachable mask consistent, restore the edge after moving blockers, and execute it once; evidence: `actor-crossing-final-evidence`. Further validate enemy-driven crossings, extend solid-prop/terrain sweeps beyond quarter sampling, and add world-specific behaviors. Extend current damage and charge warnings into full area/range overlays.
