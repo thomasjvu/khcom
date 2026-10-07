@@ -741,3 +741,18 @@ windup/impact/idle transitions, reconstructed suspended windup, card and boss
 asset allocation, and existing slam boundaries/resolution. Screenshots confirm
 raised hands and grounded feet. ROM build and diff checks pass. This does not
 verify additional boss moves, multipart damage phases, or full-run victory.
+
+Guard Armor now has custom tactics damage phases derived from its persisted
+HP: 27–40 HP keeps both hands (80-pixel strike, 10 damage); 14–26 HP removes
+the far hand (64 pixels, 8 damage); 1–13 HP removes both hands (48 pixels,
+6 damage). The original surviving sprite components continue animating.
+Threat preview and enemy resolution use the same phase functions; Guard
+reductions and the 24-pixel height limit remain unchanged. HUD warnings name
+the current strike and reach. Phase identity needs no additional save bytes.
+`guard-armor-phase-hud-evidence/boss.txt` verifies the existing presentation
+and slam cases plus native Fire crossing a break threshold, exact phase ranges,
+actual reduced damage, and saved body-phase HP/preview/party damage restoration.
+Position/HP boundary setup is explicit; the Fire command is native input.
+Host tests cover phase thresholds and range/damage values. Full-run victory,
+break VFX, additional attack patterns and the other canonical bosses remain
+unverified or unfinished.

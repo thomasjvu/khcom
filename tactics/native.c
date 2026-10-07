@@ -173,6 +173,8 @@ u16 gNativeBossAllocation;
 u16 gNativeBossPose;
 static u16 sArmorImpact;
 extern u8 gNativeEnemyCharge[6];
+extern u16 gNativeEnemyHp[6];
+u16 gNativeBossPhase;
 static u8 NativeArmorAnimId(u8 part, u8 pose) {
     if (!pose) return 0;
     if (part == 0) return 2;
@@ -198,6 +200,7 @@ static void NativeArmorDraw(void* arg) {
     s16 y = (work->obj.fieldPosition.y + work->obj.fieldPosition.z - gFieldState->y) >> 8;
     u16 priority = -0x1004 - (work->obj.fieldPosition.y >> 8) * 4;
     pose = gNativeEnemyCharge[0] ? 1 : sArmorImpact ? 2 : 0;
+    gNativeBossPhase = FieldArmorPhase(gNativeEnemyHp[0]);
     if (pose != gNativeBossPose) {
         for (i = 0; i < 7; i++)
             AnimStart(&sArmorAnim[i], NativeArmorAnimId(i, pose), pose == 2 ? 0 : ANIM_FLAG_LOOP);
@@ -205,6 +208,7 @@ static void NativeArmorDraw(void* arg) {
     }
     if (sArmorImpact) sArmorImpact--;
     for (i = 0; i < 7; i++) {
+        if ((i == 3 && gNativeBossPhase >= 1) || (i == 2 && gNativeBossPhase >= 2)) continue;
         offset = 0;
         if (pose == 1) offset = i == 2 || i == 3 ? -12 : i == 4 || i == 5 ? 0 : 8;
         else if (pose == 2 && (i == 2 || i == 3)) offset = 10;
@@ -223,6 +227,7 @@ static void NativeArmorInit(void) {
     gNativeBossReady = 0;
     gNativeBossAllocation = 0;
     gNativeBossPose = sArmorImpact = 0;
+    gNativeBossPhase = 0;
     sArmorPalette = NULL;
     for (i = 0; i < 7; i++) sArmorTiles[i] = NULL;
     if (gNativeFloor || gMapFloorState.room != 7 || !sEnemyTasks[0]) return;
@@ -279,6 +284,14 @@ u16 gNativeTurn;
 static ObjPalette* sCardPalettes[4];
 static const CardDef* sCards[4];
 u16 gNativeGuard;
+static int NativeBlastRange(u8 slot) {
+    return sEnemyTasks[slot]->desc == &sArmorTaskDesc ? FieldArmorRange(gNativeEnemyHp[slot]) :
+        FieldEnemyBlastRange(gNativeFloor, gMapFloorState.room);
+}
+static int NativeBlastDamage(u8 slot) {
+    return sEnemyTasks[slot]->desc == &sArmorTaskDesc ? FieldArmorDamage(gNativeEnemyHp[slot]) :
+        FieldEnemyDamage(2, gNativeFloor);
+}
 static void NativeCarryTurn(void) {
     u8 i;
     sPartyMove[gNativeParty] = gNativeMoveLeft;
@@ -726,8 +739,8 @@ static void NativePreviewThreats(void) {
                 distance = NativeAbs(work->obj.fieldPosition.x - pos.x) +
                     NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - pos.y - pos.z);
                 dz = NativeAbs(work->obj.fieldPosition.z - pos.z);
-                if (distance <= (FieldEnemyBlastRange(gNativeFloor, gMapFloorState.room) << 8) && dz <= (24 << 8))
-                    gNativeThreats[j] += gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : FieldEnemyDamage(2, gNativeFloor);
+                if (distance <= (NativeBlastRange(i) << 8) && dz <= (24 << 8))
+                    gNativeThreats[j] += gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : NativeBlastDamage(i);
             }
             continue;
         }
@@ -792,7 +805,7 @@ static void NativeHud(void) {
     NativeLabel(0, 0, line);
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
     gNativeCureTarget = NativeCureTarget();
-    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? "GUARD ARMOR SLAM" : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, gNativeCureTarget == 0 ? "CURE SORA A PLAY" :
@@ -1248,9 +1261,9 @@ static void NativeEnemyTurn(void) {
             for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j]) {
                 distance = NativeAbs(work->obj.fieldPosition.x - sPartyPos[j].x) +
                     NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - sPartyPos[j].y - sPartyPos[j].z);
-                if (distance <= (FieldEnemyBlastRange(gNativeFloor, gMapFloorState.room) << 8) && NativeAbs(work->obj.fieldPosition.z - sPartyPos[j].z) <= (24 << 8))
+                if (distance <= (NativeBlastRange(i) << 8) && NativeAbs(work->obj.fieldPosition.z - sPartyPos[j].z) <= (24 << 8))
                     if (FieldPartyDamage(&gNativePartyHealth, j, gNativeGuard == 2 ? 0 :
-                        gNativeGuard ? 1 : FieldEnemyDamage(2, gNativeFloor))) gNativeResult = 1;
+                        gNativeGuard ? 1 : NativeBlastDamage(i))) gNativeResult = 1;
             }
             gNativeEnemyCharge[i] = 0;
             continue;

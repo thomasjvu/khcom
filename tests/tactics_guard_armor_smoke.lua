@@ -95,6 +95,54 @@ callbacks:add('frame',function()
   check(emu:read8(gNativeEnemyCharge)==1,'suspend preserves boss windup')
   check(emu:read16(gNativeBossPose)==1,'suspend reconstructs charged attack pose from saved windup')
   check(emu:read8(gNativePartyHealth)==70,'suspend preserves damage already resolved')
-  emu:screenshot('@OUTPUT@/guard-armor-resume.png');out:close()
+  emu:screenshot('@OUTPUT@/guard-armor-resume.png')
+ end
+ if f==1120 then
+  emu:write16(gNativeEnemyHp,27);place(64,0);emu:setKeys(256)
+ end
+ if f==1124 then emu:setKeys(0) end
+ if f==1140 then emu:setKeys(1) end
+ if f==1144 then emu:setKeys(0) end
+ if f==1180 then
+  check(emu:read16(gNativeEnemyHp)==15,'native Fire crosses the first armor-break threshold')
+  check(emu:read16(gNativeBossPhase)==1,'card damage changes the rendered armor phase')
+  emu:write16(gNativeEnemyHp,26);place(64,0)
+ end
+ if f==1200 then
+  check(emu:read16(gNativeThreats)==8,'one-hand phase previews eight damage at 64 pixels')
+  emu:screenshot('@OUTPUT@/one-hand.png');emu:setKeys(8)
+ end
+ if f==1204 then emu:setKeys(0) end
+ if f==1310 then
+  check(emu:read8(gNativePartyHealth)==62,'one-hand strike resolves eight damage')
+  place(65,0)
+ end
+ if f==1330 then
+  check(emu:read16(gNativeThreats)==0,'one-hand strike excludes 65 pixels')
+  emu:write16(gNativeEnemyHp,13);place(48,0)
+ end
+ if f==1350 then
+  check(emu:read16(gNativeBossPhase)==2,'13 HP breaks both original hand components')
+  check(emu:read16(gNativeThreats)==6,'body phase previews six damage at 48 pixels')
+  emu:screenshot('@OUTPUT@/body-phase.png');emu:setKeys(8)
+ end
+ if f==1354 then emu:setKeys(0) end
+ if f==1460 then
+  check(emu:read8(gNativePartyHealth)==56,'body strike resolves six damage')
+  place(49,0)
+ end
+ if f==1480 then
+  check(emu:read16(gNativeThreats)==0,'body strike excludes 49 pixels')
+  place(48,0);emu:setKeys(12)
+ end
+ if f==1484 then emu:setKeys(0) end
+ if f==1530 then
+  check(emu:read16(gNativeSaveNotice)==1,'broken armor phase suspends')
+  emu:reset()
+ end
+ if f==1850 then
+  check(emu:read16(gNativeEnemyHp)==13 and emu:read16(gNativeBossPhase)==2,'resume derives broken armor phase from persisted HP')
+  check(emu:read16(gNativeThreats)==6 and emu:read8(gNativePartyHealth)==56,'resume preserves body strike preview and resolved party damage')
+  emu:screenshot('@OUTPUT@/body-phase-resume.png');out:close()
  end
 end)

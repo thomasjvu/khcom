@@ -18,6 +18,10 @@ int main(void) {
     assert(FieldEnemyBlastRange(0,7)==80);
     assert(FieldEnemyBlastRange(0,3)==64);
     assert(FieldEnemyBlastRange(1,7)==64);
+    assert(FieldArmorPhase(27)==0 && FieldArmorPhase(26)==1);
+    assert(FieldArmorPhase(14)==1 && FieldArmorPhase(13)==2);
+    assert(FieldArmorRange(40)==80 && FieldArmorRange(26)==64 && FieldArmorRange(13)==48);
+    assert(FieldArmorDamage(40)==10 && FieldArmorDamage(26)==8 && FieldArmorDamage(13)==6);
     puts("field enemy: seeded world groups, boss HP, ranged and height roles passed");
     return 0;
 }

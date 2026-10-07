@@ -1,4 +1,7 @@
 #include "field_enemy.h"
+int FieldArmorPhase(int hp) { return hp <= 13 ? 2 : hp <= 26 ? 1 : 0; }
+int FieldArmorRange(int hp) { return 80 - FieldArmorPhase(hp) * 16; }
+int FieldArmorDamage(int hp) { return 10 - FieldArmorPhase(hp) * 2; }
 int FieldEnemyBlastRange(int floor, int room) {
     return floor == 0 && room == 7 ? 80 : 64;
 }

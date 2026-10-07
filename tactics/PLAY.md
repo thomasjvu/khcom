@@ -86,7 +86,7 @@ not been saved. Chest flags and room enemy
 counts persist. World groups mix Shadow, ranged Red Nocturne, Darkball and
 Black Fungus. Traverse Town room 7 has a solo Guard Armor with 40 HP, rendered
 using its original seven animated sprite components. A charged slam raises its hands and crouches; impact lowers the hands before returning to idle. Its warned slam reaches
-80 pixels. Agrabah and Castle Oblivion still use Large Body elites with
+80 pixels for 10 damage. At 26 HP the far hand breaks, reducing reach to 64 pixels and damage to 8. At 13 HP both hands are gone, leaving a 48-pixel body strike for 6 damage. The warning names the current attack and reach. These are custom tactics phases. Agrabah and Castle Oblivion still use Large Body elites with
 48/56 HP and a 64-pixel strike. Within
 96 pixels it spends a decision charging, then on its next decision strikes
 all party members within its Manhattan strike radius and 24 pixels of height.

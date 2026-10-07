@@ -6,4 +6,7 @@ int FieldEnemyRange(int kind);
 int FieldEnemyHeight(int kind);
 int FieldEnemyDamage(int kind, int floor);
 int FieldEnemyBlastRange(int floor, int room);
+int FieldArmorPhase(int hp);
+int FieldArmorRange(int hp);
+int FieldArmorDamage(int hp);
 #endif
