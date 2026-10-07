@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.7-encounters.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.7-encounters.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.8-climbing.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.8-climbing.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -179,3 +179,11 @@ replay and 13 world scenario fixtures. Local evidence is under
 `build/tactics-us/guardian-evidence`, `encounter-party-evidence`,
 `encounter-route-evidence` and `encounter-world-evidence`. These fixtures
 remain narrower than an input-only complete run.
+
+Climbing build: `tools/tactics_climb_smoke.py ELF OUTPUT` creates `climb.lua`.
+It finds an actual generated stair base, places Sora there as an explicit
+fixture, then drives the original controller with buttons. Its 19 checks
+cover one-segment held input, ascent/descent costs, exhaustion, safe selection,
+attached suspend/reset with exact vertical position, turn renewal and native
+drop/landing. Save format 8 stores the stair target and facing. This does not
+prove every generated room is traversable or add climb edges to the route cursor.

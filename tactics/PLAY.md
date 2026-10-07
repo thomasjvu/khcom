@@ -14,6 +14,8 @@ tiles, card pictures, value digits, chests and doors.
 | L + B | Return stocked cards to the deck without exhaustion |
 | A | Play the selected card from the active member's position |
 | B | Jump; combine with a direction for a moving jump |
+| D-pad on stairs | Climb/descend one 16-pixel level for one movement point |
+| B on stairs | Drop using native physics, spending the action |
 | D-pad / B while hanging | Climb / drop using native ledge physics |
 | L + R | Reload discarded cards, spending the active member's action |
 | Start | End the whole party turn; every enemy resolves one decision |
@@ -35,7 +37,11 @@ native field surfaces. A route charges one point per 16-pixel horizontal or
 confirmed. The original player controller walks each segment; it stops if
 collision prevents progress and refunds segments that never started. Preview
 walking stays on the current floor level and avoids occupied destinations.
-Use the existing B jump/climb controls to cross height changes; jump and climb
+Entering stairs through a movement step attaches the native climbing
+controller. Holding a direction still commits only one segment. You can end
+a turn while attached to recover movement; Select is disabled until landing
+so another party member cannot inherit the stair controller’s target.
+Use the existing B jump/climb controls to cross other height changes; jump and climb
 edges are not yet part of the route cursor.
 
 The shared deck starts with twelve cards. The hand contains up to five cards;
@@ -71,8 +77,8 @@ the shared deck, individual HP, every visited room encounter and seed in
 two checksummed 1,024-byte SRAM slots. Partially damaged enemies keep their
 health and positions when you backtrack. A damaged
 latest slot falls back to the older valid slot. Defeat/run clear invalidates
-suspends. This build uses save format 7 to preserve enemy identity and charged attacks;
-format 6 and earlier saves are incompatible.
+suspends. This build uses save format 8 to preserve enemy identity, charged attacks and the active
+stair controller’s target/facing. Format 7 and earlier saves are incompatible.
 
 This is still a development build. Physical room reachability guarantees, climb/jump routes and
 full area/range overlays, reward choices, canonical bosses, complete

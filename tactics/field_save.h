@@ -21,6 +21,8 @@ typedef struct FieldSaveState {
     unsigned char move[3], action[3], partyHp[3];
     unsigned char floor, room, party, hp, guard;
     unsigned short turn, kills, chests;
+    int climbTarget;
+    unsigned char climbing, climbAngle;
 } FieldSaveState;
 int FieldSaveEncode(const FieldSaveState* state, unsigned int generation, unsigned char* out);
 int FieldSaveDecode(FieldSaveState* state, unsigned int* generation, const unsigned char* data);

@@ -25,6 +25,10 @@ int main(void) {
         b[i]^=1;
     }
     b[0]=0;assert(FieldSaveSelect(&loaded,&gen,a,b)==0&&loaded.hp==64);
+    s.climbing=1;s.climbTarget=24576;s.climbAngle=211;
+    assert(FieldSaveEncode(&s,1,b)&&FieldSaveDecode(&loaded,&gen,b));
+    assert(loaded.climbing&&loaded.climbTarget==24576&&loaded.climbAngle==211);
+    s.climbAngle=0;assert(!FieldSaveEncode(&s,1,b));s.climbing=0;
     s.encounters[0][0].kind=10;
     s.encounters[9][0].kind=6;
     assert(FieldSaveEncode(&s,1,b)&&FieldSaveDecode(&loaded,&gen,b));

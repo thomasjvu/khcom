@@ -20,6 +20,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Seeded custom platform parameters drive CoM's procedural room builder.
 - Traverse Town, Agrabah and Castle Oblivion tiles/palettes/props load normally.
 - Original Sora and field enemy animation, collision, camera and climbing tasks.
+- Budgeted 16-pixel stair segments, native ascent/descent/drop, safe party switching and exact stair suspend/resume.
 - Selectable Sora/Donald/Goofy with individual movement/action budgets and original sprites.
 - Individual HP, friend knockouts, selection skipping and Cure/chest revival.
 - HUD and projected original-digit damage estimates using enemy range/height/guard rules, emulator checked.

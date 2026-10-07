@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The current **0.7 native encounter development build** runs in the original 2.5D engine with full
+The current **0.8 native climbing development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -21,7 +21,8 @@ World-specific groups include Shadow, Red Nocturne, Darkball and Black Fungus.
 A Large Body exit guardian telegraphs its charged area attack before resolving
 it, with damage projected above threatened party members. Physical room
 reachability guarantees, climb/jump routes, canonical boss encounters, reward
-choices and complete-run QA remain pending.
+choices and complete-run QA remain pending. Native stairs now use one
+movement point per sixteen-pixel climb segment, with exact attached-state suspend.
 
 - [Controls and current scope](tactics/PLAY.md)
 - [Build and verification](tactics/BUILD.md)

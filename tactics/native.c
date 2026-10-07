@@ -59,6 +59,7 @@ u32 gNativeKills;
 u16 gNativeMoveLeft;
 u16 gNativeActionLeft;
 u16 gNativeBusy;
+u16 gNativeClimbing;
 u16 gNativeDirection;
 u16 gNativeEnemyFrames;
 static s32 sStartX, sStartY;
@@ -178,11 +179,21 @@ static void NativePartyInit(void) {
     gGameState.hp = gNativePartyHealth.hp[0];
     gNativeGuard = 0;
 }
+extern u8 task_fld_sora_1(FldWork* work, void* task);
+extern u8 FldSoraClimb(FldWork* work, void* task);
 static void NativePartySelect(void) {
+    Task* playerTask = gFieldState->tasks2.head.activeHead->owner;
+    FldWork* player = playerTask->work;
     sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
     sPartyMove[gNativeParty] = gNativeMoveLeft;
     sPartyAction[gNativeParty] = gNativeActionLeft;
     gNativeParty = FieldPartyNext(&gNativePartyHealth, gNativeParty);
+    if (player->state != FLD_STATE_GROUND) {
+        player->state = FLD_STATE_GROUND;
+        player->timer = player->vz = 0;
+        playerTask->update = (TaskUpdateFunc)task_fld_sora_1;
+        gFieldState->flags &= ~FIELD_FLAG_PLAYER_JUMPING;
+    }
     gGameState.hp = gNativePartyHealth.hp[gNativeParty];
     gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
     gFieldState->actor.speed = 0;
@@ -388,6 +399,13 @@ static void NativeWriteSuspend(void) {
     sSuspend.party = gNativeParty;
     sSuspend.hp = gGameState.hp;
     sSuspend.guard = gNativeGuard;
+    {
+        Task* playerTask = gFieldState->tasks2.head.activeHead->owner;
+        FldWork* player = playerTask->work;
+        sSuspend.climbing = player->state == FLD_STATE_CLIMB;
+        sSuspend.climbTarget = sSuspend.climbing ? player->targetZ : 0;
+        sSuspend.climbAngle = sSuspend.climbing ? gFieldState->actor.angle : 0;
+    }
     sSuspend.turn = gNativeTurn;
     sSuspend.kills = gNativeKills;
     sSuspend.chests = gNativeChests;
@@ -548,7 +566,7 @@ static void NativeHud(void) {
     line[18] += hp;
     NativeLabel(0, 0, line);
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
-    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : charging ? "GUARDIAN CHARGING" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? "GUARDIAN CHARGING" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
@@ -638,6 +656,15 @@ static void NativeInit(s32 arg) {
         gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
         gNativeMoveLeft = sPartyMove[gNativeParty];
         gNativeActionLeft = sPartyAction[gNativeParty];
+        if (sSuspend.climbing) {
+            Task* playerTask = gFieldState->tasks2.head.activeHead->owner;
+            FldWork* player = playerTask->work;
+            player->state = FLD_STATE_CLIMB;
+            player->timer = 1;
+            player->targetZ = sSuspend.climbTarget;
+            playerTask->update = (TaskUpdateFunc)FldSoraClimb;
+            gFieldState->actor.angle = sSuspend.climbAngle;
+        }
         sResume = 0;
     }
     if (sSuspend.roomCached[gMapFloorState.room]) {
@@ -997,7 +1024,14 @@ static void NativeUpdate(void) {
     }
     if (!gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
         !(gFieldState->flags & (FIELD_FLAG_FREEZE_PLAYER | FIELD_FLAG_ROOM_CREATE))) {
-        if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY))) {
+        if (player->state == FLD_STATE_CLIMB && (pressed & DPAD_ANY) && gNativeMoveLeft) {
+            gNativeDirection = raw & DPAD_ANY;
+            gNativeMoveLeft--;
+            gNativeCommands++;
+            gNativeBusy = 4;
+            sFrames = 0;
+        } else if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY) &&
+            player->state == FLD_STATE_GROUND)) {
             NativePreviewInput(pressed);
         } else if ((raw & (START_BUTTON | SELECT_BUTTON)) == (START_BUTTON | SELECT_BUTTON) &&
             (pressed & (START_BUTTON | SELECT_BUTTON))) {
@@ -1006,7 +1040,7 @@ static void NativeUpdate(void) {
             if (gNativeDeck.stocked < 3) FieldDeckStock(&gNativeDeck);
         } else if ((raw & L_BUTTON) && (pressed & B_BUTTON)) {
             FieldDeckCancelStock(&gNativeDeck);
-        } else if (pressed & SELECT_BUTTON) {
+        } else if ((pressed & SELECT_BUTTON) && player->state == FLD_STATE_GROUND) {
             NativePartySelect();
         } else if ((raw & (L_BUTTON | R_BUTTON)) == (L_BUTTON | R_BUTTON) &&
             (pressed & (L_BUTTON | R_BUTTON)) && gNativeActionLeft) {
@@ -1080,6 +1114,22 @@ static void NativeUpdate(void) {
             gNativeCommands++;
         }
     }
+    /* A native stair attachment must finish its vertical segment before
+     * another command can replace the controller's target. */
+    if (gNativeBusy == 1 && player->state == FLD_STATE_CLIMB) {
+        gNativeBusy = 4;
+        sFrames = 0;
+    }
+    if (gNativeBusy == 4) {
+        if (!sFrames) held = gNativeDirection;
+        else if (player->state == FLD_STATE_GROUND ||
+            (player->state == FLD_STATE_CLIMB &&
+                NativeAbs(player->targetZ - gFieldState->actor.fieldPosition.z) <= 48)) {
+            gNativeBusy = 0;
+            gNativeDirection = 0;
+            gFieldState->actor.speed = 0;
+        }
+    }
     if (gNativeBusy == 3) held = NativeRouteWalk();
     if (gNativeBusy == 1) {
         dx = gFieldState->actor.fieldPosition.x - sStartX;
@@ -1111,6 +1161,7 @@ static void NativeUpdate(void) {
     }
     gFieldState->flags &= ~FIELD_FLAG_ENEMY_FRAME_CHANGED;
     UpdateMapField();
+    gNativeClimbing = player->state == FLD_STATE_CLIMB || player->state == FLD_STATE_CLIMB_OVER;
     NativeSyncHealth();
     if (gNativeEnemyFrames) {
         gMapRoomState->flags &= ~(ROOM_FLAG_START_BATTLE | ROOM_FLAG_ENEMY_STRUCK);
