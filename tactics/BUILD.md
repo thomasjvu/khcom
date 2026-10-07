@@ -418,3 +418,14 @@ This verifies one default-seed victory and stable terminal state. Optional
 branches, input-only chest openings, other seeds, full-run suspend and physical
 hardware remain unverified; player height previews, richer rewards/bosses and
 UI/animation polish remain implementation work. The full goal stays active.
+
+
+Attached stair previews: `tools/tactics_climb_preview_smoke.py ELF OUTPUT`
+generates `climb.lua`. The 23-check position fixture passes in
+`climb-preview-evidence/climb-preview.txt`: L+Up opens a one-point vertical
+preview, opening/cancellation preserve movement and attachment, A executes
+one native segment, and normal descent, exhaustion, attached suspend/reset,
+drop and post-landing party selection remain valid. The projected original
+value digit indicates the vertical target; original physics controls any
+horizontal shift and climb-over at the top. Combined walking/stair/jump paths
+and guaranteed landing previews remain unfinished.

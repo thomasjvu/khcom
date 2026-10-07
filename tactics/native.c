@@ -127,6 +127,8 @@ static s16 sCursorX, sCursorY;
 static u8 sPlayerPath[FIELD_ROUTE_CELLS];
 static u8 sPathIndex, sPathLength;
 static u8 sRoutePlayer;
+static u16 sClimbPreviewDirection;
+static FldPos sClimbPreviewPos;
 static void NativePreviewDraw(void);
 static void NativePreviewInput(u16 pressed);
 static u16 NativeRouteWalk(void);
@@ -857,6 +859,27 @@ static int NativeEnemyRoute(Task* task, const FldPos* target) {
         (target->y + target->z - origin.y - origin.z) / 2048, NativeRouteEdge, NULL);
 }
 static void NativePreviewInput(u16 pressed) {
+    FldWork* player = ((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
+    if (player->state == FLD_STATE_CLIMB) {
+        if (!gNativePreview) sClimbPreviewDirection = 0;
+        gNativePreview = 2;
+        if (pressed & (B_BUTTON | SELECT_BUTTON)) {gNativePreview = 0;return;}
+        if (pressed & DPAD_UP) sClimbPreviewDirection = DPAD_UP;
+        if (pressed & DPAD_DOWN) sClimbPreviewDirection = DPAD_DOWN;
+        sClimbPreviewPos = gFieldState->actor.fieldPosition;
+        sClimbPreviewPos.z = ((player->targetZ >> 12) +
+            (sClimbPreviewDirection == DPAD_UP ? -1 : 1)) << 12;
+        gNativeRouteCost = sClimbPreviewDirection ? 1 : -1;
+        if ((pressed & A_BUTTON) && gNativeRouteCost == 1 && gNativeMoveLeft) {
+            gNativeMoveLeft--;
+            gNativeDirection = sClimbPreviewDirection;
+            gNativeCommands++;
+            gNativePreview = 0;
+            gNativeBusy = 4;
+            sFrames = 0;
+        }
+        return;
+    }
     if (!gNativePreview) {
         gNativePreview = 1;
         sCursorX = sCursorY = 0;
@@ -921,6 +944,13 @@ static void NativePreviewDraw(void) {
     s16 x, y;
     FldPos* pos;
     if (!gNativePreview || !sValueTiles || !sValuePalette) return;
+    if (gNativePreview == 2) {
+        x = (sClimbPreviewPos.x - gFieldState->x) >> 8;
+        y = (sClimbPreviewPos.y + sClimbPreviewPos.z - gFieldState->y) >> 8;
+        DrawSprite(x, y, gCardValueDigitFrames[1], sValueTiles,
+            sValuePalette, NULL, 0, 0);
+        return;
+    }
     count = gNativeRouteCost > 0 && gNativeRouteCost <= gNativeMoveLeft ? gNativeRouteCost : 0;
     for (i = 0; i < (count ? count : 1); i++) {
         node = count ? sPlayerPath[i] : (sCursorY + 4) * 9 + sCursorX + 4;
@@ -1110,15 +1140,15 @@ static void NativeUpdate(void) {
     }
     if (!gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
         !(gFieldState->flags & (FIELD_FLAG_FREEZE_PLAYER | FIELD_FLAG_ROOM_CREATE))) {
-        if (player->state == FLD_STATE_CLIMB && (pressed & DPAD_ANY) && gNativeMoveLeft) {
+        if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY) &&
+            (player->state == FLD_STATE_GROUND || player->state == FLD_STATE_CLIMB))) {
+            NativePreviewInput(pressed);
+        } else if (player->state == FLD_STATE_CLIMB && (pressed & DPAD_ANY) && gNativeMoveLeft) {
             gNativeDirection = raw & DPAD_ANY;
             gNativeMoveLeft--;
             gNativeCommands++;
             gNativeBusy = 4;
             sFrames = 0;
-        } else if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY) &&
-            player->state == FLD_STATE_GROUND)) {
-            NativePreviewInput(pressed);
         } else if ((raw & (START_BUTTON | SELECT_BUTTON)) == (START_BUTTON | SELECT_BUTTON) &&
             (pressed & (START_BUTTON | SELECT_BUTTON))) {
             NativeWriteSuspend();

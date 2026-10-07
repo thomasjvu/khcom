@@ -99,3 +99,9 @@ creation gathers the party at the entry door, preserving the selected member,
 health, remaining movement/actions and Guard. Only ending a turn renews budgets.
 
 Open doors belong to the generated run. Sword swings beside them keep the room intact; walk through the doorway to travel.
+
+While attached to native stairs, hold L and press Up or Down to preview the
+next sixteen-pixel vertical segment. The original value digit marks the
+vertical destination. A confirms for one movement point; B cancels without
+dropping. Outside a preview, B retains the normal drop action. These are
+single-segment previews, not combined walking/climbing routes.
