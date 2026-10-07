@@ -588,3 +588,20 @@ reward choices, route previews and terminal states.
 on an explicitly positioned enemy and actual native resolution afterward.
 This fixture covers the basic melee sleight; separate Fire-area boundary and
 multiple-target scenarios remain needed. The 0.15 patch remains unchanged.
+
+Sleight boundary validation: `tools/tactics_sleight_smoke.py ELF OUTPUT` also
+generates `sleight-area.lua`. The explicit two-original-enemy fixture in
+`sleight-boundary-evidence/sleight-area.txt` passes 11 checks: exact Fire range
+144 and height 24 boundaries, out-of-range/height rejection, melee range 64,
+two-target preview/resolution equality, preserved inspection budgets and
+post-resolution preview clearing. It changes card types/values and enemy
+positions explicitly to isolate these cases; stock and attack use native
+controller input.
+
+The route-change input-only full-run regression completed in defeat at frame
+52,280 in Agrabah, with eight kills and 485 movement commands. Evidence:
+`swept-route-full-run-evidence/traversal.txt` and its hash metadata, for ROM
+SHA-256 `404bb62955d9090a7e39145be51fa2054062e2cd8be3ef05e5fb7476683ef7b1`.
+This run precedes the sleight preview change. It provides navigation/combat
+failure evidence, not a victory or proof that the run is unwinnable. Current
+source still needs a complete-run pass and reproducibility investigation.

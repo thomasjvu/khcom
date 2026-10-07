@@ -11,3 +11,5 @@ out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
 keys=('gNativeSleightDamage','gNativeEnemyHp','gNativeDeck','gNativeSleights','gNativeActionLeft','gNativeSaveNotice','gNativeKills','gFieldState','sEnemyTasks')
 header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 (out/'sleights.lua').write_text(header+Path('tests/tactics_sleight_smoke.lua').read_text().replace('@OUTPUT@',str(out)))
+
+(out/'sleight-area.lua').write_text(header+Path('tests/tactics_sleight_area_smoke.lua').read_text().replace('@OUTPUT@',str(out)))
