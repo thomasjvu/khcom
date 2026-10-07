@@ -97,3 +97,5 @@ full area/range overlays, reward choices, canonical bosses, complete
 input-only run testing and hardware validation remain unfinished. Native room
 creation gathers the party at the entry door, preserving the selected member,
 health, remaining movement/actions and Guard. Only ending a turn renews budgets.
+
+Open doors belong to the generated run. Sword swings beside them keep the room intact; walk through the doorway to travel.

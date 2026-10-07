@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The current **0.12 native tactical-jump development build** runs in the original 2.5D engine with full
+The current **0.13 native encounter development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -28,6 +28,8 @@ movement point per sixteen-pixel climb segment, with exact attached-state suspen
 Door travel preserves the selected member, every party budget and active Guard;
 backtracking cannot refill turn resources. One B press commits a native full-height
 jump; moving jumps have a world-space travel budget and safely hand off to stairs.
+Sword hits on open doors preserve the generated room and normal walk-through travel.
+Tactical enemies begin on their assigned floor, including the original flying roles.
 
 - [Controls and current scope](tactics/PLAY.md)
 - [Build and verification](tactics/BUILD.md)

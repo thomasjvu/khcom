@@ -6,6 +6,7 @@ from pathlib import Path
 HOOKS = {
     'MapGmkFindSpot': 'NativeGmkFindSpot',
     'MapGmk01Open': 'NativeChestOpen',
+    'MapDoorWaitHit': 'NativeDoorWaitHit',
     'MapEnmStartBattle': 'NativeEnemyContact',
     'GetKeyReleaseTime': 'NativeGetKeyReleaseTime',
     'GetMapFloorDef': 'NativeGetMapFloorDef',

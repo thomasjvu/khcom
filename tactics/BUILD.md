@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.12-jumps.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.12-jumps.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.13-encounters.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.13-encounters.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -296,3 +296,72 @@ driver does not plan an intermediate height change between those platforms.
 Evidence: `footprint-three-world-evidence/traversal.txt`. This is a navigation
 failure, not a demonstrated impossible room; complete-run verification remains
 pending.
+
+
+Door synthesis regression: the original `MapDoorWaitHit` callback accepts sword
+hits even on already open ordinary doors. That starts a room-card UI which the
+native tactics update does not run, leaving `FIELD_FLAG_ROOM_CREATE` set and
+Sora in `FldSoraWaitRoomCreate`. The tactics-only hook now returns idle from
+that callback. Door graphics, open flags and native walking transitions remain
+original; the seeded graph owns room creation.
+
+`tools/tactics_door_hit_smoke.py ELF OUTPUT` generates a 14-check fixture. It
+moves an original open door object beside the actual spawn, moves enemies out
+of sword range, and uses A to run the native sword animation and hitbox. It
+checks synthesis stays closed, controller recovery, exact action cost and room
+identity, restores the door object, then crosses its actual map exit using
+movement input. This is an explicit position fixture. In
+`door-object-old-evidence`, restoring only the original callback's first eight
+ROM bytes reproduces five failures, including synthesis opening and subsequent
+travel failing. The same fixture passes all 14 checks with the hook in
+`door-object-hit-evidence`.
+
+The read-only traversal driver now labels connected terrain regions separately
+at each height and builds directed transitions from original wall tops/bases.
+A shortest region path can climb and descend between disconnected platforms
+at equal height. Local native walking previews still validate actual commands;
+this global planner is emulator QA infrastructure, not yet a player route
+preview. It uses no emulated RAM writes. `lua
+tests/tactics_traversal_regions_test.lua` checks disconnected equal-height
+regions, cycles, one-way drops and selection among equally short connectors.
+The driver reports script exceptions and verifies the active native mode and
+update function so an original-menu transition cannot count as a run pass.
+
+
+Tactical spawn regression: vanilla airborne spawns enter at fixed `z=-160`
+for entrance AI which tactics intentionally does not run. Fresh Red Nocturnes
+and Darkballs could remain unreachable by Fire and local enemy movement.
+Native spawns now begin at their assigned ground. Cached format-8 actors of
+these two kinds at exactly the old ceiling entrance are repaired on restore;
+other saved positions, horizontal coordinates, standing surface and damage
+remain unchanged. No save-format change is required.
+
+`tools/tactics_spawn_smoke.py ELF OUTPUT` generates six checks: the seeded
+entry encounter contains both actors on their floors, includes a Red Nocturne,
+and a real selected Fire card defeats it, awards one kill and spends an action.
+The fixture places Sora next to the actor and moves the other enemy away. All
+six pass in `ground-spawn-evidence`; the old ceiling build fails three in
+`ceiling-spawn-old-evidence`. `--legacy` constructs an old ceiling encounter,
+writes a real suspend with Start+Select, resets the emulator and verifies the
+repair retains the original horizontal coordinates and partial damage. It
+writes `legacy-spawn.txt`.
+
+
+Final 0.13 verification: 43 emulator checks pass on the final ROM: native
+commands (17), door hit/travel (14), fresh spawn/Fire (6), legacy suspend repair
+(6). Evidence directories are `encounter-final-native-evidence`,
+`encounter-final-door-evidence`, `encounter-final-spawn-evidence`, and
+`legacy-spawn-repair-evidence`. The 21,328-byte BPS patch reconstructs the
+final ROM byte-for-byte. The strict host suite, four BPS tests and region-graph
+Lua checks pass. Twelve forward/back native door checks and ten encounter
+persistence checks also passed before the narrowly scoped legacy repair.
+
+The ceiling-spawn fix changes actual combat: the input-only single-member
+replay reaches Agrabah room seven, then loses at frame 44,941 with nine kills
+(`tactical-spawn-three-world-evidence`). A new driver policy uses native threat
+previews, selects Goofy, plays an available Guard, ends the turn, waits for the
+real enemy phase and returns control to Sora. It skips unavailable party
+members and preserves native attached-stair input. `lua
+tests/tactics_traversal_party_test.lua` checks that input policy against a
+read-only memory mock. This is not a native gameplay rule change, damage
+adjustment or a complete-run pass.

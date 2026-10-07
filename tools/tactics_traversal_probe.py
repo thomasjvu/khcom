@@ -21,12 +21,12 @@ for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).spli
     words = line.split()
     if len(words) == 3:
         names[words[2]] = int(words[0], 16)
-keys = ('gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
-        'gTaskDescMapDoor', 'gNativeBusy', 'gNativePreview',
+keys = ('gCurrentMode', 'gCurrentModeUpdate', 'gPendingMode', 'sNativeMode', 'NativeUpdate', 'gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
+        'gTaskDescMapDoor', 'gNativeBusy', 'gNativeEnemyFrames', 'gNativeParty', 'gNativeGuard', 'gNativeThreats', 'sPartyAction', 'gNativePreview',
         'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing',
         'sRoutePos', 'sCursorX', 'sCursorY', 'gMapRoomState', 'sMapCells', 'sMapPlatforms', 'gCellMasks', 'sEnemyTasks', 'gNativeDeck', 'gNativePartyHealth', 'gNativeKills', 'gNativeResult', 'sColliderPoolObstacle', 'gNativeFloor')
 out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
 header = f'local goalRoom={a.rooms}\nlocal goalFrames={a.frames}\nlocal goalWorlds={a.worlds or 0}\n' + ''.join(f'local {key}=0x{names[key]:08x}\n' for key in keys)
 (out / 'traversal.lua').write_text(header + Path(
-    'tests/tactics_traversal_probe.lua').read_text().replace('-- @GEOMETRY@', Path('tests/tactics_traversal_geometry.lua').read_text()).replace('@OUTPUT@', str(out)))
+    'tests/tactics_traversal_probe.lua').read_text().replace('-- @GEOMETRY@', Path('tests/tactics_traversal_geometry.lua').read_text()).replace('-- @REGIONS@', Path('tests/tactics_traversal_regions.lua').read_text()).replace('@OUTPUT@', str(out)))

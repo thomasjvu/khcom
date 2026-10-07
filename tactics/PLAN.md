@@ -20,6 +20,8 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Seeded custom platform parameters drive CoM's procedural room builder.
 - Traverse Town, Agrabah and Castle Oblivion tiles/palettes/props load normally.
 - Original Sora and field enemy animation, collision, camera and climbing tasks.
+- Tactical flying-role spawns begin on their assigned floor; old fixed-ceiling format-8 encounters are repaired on resume while retaining damage and horizontal position.
+- Open-door sword hits no longer start room synthesis or lock the native controller; reproduced against the original callback and verified by native sword/travel fixtures.
 - Committed full-height native jumps, bounded world-space travel from rest and safe jump-to-stair handoff; input-only height/landing/cost tests.
 - Budgeted 16-pixel stair segments, native ascent/descent/drop, safe party switching and exact stair suspend/resume.
 - Selectable Sora/Donald/Goofy with individual movement/action budgets and original sprites.

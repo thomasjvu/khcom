@@ -42,7 +42,10 @@ local function door()
  end
 end
 -- @GEOMETRY@
+-- @REGIONS@
 local function stairGoal(tx,ty,tz)
+ local goal=terrainGoal(tx,ty,tz)
+ if goal then return goal.x,goal.y,goal.z,goal.key end
  local x,y,z=pos()
  -- Prop tops can share the height of a different map platform. Plan the
  -- next map connection from the underlying ground rather than the prop top.
@@ -114,6 +117,35 @@ local function combatInput()
  if emu:read8(gNativeDeck+73)~=wanted then return 256 end
  return 1
 end
+local endingTurn=false
+local returningToSora=false
+local function turnKey()
+ if returningToSora then
+  if emu:read16(gNativeEnemyFrames)>0 then return 0 end
+  if emu:read16(gNativeParty)~=0 then return 4 end
+  returningToSora=false;return 0
+ end
+ local guard=nil;local slot=0
+ for i=0,emu:read8(gNativeDeck+72)-1 do
+  if emu:read8(gNativeDeck+48+i)==1 then
+   if emu:read8(gNativeDeck+i)==3 and not guard then guard=slot end
+   slot=slot+1
+  end
+ end
+ local p=emu:read32(gFieldState);local task=emu:read32(emu:read32(p+0x94));local state=emu:read32(emu:read32(task+4)+0x94)
+ local threat=emu:read16(gNativeThreats)+emu:read16(gNativeThreats+2)+emu:read16(gNativeThreats+4)
+ local party=emu:read16(gNativeParty)
+ local action=party==2 and emu:read16(gNativeActionLeft) or emu:read16(sPartyAction+4)
+ if state==0 and threat>0 and guard and emu:read16(gNativeGuard)==0 and emu:read8(gNativePartyHealth+2)>0 and action>0 then
+  if party~=2 then return 4 end
+  if emu:read8(gNativeDeck+73)~=guard then return 256 end
+  out:write('GOOFY GUARD frame='..f..' threat='..threat..'\n');out:flush();return 1
+ end
+ endingTurn=false;returningToSora=true;return 8
+end
+local function requestTurn()
+ endingTurn=true;best=nil;index=1;emu:setKeys(turnKey());phase='release';nextFrame=f+4
+end
 local function finish(ok,why)
  emu:setKeys(0)
  local x,y,z=pos()
@@ -123,6 +155,7 @@ local function finish(ok,why)
   if (emu:read16(a)&32)~=0 or (emu:read8(a+2)>=3 and emu:read8(a+2)<=6 and signed(emu:read32(a+8))~=-1048576 and signed(emu:read32(a+12))~=1048576) then out:write('EDGE '..cx..' '..cy..' '..emu:read8(a+2)..' '..signed(emu:read32(a+8))..' '..signed(emu:read32(a+12))..'\n') end
  end end
  local field=emu:read32(gFieldState);local task=emu:read32(emu:read32(field+0x94));local w=emu:read32(task+4)
+ out:write('NATIVE busy='..emu:read16(gNativeBusy)..' flags='..string.format('%x',emu:read32(field+0x70))..' update='..string.format('%x',emu:read32(gCurrentModeUpdate))..' timer='..emu:read32(w+0x98)..' taskUpdate='..string.format('%x',emu:read32(task+0x20))..'\n')
  out:write('ACTOR state='..emu:read32(w+0x94)..' ground='..signed(emu:read32(field+0x24))..' angle='..emu:read8(field+0x2c)..' collision='..emu:read8(w+0x64)..' other='..emu:read32(w+0x6c)..'\n')
  for cy=13,21 do for cx=5,9 do local a=cells+(cy*cols+cx)*32;out:write('CELL '..cx..' '..cy..' '..emu:read8(a+2)..' '..signed(emu:read32(a+8))..' '..signed(emu:read32(a+12))..'\n') end end
  local platforms=emu:read32(sMapPlatforms)
@@ -132,11 +165,15 @@ local function finish(ok,why)
  out:flush();out:close();done=true
  emu:screenshot('@OUTPUT@/final.png')
 end
-callbacks:add('frame',function()
+local function replayFrame()
  f=f+1
  if done or f<180 then return end
  local room=emu:read8(gMapFloorState+6)
  local world=emu:read16(gNativeFloor)
+ if emu:read32(gCurrentMode)~=sNativeMode or (emu:read32(gCurrentModeUpdate)&0xfffffffe)~=NativeUpdate then
+  out:write('MODE current='..string.format('%x',emu:read32(gCurrentMode))..' update='..string.format('%x',emu:read32(gCurrentModeUpdate))..' pending='..string.format('%x',emu:read32(gPendingMode))..' busy='..emu:read16(gNativeBusy)..'\n')
+  finish(false,'left native tactics mode');return
+ end
  if goalWorlds>0 and world>=goalWorlds and (goalWorlds<3 or emu:read16(gNativeResult)==2) then finish(true,'completed '..goalWorlds..' worlds through native input');return end
  if goalWorlds==0 and room>=goalRoom then finish(true,'walked from native spawn to room '..room);return end
  if world~=previousWorld then
@@ -145,7 +182,7 @@ callbacks:add('frame',function()
  end
  if room~=previousRoom then
   out:write('ROOM '..room..' frames='..f..'\n');out:flush()
-  previousRoom=room;best=nil;visits={};index=1;phase='release';nextFrame=f+60
+  previousRoom=room;terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+60
  end
  if emu:read16(gNativeResult)~=0 then finish(false,'run ended before traversal goal');return end
  if f>goalFrames then finish(false,'bounded explorer did not reach '..(goalWorlds>0 and ('world '..goalWorlds) or ('room '..goalRoom)));return end
@@ -153,8 +190,11 @@ callbacks:add('frame',function()
  emu:setKeys(0)
  if emu:read16(gNativeBusy)~=0 then nextFrame=f+8;return end
  if phase=='release' then phase='scan';nextFrame=f+8;return end
+ if endingTurn or returningToSora then
+  emu:setKeys(turnKey());best=nil;index=1;phase='release';nextFrame=f+4;return
+ end
  if emu:read16(gNativeMoveLeft)==0 and emu:read16(gNativePreview)==0 then
-  emu:setKeys(8);phase='release';nextFrame=f+4;return
+  requestTurn();return
  end
  local dx,dy,dz=door()
  if not dx then finish(false,'forward door missing');return end
@@ -163,7 +203,7 @@ callbacks:add('frame',function()
   dx,dy,dz=ex,ey,ez
   local x,y,z=pos()
   if phase=='scan' and index==1 and math.abs(x-ex)+math.abs(y-ey)<32768 and math.abs(z-ez)<=6144 and emu:read16(gNativeActionLeft)==0 then
-   emu:setKeys(8);phase='release';nextFrame=f+4;return
+   requestTurn();return
   end
  end
  if emu:read16(gNativeClimbing)~=0 then
@@ -175,7 +215,7 @@ callbacks:add('frame',function()
   local key=combatInput()
   if key then emu:setKeys(key);phase='release';nextFrame=f+4;return end
   if (visits[cell(x,y,z)] or 0)>=3 and emu:read16(gNativeActionLeft)==0 then
-   emu:setKeys(8);phase='release';nextFrame=f+4;return
+   requestTurn();return
   end
   if (visits[cell(x,y,z)] or 0)>=3 and emu:read16(gNativeActionLeft)>0 and emu:read16(gNativeMoveLeft)>0 then
    local tx,ty=stairGoal(dx,dy,dz)
@@ -192,7 +232,7 @@ callbacks:add('frame',function()
  dx,dy,dz,stair=stairGoal(dx,dy,dz)
  local px,py=pos()
  if phase=='scan' and stair and math.abs(px-dx)<(stair~=64 and stair~=128 and 4096 or 2048) and math.abs(py-dy)<(stair~=64 and stair~=128 and 4096 or 4096) then
-  if (stair&2)~=0 and emu:read16(gNativeActionLeft)==0 then emu:setKeys(8);phase='release';nextFrame=f+4;return end
+  if (stair&2)~=0 and emu:read16(gNativeActionLeft)==0 then requestTurn();return end
   emu:setKeys(stair);commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
  end
  if phase=='scan' then
@@ -233,5 +273,12 @@ callbacks:add('frame',function()
   local x,y,z=pos();local k=best.key;visits[k]=(visits[k] or 0)+1
   out:write('STEP '..commands..' '..x..' '..y..' '..z..'\n');out:flush()
   best=nil;phase='release';nextFrame=f+4
+ end
+end
+callbacks:add('frame',function()
+ if done then return end
+ local ok,err=pcall(replayFrame)
+ if not ok then
+  emu:setKeys(0);out:write('ERROR frame='..f..' '..tostring(err)..'\n');out:flush();done=true
  end
 end)

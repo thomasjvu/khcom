@@ -328,6 +328,12 @@ u8 NativeGmkFindSpot(FldPos* pos, u8 finder) {
     return 0;
 }
 u8 NativeGetKeyReleaseTime(u16 key) { return 255; }
+u8 NativeDoorWaitHit(MapDoorWork* work) {
+    /* The generated graph already owns every room. Native doors also accept
+     * sword hits after opening, which would start an unhandled synthesis menu. */
+    (void)work;
+    return 1;
+}
 const MapFloorDef* NativeGetMapFloorDef(u8 floor) { return &sFloorDef; }
 u8* NativeGetMapRoomLinks(u8 room) {
     if (room < TAC_WORLD_ROOMS) return sWorld.links[room];
@@ -647,6 +653,10 @@ static void NativeInit(s32 arg) {
         gNativeEnemyCharge[i] = sSuspend.roomCached[gMapFloorState.room] ?
             sSuspend.encounters[gMapFloorState.room][i].kind >> 3 : 0;
         MapEnmSetupArgs(&enemy, gMapEnmDefs[kind]);
+        /* Airborne vanilla spawns enter from z=-160 and their real-time AI
+         * lowers them later. Tactical actors do not run that entrance AI;
+         * begin on the assigned standing surface so every role is reachable. */
+        enemy.pos.z = enemy.pos.ground;
         sEnemyTasks[i] = TaskCreate(&gFieldState->tasks4, gMapEnmDefs[kind]->desc, &enemy);
         gNativeEnemyHp[i] = FieldEnemyHp(kind, gNativeFloor);
     }
@@ -705,6 +715,11 @@ static void NativeInit(s32 arg) {
             MapEnmWork* work = sEnemyTasks[i]->work;
             FieldEncounter* record = &sSuspend.encounters[gMapFloorState.room][i];
             for (j = 0; j < 4; j++) ((s32*)&work->obj.fieldPosition)[j] = record->pos[j] * 256;
+            /* Repair the old fixed ceiling entrance in format-8 encounters;
+             * ordinary saved positions and partial damage remain exact. */
+            if ((gNativeEnemyKind[i] == 1 || gNativeEnemyKind[i] == 3) &&
+                work->obj.fieldPosition.z == -0xA000)
+                work->obj.fieldPosition.z = work->obj.fieldPosition.ground;
             gNativeEnemyHp[i] = record->hp;
             ColliderSetPosition(&work->collider, work->obj.fieldPosition.x,
                 work->obj.fieldPosition.y, work->obj.fieldPosition.z);
