@@ -557,3 +557,14 @@ checks incorrectly assumed character bank zero and are superseded.
 `hud-cure-regression-evidence/party.txt` also passes all 44 party/Cure checks.
 Screenshots show active HP 037 and independent party HP after the fixture.
 The packaged 0.15 ROM remains unchanged.
+
+Route actor sweep: party and enemy occupancy is checked at quarter-segment
+samples as well as destinations, shared by player preview and enemy routes.
+Samples allow leaving an actor overlap already present at the segment origin;
+destinations must still be unoccupied. This preserves coincident entrance
+party movement. The first implementation blocked entrance movement; its
+failed fixture is retained in `swept-actor-route-evidence`. The corrected
+input-only walking fixture passes in `swept-actor-route-fixed-evidence`,
+including multi-segment execution and budget rejection. Strict host tests
+and ROM build pass. A dedicated enemy crossing scenario and full-run
+regression remain required; quarter samples are not a continuous sweep.

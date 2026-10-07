@@ -887,10 +887,30 @@ static int NativeRouteClear(FldPos pos) {
     if (IsFldPosBlocked(&pos) || GetFldPosGround(&pos) != pos.ground) return 0;
     return 1;
 }
+static int NativeRouteActorsClear(const FldPos* pos, const FldPos* origin) {
+    MapEnmWork* other;
+    u8 i;
+    for (i = 0; i < 3; i++) if (gNativePartyHealth.hp[i] && (!sRoutePlayer || i != gNativeParty) &&
+        NativeAbs(pos->x - sPartyPos[i].x) < (12 << 8) &&
+        NativeAbs(pos->y + pos->z - sPartyPos[i].y - sPartyPos[i].z) < (6 << 8) &&
+        NativeAbs(pos->z - sPartyPos[i].z) < (16 << 8) &&
+        (!origin || NativeAbs(origin->x - sPartyPos[i].x) >= (12 << 8) ||
+         NativeAbs(origin->y + origin->z - sPartyPos[i].y - sPartyPos[i].z) >= (6 << 8) ||
+         NativeAbs(origin->z - sPartyPos[i].z) >= (16 << 8))) return 0;
+    for (i = 0; i < 6; i++) if (sEnemyTasks[i] && sEnemyTasks[i] != sRouteActor) {
+        other = sEnemyTasks[i]->work;
+        if (NativeAbs(pos->x - other->obj.fieldPosition.x) < (12 << 8) &&
+            NativeAbs(pos->y + pos->z - other->obj.fieldPosition.y - other->obj.fieldPosition.z) < (6 << 8) &&
+            NativeAbs(pos->z - other->obj.fieldPosition.z) < (16 << 8) &&
+            (!origin || NativeAbs(origin->x - other->obj.fieldPosition.x) >= (12 << 8) ||
+             NativeAbs(origin->y + origin->z - other->obj.fieldPosition.y - other->obj.fieldPosition.z) >= (6 << 8) ||
+             NativeAbs(origin->z - other->obj.fieldPosition.z) >= (16 << 8))) return 0;
+    }
+    return 1;
+}
 static int NativeRouteEdge(int from, int to, void* context) {
     FldPos probe;
-    MapEnmWork* other;
-    u8 i, sample;
+    u8 sample;
     (void)context;
     if (!sRouteValid[to] ||
         NativeAbs(sRoutePos[to].z - sRoutePos[from].z) > (sRoutePlayer ? 0 : (16 << 8))) return 0;
@@ -900,18 +920,9 @@ static int NativeRouteEdge(int from, int to, void* context) {
         probe = sRoutePos[from];
         probe.x += (sRoutePos[to].x - probe.x) * sample / 4;
         probe.y += (sRoutePos[to].y + sRoutePos[to].z - probe.y - probe.z) * sample / 4;
-        if (!NativeRouteClear(probe)) return 0;
+        if (!NativeRouteClear(probe) || !NativeRouteActorsClear(&probe, &sRoutePos[from])) return 0;
     }
-    for (i = 0; i < 3; i++) if (gNativePartyHealth.hp[i] && (!sRoutePlayer || i != gNativeParty) &&
-        NativeAbs(sRoutePos[to].x - sPartyPos[i].x) < (12 << 8) &&
-        NativeAbs(sRoutePos[to].y + sRoutePos[to].z - sPartyPos[i].y - sPartyPos[i].z) < (6 << 8) &&
-        NativeAbs(sRoutePos[to].z - sPartyPos[i].z) < (16 << 8)) return 0;
-    for (i = 0; i < 6; i++) if (sEnemyTasks[i] && sEnemyTasks[i] != sRouteActor) {
-        other = sEnemyTasks[i]->work;
-        if (NativeAbs(sRoutePos[to].x - other->obj.fieldPosition.x) < (12 << 8) &&
-            NativeAbs(sRoutePos[to].y + sRoutePos[to].z - other->obj.fieldPosition.y - other->obj.fieldPosition.z) < (6 << 8) &&
-            NativeAbs(sRoutePos[to].z - other->obj.fieldPosition.z) < (16 << 8)) return 0;
-    }
+    if (!NativeRouteActorsClear(&sRoutePos[to], NULL)) return 0;
     return 1;
 }
 static void NativeBuildRoute(FldPos origin, Task* task) {

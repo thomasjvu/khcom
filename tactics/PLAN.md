@@ -82,7 +82,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
    reachability for every generated room, then regenerate invalid rooms using
    a bounded retry policy. Current graph tests verify room connectivity, not
    complete physical navigation inside each room.
-2. **Authoritative field combat.** Extend the bounded enemy route search with swept actor collision checks and additional world-specific behaviors. Extend current damage and charge warnings into full area/range overlays.
+2. **Authoritative field combat.** Party/enemy occupancy is now sampled along route edges with overlap-exit handling. Validate dedicated enemy crossings, extend to continuous swept collision, and add world-specific behaviors. Extend current damage and charge warnings into full area/range overlays.
    Independent party HP and partial encounter persistence are implemented. Keep animations
    running during input wait without advancing authoritative actions.
 3. **Port the tested card systems.** Fire and Cure now support explicit enemy/party cycling with shared preview/resolution validation; Cure also projects capped recovery and revival HP. Extend targeting to other effects and add richer named sleight recipes.
