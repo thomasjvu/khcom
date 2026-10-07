@@ -612,3 +612,12 @@ Climb prompt polish: attached-stair previews now show `A CLIMB B CANCEL` or
 (save/reset, exact level movement, budget rejection, bounded descent and
 landing/party control). The Up preview screenshot was visually inspected.
 The fixture generator also captures the Down preview for future review.
+
+Reward control edge cases: the reward/save tail now additionally verifies
+Left/Right wraparound, full-deck browsing without granting a card, B keeping
+the pending reward open, and later A input not duplicating healing/cards or
+chest count. `reward-control-final-evidence/reward-save.txt` passes 31 checks
+on the current ROM. The first attempt used incorrect post-reset selection
+expectations; those failed assertions are preserved in `reward-control-evidence`.
+Capacity/pending-state fixtures explicitly write emulated state; this is
+focused native control QA, not input-only chest exploration evidence.
