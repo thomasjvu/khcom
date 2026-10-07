@@ -41,6 +41,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Bounded HUD font tile allocation; mutable ROM data is rejected by the linker.
 - Original chest animation with one-time healing/card reward; safe placement fallback.
 - Three-world progression, defeat, run-clear and retry with a new seed.
+- Room/world transitions retain selected member, all party turn budgets and Guard; actual native forward/back door crossings are emulator checked.
 - Appended code and RAM, bounded Thumb hooks; original ROM assets keep their addresses.
 - Asset-free rules/save/graph tests and local mGBA smoke/scenario replays.
 

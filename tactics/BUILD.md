@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.8-climbing.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.8-climbing.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.9-turns.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.9-turns.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -187,3 +187,15 @@ cover one-segment held input, ascent/descent costs, exhaustion, safe selection,
 attached suspend/reset with exact vertical position, turn renewal and native
 drop/landing. Save format 8 stores the stair target and facing. This does not
 prove every generated room is traversable or add climb edges to the route cursor.
+
+Turn persistence: `tools/tactics_transition_smoke.py ELF OUTPUT` generates
+`transitions.lua`, with 17 checks for selected member, per-member budgets,
+Guard, health, backtracking, suspend/reset, phase renewal, world advancement
+and fresh-run initialization. Room changes are explicit fixtures.
+`tools/tactics_door_smoke.py ELF OUTPUT` generates `doors.lua`, with 12 checks
+that place Donald in front of actual generated doors and then cross them
+forward and back through native diagonal movement, collision and door lookup.
+It never writes room-transition flags. Neither test is an input-only full run.
+The 13 world scenarios now end the turn in the reward room before opening its
+chest, since entering that room no longer restores a spent action. Save format
+8 remains compatible with the 0.8 climbing development build.

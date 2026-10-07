@@ -59,7 +59,8 @@ and Goofy's guard use original animation assets. Zero cards bypass the value
 check with weaker melee damage. Values below an enemy's threshold are broken.
 
 Walk through doors to explore twelve generated rooms per world, including side
-branches. Strike chests with a Kingdom Key card to open them: each restores
+branches. Door travel and world advancement preserve the current party turn.
+Backtracking gives no free movement, actions or Guard reset. Strike chests with a Kingdom Key card to open them: each restores
 12 HP to every party member and adds one seeded card, up to a 24-card deck. Chest flags and room enemy
 counts persist. World groups mix Shadow, ranged Red Nocturne, Darkball and
 Black Fungus. Room 7 includes a Large Body guardian with 40/48/56 HP. Within
@@ -83,4 +84,5 @@ stair controller’s target/facing. Format 7 and earlier saves are incompatible.
 This is still a development build. Physical room reachability guarantees, climb/jump routes and
 full area/range overlays, reward choices, canonical bosses, complete
 input-only run testing and hardware validation remain unfinished. Native room
-creation currently resets party positions/budgets to the entry door.
+creation gathers the party at the entry door, preserving the selected member,
+health, remaining movement/actions and Guard. Only ending a turn renews budgets.

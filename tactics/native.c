@@ -103,6 +103,8 @@ static void NativePartyPose(u8 member) {
 }
 static FldPos sPartyPos[3];
 static u16 sPartyMove[3], sPartyAction[3];
+static u16 sCarryMove[3], sCarryAction[3];
+static u8 sCarryTurn, sCarryParty, sCarryGuard;
 u16 gNativeParty;
 FieldParty gNativePartyHealth;
 static void* sCardTiles[4];
@@ -137,6 +139,18 @@ u16 gNativeTurn;
 static ObjPalette* sCardPalettes[4];
 static const CardDef* sCards[4];
 u16 gNativeGuard;
+static void NativeCarryTurn(void) {
+    u8 i;
+    sPartyMove[gNativeParty] = gNativeMoveLeft;
+    sPartyAction[gNativeParty] = gNativeActionLeft;
+    for (i = 0; i < 3; i++) {
+        sCarryMove[i] = sPartyMove[i];
+        sCarryAction[i] = sPartyAction[i];
+    }
+    sCarryParty = gNativeParty;
+    sCarryGuard = gNativeGuard;
+    sCarryTurn = 1;
+}
 static void NativePartyInit(void) {
     u16 i, j;
     static const u16 kinds[4] = {CARD_KIND_KINGDOM_KEY, CARD_KIND_FIRE, CARD_KIND_CURE, CARD_KIND_GOOFY};
@@ -642,6 +656,20 @@ static void NativeInit(s32 arg) {
     gNativePreview = 0;
     sPathLength = 0;
     NativePartyInit();
+    if (sCarryTurn) {
+        for (i = 0; i < 3; i++) {
+            sPartyMove[i] = sCarryMove[i];
+            sPartyAction[i] = sCarryAction[i];
+        }
+        gNativeParty = sCarryParty;
+        gNativeGuard = sCarryGuard;
+        if (gNativeGuard == 2) NativePartyPose(2);
+        gGameState.hp = gNativePartyHealth.hp[gNativeParty];
+        gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
+        gNativeMoveLeft = sPartyMove[gNativeParty];
+        gNativeActionLeft = sPartyAction[gNativeParty];
+        sCarryTurn = 0;
+    }
     if (sResume) {
         u8 j;
         for (i = 0; i < 3; i++) {
@@ -1012,6 +1040,7 @@ static void NativeUpdate(void) {
     if (gNativeResult && (pressed & SELECT_BUTTON)) {
         gNativeResult = 0;
         sTerminalSaveCleared = 0;
+        sCarryTurn = 0;
         gNativeFloor = 0;
         gNativeSeed += 0x9e3779b9;
         gNativeKills = gNativeChests = 0;
@@ -1223,12 +1252,14 @@ static void NativeUpdate(void) {
                     gFieldState->flags &= ~FIELD_FLAG_EXIT_ROOM;
                 }
                 else {
+                    NativeCarryTurn();
                     NativeBuildWorld();
                     ModeRequest(&sNativeMode, 0);
                 }
             } else gFieldState->flags &= ~FIELD_FLAG_EXIT_ROOM;
         } else if (gMapRoomState->doorRoom < TAC_WORLD_ROOMS) {
             NativeCaptureEncounter();
+            NativeCarryTurn();
             SetCurrentMapRoom(gMapRoomState->doorRoom, gMapRoomState->doorSide);
             ModeRequest(&sNativeMode, 0);
         } else gFieldState->flags &= ~FIELD_FLAG_EXIT_ROOM;

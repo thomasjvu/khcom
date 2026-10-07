@@ -28,9 +28,10 @@ callbacks:add('frame',function()
  if f==270 then check(emu:read32(gNativeKills)>0,'native sword hit removes field enemy');transition(9) end
  if f==390 then
   check(emu:read8((gMapFloorState+6))==9,'room transition uses generated graph destination')
-  emu:screenshot('@OUTPUT@/chest-room.png')
+  emu:screenshot('@OUTPUT@/chest-room.png');emu:setKeys(8)
  end
- if f==400 then
+ if f==394 then emu:setKeys(0) end
+ if f==460 then
   local n=emu:read32(field()+0x80)
   local chest=0
   while n~=0 do
@@ -46,39 +47,39 @@ callbacks:add('frame',function()
    emu:write8(p+0x2c,0);emu:write16((gGameState+0x32),40);emu:write8(gNativeDeck+73,3);emu:setKeys(1)
   end
  end
- if f==404 then emu:setKeys(0) end
- if f==470 then
+ if f==464 then emu:setKeys(0) end
+ if f==530 then
   check(emu:read8(gNativeDeck+72)==13,'chest adds a real card to the persistent deck')
   check(emu:read16(gNativeChests)==1,'native chest opens and awards reward once')
   check(emu:read16((gGameState+0x32))==52,'chest restores persistent run HP')
   emu:screenshot('@OUTPUT@/chest-open.png')
   transition(7)
  end
- if f==590 then
+ if f==650 then
   -- Fixture clears exit encounter to exercise advancement, not a claim of full-run input QA.
   emu:write8(gMapFloorState+0x1c+7*16+11,0)
   transition(253)
  end
- if f==710 then
+ if f==770 then
   check(emu:read16(gNativeFloor)==1,'advance to Agrabah floor')
   emu:screenshot('@OUTPUT@/agrabah.png')
   transition(7)
  end
- if f==830 then emu:write8(gMapFloorState+0x1c+7*16+11,0);transition(253) end
- if f==950 then
+ if f==890 then emu:write8(gMapFloorState+0x1c+7*16+11,0);transition(253) end
+ if f==1010 then
   check(emu:read16(gNativeFloor)==2,'advance to Castle Oblivion floor')
   emu:screenshot('@OUTPUT@/castle.png')
   transition(7)
  end
- if f==1070 then emu:write8(gMapFloorState+0x1c+7*16+11,0);transition(253) end
- if f==1190 then check(emu:read16(gNativeResult)==2,'third floor completes run');emu:setKeys(4) end
- if f==1194 then emu:setKeys(0) end
- if f==1320 then
+ if f==1130 then emu:write8(gMapFloorState+0x1c+7*16+11,0);transition(253) end
+ if f==1250 then check(emu:read16(gNativeResult)==2,'third floor completes run');emu:setKeys(4) end
+ if f==1254 then emu:setKeys(0) end
+ if f==1380 then
   check(emu:read16(gNativeFloor)==0 and emu:read16(gNativeResult)==0,'retry starts a new procedural run')
   check(emu:read16((gGameState+0x32))==80,'retry restores HP')
  end
- if f==1360 then emu:write16(gGameState+0x32,4) end
- if f>=1400 and f<=1850 and (f-1400)%90==0 then
+ if f==1420 then emu:write16(gGameState+0x32,4) end
+ if f>=1460 and f<=1910 and (f-1460)%90==0 then
   local p=field();local e=enemy()
   if e~=0 then
    emu:write32(e+8,emu:read32(p+0x18));emu:write32(e+12,emu:read32(p+0x1c))
@@ -86,8 +87,8 @@ callbacks:add('frame',function()
   end
   emu:setKeys(8)
  end
- if f>=1404 and f<=1854 and (f-1404)%90==0 then emu:setKeys(0) end
- if f==2010 then
+ if f>=1464 and f<=1914 and (f-1464)%90==0 then emu:setKeys(0) end
+ if f==2070 then
   check(emu:read16(gNativeResult)==1 and emu:read16(gGameState+0x32)==0,'field contact reaches defeat at zero HP')
   emu:screenshot('@OUTPUT@/defeat.png')
   out:close()
