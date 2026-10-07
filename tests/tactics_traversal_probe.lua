@@ -18,6 +18,9 @@ local previousRoom=0
 local previousWorld=0
 local victoryFrame=nil
 local completedRuns=0
+local optionalRoute={0,1,2,3,4,9,8,1,2,3,4,5,10,11,10,5,6,7}
+local routeStep=1
+local roomVisitMasks={0,0,0}
 local victoryHealth=nil
 local function signed(v) if v>=2147483648 then return v-4294967296 end return v end
 local function pos()
@@ -39,7 +42,9 @@ local function door()
      local d=emu:read32(w)
      local room=emu:read8(gMapFloorState+6)
      local target=room==7 and 253 or room+1
-     if recruitCloud and emu:read16(gNativeFloor)==0 then
+     if allRooms then
+      target=optionalRoute[routeStep+1] or 253
+     elseif recruitCloud and emu:read16(gNativeFloor)==0 then
       if room==1 then target=8 elseif room==9 then target=4 end
      end
      if emu:read8(d+7)==target then
@@ -189,6 +194,7 @@ local function replayFrame()
  if done or f<180 or (suspendStage==2 and f<nextFrame) then return end
  local room=emu:read8(gMapFloorState+6)
  local world=emu:read16(gNativeFloor)
+ if allRooms and world<3 then roomVisitMasks[world+1]=roomVisitMasks[world+1]|(1<<room) end
  if emu:read32(gCurrentMode)~=sNativeMode or (emu:read32(gCurrentModeUpdate)&0xfffffffe)~=NativeUpdate then
   out:write('MODE current='..string.format('%x',emu:read32(gCurrentMode))..' update='..string.format('%x',emu:read32(gCurrentModeUpdate))..' pending='..string.format('%x',emu:read32(gPendingMode))..' busy='..emu:read16(gNativeBusy)..'\n')
   finish(false,'left native tactics mode');return
@@ -208,6 +214,10 @@ local function replayFrame()
   end
   if f-victoryFrame>=120 then
    local valid=world==3 and emu:read8(gNativePartyHealth)==victoryHealth and (not recruitCloud or (cloudRecruited and cloudDeployed))
+   if allRooms then
+    out:write('ROOM MASKS '..roomVisitMasks[1]..','..roomVisitMasks[2]..','..roomVisitMasks[3]..'\n');out:flush()
+    valid=valid and roomVisitMasks[1]==4095 and roomVisitMasks[2]==4095 and roomVisitMasks[3]==4095
+   end
    if not valid then finish(false,'terminal state or required recruitment changed');return end
    completedRuns=completedRuns+1
    out:write('RUN COMPLETE '..completedRuns..' frame='..f..'\n');out:flush()
@@ -215,6 +225,7 @@ local function replayFrame()
     emu:setKeys(4)
     victoryFrame=nil;victoryHealth=nil;cloudRecruited=false;cloudDeployed=false
     previousWorld=0;previousRoom=-1;suspendStage=0
+    routeStep=1;roomVisitMasks={0,0,0}
     terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+120
    else
     finish(true,'completed '..completedRuns..' three-world runs; terminal floor and Sora HP remain stable for 120 frames')
@@ -227,8 +238,10 @@ local function replayFrame()
  if world~=previousWorld then
   out:write('WORLD '..world..' frames='..f..'\n');out:flush()
   previousWorld=world;previousRoom=-1
+  routeStep=1
  end
  if room~=previousRoom then
+  if allRooms and room==optionalRoute[routeStep+1] then routeStep=routeStep+1 end
   out:write('ROOM '..room..' frames='..f..' hp='..emu:read8(gNativePartyHealth)..','..emu:read8(gNativePartyHealth+1)..','..emu:read8(gNativePartyHealth+2)..'\n');out:flush()
   previousRoom=room;terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+60
  end

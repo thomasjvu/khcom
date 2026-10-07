@@ -81,7 +81,12 @@ interactions. Do not replace field actors with icons or flatten elevations.
    preview and native route execution with stairs and climb/jump edges. Validate spawn-to-door and chest
    reachability for every generated room, then regenerate invalid rooms using
    a bounded retry policy. Current graph tests verify room connectivity, not
-   complete physical navigation inside each room.
+   complete physical navigation inside each room. The input-only traversal driver
+   now has `--all-rooms`: visit 0–1–2–3–4–9–8–1–2–3–4–5–10–11–10–5–6–7
+   in each world, and require all twelve room bits before terminal PASS.
+   The first Cloud/suspend run is pending in `all-rooms-cloud-navigation-evidence`.
+   It checks original generated geometry with actual controller movement;
+   successful replay coverage still does not prove a generation guarantee.
 2. **Authoritative field combat.** Party/enemy occupancy now uses continuous segment/open-box intersection with overlap-exit handling. Host checks compare 5,000 three-dimensional segments and their reverse directions against an independent floating-point slab oracle. Enemy quarter-terrain probes interpolate height. Eight native movement overlay checks pass; a Cloud-route full run passes in `swept-occupancy-cloud-full-run-evidence` (victory 83630 HP80, stable PASS 83750, 16 kills, 598 commands, verified suspend/reset). Nine native player-route checks reject party/enemy corner crossings, keep the reachable mask consistent, restore the edge after moving blockers, and execute it once; evidence: `actor-crossing-final-evidence`. Further validate enemy-driven crossings, extend solid-prop/terrain sweeps beyond quarter sampling, and add world-specific behaviors. Extend current damage and charge warnings into full area/range overlays.
    Enemy preview/turn targeting now prefers currently attackable members over nearer height-ineligible members. Independent party HP and partial encounter persistence are implemented. Keep animations
    running during input wait without advancing authoritative actions.
