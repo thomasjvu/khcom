@@ -85,7 +85,7 @@ healing and opened chests survive suspend/resume; an unconfirmed choice has
 not been saved. Chest flags and room enemy
 counts persist. World groups mix Shadow, ranged Red Nocturne, Darkball and
 Black Fungus. Traverse Town room 7 has a solo Guard Armor with 40 HP, rendered
-using its original seven animated sprite components. Its warned slam reaches
+using its original seven animated sprite components. A charged slam raises its hands and crouches; impact lowers the hands before returning to idle. Its warned slam reaches
 80 pixels. Agrabah and Castle Oblivion still use Large Body elites with
 48/56 HP and a 64-pixel strike. Within
 96 pixels it spends a decision charging, then on its next decision strikes

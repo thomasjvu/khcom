@@ -728,3 +728,16 @@ SHA-256 is `13d640c6c27ab533f03867776449da405d5e8c2e60fbd75c41801ce17da8565b`.
 It passed Traverse Town's new solo Guard Armor but does not verify complete-run
 victory. Party survival and the traversal driver's boss-defense policy remain
 open work; this result must not be presented as a successful full-run test.
+
+Guard Armor slam presentation now uses its original torso crouch, collar and
+orbit-hand animations. A charged decision raises the hands and lowers the
+body; the next decision shows an impact pose for 24 presentation updates,
+then returns to idle. Feet and shadow stay on the original standing surface.
+Tile allocation covers only frames in these selected animation sequences.
+The pose is derived from saved charge state on resume; the short impact timer
+is presentation-only and cannot change damage or advance enemy decisions.
+`guard-armor-grounded-poses-evidence/boss.txt` passes all 21 checks, including
+windup/impact/idle transitions, reconstructed suspended windup, card and boss
+asset allocation, and existing slam boundaries/resolution. Screenshots confirm
+raised hands and grounded feet. ROM build and diff checks pass. This does not
+verify additional boss moves, multipart damage phases, or full-run victory.

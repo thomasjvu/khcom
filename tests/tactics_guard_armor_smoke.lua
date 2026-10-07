@@ -51,11 +51,17 @@ callbacks:add('frame',function()
   place(80,24)
  end
  if f==340 then
+  check(emu:read16(gNativeBossPose)==1,'charged armor displays original crouch and raised-hand windup')
   check(emu:read16(gNativeThreats)==10,'slam preview includes exact 80-pixel range and 24-pixel height')
   emu:screenshot('@OUTPUT@/slam-preview.png');emu:setKeys(8)
  end
  if f==344 then emu:setKeys(0) end
+ if f==350 then
+  check(emu:read16(gNativeBossPose)==2,'resolved slam displays impact pose during enemy presentation')
+  emu:screenshot('@OUTPUT@/slam-impact.png')
+ end
  if f==450 then
+  check(emu:read16(gNativeBossPose)==0,'impact presentation returns to original idle pose')
   check(emu:read8(gNativePartyHealth)==70,'Guard Armor slam resolves previewed Sora damage')
   check(emu:read8(gNativePartyHealth+1)==46 and emu:read8(gNativePartyHealth+2)==62,'slam damages each nearby party member once')
   check(emu:read8(gNativeEnemyCharge)==0,'slam consumes charge')
@@ -87,6 +93,7 @@ callbacks:add('frame',function()
  if f==1100 then
   check(emu:read8(gMapFloorState+6)==7 and emu:read16(gNativeBossReady)==1,'suspend reconstructs original boss presentation')
   check(emu:read8(gNativeEnemyCharge)==1,'suspend preserves boss windup')
+  check(emu:read16(gNativeBossPose)==1,'suspend reconstructs charged attack pose from saved windup')
   check(emu:read8(gNativePartyHealth)==70,'suspend preserves damage already resolved')
   emu:screenshot('@OUTPUT@/guard-armor-resume.png');out:close()
  end

@@ -170,6 +170,15 @@ static ObjPalette* sArmorPalette;
 static TaskDesc sArmorTaskDesc;
 u16 gNativeBossReady;
 u16 gNativeBossAllocation;
+u16 gNativeBossPose;
+static u16 sArmorImpact;
+extern u8 gNativeEnemyCharge[6];
+static u8 NativeArmorAnimId(u8 part, u8 pose) {
+    if (!pose) return 0;
+    if (part == 0) return 2;
+    if (part == 2 || part == 3 || part == 6) return 1;
+    return 0;
+}
 static const AnimDef sArmorDefs[7] = {
     {gBosGaTorsoFrames,gBosGaTorsoAnims,gBosGaTorsoTiles,0},
     {gBosGaHeadFrames,gBosGaHeadAnims,gBosGaHeadTiles,0},
@@ -183,24 +192,37 @@ static void NativeArmorDraw(void* arg) {
     static const s16 dx[7] = {0,-10,10,-44,15,-13,0};
     static const s16 dy[7] = {-62,-90,-36,-61,-6,-15,-62};
     MapEnmWork* work = arg;
-    u8 i;
+    u8 i, pose;
+    s16 offset;
     s16 x = (work->obj.fieldPosition.x - gFieldState->x) >> 8;
     s16 y = (work->obj.fieldPosition.y + work->obj.fieldPosition.z - gFieldState->y) >> 8;
     u16 priority = -0x1004 - (work->obj.fieldPosition.y >> 8) * 4;
-    for (i = 0; i < 7; i++)
-        DrawSprite(x + dx[i], y + dy[i], AnimUpdate(&sArmorAnim[i]),
+    pose = gNativeEnemyCharge[0] ? 1 : sArmorImpact ? 2 : 0;
+    if (pose != gNativeBossPose) {
+        for (i = 0; i < 7; i++)
+            AnimStart(&sArmorAnim[i], NativeArmorAnimId(i, pose), pose == 2 ? 0 : ANIM_FLAG_LOOP);
+        gNativeBossPose = pose;
+    }
+    if (sArmorImpact) sArmorImpact--;
+    for (i = 0; i < 7; i++) {
+        offset = 0;
+        if (pose == 1) offset = i == 2 || i == 3 ? -12 : i == 4 || i == 5 ? 0 : 8;
+        else if (pose == 2 && (i == 2 || i == 3)) offset = 10;
+        DrawSprite(x + dx[i], y + dy[i] + offset, AnimUpdate(&sArmorAnim[i]),
             sArmorTiles[i], sArmorPalette, NULL, 0x800, priority);
+    }
     if (sPartyShadowTiles && sPartyShadowPalette)
         DrawSprite(x, (work->obj.fieldPosition.y + work->obj.fieldPosition.ground - gFieldState->y) >> 8,
             gBtlShadowFrames[0], sPartyShadowTiles, sPartyShadowPalette, NULL, 0x800, priority + 1);
 }
 static void NativeArmorInit(void) {
-    u8 i;
+    u8 i, pose;
     u16 j, size, bytes;
     AnimHeader* idle;
     MapEnmWork* work;
     gNativeBossReady = 0;
     gNativeBossAllocation = 0;
+    gNativeBossPose = sArmorImpact = 0;
     sArmorPalette = NULL;
     for (i = 0; i < 7; i++) sArmorTiles[i] = NULL;
     if (gNativeFloor || gMapFloorState.room != 7 || !sEnemyTasks[0]) return;
@@ -219,13 +241,15 @@ static void NativeArmorInit(void) {
         return;
     }
     for (i = 0; i < 7; i++) {
-        /* Reserve the idle animation's frames, rather than every battle
-         * attack frame, so the complete armor fits beside field/party art. */
-        idle = ((AnimHeader**)sArmorDefs[i].anims)[0];
+        /* Reserve only idle and the original crouch/orbit poses used by the
+         * tactical windup and impact, leaving unused battle frames unloaded. */
         size = 0;
-        for (j = 0; j < idle->frameCount; j++) {
-            bytes = GetSpriteTileBytes(((void**)sArmorDefs[i].gfxTable)[idle->frames[j].gfxIndex]);
-            if (bytes > size) size = bytes;
+        for (pose = 0; pose < 2; pose++) {
+            idle = ((AnimHeader**)sArmorDefs[i].anims)[NativeArmorAnimId(i, pose)];
+            for (j = 0; j < idle->frameCount; j++) {
+                bytes = GetSpriteTileBytes(((void**)sArmorDefs[i].gfxTable)[idle->frames[j].gfxIndex]);
+                if (bytes > size) size = bytes;
+            }
         }
         sArmorTiles[i] = AllocObjTiles(size, sArmorDefs[i].tiles);
         if (!sArmorTiles[i]) {
@@ -1220,6 +1244,7 @@ static void NativeEnemyTurn(void) {
         work = sEnemyTasks[i]->work;
         closest = NativeEnemyTarget(i, &best, &dz);
         if (gNativeEnemyKind[i] == 2 && gNativeEnemyCharge[i]) {
+            if (sEnemyTasks[i]->desc == &sArmorTaskDesc) sArmorImpact = 24;
             for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j]) {
                 distance = NativeAbs(work->obj.fieldPosition.x - sPartyPos[j].x) +
                     NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - sPartyPos[j].y - sPartyPos[j].z);
