@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The current **0.15 native party/reward development build** runs in the original 2.5D engine with full
+The current **0.16 native world-boss development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -20,12 +20,18 @@ player walk previews project onto the field and execute through native collision
 including one-point projected diagonals, walkable upper ledges above void,
 and solid-prop collision checks. Open previews revalidate animated props.
 World-specific groups include Shadow, Red Nocturne, Darkball and Black Fungus.
-A Large Body exit guardian telegraphs its charged area attack before resolving
-it, with damage projected above threatened party members. Physical room
-reachability guarantees, climb/jump routes, canonical boss encounters, reward
-choices and broader complete-run QA remain pending. An input-only emulator replay
-completes all three worlds for the default seed, using native card combat and Goofy’s Guard. Native stairs now use one
-movement point per sixteen-pixel climb segment, with exact attached-state suspend.
+Traverse Town has original multipart Guard Armor art, warned slams, hand-loss
+phases and break effects. Agrabah has a custom sorcerer Jafar encounter using
+original field/lamp sprites and a charged single-target spell. Castle Oblivion
+still has a Large Body elite. Original cards support explicit Fire/Cure targets,
+matching-type sleights and three-card chest reward choices. Palette budgets
+keep party, card artwork and value digits visible beside generated scenery.
+Two fresh-SRAM input-only replays complete all three worlds on the default seed
+and pass terminal stability. Other seeds, optional paths, full-run reset and
+hardware remain unverified. Physical room reachability guarantees, complete
+climb/jump navigation, Castle's canonical boss and additional content/polish
+remain unfinished. Native stairs use one movement point per sixteen-pixel
+climb segment, with attached-state suspend.
 Door travel preserves the selected member, every party budget and active Guard;
 backtracking cannot refill turn resources. One B press commits a native full-height
 jump; moving jumps have a world-space travel budget and safely hand off to stairs.

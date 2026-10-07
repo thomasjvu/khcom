@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.15-party-rewards.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.15-party-rewards.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.16-world-bosses.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.16-world-bosses.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -839,3 +839,15 @@ preserve both logs/screenshots/SRAM. Frame timing differs, so these are repeat
 successes rather than bit-identical deterministic traces. Coverage is the
 default seed/main route only; broader seeds, optional branches, full-run reset,
 the remaining boss content, navigation guarantees and hardware remain open.
+
+The 0.16 world-bosses development BPS is now packaged as
+`build/release/kh-tactics-0.16-world-bosses.bps` (29,647 bytes). Application to
+the supported original US ROM reproduces the tested native ROM byte-for-byte,
+SHA-256 `ae815595a2c7c3de21736baecd64716266aa69fb045799e5292d1f7fcf749d32`.
+`world-bosses-0.16-manifest.json` records patch/source hashes, the native source
+commit, both fresh-SRAM victory/stability traces and their normalized driver
+logic hashes, plus 92 focused fixture checks and scope limits. Release notes
+are in `build/release/WORLD-BOSSES-0.16.md`. BPS unit tests pass all four cases.
+The package uses save format 8 and remains a development build; it does not
+certify the open content, navigation, other-seed, legacy-save or hardware work.
+Old release artifacts and historical evidence are preserved separately.
