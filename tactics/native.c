@@ -1316,6 +1316,11 @@ static void NativeHud(void) {
             sProgressKind == 2 ? "FIRE SLEIGHT PLUS 4" : "CURE SLEIGHT PLUS 4");
         NativeLabel(0, 32, NativeHero(sProgressHero) == FIELD_SORA ? "SORA UP DOWN CHOOSE" :
             NativeHero(sProgressHero) == FIELD_DONALD ? "DONALD UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_GOOFY ? "GOOFY UP DOWN CHOOSE" : "CLOUD UP DOWN CHOOSE");
+        if (sProgressKind == 0 && gNativeRoster.power[NativeHero(sProgressHero)] >= 8)
+            NativeLabel(0, 8, "POWER MAX CHANGE HERO");
+        else if (sProgressKind > 0 && sProgressKind < 4 &&
+            (gNativeRoster.sleights[NativeHero(sProgressHero)] & (1 << (sProgressKind - 1))))
+            NativeLabel(0, 8, "OWNED CHOOSE ANOTHER");
     }
     if (gNativeAssembly && !gNativePartyHealth.hp[sAssemblyChoice]) NativeLabel(0, 8, "KO CHOOSE OTHER HERO");
     if (gNativeProgressReward && sProgressKind == 4 && NativeRecruitEligible()) {
