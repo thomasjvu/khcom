@@ -56,6 +56,10 @@ callbacks:add('frame',function()
   check(emu:read8(gNativeDeck+72)==12 and emu:read16(gGameState+0x32)==40,'unconfirmed rewards do not alter deck or health')
   rewardSeed=emu:read32(sRewardSeed)
   rewardMove=emu:read16(gNativeMoveLeft);rewardAction=emu:read16(gNativeActionLeft)
+  local screen=emu:read32(sHudScreen)
+  local clean=true
+  for column=13,29 do clean=clean and emu:read16(screen+(19*32+column)*2)==0xf000 end
+  check(clean,'short reward footer clears the old threat text tail')
   emu:screenshot('@OUTPUT@/reward-choice.png');emu:setKeys(12)
  end
  if f==494 then emu:setKeys(0) end

@@ -143,6 +143,7 @@ local function turnKey()
   if emu:read8(gNativeDeck+73)~=guard then return 256 end
   out:write('GOOFY GUARD frame='..f..' threat='..threat..'\n');out:flush();return 1
  end
+ out:write('TURN frame='..f..' hp='..emu:read8(gNativePartyHealth)..','..emu:read8(gNativePartyHealth+1)..','..emu:read8(gNativePartyHealth+2)..' threat='..threat..' guard='..emu:read16(gNativeGuard)..'\n');out:flush()
  endingTurn=false;returningToSora=true;return 8
 end
 local function requestTurn()
@@ -194,7 +195,7 @@ local function replayFrame()
   previousWorld=world;previousRoom=-1
  end
  if room~=previousRoom then
-  out:write('ROOM '..room..' frames='..f..'\n');out:flush()
+  out:write('ROOM '..room..' frames='..f..' hp='..emu:read8(gNativePartyHealth)..','..emu:read8(gNativePartyHealth+1)..','..emu:read8(gNativePartyHealth+2)..'\n');out:flush()
   previousRoom=room;terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+60
  end
  if emu:read16(gNativeResult)~=0 then finish(false,'run ended before traversal goal');return end

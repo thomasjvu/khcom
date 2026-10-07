@@ -471,3 +471,19 @@ actual native break with no HP loss, its action cost, and an independent lethal
 Fire case. This is a position/card fixture: after the actual break, the final
 case restores a single selected Fire hand card and places Sora near the target.
 It does not establish reload ordering or input-only run coverage.
+
+Current source regression (party/reward/HUD build): the input-only three-world
+probe in `build/tactics-us/reward-party-full-run-evidence/traversal.txt` ended
+in defeat at frame 57,971 after reaching Castle Oblivion, with 12 kills and
+523 movement commands. ROM SHA-256:
+`7732bd31a0d436d679bd33d5b763572544026e49584a021a323c7288fb12db37`.
+This contradicts treating the historical 0.14 victory as verification of the
+current ROM. No new release patch is certified by this run. The driver now
+logs party HP at room entry and HP/threat/Guard before each enemy turn to
+identify the failure; it still only reads emulated memory and sends inputs.
+
+HUD replacement labels now clear the remaining screen row, preventing a short
+Cure/Fire/reward prompt from retaining a previous label's trailing glyphs.
+The current reward/save/capacity fixture passes 25 checks, including a native
+tilemap assertion that the shorter reward footer leaves only blank tiles to
+its right (`hud-reward-final-evidence/reward-save.txt`).

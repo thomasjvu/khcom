@@ -520,6 +520,9 @@ static void NativeLabel(u8 x, u8 y, const char* text) {
     u32 pixels;
     const u32* source;
     if (!sHudTiles || !sHudScreen) return;
+    /* A shorter replacement prompt must erase the prior label tail. The
+     * reserved blank tile is shared; later labels can still fill this row. */
+    for (i = column; i < 30; i++) sHudScreen[row * 32 + i] = 0xf000;
     while (*text && column < 30 && tile < 161) {
         glyph = *text == ' ' ? 0 : *text >= '0' && *text <= '9' ?
             *text - '0' + 0x40 : *text - 'A' + 0x60;
@@ -678,8 +681,8 @@ static void NativeHud(void) {
             !gNativeClimbing && !charging) NativeLabel(0, 8, "A SLEIGHT L B CANCEL");
     } else NativeLabel(0, 24, gNativeDeck.stocked ? stock : threat);
     if (gNativeReward) {
-        NativeLabel(0, 8, gNativeDeck.count < FIELD_DECK_MAX ? "CHEST CHOOSE L R A" : "DECK FULL A HEAL      ");
-        NativeLabel(0, 24, "PARTY HEAL 12        ");
+        NativeLabel(0, 8, gNativeDeck.count < FIELD_DECK_MAX ? "CHEST CHOOSE L R A" : "DECK FULL A HEAL");
+        NativeLabel(0, 24, "PARTY HEAL 12");
     }
     sHudPending = 1;
 }

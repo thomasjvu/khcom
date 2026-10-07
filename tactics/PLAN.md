@@ -57,8 +57,8 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Bounded HUD font tile allocation; mutable ROM data is rejected by the linker.
 - Original chest animation with three seeded original-art card choices, selected
   values, one-time party healing and deck-capacity fallback. Native reward
-  inspection blocks field commands and suspend until confirmation. A 20-check
-  scenario and separate 24-check reward/save/reset fixture verify non-default
+  inspection blocks field commands and suspend until confirmation. A 21-check
+  scenario and separate 25-check reward/save/reset fixture verify non-default
   selection and persisted cards, healing and opened-chest state. Fixture room
   transitions, chest approach and full-deck edge case use explicit fixtures, not input-only
   full-run evidence. Safe chest placement fallback remains in place.
