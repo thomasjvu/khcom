@@ -20,6 +20,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Seeded custom platform parameters drive CoM's procedural room builder.
 - Traverse Town, Agrabah and Castle Oblivion tiles/palettes/props load normally.
 - Original Sora and field enemy animation, collision, camera and climbing tasks.
+- Terminal doors cannot keep advancing floors after RUN CLEAR; ignored combat/turn input and Select retry are fixture-verified.
 - Tactical flying-role spawns begin on their assigned floor; old fixed-ceiling format-8 encounters are repaired on resume while retaining damage and horizontal position.
 - Open-door sword hits no longer start room synthesis or lock the native controller; reproduced against the original callback and verified by native sword/travel fixtures.
 - Committed full-height native jumps, bounded world-space travel from rest and safe jump-to-stair handoff; input-only height/landing/cost tests.
@@ -48,7 +49,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Three-world progression, defeat, run-clear and retry with a new seed.
 - Room/world transitions retain selected member, all party turn budgets and Guard; actual native forward/back door crossings are emulator checked.
 - Appended code and RAM, bounded Thumb hooks; original ROM assets keep their addresses.
-- Input-only default-seed three-world victory on the final 0.13 ROM: 79,150 frames, 17 kills, 680 movement commands and 24 Goofy Guards; no teleports, forced exits or emulated RAM writes.
+- Input-only default-seed three-world victory on the final 0.14 ROM, stable for 120 further frames: 79,338 frames, 17 kills, 680 movement commands and 24 Goofy Guards; no teleports, forced exits or emulated RAM writes.
 - Asset-free rules/save/graph tests and local mGBA smoke/scenario replays.
 
 ## Remaining implementation sequence

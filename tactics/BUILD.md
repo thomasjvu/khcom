@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.13-encounters.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.13-encounters.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.14-terminal.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.14-terminal.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -379,3 +379,42 @@ This proves one default-seed victory path. It does not cover optional branches,
 input-only chest opening, other seeds, suspend during the full run or physical
 hardware. Those scopes remain separate from the passing explicit fixtures.
 The full polish goal remains active.
+
+
+Terminal doorway regression (0.14): the original actor can detect the final
+open doorway again while idle after RUN CLEAR. Native exits are now cleared
+when the run is terminal, preventing repeated floor increments or transitions.
+`tools/tactics_terminal_smoke.py ELF OUTPUT` generates ten checks. This fixture
+requests the first world transitions, then crosses the actual final door using
+movement input. It verifies the exact terminal floor, stable HP, ignored combat
+and turn inputs, unchanged room visits and Select retry with restored HP.
+The old build reaches floor 19 within 120 frames of victory and fails the floor
+stability check (`terminal-door-old-evidence/terminal.txt`); the final build
+remains at floor 3 and passes all ten (`terminal-door-evidence/terminal.txt`).
+The earlier 0.13 input-only victory proves reaching clear but fails the added
+post-clear stability check, so its hash and replay above remain historical
+0.13 evidence rather than proof of a polished terminal state.
+
+
+**Final 0.14 verification:** 53 emulator checks pass on the final ROM: native
+commands (17), door hit/travel (14), fresh spawn/Fire (6), legacy suspend repair
+(6), terminal stability/retry (10). The current evidence is in
+`release13-native-evidence`, `release13-door-evidence`,
+`release13-spawn-evidence`, `release13-legacy-evidence`, and
+`terminal-door-evidence`; the release13 folder prefix is historical, and every
+fixture ROM hash matches the final 0.14 ROM. The strict host suite, four BPS
+tests and both region/party Lua checks pass. The 21,342-byte 0.14 BPS patch
+reconstructs the final ROM byte-for-byte.
+
+The final-ROM input-only replay
+`final-terminal-three-world-evidence/traversal.txt` reaches victory at frame
+79,218 and passes terminal stability at frame 79,338: floor 3 and Sora HP 51
+remain unchanged for 120 frames after clear. It records 17 kills, 680 movement
+commands and 24 Goofy Guards. The driver performs no emulated RAM writes,
+teleports, enemy-HP changes or forced transitions. Its native mode and update
+function are checked throughout. SHA-256 of the release and replay ROMs:
+`6150d69bbdd9772ea86a9258fcc53f7dbfeddf1a88c5d761fd23de6336ea9e59`.
+This verifies one default-seed victory and stable terminal state. Optional
+branches, input-only chest openings, other seeds, full-run suspend and physical
+hardware remain unverified; player height previews, richer rewards/bosses and
+UI/animation polish remain implementation work. The full goal stays active.

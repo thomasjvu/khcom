@@ -1322,6 +1322,9 @@ static void NativeUpdate(void) {
         gNativeBusy = 0;
         sAttack = 0;
     }
+    /* The native actor can still detect the doorway while standing at the
+     * final exit. A terminal run must not keep advancing its floor counter. */
+    if (gNativeResult) gFieldState->flags &= ~FIELD_FLAG_EXIT_ROOM;
     if (gFieldState->flags & FIELD_FLAG_EXIT_ROOM) {
         if (gMapFloorState.room == 7 && gMapRoomState->doorRoom == TAC_WORLD_EXIT) {
             if (GetMapFloorRoom(7)->enemiesLeft == 0) {

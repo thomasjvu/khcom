@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The current **0.13 native encounter development build** runs in the original 2.5D engine with full
+The current **0.14 native victory development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
