@@ -10,7 +10,7 @@ tiles, card pictures, value digits, chests and doors.
 | L + D-pad | Open a projected walking route preview; D-pad moves the cursor, A confirms, B cancels |
 | Select | Switch Sora → Donald → Goofy; each retains movement/action budgets |
 | L / R | Select the previous/next card in the five-card hand |
-| R + B with Fire selected | Cycle eligible enemies without spending cards or turn budgets |
+| R + B with Fire or Cure selected | Cycle eligible enemies or party members without spending cards or turn budgets |
 | L + A | Stock the selected card; stock three, then release L and press A for a sleight |
 | L + B | Return stocked cards to the deck without exhaustion |
 | A | Play the selected card from the active member's position |
@@ -134,3 +134,9 @@ Fire defaults to the nearest enemy within 128 world-space pixels and 24 pixels
 of height. R+B selects another eligible enemy; the projected damage digits
 follow that choice, and A attacks the same enemy. An invalid choice falls back
 to the nearest eligible enemy. Target choice resets on room entry or resume.
+
+Cure normally chooses the nearby member missing the most HP. R+B chooses a
+specific nearby member, including a knocked-out friend; the named HUD target
+and actual healing use the same choice. A member outside 96 world-space
+pixels or 24 pixels of height cannot remain selected. Cure target choice is
+transient and resets on room entry or resume.

@@ -147,11 +147,13 @@ static u16 NativeRouteWalk(void);
 static u8 NativeCureTarget(void);
 static Task* NativeFireTarget(void);
 static void NativeCycleFireTarget(void);
+static void NativeCycleCureTarget(void);
 static void NativeCardIntentDraw(void);
 s16 gNativeFireTarget;
 s16 gNativeFireChoice;
 u16 gNativeFireDamage;
 u16 gNativeCureTarget;
+s16 gNativeCureChoice;
 
 static Task* sEnemyTasks[6];
 u16 gNativeEnemyHp[6];
@@ -750,7 +752,7 @@ static void NativeInit(s32 arg) {
     gNativeActionLeft = 1;
     gNativeBusy = 0;
     gNativeReward = gNativeRewardChoice = 0;
-    gNativeFireChoice = -1;
+    gNativeFireChoice = gNativeCureChoice = -1;
     gNativeEnemyFrames = 0;
     gNativeDirection = 0;
     sFrames = 0;
@@ -1209,17 +1211,31 @@ static void NativeCardIntentDraw(void) {
     }
 }
 
+static int NativeCureEligible(u8 member) {
+    if (member == gNativeParty) return 1;
+    return NativeAbs(sPartyPos[member].x - gFieldState->actor.fieldPosition.x) +
+        NativeAbs(sPartyPos[member].y - gFieldState->actor.fieldPosition.y) <= (96 << 8) &&
+        NativeAbs(sPartyPos[member].z - gFieldState->actor.fieldPosition.z) <= (24 << 8);
+}
 static u8 NativeCureTarget(void) {
     u8 i, target = gNativeParty;
     u16 missing = 0, amount;
+    if (gNativeCureChoice >= 0 && gNativeCureChoice < 3 && NativeCureEligible(gNativeCureChoice))
+        return gNativeCureChoice;
+    gNativeCureChoice = -1;
     for (i = 0; i < 3; i++) {
-        if (NativeAbs(sPartyPos[i].x - gFieldState->actor.fieldPosition.x) +
-            NativeAbs(sPartyPos[i].y - gFieldState->actor.fieldPosition.y) > (96 << 8) ||
-            NativeAbs(sPartyPos[i].z - gFieldState->actor.fieldPosition.z) > (24 << 8)) continue;
+        if (!NativeCureEligible(i)) continue;
         amount = gNativePartyHealth.maxHp[i] - gNativePartyHealth.hp[i];
         if (amount > missing) {missing = amount;target = i;}
     }
     return target;
+}
+static void NativeCycleCureTarget(void) {
+    u8 current = NativeCureTarget(), i, next;
+    for (i = 1; i <= 3; i++) {
+        next = (current + i) % 3;
+        if (NativeCureEligible(next)) {gNativeCureChoice = next;return;}
+    }
 }
 static void NativeCure(void) {
     u8 target = NativeCureTarget();
@@ -1330,6 +1346,8 @@ static void NativeUpdate(void) {
             int selected = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
             if (selected >= 0 && !gNativeDeck.stocked &&
                 gNativeDeck.kind[selected] == FIELD_CARD_FIRE) NativeCycleFireTarget();
+            else if (selected >= 0 && !gNativeDeck.stocked &&
+                gNativeDeck.kind[selected] == FIELD_CARD_CURE) NativeCycleCureTarget();
         } else if ((pressed & SELECT_BUTTON) && player->state == FLD_STATE_GROUND) {
             NativePartySelect();
         } else if ((raw & (L_BUTTON | R_BUTTON)) == (L_BUTTON | R_BUTTON) &&

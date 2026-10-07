@@ -527,3 +527,11 @@ chosen enemy. `fire-choice-evidence/fire-target.txt` passes all 13 checks; the
 existing spawn/Fire break/height regression passes all 14 checks in
 `fire-choice-regression-evidence/spawn.txt`. Target choice is transient and
 resets on room initialization/resume. The packaged 0.15 patch is unchanged.
+
+Native Cure selection uses R+B with Cure selected. Both the named HUD target
+and resolution share eligibility/choice logic, including knocked-out friends.
+`cure-choice-final-evidence/party.txt` passes 40 checks: the existing party
+regression, native cycling through Goofy/Sora/knocked-out Donald, preserved
+action budget, actual revival of the chosen member, and explicit invalid
+height/range choice fixtures. Target selection resets on room entry/resume
+and does not change the suspend format. The 0.15 patch remains unchanged.

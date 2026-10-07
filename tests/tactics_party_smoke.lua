@@ -1,5 +1,7 @@
 local f=0
 local reviveHp=0
+local cureX=0
+local cureZ=0
 local out=io.open('@OUTPUT@/party.txt','w')
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 local function hp() return emu:read16(gGameState+0x32) end
@@ -90,8 +92,15 @@ callbacks:add('frame',function()
    end
   end
  end
- if f==922 then check(emu:read16(gNativeCureTarget)==1,'Cure preview identifies nearby knocked-out Donald');emu:setKeys(1) end
- if f==924 then emu:setKeys(0) end
+ if f==922 then check(emu:read16(gNativeCureTarget)==1,'Cure preview identifies nearby knocked-out Donald');emu:setKeys(258) end
+ if f==926 or f==934 or f==942 or f==950 then emu:setKeys(0) end
+ if f==930 then check(emu:read16(gNativeCureTarget)==2,'R B chooses nearby Goofy for Cure');emu:setKeys(258) end
+ if f==938 then check(emu:read16(gNativeCureTarget)==0,'Cure cycling includes the active Sora');emu:setKeys(258) end
+ if f==946 then
+  check(emu:read16(gNativeCureTarget)==1 and emu:read16(gNativeCureChoice)==1,'Cure cycling explicitly selects knocked-out Donald')
+  check(emu:read16(gNativeActionLeft)==1,'Cure target cycling preserves the combat action')
+  emu:setKeys(1)
+ end
  if f==960 then
   check(emu:read8(gNativePartyHealth+1)==reviveHp and reviveHp>0,'Cure revives nearby knocked-out Donald')
   check(hp()==80,'reviving Donald preserves Sora health')
@@ -130,5 +139,18 @@ callbacks:add('frame',function()
  end
  if f==1104 then emu:setKeys(0) end
  if f==1112 then check(emu:read16(gNativeFriendPose+2)==2,'Goofy uses original walking animation during actual travel');emu:screenshot('@OUTPUT@/goofy-walk.png') end
- if f==1180 then check(emu:read16(gNativeFriendPose+2)==0,'Goofy returns to idle after movement');out:close() end
+ if f==1180 then
+  check(emu:read16(gNativeFriendPose+2)==0,'Goofy returns to idle after movement')
+  -- Explicit invalid-choice geometry fixtures after native target/revival checks.
+  cureX=emu:read32(sPartyPos);cureZ=emu:read32(sPartyPos+8)
+  emu:write16(gNativeCureChoice,0);emu:write32(sPartyPos+8,cureZ+8192)
+ end
+ if f==1186 then
+  check(emu:read16(gNativeCureChoice)==65535 and emu:read16(gNativeCureTarget)~=0,'height-invalid Cure choice falls back to an eligible member')
+  emu:write32(sPartyPos+8,cureZ);emu:write32(sPartyPos,cureX+65536);emu:write16(gNativeCureChoice,0)
+ end
+ if f==1192 then
+  check(emu:read16(gNativeCureChoice)==65535 and emu:read16(gNativeCureTarget)~=0,'out-of-range Cure choice falls back safely')
+  emu:write32(sPartyPos,cureX);out:close()
+ end
 end)
