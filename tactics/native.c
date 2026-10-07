@@ -21,6 +21,7 @@
 #include "obj_api.h"
 #include "sprites_evt.h"
 #include "sprites_frd.h"
+#include "sprites_btl.h"
 #include "sprites_sora.h"
 #include "battle_actor.h"
 #include "sprite_palettes.h"
@@ -89,6 +90,8 @@ typedef struct NativeFriend {
 } NativeFriend;
 static NativeFriend sFriends[2];
 static void* sSoraIdleTiles;
+static void* sPartyShadowTiles;
+static ObjPalette* sPartyShadowPalette;
 u16 gNativeFriendPose[2];
 static const AnimDef sFriendAnims[2][5] = {
     {{gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,0},
@@ -173,6 +176,8 @@ static void NativePartyInit(void) {
     u16 i, j;
     static const u16 kinds[4] = {CARD_KIND_KINGDOM_KEY, CARD_KIND_FIRE, CARD_KIND_CURE, CARD_KIND_GOOFY};
     sSoraIdleTiles = AllocObjTiles(0x500, gSor1fl00Tiles);
+    sPartyShadowTiles = LoadObjTiles(gBtlShadowTiles, 0x100);
+    sPartyShadowPalette = LoadObjPalette(gCommonObjPalette, 32);
     sFriends[0].tiles = AllocObjTiles(0x800, gDonaFl00Tiles);
     sFriends[0].palette = LoadObjPalette(gDonaldPalette, 32);
     AnimInit(&sFriends[0].anim, gDonaFl00Anims, gDonaFl00Frames);
@@ -272,6 +277,12 @@ static void NativePartyDraw(void) {
             sFriends[i].pos.x == gFieldState->actor.fieldPosition.x &&
             sFriends[i].pos.y == gFieldState->actor.fieldPosition.y)
             x += i ? 24 : -24;
+        /* Keep the original shadow on the standing surface while the body
+         * rises and falls. Display offsets move body and shadow together. */
+        if (sPartyShadowTiles && sPartyShadowPalette)
+            DrawSprite(x, (sFriends[i].pos.y + sFriends[i].pos.ground - gFieldState->y) >> 8,
+                gBtlShadowFrames[0], sPartyShadowTiles, sPartyShadowPalette, NULL, 0x800,
+                -0x1003 - (sFriends[i].pos.y >> 8) * 4);
         if (sFriends[i].tiles && sFriends[i].palette)
             DrawSprite(x, y, AnimGetGfx(&sFriends[i].anim), sFriends[i].tiles,
                 sFriends[i].palette, NULL, 0x800 | (sFriends[i].facing ? SPRITE_FLAG_HFLIP : 0),
@@ -320,6 +331,8 @@ static void NativePartyFree(void) {
         ReleaseObjPalette(sFriends[i].palette);
     }
     ReleaseObjTiles(sSoraIdleTiles);
+    ReleaseObjTiles(sPartyShadowTiles);
+    ReleaseObjPalette(sPartyShadowPalette);
     ReleaseObjTiles(sValueTiles);
     ReleaseObjPalette(sValuePalette);
     for (i = 0; i < 4; i++) {

@@ -125,3 +125,6 @@ Donald and Goofy use original walking sprites while moving and return to idle
 when stopped. Casting and Guard keep their action poses. Original airborne poses follow
 native jump rise/fall states. Active party sprites stay at their physical
 positions; dedicated climb poses remain unfinished.
+
+Living Donald and Goofy cast original-game shadows on their current standing
+surface. During jumps, the body rises while the shadow stays on the ground.

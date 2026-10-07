@@ -41,7 +41,9 @@ interactions. Do not replace field actors with icons or flatten elevations.
   Original rise/fall poses follow native jump states, with 15 input-only jump
   checks per friend. The active sprite now stays at its collision position;
   only inactive coincident sprites receive a display offset. Climb-specific
-  party poses remain unfinished.
+  party poses remain unfinished. Original ground shadows now follow each
+  living friend independently of airborne body height; source-only shadow
+  changes pass the 15-check Goofy jump and 34-check party fixtures.
 - Discrete enemy decisions, health, value checks, height-limited attacks and stronger exits.
 - Walkable upper ledges above void, solid native prop collision sampling and live preview revalidation.
 - Eight-direction local routes with one-point projected diagonals, native diagonal execution and quarter-segment geometry sampling.

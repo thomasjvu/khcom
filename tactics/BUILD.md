@@ -500,3 +500,21 @@ sleight/Cure/Fire previews, chest card choices and HUD label cleanup.
 The 25-check reward/save/capacity fixture also passes. Optional branches,
 input-only chest collection, other seeds and physical hardware remain
 unverified. This is not a fully polished release.
+
+Post-0.15 source presentation: Donald/Goofy share original shadow tiles and
+palette; each living friend's shadow is drawn at world Y plus standing ground
+height, while the body uses its actual Z. Body/shadow receive the same
+inactive-coincident display offset. Resources are allocated once per room and
+released on exit. `party-shadow-jump-evidence/jumps.txt` passes 15 input-only
+Goofy jump checks; `party-shadow-regression-evidence/party.txt` passes 34 party
+checks, and the rising screenshot was inspected. These tests cover movement
+and party regressions; they do not establish full-run reproducibility. The
+0.15 patch remains the previously packaged hash, without these shadow changes.
+
+The two 0.15 full-run traces match through the first doorway (frame 896),
+then differ within Traverse Town before any world transition. The diagnostic
+trace's first Goofy Guard is at frame 2,180; the earlier trace's is at 2,208.
+This locates divergence earlier than Castle Oblivion but does not prove an
+RNG cause. Room generation explicitly seeds from room state and native enemy
+placement is also seeded; the unresolved audit must consider frame-sensitive
+input/controller behavior as well as presentation/enemy RNG.
