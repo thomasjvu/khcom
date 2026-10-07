@@ -88,13 +88,17 @@ typedef struct NativeFriend {
 static NativeFriend sFriends[2];
 static void* sSoraIdleTiles;
 u16 gNativeFriendPose[2];
-static const AnimDef sFriendAnims[2][3] = {
+static const AnimDef sFriendAnims[2][5] = {
     {{gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,0},
      {gDonaBtLl00Frames,gDonaBtLl00Anims,gDonaBtLl00Tiles,0},
-     {gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,1}},
+     {gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,1},
+     {gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,3},
+     {gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,3}},
     {{gGoofyFl00Frames,gGoofyFl00Anims,gGoofyFl00Tiles,0},
      {gGoofy16Frames,gGoofy16Anims,gGoofy16Tiles,0},
-     {gGoofy01Frames,gGoofy01Anims,gGoofy01Tiles,0}}
+     {gGoofy01Frames,gGoofy01Anims,gGoofy01Tiles,0},
+     {gGoofy05Frames,gGoofy05Anims,gGoofy05Tiles,0},
+     {gGoofy05Frames,gGoofy05Anims,gGoofy05Tiles,1}}
 };
 static void NativePartyPose(u8 member) {
     NativeFriend* friend;
@@ -232,6 +236,7 @@ static void NativePartyDraw(void) {
     s16 x, y;
     int card;
     u8 kind, pose;
+    FldWork* player = ((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
     for (i = 0; i < 2; i++) {
         if (!gNativePartyHealth.hp[i + 1]) continue;
         /* Animate only actual horizontal travel. Preview cursors and rejected
@@ -243,18 +248,26 @@ static void NativePartyDraw(void) {
         sFriends[i].pos = sPartyPos[i + 1];
         if (sFriends[i].timer) sFriends[i].timer--;
         if (sFriends[i].timer || (i == 1 && gNativeGuard && sFriends[i].pose == 1)) pose = 1;
+        if (gNativeParty == i + 1) {
+            if (player->state == FLD_STATE_JUMP_START || player->state == FLD_STATE_JUMP_RISE) pose = 3;
+            else if (player->state == FLD_STATE_FALL) pose = 4;
+        }
         if (sFriends[i].pose != pose) {
             sFriends[i].pose = pose;
             AnimChangeWithDef(sFriendAnims[i], &sFriends[i].anim, pose,
-                ANIM_FLAG_LOOP, sFriends[i].tiles);
+                pose >= 3 ? 0 : ANIM_FLAG_LOOP, sFriends[i].tiles);
         }
         gNativeFriendPose[i] = pose;
+        /* Skip the original scripted jump windup: native physics already
+         * owns launch timing. Hold the matching original airborne frame. */
+        if (i == 0 && pose >= 3) AnimSetFrame(&sFriends[i].anim, pose == 3 ? 3 : 2);
         AnimUpdate(&sFriends[i].anim);
         x = (sFriends[i].pos.x - gFieldState->x) >> 8;
         y = (sFriends[i].pos.y + sFriends[i].pos.z - gFieldState->y) >> 8;
         /* Offset only coincident starting sprites; subsequent positions use
          * the actual trail including ledge and jump heights. */
-        if (sFriends[i].pos.x == gFieldState->actor.fieldPosition.x &&
+        if (gNativeParty != i + 1 &&
+            sFriends[i].pos.x == gFieldState->actor.fieldPosition.x &&
             sFriends[i].pos.y == gFieldState->actor.fieldPosition.y)
             x += i ? 24 : -24;
         if (sFriends[i].tiles && sFriends[i].palette)

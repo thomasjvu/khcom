@@ -117,5 +117,6 @@ Selecting Fire projects the expected HP loss above its nearest valid enemy using
 Fire displays FIRE CARD BREAK when its selected value will be broken by the current floor’s enemy threshold. Playing it still spends the action and card; the projected HP loss is zero.
 
 Donald and Goofy use original walking sprites while moving and return to idle
-when stopped. Casting and Guard keep their action poses. Their jump and climb
-presentation still needs dedicated poses.
+when stopped. Casting and Guard keep their action poses. Original airborne poses follow
+native jump rise/fall states. Active party sprites stay at their physical
+positions; dedicated climb poses remain unfinished.

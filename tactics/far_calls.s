@@ -740,3 +740,12 @@ TacFar_ColliderGetPool:
  bx r3
 .balign 4
 1: .word ColliderGetPool + 1
+
+.balign 4
+.global TacFar_AnimSetFrame
+.thumb_func
+TacFar_AnimSetFrame:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word AnimSetFrame + 1
