@@ -385,7 +385,7 @@ local function replayFrame()
     emu:setKeys(2);phase='release';nextFrame=f+4;return
    end
    if emu:read16(gNativeActionLeft)==0 then requestTurn();return end
-   local key=emu:read8(emu:read32(gFieldState)+0x2c)~=0 and 64 or chestCardKey()
+   local key=emu:read8(emu:read32(gFieldState)+0x2c)~=0 and 320 or chestCardKey()
    if f-chestDebugFrame>=1000 then
     out:write('CHEST INPUT frame='..f..' position='..x..','..y..','..z..' goal='..dx..','..dy..','..dz..' key='..key..' angle='..emu:read8(emu:read32(gFieldState)+0x2c)..'\n');out:flush()
     emu:screenshot('@OUTPUT@/chest-approach.png');chestDebugFrame=f

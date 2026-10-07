@@ -226,3 +226,8 @@ Attached stair previews outline both affordable vertical steps. Up/Down selects
 a step; A commits it for one movement point; B cancels the preview. With no
 movement left, no affordable direction outlines appear. The final descent
 marker shows the supporting floor when it is closer than a full segment.
+
+On the ground, R + D-pad faces the active character in any of eight directions
+without moving or spending movement/action points. It preserves the selected
+card. Cancel a movement preview with B before facing. Use this to aim Sora's
+Keyblade at a chest or nearby enemy without walking past it.

@@ -89,7 +89,10 @@ interactions. Do not replace field actors with icons or flatten elevations.
    not a room impossibility finding. The longer bound is now 300000 frames.
    `--collect-chests` requires nine native chest opens as well as all room bits.
    Card selection has read-only mock checks; controller-only opening remains
-   pending in `all-rooms-chest-command-evidence`. Approach diagnostics exposed
+   pending in `all-rooms-facing-chests-evidence`. R+Dpad now faces the active
+   character without movement, budget use or card cycling; 32 input-only native
+   checks pass across all eight directions. Walking to face caused the earlier
+   chest approach to oscillate; that incomplete replay is preserved. Approach diagnostics exposed
    a replay bug: the walking preview needed cancellation before facing/attacking
    a chest. That fix is in the new run. The first chest attempt stalled
    and is preserved in `all-rooms-chests-cloud-evidence`.

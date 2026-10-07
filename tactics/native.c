@@ -2202,6 +2202,17 @@ static void NativeUpdate(void) {
         if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY) &&
             (player->state == FLD_STATE_GROUND || player->state == FLD_STATE_CLIMB))) {
             NativePreviewInput(pressed);
+        } else if (player->state == FLD_STATE_GROUND && (raw & R_BUTTON) && (pressed & DPAD_ANY) &&
+            !(raw & (L_BUTTON | A_BUTTON | B_BUTTON | START_BUTTON | SELECT_BUTTON))) {
+            u16 direction = raw & DPAD_ANY;
+            if (direction & DPAD_UP) direction &= ~DPAD_DOWN;
+            if (direction & DPAD_LEFT) direction &= ~DPAD_RIGHT;
+            gFieldState->actor.speed = 0;
+            gFieldState->actor.angle = (direction & DPAD_UP) ?
+                ((direction & DPAD_LEFT) ? 211 : (direction & DPAD_RIGHT) ? 45 : 0) :
+                (direction & DPAD_DOWN) ? ((direction & DPAD_LEFT) ? 173 : (direction & DPAD_RIGHT) ? 83 : 128) :
+                (direction & DPAD_LEFT) ? 192 : 64;
+            gNativeCommands++;
         } else if (player->state == FLD_STATE_CLIMB && (pressed & DPAD_ANY) && gNativeMoveLeft) {
             gNativeDirection = raw & DPAD_ANY;
             gNativeMoveLeft--;
