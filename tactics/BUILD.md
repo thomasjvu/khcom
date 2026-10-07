@@ -535,3 +535,11 @@ regression, native cycling through Goofy/Sora/knocked-out Donald, preserved
 action budget, actual revival of the chosen member, and explicit invalid
 height/range choice fixtures. Target selection resets on room entry/resume
 and does not change the suspend format. The 0.15 patch remains unchanged.
+
+Cure recovery preview and resolution now share `NativeCureRecovery`, including
+Donald’s bonus and the missing-HP cap. Original value digits appear above the
+chosen party position, offset above incoming damage digits.
+`cure-recovery-evidence/party.txt` passes 44 checks, including capped healing
+for injured Donald, zero recovery for full-health Sora, exact revival HP and
+clearing the preview after spending the action. These are explicit native
+party fixtures, not additional full-run evidence. The 0.15 patch is unchanged.

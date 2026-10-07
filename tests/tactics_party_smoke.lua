@@ -21,10 +21,11 @@ callbacks:add('frame',function()
   check(emu:read8(gNativeDeck+73)==2,'R selects Cure in the real hand')
   emu:write16(gGameState+0x32,40)
  end
- if f==332 then check(emu:read16(gNativeCureTarget)==1,'Cure preview selects injured Donald before play');emu:screenshot('@OUTPUT@/cure-target.png');emu:setKeys(1) end
+ if f==332 then check(emu:read16(gNativeCureHeal)==16,'Cure recovery preview caps Donald healing at missing HP');check(emu:read16(gNativeCureTarget)==1,'Cure preview selects injured Donald before play');emu:screenshot('@OUTPUT@/cure-target.png');emu:setKeys(1) end
  if f==334 then emu:setKeys(0) end
  if f==370 then
   check(hp()==56,'Donald Cure has healing bonus')
+  check(emu:read16(gNativeCureHeal)==0,'spent Cure clears recovery preview')
   check(emu:read16(gNativeActionLeft)==0,'Donald card costs his action')
   check(emu:read8(gNativeDeck+48+2)==2,'played Cure enters discard')
   emu:setKeys(4)
@@ -95,10 +96,11 @@ callbacks:add('frame',function()
  if f==922 then check(emu:read16(gNativeCureTarget)==1,'Cure preview identifies nearby knocked-out Donald');emu:setKeys(258) end
  if f==926 or f==934 or f==942 or f==950 then emu:setKeys(0) end
  if f==930 then check(emu:read16(gNativeCureTarget)==2,'R B chooses nearby Goofy for Cure');emu:setKeys(258) end
- if f==938 then check(emu:read16(gNativeCureTarget)==0,'Cure cycling includes the active Sora');emu:setKeys(258) end
+ if f==938 then check(emu:read16(gNativeCureHeal)==0,'full-health selected Sora previews zero recovery');check(emu:read16(gNativeCureTarget)==0,'Cure cycling includes the active Sora');emu:setKeys(258) end
  if f==946 then
   check(emu:read16(gNativeCureTarget)==1 and emu:read16(gNativeCureChoice)==1,'Cure cycling explicitly selects knocked-out Donald')
   check(emu:read16(gNativeActionLeft)==1,'Cure target cycling preserves the combat action')
+  check(emu:read16(gNativeCureHeal)==reviveHp,'chosen knocked-out Donald previews exact revival HP')
   emu:setKeys(1)
  end
  if f==960 then

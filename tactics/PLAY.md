@@ -140,3 +140,7 @@ specific nearby member, including a knocked-out friend; the named HUD target
 and actual healing use the same choice. A member outside 96 world-space
 pixels or 24 pixels of height cannot remain selected. Cure target choice is
 transient and resets on room entry or resume.
+
+Cure projects original value digits above its chosen recipient to show actual
+HP recovery, capped at missing HP. Donald’s casting bonus is included. A
+full-health target shows zero; a knocked-out target shows revival HP.

@@ -145,6 +145,7 @@ static void NativePreviewDraw(void);
 static void NativePreviewInput(u16 pressed);
 static u16 NativeRouteWalk(void);
 static u8 NativeCureTarget(void);
+static u16 NativeCureRecovery(u8 target, u8 value);
 static Task* NativeFireTarget(void);
 static void NativeCycleFireTarget(void);
 static void NativeCycleCureTarget(void);
@@ -153,6 +154,7 @@ s16 gNativeFireTarget;
 s16 gNativeFireChoice;
 u16 gNativeFireDamage;
 u16 gNativeCureTarget;
+u16 gNativeCureHeal;
 s16 gNativeCureChoice;
 
 static Task* sEnemyTasks[6];
@@ -1188,9 +1190,24 @@ static void NativeCardIntentDraw(void) {
     s16 x, y;
     gNativeFireTarget = -1;
     gNativeFireDamage = 0;
+    gNativeCureHeal = 0;
     if (gNativeResult || gNativeEnemyFrames || gNativeBusy || gNativePreview ||
-        !gNativeActionLeft || card < 0 || gNativeDeck.stocked ||
-        gNativeDeck.kind[card] != FIELD_CARD_FIRE) return;
+        !gNativeActionLeft || card < 0 || gNativeDeck.stocked || gNativeReward) return;
+    if (gNativeDeck.kind[card] == FIELD_CARD_CURE) {
+        FldPos* pos;
+        i = NativeCureTarget();
+        gNativeCureHeal = NativeCureRecovery(i, gNativeDeck.value[card]);
+        if (!sValueTiles || !sValuePalette) return;
+        pos = &sPartyPos[i];
+        x = (pos->x - gFieldState->x) >> 8;
+        y = ((pos->y + pos->z - gFieldState->y) >> 8) - 40;
+        if (gNativeCureHeal >= 10) DrawSprite(x - 6, y, gCardValueDigitFrames[gNativeCureHeal / 10],
+            sValueTiles, sValuePalette, NULL, 0, 0);
+        DrawSprite(x + 2, y, gCardValueDigitFrames[gNativeCureHeal % 10],
+            sValueTiles, sValuePalette, NULL, 0, 0);
+        return;
+    }
+    if (gNativeDeck.kind[card] != FIELD_CARD_FIRE) return;
     target = NativeFireTarget();
     if (!target) return;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] == target) {
@@ -1237,9 +1254,14 @@ static void NativeCycleCureTarget(void) {
         if (NativeCureEligible(next)) {gNativeCureChoice = next;return;}
     }
 }
+static u16 NativeCureRecovery(u8 target, u8 value) {
+    u16 amount = 8 + value + (gNativeParty == 1 ? 8 : 0);
+    u16 missing = gNativePartyHealth.maxHp[target] - gNativePartyHealth.hp[target];
+    return amount < missing ? amount : missing;
+}
 static void NativeCure(void) {
     u8 target = NativeCureTarget();
-    FieldPartyHeal(&gNativePartyHealth, target, 8 + sPlayedValue + (gNativeParty == 1 ? 8 : 0));
+    FieldPartyHeal(&gNativePartyHealth, target, NativeCureRecovery(target, sPlayedValue));
     gGameState.hp = gNativePartyHealth.hp[gNativeParty];
 }
 
