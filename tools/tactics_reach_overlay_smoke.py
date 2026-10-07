@@ -29,7 +29,8 @@ if not rom.is_file():p.error('matching built ROM required beside ELF')
  'elf_sha256':hashlib.sha256(Path(a.elf).read_bytes()).hexdigest(),
  'driver_sha256':hashlib.sha256(script.encode()).hexdigest(),
  'driver_logic_sha256':hashlib.sha256(script.replace(str(out),'@OUTPUT@').encode()).hexdigest(),
- 'explicit_memory_fixtures':True,
+ 'explicit_memory_fixtures':not a.facing,
+ 'input_only':a.facing,
  'expected_checks':33 if a.facing else 9 if a.crossings else 8,
  'party':a.party if a.facing else None,
  'result':'not yet observed; inspect boss.txt'
