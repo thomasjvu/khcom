@@ -203,6 +203,10 @@ local function replayFrame()
  emu:setKeys(0)
  if emu:read16(gNativeBusy)~=0 then nextFrame=f+8;return end
  if phase=='release' then phase='scan';nextFrame=f+8;return end
+ if emu:read16(gNativeReward)~=0 then
+  out:write('REWARD confirm frame='..f..'\n');out:flush()
+  emu:setKeys(1);phase='release';nextFrame=f+4;return
+ end
  if endingTurn or returningToSora then
   emu:setKeys(turnKey());best=nil;index=1;phase='release';nextFrame=f+4;return
  end

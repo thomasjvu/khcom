@@ -55,7 +55,13 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Exact native suspend snapshots in checksummed dual SRAM slots; emulator-tested
   reset and latest-slot corruption recovery.
 - Bounded HUD font tile allocation; mutable ROM data is rejected by the linker.
-- Original chest animation with one-time healing/card reward; safe placement fallback.
+- Original chest animation with three seeded original-art card choices, selected
+  values, one-time party healing and deck-capacity fallback. Native reward
+  inspection blocks field commands and suspend until confirmation. A 20-check
+  scenario and separate 24-check reward/save/reset fixture verify non-default
+  selection and persisted cards, healing and opened-chest state. Fixture room
+  transitions, chest approach and full-deck edge case use explicit fixtures, not input-only
+  full-run evidence. Safe chest placement fallback remains in place.
 - Three-world progression, defeat, run-clear and retry with a new seed.
 - Room/world transitions retain selected member, all party turn budgets and Guard; actual native forward/back door crossings are emulator checked.
 - Appended code and RAM, bounded Thumb hooks; original ROM assets keep their addresses.
@@ -77,7 +83,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
    Remove assumptions about an 8x6 board. Add projected target/range previews
    and a GBA-sized card HUD using original resources.
 4. **Roguelike content.** Add room roles, enemy groups, authored tactical motifs,
-   reward choices, world-specific hazards, map-card modifiers and canonical field bosses. The current Large Body guardian is an elite encounter with a charged attack cycle.
+   richer reward pools, world-specific hazards, map-card modifiers and canonical field bosses. The current Large Body guardian is an elite encounter with a charged attack cycle.
    Isolate run-generation RNG from combat and presentation RNG. Test optional
    paths, persistent opened chests, enemy clears and backtracking.
 5. **Suspend saves and complete-run QA.** Extend the implemented native dual-slot save as new systems arrive.

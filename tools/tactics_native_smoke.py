@@ -66,10 +66,13 @@ end)
 '''
     (output/'smoke.lua').write_text(source)
     scenario_names = ('gFieldState','gMapRoomState','gMapFloorState','gGameState',
-                      'gNativeKills','gNativeChests','gNativeFloor','gNativeResult','gNativeDeck','gTaskDescMapGmk01')
+                      'gNativeKills','gNativeChests','gNativeFloor','gNativeResult','gNativeDeck','gTaskDescMapGmk01','gNativeReward','gNativeRewardChoice','sRewardSeed','gNativeSaveNotice','gNativeActionLeft','gNativeMoveLeft')
     header = ''.join(f'local {name}=0x{names[name]:08x}\n' for name in scenario_names)
     template = Path('tests/tactics_native_scenarios.lua').read_text()
     (output/'scenarios.lua').write_text(header + template.replace('@OUTPUT@', str(output)))
+    reward = template.split(' if f==650 then')[0].replace('  transition(7)\n', '')
+    reward += Path('tests/tactics_reward_save_tail.lua').read_text()
+    (output/'reward-save.lua').write_text(header + reward.replace('@OUTPUT@', str(output)).replace('/scenarios.txt', '/reward-save.txt'))
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('elf');parser.add_argument('output')
     args=parser.parse_args();generate(args.elf,args.output)

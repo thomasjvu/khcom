@@ -1,3 +1,6 @@
+local rewardSeed=0
+local rewardMove=0
+local rewardAction=0
 local f=0
 local out=io.open('@OUTPUT@/scenarios.txt','w')
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
@@ -48,7 +51,26 @@ callbacks:add('frame',function()
   end
  end
  if f==464 then emu:setKeys(0) end
+ if f==490 then
+  check(emu:read16(gNativeReward)==1,'chest opens a three-card reward choice')
+  check(emu:read8(gNativeDeck+72)==12 and emu:read16(gGameState+0x32)==40,'unconfirmed rewards do not alter deck or health')
+  rewardSeed=emu:read32(sRewardSeed)
+  rewardMove=emu:read16(gNativeMoveLeft);rewardAction=emu:read16(gNativeActionLeft)
+  emu:screenshot('@OUTPUT@/reward-choice.png');emu:setKeys(12)
+ end
+ if f==494 then emu:setKeys(0) end
+ if f==500 then
+  check(emu:read16(gNativeSaveNotice)==0 and emu:read16(gNativeReward)==1,'pending reward blocks suspend and turn advance')
+  check(emu:read16(gNativeMoveLeft)==rewardMove and emu:read16(gNativeActionLeft)==rewardAction,'reward inspection preserves tactical budgets')
+  emu:setKeys(256)
+ end
+ if f==504 then emu:setKeys(0) end
+ if f==508 then check(emu:read16(gNativeRewardChoice)==1,'R selects the second original card reward');emu:setKeys(1) end
+ if f==512 then emu:setKeys(0) end
  if f==530 then
+  check(emu:read16(gNativeReward)==0,'A confirms and dismisses reward choice')
+  check(emu:read8(gNativeDeck+12)==(rewardSeed%4+1)%4 and emu:read8(gNativeDeck+36)==5+((rewardSeed>>8)+1)%5,'chosen card matches the displayed seeded kind and value')
+
   check(emu:read8(gNativeDeck+72)==13,'chest adds a real card to the persistent deck')
   check(emu:read16(gNativeChests)==1,'native chest opens and awards reward once')
   check(emu:read16((gGameState+0x32))==52,'chest restores persistent run HP')

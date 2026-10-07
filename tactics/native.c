@@ -75,6 +75,8 @@ u32 gNativeSeed;
 u16 gNativeFloor;
 u16 gNativeRoomVisits;
 u16 gNativeChests;
+u16 gNativeReward, gNativeRewardChoice;
+static u32 sRewardSeed;
 u16 gNativeResult;
 /* Native assets remain at their matching ROM addresses. Party visuals follow
  * recorded grounded positions, so followers never invent a floor height. */
@@ -288,6 +290,18 @@ static void NativePartyDraw(void) {
             DrawSprite(x - 3, y - 4, gCardValueDigitFrames[gNativeDeck.value[card]],
                 sValueTiles, sValuePalette, NULL, 0, 1);
     }
+    if (gNativeReward && gNativeDeck.count < FIELD_DECK_MAX) {
+        for (i = 0; i < 3; i++) {
+            kind = (sRewardSeed % 4 + i) % 4;
+            x = 76 + i * 44;
+            y = i == gNativeRewardChoice ? 65 : 76;
+            if (sCardTiles[kind] && sCardPalettes[kind])
+                DrawSprite(x, y, sCards[kind]->gfx2, sCardTiles[kind], sCardPalettes[kind], NULL, 0, 2);
+            if (sValueTiles && sValuePalette)
+                DrawSprite(x - 3, y - 4, gCardValueDigitFrames[5 + ((sRewardSeed >> 8) + i) % 5],
+                    sValueTiles, sValuePalette, NULL, 0, 1);
+        }
+    }
     for (i = 0; i < gNativeDeck.stocked; i++) {
         card = gNativeDeck.stock[i];kind = gNativeDeck.kind[card];
         if (sCardTiles[kind] && sCardPalettes[kind])
@@ -318,11 +332,9 @@ u8 NativeChestOpen(MapGmk01Work* work) {
         work->placement->flags |= GMK_FLAG_USED;
         GetMapFloorRoom(gMapFloorState.room)->flags |= FLOOR_ROOM_FLAG_CHEST_OPENED;
         gNativeChests++;
-        FieldDeckReward(&gNativeDeck, GetMapFloorRoom(gMapFloorState.room)->seed);
-        FieldPartyHeal(&gNativePartyHealth, 0, 12);
-        FieldPartyHeal(&gNativePartyHealth, 1, 12);
-        FieldPartyHeal(&gNativePartyHealth, 2, 12);
-        gGameState.hp = gNativePartyHealth.hp[gNativeParty];
+        sRewardSeed = GetMapFloorRoom(gMapFloorState.room)->seed;
+        gNativeRewardChoice = 0;
+        gNativeReward = 1;
     }
     gMapRoomState->flags &= ~ROOM_FLAG_ATTACK_HIT;
     work->update = NULL;
@@ -665,6 +677,10 @@ static void NativeHud(void) {
         if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
             !gNativeClimbing && !charging) NativeLabel(0, 8, "A SLEIGHT L B CANCEL");
     } else NativeLabel(0, 24, gNativeDeck.stocked ? stock : threat);
+    if (gNativeReward) {
+        NativeLabel(0, 8, gNativeDeck.count < FIELD_DECK_MAX ? "CHEST CHOOSE L R A" : "DECK FULL A HEAL      ");
+        NativeLabel(0, 24, "PARTY HEAL 12        ");
+    }
     sHudPending = 1;
 }
 static void NativeExit(void) {
@@ -715,6 +731,7 @@ static void NativeInit(s32 arg) {
     gNativeMoveLeft = 3;
     gNativeActionLeft = 1;
     gNativeBusy = 0;
+    gNativeReward = gNativeRewardChoice = 0;
     gNativeEnemyFrames = 0;
     gNativeDirection = 0;
     sFrames = 0;
@@ -1239,7 +1256,24 @@ static void NativeUpdate(void) {
         ModeRequest(&sNativeMode, 0);
         return;
     }
-    if (!gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
+    if (gNativeReward) {
+        if (pressed & (L_BUTTON | DPAD_LEFT)) gNativeRewardChoice = (gNativeRewardChoice + 2) % 3;
+        else if (pressed & (R_BUTTON | DPAD_RIGHT)) gNativeRewardChoice = (gNativeRewardChoice + 1) % 3;
+        if (pressed & A_BUTTON) {
+            u32 rewardSeed = (sRewardSeed % 4 + gNativeRewardChoice) % 4;
+            rewardSeed |= (((sRewardSeed >> 8) + gNativeRewardChoice) % 5) << 8;
+            FieldDeckReward(&gNativeDeck, rewardSeed);
+            FieldPartyHeal(&gNativePartyHealth, 0, 12);
+            FieldPartyHeal(&gNativePartyHealth, 1, 12);
+            FieldPartyHeal(&gNativePartyHealth, 2, 12);
+            gGameState.hp = gNativePartyHealth.hp[gNativeParty];
+            gNativeReward = 0;
+        }
+        /* Choosing a reward cannot also commit a field action or save an
+         * opened chest before its reward has been granted. */
+        pressed = 0;
+    }
+    if (!gNativeReward && !gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
         !(gFieldState->flags & (FIELD_FLAG_FREEZE_PLAYER | FIELD_FLAG_ROOM_CREATE))) {
         if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY) &&
             (player->state == FLD_STATE_GROUND || player->state == FLD_STATE_CLIMB))) {
@@ -1456,7 +1490,7 @@ static void NativeUpdate(void) {
     }
     /* The native actor can still detect the doorway while standing at the
      * final exit. A terminal run must not keep advancing its floor counter. */
-    if (gNativeResult) gFieldState->flags &= ~FIELD_FLAG_EXIT_ROOM;
+    if (gNativeResult || gNativeReward) gFieldState->flags &= ~FIELD_FLAG_EXIT_ROOM;
     if (gFieldState->flags & FIELD_FLAG_EXIT_ROOM) {
         if (gMapFloorState.room == 7 && gMapRoomState->doorRoom == TAC_WORLD_EXIT) {
             if (GetMapFloorRoom(7)->enemiesLeft == 0) {
