@@ -89,7 +89,9 @@ interactions. Do not replace field actors with icons or flatten elevations.
    not a room impossibility finding. The longer bound is now 300000 frames.
    `--collect-chests` requires nine native chest opens as well as all room bits.
    Card selection has read-only mock checks; controller-only opening remains
-   pending in `all-rooms-chest-approach-evidence`. The first chest attempt stalled
+   pending in `all-rooms-chest-command-evidence`. Approach diagnostics exposed
+   a replay bug: the walking preview needed cancellation before facing/attacking
+   a chest. That fix is in the new run. The first chest attempt stalled
    and is preserved in `all-rooms-chests-cloud-evidence`.
    It checks original generated geometry with actual controller movement;
    successful replay coverage still does not prove a generation guarantee.

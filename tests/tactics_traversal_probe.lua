@@ -381,6 +381,9 @@ local function replayFrame()
   local x,y,z=pos()
   if chest and math.abs(x-dx)<2048 and math.abs(y-dy)<4096 and math.abs(z-dz)<2048 and
      (emu:read8(emu:read32(gFieldState)+0x2c)~=0 or (y>=dy-4096 and y<=dy+1024)) then
+   if emu:read16(gNativePreview)~=0 then
+    emu:setKeys(2);phase='release';nextFrame=f+4;return
+   end
    if emu:read16(gNativeActionLeft)==0 then requestTurn();return end
    local key=emu:read8(emu:read32(gFieldState)+0x2c)~=0 and 64 or chestCardKey()
    if f-chestDebugFrame>=1000 then
