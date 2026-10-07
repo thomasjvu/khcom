@@ -43,11 +43,12 @@ callbacks:add('frame',function()
    local p=field()
    emu:write32(p+0x18,emu:read32(chest+4));emu:write32(p+0x1c,emu:read32(chest+8)+0x1000)
    emu:write32(p+0x20,emu:read32(chest+12));emu:write32(p+0x24,emu:read32(chest+16))
-   emu:write8(p+0x2c,0);emu:write16((gGameState+0x32),40);emu:setKeys(1)
+   emu:write8(p+0x2c,0);emu:write16((gGameState+0x32),40);emu:write8(gNativeDeck+73,3);emu:setKeys(1)
   end
  end
  if f==404 then emu:setKeys(0) end
  if f==470 then
+  check(emu:read8(gNativeDeck+72)==13,'chest adds a real card to the persistent deck')
   check(emu:read16(gNativeChests)==1,'native chest opens and awards reward once')
   check(emu:read16((gGameState+0x32))==52,'chest restores persistent run HP')
   emu:screenshot('@OUTPUT@/chest-open.png')

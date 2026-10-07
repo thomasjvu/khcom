@@ -491,3 +491,174 @@ TacFar_MapReserveArea:
  bx ip
 .balign 4
 1: .word MapReserveArea + 1
+
+.balign 4
+.global TacFar_AllocObjTiles
+.thumb_func
+TacFar_AllocObjTiles:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word AllocObjTiles + 1
+
+.balign 4
+.global TacFar_LoadObjTiles
+.thumb_func
+TacFar_LoadObjTiles:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word LoadObjTiles + 1
+
+.balign 4
+.global TacFar_LoadObjPalette
+.thumb_func
+TacFar_LoadObjPalette:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word LoadObjPalette + 1
+
+.balign 4
+.global TacFar_AnimInit
+.thumb_func
+TacFar_AnimInit:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word AnimInit + 1
+
+.balign 4
+.global TacFar_AnimStart
+.thumb_func
+TacFar_AnimStart:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word AnimStart + 1
+
+.balign 4
+.global TacFar_AnimUpdate
+.thumb_func
+TacFar_AnimUpdate:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word AnimUpdate + 1
+
+.balign 4
+.global TacFar_AnimGetGfx
+.thumb_func
+TacFar_AnimGetGfx:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word AnimGetGfx + 1
+
+.balign 4
+.global TacFar_DrawSprite
+.thumb_func
+TacFar_DrawSprite:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word DrawSprite + 1
+
+.balign 4
+.global TacFar_ReleaseObjTiles
+.thumb_func
+TacFar_ReleaseObjTiles:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word ReleaseObjTiles + 1
+
+.balign 4
+.global TacFar_ReleaseObjPalette
+.thumb_func
+TacFar_ReleaseObjPalette:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word ReleaseObjPalette + 1
+
+.balign 4
+.global TacFar_MapCellAtPos
+.thumb_func
+TacFar_MapCellAtPos:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word MapCellAtPos + 1
+
+.balign 4
+.global TacFar_GetFldPosFloor
+.thumb_func
+TacFar_GetFldPosFloor:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word GetFldPosFloor + 1
+
+.balign 4
+.global TacFar_GetBgScreenBase
+.thumb_func
+TacFar_GetBgScreenBase:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word GetBgScreenBase + 1
+
+.balign 4
+.global TacFar_ColliderSetPosition
+.thumb_func
+TacFar_ColliderSetPosition:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word ColliderSetPosition + 1
+
+.balign 4
+.global TacFar_AnimChangeWithDef
+.thumb_func
+TacFar_AnimChangeWithDef:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word AnimChangeWithDef + 1

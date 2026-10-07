@@ -66,7 +66,7 @@ end)
 '''
     (output/'smoke.lua').write_text(source)
     scenario_names = ('gFieldState','gMapRoomState','gMapFloorState','gGameState',
-                      'gNativeKills','gNativeChests','gNativeFloor','gNativeResult','gTaskDescMapGmk01')
+                      'gNativeKills','gNativeChests','gNativeFloor','gNativeResult','gNativeDeck','gTaskDescMapGmk01')
     header = ''.join(f'local {name}=0x{names[name]:08x}\n' for name in scenario_names)
     template = Path('tests/tactics_native_scenarios.lua').read_text()
     (output/'scenarios.lua').write_text(header + template.replace('@OUTPUT@', str(output)))

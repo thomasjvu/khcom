@@ -93,15 +93,15 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.2-field.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.2-field.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.3-party.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.3-party.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
 round-trip. Application verifies source, target and patch CRC32 values.
 Distribute source and the patch, never the ROM or extracted assets.
 
-## Recorded verification, 2026-10-06
+## Recorded verification, 2026-10-07
 
 - Original matching US ROM remains byte-identical.
 - Old rules/save core passes strict C89, ASan/UBSan and 30 deterministic runs.
@@ -112,7 +112,20 @@ Distribute source and the patch, never the ROM or extracted assets.
   three world asset sets, run clear and retry.
 - New target BPS patch reconstructs the built ROM exactly.
 
-The native version still needs card/deck integration, height-aware route and
-intent previews, physical reachability guarantees, bosses, suspend saves,
+Native party/deck/save modules pass strict C89 and ASan/UBSan. Save tests
+flip every record byte, verify older-slot fallback and generation wraparound.
+Party mGBA replay passes selection, individual budgets, card effects, reload
+costs, reset restoration and corrupted-slot recovery. Generate it with:
+
+```sh
+python3 tools/tactics_party_smoke.py build/tactics-us/kh_tactics.elf build/tactics-us/party-evidence
+/Applications/mGBA.app/Contents/MacOS/mGBA --script build/tactics-us/party-evidence/party.lua build/tactics-us/kh_tactics.gba
+```
+
+Run integration replays against a fresh copy of the ROM with its own filename
+and save file, so an existing suspend does not change the starting state.
+
+The native version still needs height-aware route and
+intent previews, physical reachability guarantees, distinct bosses, sleights,
 input-only complete-run QA and hardware validation. The board alpha's earlier
 emulator results do not establish these features in the native target.

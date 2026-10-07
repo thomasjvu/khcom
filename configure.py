@@ -269,7 +269,7 @@ if missing_assets:
 
 tactics_objects = []
 if args.tactics:
-    for source in ("tactics/tactics.c", "tactics/save.c", "tactics/worldgen.c", "tactics/native.c"):
+    for source in ("tactics/worldgen.c", "tactics/field_deck.c", "tactics/field_save.c", "tactics/native.c"):
         obj = f"{build_dir}/tactics/{Path(source).stem}.o"
         units.append((Path(source), obj, None))
         tactics_objects.append(obj)
@@ -301,8 +301,13 @@ with open(ldscript, "w") as f:
                 f.write(f"        {obj}({section});\n")
         f.write("        . = ALIGN(4);\n        gTacticsRomStart = .;\n")
         for obj in tactics_objects:
-            f.write(f"        {obj}(.text .rodata .data);\n")
+            f.write(f"        {obj}(.text .rodata);\n")
+        f.write("        gTacticsInitDataStart = .;\n")
+        for obj in tactics_objects:
+            f.write(f"        {obj}(.data);\n")
+        f.write("        gTacticsInitDataEnd = .;\n")
         f.write("    }\n    gTacticsRomLimit = ASSERT(SIZEOF(.text) <= 0x2000000, \"tactics exceeds GBA ROM capacity\");\n")
+        f.write('    gTacticsInitDataCheck = ASSERT(gTacticsInitDataEnd - gTacticsInitDataStart <= 0, "initialize tactics mutable globals at runtime");\n')
     else:
         f.write("        *(.rodata);\n        *(.data);\n    }\n")
     f.write("\n    .iwram 0x03000000 (NOLOAD) :\n    {\n")

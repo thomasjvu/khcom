@@ -20,8 +20,15 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Seeded custom platform parameters drive CoM's procedural room builder.
 - Traverse Town, Agrabah and Castle Oblivion tiles/palettes/props load normally.
 - Original Sora and field enemy animation, collision, camera and climbing tasks.
-- Discrete movement/action budgets, enemy phases, field sword hits and contact damage.
-- Original chest animation with one-time healing; safe placement fallback.
+- Selectable Sora/Donald/Goofy with individual movement/action budgets and original sprites.
+- Original Donald casting and Goofy guard animation resources.
+- Discrete enemy decisions, health, value checks, height-limited attacks and stronger exits.
+- Native twelve-card shared deck, five-card hand, original card/value artwork,
+  discard/reload, Kingdom Key/Fire/Cure/Guard, character bonuses and chest cards.
+- Exact native suspend snapshots in checksummed dual SRAM slots; emulator-tested
+  reset and latest-slot corruption recovery.
+- Bounded HUD font tile allocation; mutable ROM data is rejected by the linker.
+- Original chest animation with one-time healing/card reward; safe placement fallback.
 - Three-world progression, defeat, run-clear and retry with a new seed.
 - Appended code and RAM, bounded Thumb hooks; original ROM assets keep their addresses.
 - Asset-free rules/save/graph tests and local mGBA smoke/scenario replays.
@@ -35,21 +42,20 @@ interactions. Do not replace field actors with icons or flatten elevations.
    reachability for every generated room, then regenerate invalid rooms using
    a bounded retry policy. Current graph tests verify room connectivity, not
    complete physical navigation inside each room.
-2. **Authoritative field combat.** Replace temporary legacy AI time windows
-   with discrete enemy decisions and bounded movement paths. Give actors HP,
-   card values, height-sensitive range and telegraphed targets. Keep animations
+2. **Authoritative field combat.** Extend discrete enemy decisions with bounded movement paths, blocked-axis
+   recovery, world-specific behavior and collision/occupancy checks. Give party members independent HP and telegraphed targets; persist partial
+   enemy damage and positions during room backtracking. Keep animations
    running during input wait without advancing authoritative actions.
-3. **Port the tested card systems.** Adapt the existing draw/discard/exhaust,
-   reload, card breaks, Cure/Guard/Fire and sleights to field actors/surfaces.
+3. **Port the tested card systems.** Extend the native deck with exhaust, sleights and target selection.
+   The basic draw/discard/reload and card effects already run in the field.
    Remove assumptions about an 8x6 board. Add projected target/range previews
    and a GBA-sized card HUD using original resources.
 4. **Roguelike content.** Add room roles, enemy groups, authored tactical motifs,
    reward choices, world-specific hazards, map-card modifiers and field bosses.
    Isolate run-generation RNG from combat and presentation RNG. Test optional
    paths, persistent opened chests, enemy clears and backtracking.
-5. **Suspend saves and complete-run QA.** Serialize run seed, generated world,
-   room state, actor surfaces, HP/deck and turn state in versioned dual slots.
-   The board save format is not sufficient for field state. Add input-only
+5. **Suspend saves and complete-run QA.** Extend the implemented native dual-slot save as new systems arrive.
+   The board save format is excluded from the native ROM target. Add input-only
    full-run tests for victory/defeat, doors, climbing, reward choices, reset and
    corrupted-save recovery. Produce a verified BPS patch and release notes.
 
@@ -61,6 +67,9 @@ budgets. Native scenario checks use explicit fixtures to place an enemy/chest
 within range and request room transitions; they verify field hit/reward
 handlers and lifecycle/progression, not a complete player-driven run.
 
-Physical hardware, full native card combat, physical route guarantees and an
-input-only three-world run remain unverified. Keep the matching US build
+Party/card/save integration replays verify selection, independent budgets,
+character bonuses, discards, reload costs, exact state restoration and
+corrupted-slot fallback. Healing HP and corruption are deliberate test fixtures.
+Physical hardware, physical route guarantees and an input-only three-world
+run remain unverified. The polish goal remains active. Keep the matching US build
 byte-identical and never include ROMs or extracted game assets in Git or patches.

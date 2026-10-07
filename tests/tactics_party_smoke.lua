@@ -1,0 +1,69 @@
+local f=0
+local out=io.open('@OUTPUT@/party.txt','w')
+local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
+local function hp() return emu:read16(gGameState+0x32) end
+callbacks:add('frame',function()
+ f=f+1
+ if f==180 then emu:setKeys(4) end
+ if f==184 then emu:setKeys(0) end
+ if f==210 then check(emu:read16(gNativeParty)==1,'Select controls Donald');emu:setKeys(64) end
+ if f==214 then emu:setKeys(0) end
+ if f==290 then check(emu:read16(gNativeMoveLeft)==2,'Donald has his own movement budget');emu:setKeys(256) end
+ if f==294 then emu:setKeys(0) end
+ if f==310 then emu:setKeys(256) end
+ if f==314 then emu:setKeys(0) end
+ if f==330 then
+  check(emu:read8(gNativeDeck+73)==2,'R selects Cure in the real hand')
+  emu:write16(gGameState+0x32,40);emu:setKeys(1)
+ end
+ if f==334 then emu:setKeys(0) end
+ if f==370 then
+  check(hp()==63,'Donald Cure has healing bonus')
+  check(emu:read16(gNativeActionLeft)==0,'Donald card costs his action')
+  check(emu:read8(gNativeDeck+48+2)==2,'played Cure enters discard')
+  emu:setKeys(4)
+ end
+ if f==374 then emu:setKeys(0) end
+ if f==400 then
+  check(emu:read16(gNativeParty)==2,'Select controls Goofy')
+  check(emu:read16(gNativeActionLeft)==1 and emu:read16(gNativeMoveLeft)==3,'Goofy budgets remain independent')
+  emu:setKeys(1)
+ end
+ if f==404 then emu:setKeys(0) end
+ if f==430 then
+  check(emu:read16(gNativeGuard)==2,'Goofy card activates enhanced guard')
+  emu:setKeys(12)
+ end
+ if f==434 then emu:setKeys(0) end
+ if f==470 then
+  check(emu:read16(gNativeSaveNotice)==1,'native suspend write verifies SRAM')
+  emu:screenshot('@OUTPUT@/party.png')
+  emu:write16(gGameState+0x32,50);emu:setKeys(12)
+ end
+ if f==474 then emu:setKeys(0) end
+ if f==500 then
+  check(emu:read16(gNativeSaveNotice)==1,'second save writes alternate slot')
+  emu:write8(0x0e000200,0) -- Corrupt latest magic; older committed slot survives.
+  emu:reset()
+ end
+ if f==720 then
+  check(hp()==63,'reset recovers previous valid save after latest corruption')
+  check(emu:read16(gNativeParty)==2,'suspend restores selected Goofy')
+  check(emu:read16(gNativeGuard)==2,'suspend restores guard state')
+  check(emu:read8(gNativeDeck+50)==2,'suspend restores card discard pile')
+  check(emu:read16(gNativeActionLeft)==0,'suspend restores spent party action')
+  emu:setKeys(4)
+ end
+ if f==724 then emu:setKeys(0) end
+ if f==750 then
+  check(emu:read16(gNativeParty)==0 and emu:read16(gNativeActionLeft)==1,'Sora retains independent action after resume')
+  emu:setKeys(768)
+ end
+ if f==754 then emu:setKeys(0) end
+ if f==780 then
+  check(emu:read16(gNativeActionLeft)==0,'L R reload spends active action')
+  check(emu:read8(gNativeDeck+50)~=2,'reload recycles discarded cards')
+  emu:screenshot('@OUTPUT@/resume.png')
+  out:close()
+ end
+end)
