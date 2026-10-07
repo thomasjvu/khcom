@@ -15,6 +15,8 @@ local function place(distance)
 end
 callbacks:add('frame',function()
  f=f+1
+ if f==180 then emu:setKeys(1) end
+ if f==184 then emu:setKeys(0) end
  if f==200 then emu:setKeys(4) end
  if f==204 then emu:setKeys(0) end
  if f==230 then check(emu:read16(gNativeParty)==1,'Select controls Donald');place(64) end

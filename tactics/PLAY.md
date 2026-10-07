@@ -172,3 +172,9 @@ enemy within 48 world pixels and 24 pixels of height. Original number sprites
 preview damage. Sora retains native Keyblade swings. These are the first distinct
 character attacks; party assembly, recruitable character cards and upgrades are
 being implemented according to `PARTY-ROGUELIKE.md`.
+
+At room entry, ROUND SETUP shows the starter cards. L/R selects the starting
+hero; A or Start confirms. Confirmation changes control without spending the
+hero's action. Combat and movement wait for confirmation. Resuming an active
+battle preserves it and skips setup. This is the initial starter-leader screen;
+custom roster deployment and recruitment remain unfinished.

@@ -40,3 +40,13 @@ Eleven native emulator checks verify character attacks and roster unlock/power/
 sleight persistence. The assembly/recruitment UI and combat identity mapping
 are not connected yet; Cloud is not playable simply because the roster holds
 his unlocked bit. Gameplay wiring remains required.
+
+First round-start setup UI is now connected. It shows original Donald/Goofy
+character cards and Sora's Keyblade card, selects a starting controllable hero
+with L/R, and commits with A/Start. Combat commands are gated until confirmation.
+Donald's setup card borrows the Fire artwork budget; confirmation releases it
+and restores Fire. Ten native setup checks pass, including action preservation
+and control selection. This currently chooses the starter leader, not a custom
+recruited team. Character slot mapping, bench/roster selection, Cloud recruitment
+and battle rewards still need gameplay integration. Text HUD readability remains
+unfinished. Evidence: `assembly-evidence/assembly.txt` and screenshots.

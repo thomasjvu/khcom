@@ -121,6 +121,11 @@ static void NativePartyPose(u8 member) {
     AnimChangeWithDef(sFriendAnims[member - 1], &friend->anim, 1,
         ANIM_FLAG_LOOP, friend->tiles);
 }
+u16 gNativeAssembly;
+static u16 sAssemblyChoice, sAssemblyResume;
+static const CardDef* sAssemblyDonald;
+static void* sAssemblyTiles;
+static ObjPalette* sAssemblyPalette;
 FieldRoster gNativeRoster;
 static FldPos sPartyPos[3];
 static u16 sPartyMove[3], sPartyAction[3];
@@ -498,6 +503,54 @@ static void NativePartySelect(void) {
     gNativeMoveLeft = sPartyMove[gNativeParty];
     gNativeActionLeft = sPartyAction[gNativeParty];
 }
+static void NativeAssemblyFree(void) {
+    if (sAssemblyTiles) ReleaseObjTiles(sAssemblyTiles);
+    if (sAssemblyPalette) ReleaseObjPalette(sAssemblyPalette);
+    sAssemblyTiles = NULL;sAssemblyPalette = NULL;
+}
+static void NativeAssemblyInit(void) {
+    u16 i;
+    sAssemblyChoice = gNativeParty;
+    sAssemblyDonald = NULL;sAssemblyTiles = NULL;sAssemblyPalette = NULL;
+    if (!gNativeAssembly) return;
+    /* Round-start cards reuse the Fire resource budget, then restore it on
+     * deployment. No extra palette bank is reserved during combat. */
+    if (sCardTiles[1]) ReleaseObjTiles(sCardTiles[1]);
+    if (sCardPalettes[1]) ReleaseObjPalette(sCardPalettes[1]);
+    sCardTiles[1] = NULL;sCardPalettes[1] = NULL;
+    for (i = 0; i < 950; i++) if (gCardDefs[i].kind == CARD_KIND_DONALD_DUCK && gCardDefs[i].value == 5) {
+        sAssemblyDonald = &gCardDefs[i];break;
+    }
+    if (sAssemblyDonald) {
+        sAssemblyTiles = LoadObjTiles(sAssemblyDonald->tiles2, 0x200);
+        sAssemblyPalette = LoadObjPalette(sAssemblyDonald->palette2, 32);
+    }
+}
+static void NativeAssemblyCommit(void) {
+    if (!gNativePartyHealth.hp[sAssemblyChoice]) return;
+    while (gNativeParty != sAssemblyChoice) NativePartySelect();
+    NativeAssemblyFree();
+    if (sCards[1]) {
+        sCardTiles[1] = LoadObjTiles(sCards[1]->tiles2, 0x200);
+        sCardPalettes[1] = LoadObjPalette(sCards[1]->palette2, 32);
+    }
+    FieldRosterBegin(&gNativeRoster, gMapFloorState.room);
+    gNativeAssembly = 0;
+}
+static void NativeAssemblyDraw(void) {
+    u8 i;
+    const CardDef* card;
+    void* tiles;
+    ObjPalette* palette;
+    if (!gNativeAssembly) return;
+    for (i = 0; i < 3; i++) {
+        card = i == 1 ? sAssemblyDonald : sCards[i == 0 ? 0 : 3];
+        tiles = i == 1 ? sAssemblyTiles : sCardTiles[i == 0 ? 0 : 3];
+        palette = i == 1 ? sAssemblyPalette : sCardPalettes[i == 0 ? 0 : 3];
+        if (card && tiles && palette) DrawSprite(68 + i * 52, i == sAssemblyChoice ? 65 : 78,
+            card->gfx2, tiles, palette, NULL, 0, 1);
+    }
+}
 static void NativePartyDraw(void) {
     u8 i;
     s16 x, y;
@@ -586,6 +639,7 @@ static void NativePartyDraw(void) {
 }
 static void NativePartyFree(void) {
     u8 i;
+    NativeAssemblyFree();
     if (sMarlTiles) ReleaseObjTiles(sMarlTiles);
     if (sMarlPalette) ReleaseObjPalette(sMarlPalette);
     gNativeMarlReady = 0;
@@ -1011,6 +1065,12 @@ static void NativeHud(void) {
         NativeLabel(0, 8, gNativeDeck.count < FIELD_DECK_MAX ? "CHEST CHOOSE L R A" : "DECK FULL A HEAL");
         NativeLabel(0, 24, "PARTY HEAL 12");
     }
+    if (gNativeAssembly) {
+        NativeLabel(0, 8, "ROUND SETUP L R A");
+        NativeLabel(0, 24, "CHOOSE STARTING HERO");
+        NativeLabel(0, 32, sAssemblyChoice == 0 ? "SORA KEYBLADE" :
+            sAssemblyChoice == 1 ? "DONALD MAGIC" : "GOOFY SHIELD");
+    }
     sHudPending = 1;
 }
 static void NativeExit(void) {
@@ -1082,6 +1142,7 @@ static void NativeInit(s32 arg) {
     sAttack = 0;
     gNativePreview = 0;
     sPathLength = 0;
+    sAssemblyResume = sResume;
     NativePartyInit();
     NativeArmorInit();
     NativeJafarInit();
@@ -1141,6 +1202,9 @@ static void NativeInit(s32 arg) {
                 work->obj.fieldPosition.y, work->obj.fieldPosition.z);
         }
     }
+    gNativeAssembly = sAssemblyResume ? gNativeRoster.phase == FIELD_ASSEMBLY : 1;
+    if (gNativeAssembly) {gNativeRoster.phase = FIELD_ASSEMBLY;gNativeRoster.reward = 0;}
+    NativeAssemblyInit();
     sHudPending = 0;
     sHudTiles = EwramAlloc(161 * 32);
     sHudScreen = EwramAlloc(2048);
@@ -1779,6 +1843,12 @@ static void NativeUpdate(void) {
         ModeRequest(&sNativeMode, 0);
         return;
     }
+    if (gNativeAssembly) {
+        if (pressed & (L_BUTTON | DPAD_LEFT)) sAssemblyChoice = (sAssemblyChoice + 2) % 3;
+        else if (pressed & (R_BUTTON | DPAD_RIGHT)) sAssemblyChoice = (sAssemblyChoice + 1) % 3;
+        if (pressed & (A_BUTTON | START_BUTTON)) NativeAssemblyCommit();
+        pressed = 0;
+    }
     if (gNativeReward) {
         if (pressed & (L_BUTTON | DPAD_LEFT)) gNativeRewardChoice = (gNativeRewardChoice + 2) % 3;
         else if (pressed & (R_BUTTON | DPAD_RIGHT)) gNativeRewardChoice = (gNativeRewardChoice + 1) % 3;
@@ -1796,7 +1866,7 @@ static void NativeUpdate(void) {
          * opened chest before its reward has been granted. */
         pressed = 0;
     }
-    if (!gNativeReward && !gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
+    if (!gNativeAssembly && !gNativeReward && !gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
         !(gFieldState->flags & (FIELD_FLAG_FREEZE_PLAYER | FIELD_FLAG_ROOM_CREATE))) {
         if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY) &&
             (player->state == FLD_STATE_GROUND || player->state == FLD_STATE_CLIMB))) {
@@ -2013,6 +2083,7 @@ static void NativeUpdate(void) {
     gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
     NativePreviewThreats();
     NativePartyDraw();
+    NativeAssemblyDraw();
     NativeIntentDraw();
     NativeCardIntentDraw();
     NativeSleightIntentDraw();
