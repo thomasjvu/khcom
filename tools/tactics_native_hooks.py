@@ -20,9 +20,10 @@ def install(elf, rom):
         if len(fields) >= 3:
             symbols[fields[-1]] = (int(fields[0], 16), int(fields[1],16) if len(fields)==4 else 0)
     for name, expected in {'sKeysHeld': 0x02034000, 'sKeysPressed': 0x02034002,
-                           'sKeysRepeat': 0x02034004}.items():
+                           'sKeysRepeat': 0x02034004,
+                           'sMapGmkPaletteCount': 0x02034f79}.items():
         if symbols[name][0] != expected:
-            raise ValueError(f'US input RAM layout changed: {name}')
+            raise ValueError(f'US native RAM layout changed: {name}')
     data = bytearray(Path(rom).read_bytes())
     for original, replacement in HOOKS.items():
         addr, size = symbols[original]

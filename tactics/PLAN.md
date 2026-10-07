@@ -90,7 +90,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
    Remove assumptions about an 8x6 board. Add projected target/range previews
    and a GBA-sized card HUD using original resources.
 4. **Roguelike content.** Add room roles, enemy groups, authored tactical motifs,
-   richer reward pools, world-specific hazards, map-card modifiers and canonical field bosses. Traverse Town now has original multipart Guard Armor art with a warned 80-pixel slam; Agrabah/Castle still have Large Body elites. Guard Armor now uses original crouch/orbit animation frames for windup and impact. HP-derived hand-loss phases weaken its attack reach/damage and survive suspend, with original spark effects when card damage changes phase. Additional boss moves and the remaining canonical bosses need implementation.
+   richer reward pools, world-specific hazards, map-card modifiers and canonical field bosses. Traverse Town now has original multipart Guard Armor art with a warned 80-pixel slam; Agrabah now has original field/lamp art for a solo sorcerer Jafar with a charged single-target spell; Castle retains a Large Body elite. Jafar's original giant Genie battle form is not ported. Guard Armor now uses original crouch/orbit animation frames for windup and impact. HP-derived hand-loss phases weaken its attack reach/damage and survive suspend, with original spark effects when card damage changes phase. Additional boss moves and the remaining canonical bosses need implementation.
    Isolate run-generation RNG from combat and presentation RNG. Test optional
    paths, persistent opened chests, enemy clears and backtracking.
 5. **Suspend saves and complete-run QA.** Extend the implemented native dual-slot save as new systems arrive.

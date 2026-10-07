@@ -11,7 +11,9 @@ int FieldEnemyKind(unsigned int seed, int floor, int room, int slot) {
     if (floor < 0 || floor > 2 || slot < 0) return 0;
     /* The entry room remains a predictable introduction to field combat. */
     if (room == 0 && floor == 0) return slot & 1;
-    return groups[floor][((seed >> 8) + slot) & 3];
+    /* Three-unit cohorts share two original enemy palettes. Room seeds vary
+     * the pair, preserving every world role within the GBA's OBJ bank limit. */
+    return groups[floor][((seed >> 8) + (slot & 1)) & 3];
 }
 int FieldEnemyHp(int kind, int floor) {
     if (kind == 2) return 40 + floor * 8;

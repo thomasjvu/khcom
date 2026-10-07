@@ -793,3 +793,49 @@ phase, range/height, damage and suspend checks also pass. Screenshot inspection
 confirms the original yellow spark against the multipart boss. ROM build,
 host checks and diff checks pass. This is focused visual/phase evidence, not
 full-run victory or broader seed/hardware certification.
+
+Agrabah room 7 now contains a solo sorcerer Jafar with 48 HP, using the
+original field idle and lamp-pose sprites/palette. This is a custom tactics
+encounter, not a port of the original giant Genie battle. It retains a native
+field collision task and shadow/effect children. A decision within 96 projected
+pixels and 32 pixels of height charges a single-target 10-damage spell; the
+next decision targets the closest currently reachable living member. Preview
+and resolution share selection and Guard reductions. Saved kind/HP/windup
+reconstruct the art and threat after resume. Original event art has static
+idle/lamp poses; richer casting animation and projectile VFX remain pending.
+
+Jafar's exit regression exposed missing Guard card art, then missing value
+digit palettes in the next Agrabah room. Optional prop placement now stops
+requesting nonmandatory spots once two prop palettes are counted; mandatory
+base props remain exempt. The US installer verifies the original private
+counter address (`sMapGmkPaletteCount` at `0x02034f79`) before patching. Regular
+cohorts reuse two enemy palettes, with seeds varying their pair and all world
+roles retained across seeds. Fresh Traverse Town/Agrabah boss rooms are solo;
+Castle retains its existing encounter. These budgets preserve tested card and
+digit colors within sixteen OBJ banks. Legacy cached cohorts retain stored
+roles; broader legacy-save/seed palette coverage remains unverified.
+
+`jafar-cohort-budget-evidence/boss.txt` passes 24 explicit-fixture checks:
+original Jafar/card/digit resource allocation, actual native windup, exact
+spell range/height bounds, single-target preview/damage, Guard, suspend/reset,
+native Fire defeat and room resource reconstruction. Forced floor advancement,
+positions, and final HP/card selection are fixture setup, not full-run proof.
+Earlier palette failures are preserved. On the same ROM,
+`jafar-budget-armor-regression-evidence/boss.txt` passes 37 checks and
+`jafar-budget-reward-regression-evidence/reward-save.txt` passes 31. Host checks
+verify solo room counts and preserved world-role diversity over seeded groups.
+Native build and diff checks pass. Full-run evidence is recorded separately.
+
+Two fresh-SRAM input-only replays complete all three worlds on this source:
+`jafar-full-run-evidence` reaches victory at frame 97,225 and passes 120-frame
+terminal stability at 97,345; `jafar-full-run-repeat-evidence` reaches victory
+at 97,328 and passes stability at 97,448. Both record 17 kills, 799 movement
+commands and final Sora HP 60. No emulated memory writes, teleports or forced
+exits are used by the full-run driver. Both use ROM SHA-256
+`ae815595a2c7c3de21736baecd64716266aa69fb045799e5292d1f7fcf749d32`.
+Metadata now also records a driver logic hash with only output paths normalized;
+ROM and logic hashes match across these repeats. Separate output directories
+preserve both logs/screenshots/SRAM. Frame timing differs, so these are repeat
+successes rather than bit-identical deterministic traces. Coverage is the
+default seed/main route only; broader seeds, optional branches, full-run reset,
+the remaining boss content, navigation guarantees and hardware remain open.

@@ -45,6 +45,7 @@ if 'emu:write' in script or 'emu.write' in script:
     'elf_sha256': hashlib.sha256(elf.read_bytes()).hexdigest(),
     'rom_sha256': hashlib.sha256(rom.read_bytes()).hexdigest(),
     'driver_sha256': hashlib.sha256(script.encode()).hexdigest(),
+    'driver_logic_sha256': hashlib.sha256(script.replace(str(out), '@OUTPUT@').encode()).hexdigest(),
     'goal_worlds': a.worlds or 0,
     'goal_room': a.rooms,
     'frame_limit': a.frames,

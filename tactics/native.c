@@ -46,6 +46,8 @@ typedef char NativeHpOffset[(offsetof(GameState, hp) == 0x32) ? 1 : -1];
 #define FIELD_KEYS_HELD (*(vu16*)0x02034000)
 #define FIELD_KEYS_PRESSED (*(vu16*)0x02034002)
 #define FIELD_KEYS_REPEAT (*(vu16*)0x02034004)
+/* Verified alongside input symbols by the US hook installer. */
+#define FIELD_PROP_PALETTES (*(vu8*)0x02034f79)
 
 extern MapFloorState gMapFloorState;
 extern MapRoomState* gMapRoomState;
@@ -169,6 +171,52 @@ static AnimState sArmorAnim[7];
 static void* sArmorTiles[7];
 static ObjPalette* sArmorPalette;
 static TaskDesc sArmorTaskDesc;
+extern u8 gNativeEnemyCharge[6];
+extern u8 gNativeEnemyKind[6];
+static TaskDesc sJafarTaskDesc;
+static void* sJafarTiles[2];
+static ObjPalette* sJafarPalette;
+static u16 sJafarImpact;
+u16 gNativeJafarReady, gNativeJafarPose;
+static void NativeJafarDraw(void* arg) {
+    MapEnmWork* work = arg;
+    s16 x = (work->obj.fieldPosition.x - gFieldState->x) >> 8;
+    s16 y = (work->obj.fieldPosition.y + work->obj.fieldPosition.z - gFieldState->y) >> 8;
+    u16 priority = -0x1004 - (work->obj.fieldPosition.y >> 8) * 4;
+    gNativeJafarPose = gNativeEnemyCharge[0] || sJafarImpact ? 1 : 0;
+    if (sJafarImpact) sJafarImpact--;
+    DrawSprite(x, y, gNativeJafarPose ? gJafferLampFrame0 : gJafferFl00Frame0,
+        sJafarTiles[gNativeJafarPose], sJafarPalette, NULL, 0x800, priority);
+    work->obj.shadowZ = work->obj.fieldPosition.ground;
+    work->obj.shadowPriority = priority + 1;
+    TaskPoolDraw(&work->tasks);
+}
+static void NativeJafarInit(void) {
+    MapEnmWork* work;
+    gNativeJafarReady = gNativeJafarPose = sJafarImpact = 0;
+    sJafarTiles[0] = sJafarTiles[1] = NULL;sJafarPalette = NULL;
+    if (gNativeFloor != 1 || gMapFloorState.room != 7 || !sEnemyTasks[0] || gNativeEnemyKind[0] != 2) return;
+    work = sEnemyTasks[0]->work;
+    ReleaseObjTiles(work->tiles);work->tiles = NULL;
+    ReleaseObjPalette(work->palette);work->palette = NULL;
+    sJafarPalette = LoadObjPalette(gJafferPalette, 32);
+    sJafarTiles[0] = AllocObjTiles(GetSpriteTileBytes(gJafferFl00Frame0), gJafferFl00Tiles);
+    sJafarTiles[1] = AllocObjTiles(GetSpriteTileBytes(gJafferLampFrame0), gJafferLampTiles);
+    if (!sJafarPalette || !sJafarTiles[0] || !sJafarTiles[1]) {
+        if (sJafarTiles[0]) ReleaseObjTiles(sJafarTiles[0]);
+        if (sJafarTiles[1]) ReleaseObjTiles(sJafarTiles[1]);
+        if (sJafarPalette) ReleaseObjPalette(sJafarPalette);
+        sJafarTiles[0] = sJafarTiles[1] = NULL;sJafarPalette = NULL;
+        work->tiles = AllocObjTiles(work->def->tileCount * 32, NULL);
+        work->palette = LoadObjPalette(work->def->palette, 32);
+        return;
+    }
+    work->palette = LoadObjPalette(gJafferPalette, 32);
+    sJafarTaskDesc = *sEnemyTasks[0]->desc;
+    sJafarTaskDesc.draw = NativeJafarDraw;
+    sEnemyTasks[0]->desc = &sJafarTaskDesc;
+    gNativeJafarReady = 1;
+}
 u16 gNativeBossReady;
 u16 gNativeBossAllocation;
 u16 gNativeBossPose;
@@ -233,7 +281,7 @@ static void NativeArmorInit(void) {
     gNativeBossBreaks = gNativeBossEffects = 0;
     sArmorPalette = NULL;
     for (i = 0; i < 7; i++) sArmorTiles[i] = NULL;
-    if (gNativeFloor || gMapFloorState.room != 7 || !sEnemyTasks[0]) return;
+    if (gNativeFloor || gMapFloorState.room != 7 || !sEnemyTasks[0] || gNativeEnemyKind[0] != 2) return;
     work = sEnemyTasks[0]->work;
     ReleaseObjTiles(work->tiles);
     work->tiles = NULL;
@@ -287,6 +335,7 @@ u16 gNativeTurn;
 static ObjPalette* sCardPalettes[4];
 static const CardDef* sCards[4];
 u16 gNativeGuard;
+static u16 NativeJafarDamage(void) {return gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : 10;}
 static int NativeBlastRange(u8 slot) {
     return sEnemyTasks[slot]->desc == &sArmorTaskDesc ? FieldArmorRange(gNativeEnemyHp[slot]) :
         FieldEnemyBlastRange(gNativeFloor, gMapFloorState.room);
@@ -461,6 +510,9 @@ static void NativePartyDraw(void) {
 }
 static void NativePartyFree(void) {
     u8 i;
+    for (i = 0; i < 2; i++) if (sJafarTiles[i]) ReleaseObjTiles(sJafarTiles[i]);
+    if (sJafarPalette) ReleaseObjPalette(sJafarPalette);
+    gNativeJafarReady = 0;
     for (i = 0; i < 7; i++) if (sArmorTiles[i]) ReleaseObjTiles(sArmorTiles[i]);
     if (sArmorPalette) ReleaseObjPalette(sArmorPalette);
     gNativeBossReady = 0;
@@ -506,6 +558,9 @@ extern void FldPosPlaceAtCell(FldPos* pos, s16 x, s16 y, u8 w, u8 h);
 u8 NativeGmkFindSpot(FldPos* pos, u8 finder) {
     s16 x, y;
     pos->x = pos->y = pos->z = pos->ground = 0;
+    /* Keep OBJ palette banks available for the controllable party and all
+     * four card illustrations. Mandatory base-floor props are placed first. */
+    if (finder != 13 && FIELD_PROP_PALETTES >= 2) return 0;
     if (finder < 14 && gMapGmkSpotFuncs[finder](pos)) return 1;
     /* Optional decorations must retain their original footprint constraints.
      * Only mandatory base-floor objects use finder 13 and ignore failure. */
@@ -735,6 +790,12 @@ static void NativePreviewThreats(void) {
     for (j = 0; j < 3; j++) gNativeThreats[j] = 0;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i]) {
         work = sEnemyTasks[i]->work;
+        if (sEnemyTasks[i]->desc == &sJafarTaskDesc) {
+            target = NativeEnemyTarget(i, &best, &dz);
+            if (gNativeEnemyCharge[i] && best <= (96 << 8) && dz <= (32 << 8))
+                gNativeThreats[target] += NativeJafarDamage();
+            continue;
+        }
         if (gNativeEnemyKind[i] == 2) {
             if (gNativeEnemyCharge[i]) for (j = 0; j < 3; j++) {
                 if (!gNativePartyHealth.hp[j]) continue;
@@ -808,7 +869,7 @@ static void NativeHud(void) {
     NativeLabel(0, 0, line);
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
     gNativeCureTarget = NativeCureTarget();
-    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : gNativeJafarReady ? "JAFAR SPELL 96" : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, gNativeCureTarget == 0 ? "CURE SORA A PLAY" :
@@ -930,6 +991,7 @@ static void NativeInit(s32 arg) {
     sPathLength = 0;
     NativePartyInit();
     NativeArmorInit();
+    NativeJafarInit();
     if (sCarryTurn) {
         for (i = 0; i < 3; i++) {
             sPartyMove[i] = sCarryMove[i];
@@ -1267,6 +1329,13 @@ static void NativeEnemyTurn(void) {
         work = sEnemyTasks[i]->work;
         closest = NativeEnemyTarget(i, &best, &dz);
         if (gNativeEnemyKind[i] == 2 && gNativeEnemyCharge[i]) {
+            if (sEnemyTasks[i]->desc == &sJafarTaskDesc) {
+                sJafarImpact = 24;
+                if (best <= (96 << 8) && dz <= (32 << 8))
+                    if (FieldPartyDamage(&gNativePartyHealth, closest, NativeJafarDamage())) gNativeResult = 1;
+                gNativeEnemyCharge[i] = 0;
+                continue;
+            }
             if (sEnemyTasks[i]->desc == &sArmorTaskDesc) sArmorImpact = 24;
             for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j]) {
                 distance = NativeAbs(work->obj.fieldPosition.x - sPartyPos[j].x) +
@@ -1321,13 +1390,13 @@ static void NativeEnemies(void) {
         }
         if (!(work->flags & 0x8000)) {
             work->flags |= 0x8000;
-            if (task->desc != &sArmorTaskDesc) MapEnmSetAnim(work, 1, 1);
+            if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc) MapEnmSetAnim(work, 1, 1);
             ColliderSetDisabled(&work->collider, 0);
         }
         if (sAttack && !(work->flags & 0x2000) && MapEnmCheckAttacked(work)) {
             work->flags |= 0x2000;
             NativeDamageEnemy(task, sPlayedValue ? 5 + sPlayedValue / 2 : 3);
-        } else if (task->desc != &sArmorTaskDesc) {
+        } else if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc) {
             MapEnmUpdateAnim(work);
         }
         node = next;

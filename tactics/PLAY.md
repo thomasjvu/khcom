@@ -84,10 +84,9 @@ the reward choice before using field commands or suspend. Confirmed cards,
 healing and opened chests survive suspend/resume; an unconfirmed choice has
 not been saved. Chest flags and room enemy
 counts persist. World groups mix Shadow, ranged Red Nocturne, Darkball and
-Black Fungus. Traverse Town room 7 has a solo Guard Armor with 40 HP, rendered
+Black Fungus. Regular cohorts use two enemy palettes per room, with room seeds varying the pair. Optional props use a limited palette budget so party, card art and value digits can remain visible. Traverse Town room 7 has a solo Guard Armor with 40 HP, rendered
 using its original seven animated sprite components. A charged slam raises its hands and crouches; impact lowers the hands before returning to idle. Its warned slam reaches
-80 pixels for 10 damage. At 26 HP the far hand breaks, reducing reach to 64 pixels and damage to 8. At 13 HP both hands are gone, leaving a 48-pixel body strike for 6 damage. The warning names the current attack and reach. These are custom tactics phases. Agrabah and Castle Oblivion still use Large Body elites with
-48/56 HP and a 64-pixel strike. Within
+80 pixels for 10 damage. At 26 HP the far hand breaks, reducing reach to 64 pixels and damage to 8. At 13 HP both hands are gone, leaving a 48-pixel body strike for 6 damage. The warning names the current attack and reach. These are custom tactics phases. Agrabah now has a solo sorcerer Jafar with 48 HP, using his original field and lamp artwork. He charges a single-target spell reaching 96 projected pixels and 32 pixels of height for 10 damage; equally reachable targets prefer Sora, then Donald, then Goofy. Moving out of reach or playing Guard defends against it. This is a custom tactics form, rather than a port of the original giant Genie battle. Castle Oblivion still uses a 56-HP Large Body elite with a 64-pixel strike. Within
 96 pixels it spends a decision charging, then on its next decision strikes
 all party members within its Manhattan strike radius and 24 pixels of height.
 Move out during the warning or play Guard. Incoming damage uses original
