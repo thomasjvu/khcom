@@ -86,10 +86,7 @@ not been saved. Chest flags and room enemy
 counts persist. World groups mix Shadow, ranged Red Nocturne, Darkball and
 Black Fungus. Regular cohorts use two enemy palettes per room, with room seeds varying the pair. Optional props use a limited palette budget so party, card art and value digits can remain visible. Traverse Town room 7 has a solo Guard Armor with 40 HP, rendered
 using its original seven animated sprite components. A charged slam raises its hands and crouches; impact lowers the hands before returning to idle. Its warned slam reaches
-80 pixels for 10 damage. At 26 HP the far hand breaks, reducing reach to 64 pixels and damage to 8. At 13 HP both hands are gone, leaving a 48-pixel body strike for 6 damage. The warning names the current attack and reach. These are custom tactics phases. Agrabah now has a solo sorcerer Jafar with 48 HP, using his original field and lamp artwork. He charges a single-target spell reaching 96 projected pixels and 32 pixels of height for 10 damage; equally reachable targets prefer Sora, then Donald, then Goofy. Moving out of reach or playing Guard defends against it. This is a custom tactics form, rather than a port of the original giant Genie battle. Castle Oblivion still uses a 56-HP Large Body elite with a 64-pixel strike. Within
-96 pixels it spends a decision charging, then on its next decision strikes
-all party members within its Manhattan strike radius and 24 pixels of height.
-Move out during the warning or play Guard. Incoming damage uses original
+80 pixels for 10 damage. At 26 HP the far hand breaks, reducing reach to 64 pixels and damage to 8. At 13 HP both hands are gone, leaving a 48-pixel body strike for 6 damage. The warning names the current attack and reach. These are custom tactics phases. Agrabah now has a solo sorcerer Jafar with 48 HP, using his original field and lamp artwork. He charges a single-target spell reaching 96 projected pixels and 32 pixels of height for 10 damage; equally reachable targets prefer Sora, then Donald, then Goofy. Moving out of reach or playing Guard defends against it. This is a custom tactics form, rather than a port of the original giant Genie battle. Castle Oblivion has solo humanoid Marluxia with 56 HP, using original battle idle, windup and scythe attack animations. Within 112 projected pixels and 32 pixels of height he spends a decision charging. His next decision sweeps all living members within 96 horizontal pixels, 16 pixels of projected depth and 24 pixels of height. The sweep deals 10 damage, increasing to 14 at 28 HP or less. Move out during the warning or play Guard. Incoming damage uses original
 value digits above threatened characters as well as the NEXT footer. The
 warning is based on current positions; it updates as the party moves.
 
@@ -105,7 +102,7 @@ suspends. This build uses save format 8 to preserve enemy identity, charged atta
 stair controller’s target/facing. Format 7 and earlier saves are incompatible.
 
 This is still a development build. Physical room reachability guarantees, climb/jump routes and
-full area/range overlays, richer rewards, the remaining canonical bosses, complete
+full area/range overlays, richer rewards, additional boss moves, complete
 input-only run testing and hardware validation remain unfinished. Native room
 creation gathers the party at the entry door, preserving the selected member,
 health, remaining movement/actions and Guard. Only ending a turn renews budgets.

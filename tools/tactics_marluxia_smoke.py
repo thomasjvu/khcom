@@ -1,5 +1,7 @@
-"""Generate explicit Marluxia field presentation and spell fixtures."""
+"""Generate explicit Marluxia field presentation and scythe fixtures."""
 import argparse
+import hashlib
+import json
 import subprocess
 from pathlib import Path
 p=argparse.ArgumentParser()
@@ -15,4 +17,16 @@ keys=('gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
  'sEnemyTasks','sPartyPos','gNativeSaveNotice','gNativeGuard','gNativeDeck',
  'sValueTiles','sValuePalette','sCardTiles','sCardPalettes')
 header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
-(out/'boss.lua').write_text(header+Path('tests/tactics_marluxia_smoke.lua').read_text().replace('@OUTPUT@',str(out)))
+script=header+Path('tests/tactics_marluxia_smoke.lua').read_text().replace('@OUTPUT@',str(out))
+rom=Path(a.elf).resolve().with_suffix('.gba')
+if not rom.is_file():p.error('matching built ROM required beside ELF')
+(out/'boss.lua').write_text(script)
+(out/'fixture-metadata.json').write_text(json.dumps({
+ 'rom_sha256':hashlib.sha256(rom.read_bytes()).hexdigest(),
+ 'elf_sha256':hashlib.sha256(Path(a.elf).read_bytes()).hexdigest(),
+ 'driver_sha256':hashlib.sha256(script.encode()).hexdigest(),
+ 'driver_logic_sha256':hashlib.sha256(script.replace(str(out),'@OUTPUT@').encode()).hexdigest(),
+ 'explicit_memory_fixtures':True,
+ 'expected_checks':28,
+ 'result':'not yet observed; inspect boss.txt'
+},indent=2)+'\n')
