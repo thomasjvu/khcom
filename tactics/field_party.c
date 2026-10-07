@@ -24,6 +24,6 @@ int FieldPartyNext(const FieldParty* p,int member) {
     return -1;
 }
 int FieldPartyValid(const FieldParty* p) {
-    return p->maxHp[0]==80&&p->maxHp[1]==56&&p->maxHp[2]==72&&
-        p->hp[0]<=80&&p->hp[1]<=56&&p->hp[2]<=72;
+    return p->maxHp[0]==80&&(p->maxHp[1]==56||p->maxHp[1]==72)&&(p->maxHp[2]==56||p->maxHp[2]==72)&&
+        p->hp[0]<=80&&p->hp[1]<=p->maxHp[1]&&p->hp[2]<=p->maxHp[2];
 }

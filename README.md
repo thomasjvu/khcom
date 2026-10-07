@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The current **0.16 native world-boss development build** runs in the original 2.5D engine with full
+The packaged **0.16 native world-boss development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -148,3 +148,10 @@ defeat and room-exit cleanup. Fixtures write setup state and are not full-run
 proof. Evidence: `build/tactics-us/marluxia-verified-evidence/boss.txt`.
 The published local 0.16 patch predates this change; a new full-run replay is
 required before packaging the Castle boss build.
+
+Current source also supports recruiting Cloud in an optional original-sprite
+battle and deploying him in either companion slot through the round-start card
+screen. Character health, turn resources and upgrades follow identities across
+swaps and suspend saves. Sixteen native deployment checks pass; complete runs
+with the new party mapping still require verification. The packaged 0.16 patch
+predates this work. See `tactics/PARTY-ROGUELIKE.md` for remaining scope.

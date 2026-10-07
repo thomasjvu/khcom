@@ -5,7 +5,8 @@ int main(void) {
     FieldRoster r;int i;
     FieldRosterInit(&r);assert(FieldRosterValid(&r));
     assert(!FieldRosterDeploy(&r,1,FIELD_CLOUD));
-    assert(FieldRosterDeploy(&r,0,FIELD_GOOFY));assert(r.deployed[2]==FIELD_SORA);
+    assert(!FieldRosterDeploy(&r,0,FIELD_GOOFY));
+    assert(FieldRosterDeploy(&r,1,FIELD_GOOFY));assert(r.deployed[2]==FIELD_DONALD);
     assert(FieldRosterBegin(&r,0));assert(!FieldRosterDeploy(&r,1,FIELD_SORA));
     assert(FieldRosterClear(&r,0)==FIELD_REWARD_NONE);
     assert(FieldRosterBegin(&r,1));assert(FieldRosterClear(&r,0)==FIELD_REWARD_UPGRADE);

@@ -61,3 +61,13 @@ are connected using original battle sprites and summon-card art. Both loot
 paths pass fifteen native checks and persist. Next: connect Cloud to deployed
 slot identity, animation, health, movesets and party assembly; keep summon cards
 in recruitment/setup and replace the current Goofy art used for combat Guard.
+
+Cloud deployment and character slot mapping are connected. Setup cycles
+unlocked companions with Up/Down; Sora remains required. Donald, Goofy and Cloud
+use their own animations, caps and card moves in either companion slot. Bench
+health and budgets persist in format 10; swaps cannot refill a spent action.
+Combat Guard uses original Guard Armor card art, keeping summon cards in setup
+and recruitment. Sixteen native checks pass for locked recruitment, controller
+deployment, original art, Cloud targeting/damage, bench health/action and reboot
+reconstruction. Evidence: `cloud-deploy-budget-evidence/deploy.txt`.
+Full input-only optional-route recruitment/deployment coverage remains open.

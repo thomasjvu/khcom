@@ -98,7 +98,7 @@ the shared deck, individual HP, every visited room encounter and seed in
 two checksummed 1,024-byte SRAM slots. Partially damaged enemies keep their
 health and positions when you backtrack. A damaged
 latest slot falls back to the older valid slot. Defeat/run clear invalidates
-suspends. This build writes save format 9 (including roster state) and reads format 8 to preserve enemy identity, charged attacks and the active
+suspends. This source writes save format 10 (including bench health and budgets) and reads formats 8/9 to preserve enemy identity, charged attacks and the active
 stair controller’s target/facing. Format 8 initializes the starter roster; format 7 and earlier saves are incompatible.
 
 This is still a development build. Physical room reachability guarantees, climb/jump routes and
@@ -201,3 +201,21 @@ sleight reward or Cloud's original summon card. At the reward, Up from POWER
 selects recruitment; A unlocks Cloud in the saved roster. Choosing regular loot
 leaves him locked. This unlock does not yet make Cloud deployable: character-slot
 mapping and the recruited party-selection UI still require implementation.
+
+Recruited Cloud is now deployable. In ROUND SETUP, L/R chooses a slot; Up/Down
+cycles its unlocked companion card. Sora remains required in slot 0. Donald,
+Goofy and Cloud can occupy either companion slot; choosing an already deployed
+hero swaps the companions. A/Start confirms and controls the selected living
+hero. Select cycles living deployed heroes during combat.
+
+Health, movement, actions, power and sleight upgrades follow character identity
+when benched or swapped. Switching slots does not refill resources. Ending a
+turn refreshes movement/actions for the roster. Cloud's attack card is a targeted
+sword slash within 64 world pixels and 24 pixels of height, for 12 plus card
+value and personal power. R+B cycles targets. Donald retains magic/healing
+bonuses and Goofy shield/protection behavior in either slot.
+
+Summon cards appear in setup and recruitment. Combat Guard now uses the original
+Guard Armor enemy-card artwork, rather than Goofy's summon card. Format-8/9
+saves migrate with default health/budgets for previously unrecorded benched
+heroes and preserve saved deployed party state.

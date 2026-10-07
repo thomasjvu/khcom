@@ -101,7 +101,9 @@ static void* sSoraIdleTiles;
 static void* sPartyShadowTiles;
 static ObjPalette* sPartyShadowPalette;
 u16 gNativeFriendPose[2];
-static const AnimDef sFriendAnims[2][5] = {
+extern FieldRoster gNativeRoster;
+static u8 NativeHero(u8 slot) {return gNativeRoster.deployed[slot];}
+static const AnimDef sFriendAnims[3][5] = {
     {{gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,0},
      {gDonaBtLl00Frames,gDonaBtLl00Anims,gDonaBtLl00Tiles,0},
      {gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,1},
@@ -111,7 +113,13 @@ static const AnimDef sFriendAnims[2][5] = {
      {gGoofy16Frames,gGoofy16Anims,gGoofy16Tiles,0},
      {gGoofy01Frames,gGoofy01Anims,gGoofy01Tiles,0},
      {gGoofy05Frames,gGoofy05Anims,gGoofy05Tiles,0},
-     {gGoofy05Frames,gGoofy05Anims,gGoofy05Tiles,1}}
+     {gGoofy05Frames,gGoofy05Anims,gGoofy05Tiles,1}},
+    {{gCroudBt00Frames,gCroudBt00Anims,gCroudBt00Tiles,0},
+     {gCroud01Frames,gCroud01Anims,gCroud01Tiles,2},
+     {gCroudBt01Frames,gCroudBt01Anims,gCroudBt01Tiles,0},
+     {gCroudBt02Frames,gCroudBt02Anims,gCroudBt02Tiles,0},
+     {gCroudBt02Frames,gCroudBt02Anims,gCroudBt02Tiles,0}}
+
 };
 static void NativePartyPose(u8 member) {
     NativeFriend* friend;
@@ -119,7 +127,7 @@ static void NativePartyPose(u8 member) {
     friend = &sFriends[member - 1];
     friend->pose = 1;
     friend->timer = 48;
-    AnimChangeWithDef(sFriendAnims[member - 1], &friend->anim, 1,
+    AnimChangeWithDef(sFriendAnims[NativeHero(member) - 1], &friend->anim, 1,
         ANIM_FLAG_LOOP, friend->tiles);
 }
 u16 gNativeProgressReward;
@@ -132,6 +140,9 @@ static u16 sAssemblyChoice, sAssemblyResume;
 static const CardDef* sAssemblyDonald;
 static void* sAssemblyTiles;
 static ObjPalette* sAssemblyPalette;
+static const CardDef* sAssemblyOther;
+static void* sAssemblyOtherTiles;
+static ObjPalette* sAssemblyOtherPalette;
 FieldRoster gNativeRoster;
 static void* sReachTiles;
 u16 gNativeReachCount;
@@ -522,24 +533,63 @@ static void NativeCarryTurn(void) {
     sCarryGuard = gNativeGuard;
     sCarryTurn = 1;
 }
+static void NativeRosterSync(void) {
+    u8 i;
+    for (i = 0; i < 3; i++) {
+        gNativeRoster.heroHp[NativeHero(i)] = gNativePartyHealth.hp[i];
+        gNativeRoster.heroMove[NativeHero(i)] = i == gNativeParty ? gNativeMoveLeft : sPartyMove[i];
+        gNativeRoster.heroAction[NativeHero(i)] = i == gNativeParty ? gNativeActionLeft : sPartyAction[i];
+    }
+}
+static void NativeRosterHealth(void) {
+    u8 i;
+    for (i = 0; i < 3; i++) {
+        gNativePartyHealth.maxHp[i] = FieldHeroMaxHp(NativeHero(i));
+        gNativePartyHealth.hp[i] = gNativeRoster.heroHp[NativeHero(i)];
+        sPartyMove[i] = gNativeRoster.heroMove[NativeHero(i)];
+        sPartyAction[i] = gNativeRoster.heroAction[NativeHero(i)];
+    }
+    gGameState.hp = gNativePartyHealth.hp[gNativeParty];
+    gNativeMoveLeft = sPartyMove[gNativeParty];gNativeActionLeft = sPartyAction[gNativeParty];
+}
+static void NativeFriendsInit(void) {
+    u8 i, hero, pose;
+    u16 size, bytes, frame;
+    AnimHeader* anim;
+    const AnimDef* defs;
+    for (i = 0; i < 2; i++) {
+        hero = NativeHero(i + 1);defs = sFriendAnims[hero - 1];size = 0;
+        for (pose = 0; pose < 5; pose++) {
+            anim = ((AnimHeader**)defs[pose].anims)[defs[pose].animId];
+            for (frame = 0; frame < anim->frameCount; frame++) {
+                bytes = GetSpriteTileBytes(((void**)defs[pose].gfxTable)[anim->frames[frame].gfxIndex]);
+                if (bytes > size) size = bytes;
+            }
+        }
+        sFriends[i].tiles = AllocObjTiles(size, defs[0].tiles);
+        sFriends[i].palette = LoadObjPalette(hero == FIELD_DONALD ? gDonaldPalette :
+            hero == FIELD_GOOFY ? gGoofyPalette : gCroudPalette, 32);
+        AnimInit(&sFriends[i].anim, defs[0].anims, defs[0].gfxTable);
+        AnimStart(&sFriends[i].anim, defs[0].animId, ANIM_FLAG_LOOP);
+        sFriends[i].pose = sFriends[i].timer = sFriends[i].facing = 0;
+        gNativeFriendPose[i] = 0;sFriends[i].pos = gFieldState->actor.fieldPosition;
+    }
+}
+static void NativeFriendsReload(void) {
+    u8 i;
+    for (i = 0; i < 2; i++) {
+        if (sFriends[i].tiles) ReleaseObjTiles(sFriends[i].tiles);
+        if (sFriends[i].palette) ReleaseObjPalette(sFriends[i].palette);
+    }
+    NativeFriendsInit();
+}
 static void NativePartyInit(void) {
     u16 i, j;
-    static const u16 kinds[4] = {CARD_KIND_KINGDOM_KEY, CARD_KIND_FIRE, CARD_KIND_CURE, CARD_KIND_GOOFY};
+    static const u16 kinds[4] = {CARD_KIND_KINGDOM_KEY, CARD_KIND_FIRE, CARD_KIND_CURE, CARD_KIND_GUARD_ARMOR};
     sSoraIdleTiles = AllocObjTiles(0x500, gSor1fl00Tiles);
     sPartyShadowTiles = LoadObjTiles(gBtlShadowTiles, 0x100);
     sPartyShadowPalette = LoadObjPalette(gCommonObjPalette, 32);
-    sFriends[0].tiles = AllocObjTiles(0x800, gDonaFl00Tiles);
-    sFriends[0].palette = LoadObjPalette(gDonaldPalette, 32);
-    AnimInit(&sFriends[0].anim, gDonaFl00Anims, gDonaFl00Frames);
-    sFriends[1].tiles = AllocObjTiles(0x800, gGoofyFl00Tiles);
-    sFriends[1].palette = LoadObjPalette(gGoofyPalette, 32);
-    AnimInit(&sFriends[1].anim, gGoofyFl00Anims, gGoofyFl00Frames);
-    for (i = 0; i < 2; i++) {
-        sFriends[i].pose = sFriends[i].timer = sFriends[i].facing = 0;
-        gNativeFriendPose[i] = 0;
-        AnimStart(&sFriends[i].anim, 0, ANIM_FLAG_LOOP);
-        sFriends[i].pos = gFieldState->actor.fieldPosition;
-    }
+    NativeFriendsInit();
     for (i = 0; i < 3; i++) {
         sPartyPos[i] = gFieldState->actor.fieldPosition;
         sPartyMove[i] = 3;
@@ -571,6 +621,10 @@ static void NativePartyInit(void) {
 }
 extern u8 task_fld_sora_1(FldWork* work, void* task);
 extern u8 FldSoraClimb(FldWork* work, void* task);
+static void NativeGuardPose(void) {
+    u8 i;
+    for (i = 1; i < 3; i++) if (NativeHero(i) == FIELD_GOOFY && gNativePartyHealth.hp[i]) NativePartyPose(i);
+}
 static void NativePartySelect(void) {
     Task* playerTask = gFieldState->tasks2.head.activeHead->owner;
     FldWork* player = playerTask->work;
@@ -625,33 +679,69 @@ static void NativeRecruitFinish(void) {
 static void NativeAssemblyFree(void) {
     if (sAssemblyTiles) ReleaseObjTiles(sAssemblyTiles);
     if (sAssemblyPalette) ReleaseObjPalette(sAssemblyPalette);
-    sAssemblyTiles = NULL;sAssemblyPalette = NULL;
+    if (sAssemblyOtherTiles) ReleaseObjTiles(sAssemblyOtherTiles);
+    if (sAssemblyOtherPalette) ReleaseObjPalette(sAssemblyOtherPalette);
+    sAssemblyTiles = sAssemblyOtherTiles = NULL;
+    sAssemblyPalette = sAssemblyOtherPalette = NULL;
 }
-static void NativeAssemblyInit(void) {
+static const CardDef* NativeHeroCard(u8 hero) {
     u16 i;
-    sAssemblyChoice = gNativeParty;
-    sAssemblyDonald = NULL;sAssemblyTiles = NULL;sAssemblyPalette = NULL;
-    if (!gNativeAssembly) return;
-    /* Round-start cards reuse the Fire resource budget, then restore it on
-     * deployment. No extra palette bank is reserved during combat. */
-    if (sCardTiles[1]) ReleaseObjTiles(sCardTiles[1]);
-    if (sCardPalettes[1]) ReleaseObjPalette(sCardPalettes[1]);
-    sCardTiles[1] = NULL;sCardPalettes[1] = NULL;
-    for (i = 0; i < 950; i++) if (gCardDefs[i].kind == CARD_KIND_DONALD_DUCK && gCardDefs[i].value == 5) {
-        sAssemblyDonald = &gCardDefs[i];break;
-    }
+    u16 kind = hero == FIELD_DONALD ? CARD_KIND_DONALD_DUCK :
+        hero == FIELD_GOOFY ? CARD_KIND_GOOFY : CARD_KIND_CLOUD;
+    for (i = 0; i < 950; i++) if (gCardDefs[i].kind == kind && gCardDefs[i].value == 5) return &gCardDefs[i];
+    return NULL;
+}
+static void NativeAssemblyCards(void) {
+    NativeAssemblyFree();
+    sAssemblyDonald = NativeHeroCard(NativeHero(1));
+    sAssemblyOther = NativeHeroCard(NativeHero(2));
     if (sAssemblyDonald) {
         sAssemblyTiles = LoadObjTiles(sAssemblyDonald->tiles2, 0x200);
         sAssemblyPalette = LoadObjPalette(sAssemblyDonald->palette2, 32);
     }
+    if (sAssemblyOther) {
+        sAssemblyOtherTiles = LoadObjTiles(sAssemblyOther->tiles2, 0x200);
+        sAssemblyOtherPalette = LoadObjPalette(sAssemblyOther->palette2, 32);
+    }
+}
+static void NativeAssemblyInit(void) {
+    u8 i;
+    sAssemblyChoice = gNativeParty;
+    sAssemblyDonald = sAssemblyOther = NULL;
+    sAssemblyTiles = sAssemblyOtherTiles = NULL;
+    sAssemblyPalette = sAssemblyOtherPalette = NULL;
+    if (!gNativeAssembly) return;
+    /* Setup cards borrow two combat-card banks until deployment. */
+    for (i = 1; i < 4; i += 2) {
+        if (sCardTiles[i]) ReleaseObjTiles(sCardTiles[i]);
+        if (sCardPalettes[i]) ReleaseObjPalette(sCardPalettes[i]);
+        sCardTiles[i] = NULL;sCardPalettes[i] = NULL;
+    }
+    NativeAssemblyCards();
+}
+static void NativeAssemblyCycle(int direction) {
+    int hero, step;
+    if (!sAssemblyChoice) return;
+    NativeRosterSync();
+    hero = NativeHero(sAssemblyChoice);
+    for (step = 0; step < 3; step++) {
+        hero = 1 + (hero - 1 + (direction > 0 ? 1 : 2)) % 3;
+        if (gNativeRoster.unlocked & (1 << hero)) break;
+    }
+    if (FieldRosterDeploy(&gNativeRoster, sAssemblyChoice, hero)) {
+        NativeRosterHealth();
+        if (!gNativePartyHealth.hp[gNativeParty]) NativePartySelect();
+        NativeFriendsReload();NativeAssemblyCards();
+    }
 }
 static void NativeAssemblyCommit(void) {
+    u8 i;
     if (!gNativePartyHealth.hp[sAssemblyChoice]) return;
     while (gNativeParty != sAssemblyChoice) NativePartySelect();
     NativeAssemblyFree();
-    if (sCards[1]) {
-        sCardTiles[1] = LoadObjTiles(sCards[1]->tiles2, 0x200);
-        sCardPalettes[1] = LoadObjPalette(sCards[1]->palette2, 32);
+    for (i = 1; i < 4; i += 2) if (sCards[i]) {
+        sCardTiles[i] = LoadObjTiles(sCards[i]->tiles2, 0x200);
+        sCardPalettes[i] = LoadObjPalette(sCards[i]->palette2, 32);
     }
     FieldRosterBegin(&gNativeRoster, gMapFloorState.room);
     gNativeAssembly = 0;
@@ -665,9 +755,9 @@ static void NativeAssemblyDraw(void) {
         DrawSprite(120, 72, sRecruitCard->gfx2, sRecruitTiles, sRecruitPalette, NULL, 0, 1);
     if (!gNativeAssembly) return;
     for (i = 0; i < 3; i++) {
-        card = i == 1 ? sAssemblyDonald : sCards[i == 0 ? 0 : 3];
-        tiles = i == 1 ? sAssemblyTiles : sCardTiles[i == 0 ? 0 : 3];
-        palette = i == 1 ? sAssemblyPalette : sCardPalettes[i == 0 ? 0 : 3];
+        card = i == 1 ? sAssemblyDonald : i == 2 ? sAssemblyOther : sCards[0];
+        tiles = i == 1 ? sAssemblyTiles : i == 2 ? sAssemblyOtherTiles : sCardTiles[0];
+        palette = i == 1 ? sAssemblyPalette : i == 2 ? sAssemblyOtherPalette : sCardPalettes[0];
         if (card && tiles && palette) DrawSprite(68 + i * 52, i == sAssemblyChoice ? 65 : 78,
             card->gfx2, tiles, palette, NULL, 0, 1);
     }
@@ -688,20 +778,20 @@ static void NativePartyDraw(void) {
             sFriends[i].facing = sPartyPos[i + 1].x > sFriends[i].pos.x;
         sFriends[i].pos = sPartyPos[i + 1];
         if (sFriends[i].timer) sFriends[i].timer--;
-        if (sFriends[i].timer || (i == 1 && gNativeGuard && sFriends[i].pose == 1)) pose = 1;
+        if (sFriends[i].timer || (NativeHero(i + 1) == FIELD_GOOFY && gNativeGuard && sFriends[i].pose == 1)) pose = 1;
         if (gNativeParty == i + 1) {
             if (player->state == FLD_STATE_JUMP_START || player->state == FLD_STATE_JUMP_RISE) pose = 3;
             else if (player->state == FLD_STATE_FALL) pose = 4;
         }
         if (sFriends[i].pose != pose) {
             sFriends[i].pose = pose;
-            AnimChangeWithDef(sFriendAnims[i], &sFriends[i].anim, pose,
+            AnimChangeWithDef(sFriendAnims[NativeHero(i + 1) - 1], &sFriends[i].anim, pose,
                 pose >= 3 ? 0 : ANIM_FLAG_LOOP, sFriends[i].tiles);
         }
         gNativeFriendPose[i] = pose;
         /* Skip the original scripted jump windup: native physics already
          * owns launch timing. Hold the matching original airborne frame. */
-        if (i == 0 && pose >= 3) AnimSetFrame(&sFriends[i].anim, pose == 3 ? 3 : 2);
+        if (NativeHero(i + 1) == FIELD_DONALD && pose >= 3) AnimSetFrame(&sFriends[i].anim, pose == 3 ? 3 : 2);
         AnimUpdate(&sFriends[i].anim);
         x = (sFriends[i].pos.x - gFieldState->x) >> 8;
         y = (sFriends[i].pos.y + sFriends[i].pos.z - gFieldState->y) >> 8;
@@ -888,6 +978,12 @@ static void NativeRestoreWorld(void) {
     gGameState.hp = sSuspend.hp;
     gNativeDeck = sSuspend.deck;
     gNativeRoster = sSuspend.roster;
+    for (i = 0; i < 3; i++) {
+        gNativeRoster.heroHp[NativeHero(i)] = sSuspend.partyHp[i];
+        gNativeRoster.heroMove[NativeHero(i)] = sSuspend.move[i];
+        gNativeRoster.heroAction[NativeHero(i)] = sSuspend.action[i];
+    }
+    NativeRosterHealth();
     gNativeKills = sSuspend.kills;
     gNativeChests = sSuspend.chests;
     gNativeTurn = sSuspend.turn;
@@ -947,6 +1043,7 @@ static void NativeWriteSuspend(void) {
     sSuspend.kills = gNativeKills;
     sSuspend.chests = gNativeChests;
     sSuspend.deck = gNativeDeck;
+    NativeRosterSync();
     sSuspend.roster = gNativeRoster;
     for (i = 0; i < TAC_WORLD_ROOMS; i++) {
         sSuspend.roomFlags[i] = GetMapFloorRoom(i)->flags;
@@ -1154,8 +1251,8 @@ static void NativeHud(void) {
     NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : gNativeJafarReady ? "JAFAR SPELL 96" : gNativeCloudReady ? "CLOUD CROSS SLASH 64" : gNativeMarlReady ? (gNativeEnemyHp[0] <= 28 ? "MARLUXIA RAGE SCYTHE" : "MARLUXIA SCYTHE") : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
-        NativeLabel(0, 8, gNativeCureTarget == 0 ? "CURE SORA A PLAY" :
-            gNativeCureTarget == 1 ? "CURE DONALD A PLAY" : "CURE GOOFY A PLAY");
+        NativeLabel(0, 8, NativeHero(gNativeCureTarget) == FIELD_SORA ? "CURE SORA A PLAY" :
+            NativeHero(gNativeCureTarget) == FIELD_DONALD ? "CURE DONALD A PLAY" : NativeHero(gNativeCureTarget) == FIELD_GOOFY ? "CURE GOOFY A PLAY" : "CURE CLOUD A PLAY");
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && !gNativeDeck.stocked &&
         gNativeDeck.kind[card] == FIELD_CARD_FIRE && gNativeActionLeft)
@@ -1163,7 +1260,7 @@ static void NativeHud(void) {
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames && !gNativeClimbing &&
         !charging && card >= 0 && !gNativeDeck.stocked && gNativeActionLeft &&
         gNativeDeck.kind[card] == FIELD_CARD_KEY && gNativeParty)
-        NativeLabel(0, 8, gNativeParty == 1 ? "DONALD MAGIC R B A" : "GOOFY SPIN A PLAY");
+        NativeLabel(0, 8, NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD MAGIC R B A" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY SPIN A PLAY" : "CLOUD SLASH R B A");
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
@@ -1173,8 +1270,9 @@ static void NativeHud(void) {
         route[13] += gNativeMoveLeft;
         NativeLabel(0, 16, route);
     } else NativeLabel(0, 16, location);
-    NativeLabel(128, 16, gNativeParty == 0 ? "SORA" : gNativeParty == 1 ? "DONALD" : "GOOFY");
+    NativeLabel(128, 16, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : "CLOUD");
     for (i = 0; i < 3; i++) {
+        health[i * 4] = threat[5 + i * 4] = NativeHero(i) == FIELD_SORA ? 'S' : NativeHero(i) == FIELD_DONALD ? 'D' : NativeHero(i) == FIELD_GOOFY ? 'G' : 'C';
         health[1 + i * 4] = '0' + gNativePartyHealth.hp[i] / 10;
         health[2 + i * 4] = '0' + gNativePartyHealth.hp[i] % 10;
     }
@@ -1206,18 +1304,20 @@ static void NativeHud(void) {
     }
     if (gNativeAssembly) {
         NativeLabel(0, 8, "ROUND SETUP L R A");
-        NativeLabel(0, 24, "CHOOSE STARTING HERO");
-        NativeLabel(0, 32, sAssemblyChoice == 0 ? "SORA KEYBLADE" :
-            sAssemblyChoice == 1 ? "DONALD MAGIC" : "GOOFY SHIELD");
+        NativeLabel(0, 24, "UP DOWN CHANGE PARTY");
+        NativeLabel(0, 32, NativeHero(sAssemblyChoice) == FIELD_SORA ? "SORA KEYBLADE" :
+            NativeHero(sAssemblyChoice) == FIELD_DONALD ? "DONALD MAGIC" :
+            NativeHero(sAssemblyChoice) == FIELD_GOOFY ? "GOOFY SHIELD" : "CLOUD SWORD");
     }
     if (gNativeProgressReward) {
         NativeLabel(0, 8, "CLEAR REWARD L R A");
         NativeLabel(0, 24, sProgressKind == 0 ? "POWER PLUS 1" :
             sProgressKind == 1 ? "KEY SLEIGHT PLUS 4" :
             sProgressKind == 2 ? "FIRE SLEIGHT PLUS 4" : "CURE SLEIGHT PLUS 4");
-        NativeLabel(0, 32, sProgressHero == 0 ? "SORA UP DOWN CHOOSE" :
-            sProgressHero == 1 ? "DONALD UP DOWN CHOOSE" : "GOOFY UP DOWN CHOOSE");
+        NativeLabel(0, 32, NativeHero(sProgressHero) == FIELD_SORA ? "SORA UP DOWN CHOOSE" :
+            NativeHero(sProgressHero) == FIELD_DONALD ? "DONALD UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_GOOFY ? "GOOFY UP DOWN CHOOSE" : "CLOUD UP DOWN CHOOSE");
     }
+    if (gNativeAssembly && !gNativePartyHealth.hp[sAssemblyChoice]) NativeLabel(0, 8, "KO CHOOSE OTHER HERO");
     if (gNativeProgressReward && sProgressKind == 4 && NativeRecruitEligible()) {
         NativeLabel(0, 8, "CLOUD RECRUIT A");
         NativeLabel(0, 24, "UNLOCK CLOUD CARD");
@@ -1307,7 +1407,7 @@ static void NativeInit(s32 arg) {
         }
         gNativeParty = sCarryParty;
         gNativeGuard = sCarryGuard;
-        if (gNativeGuard == 2) NativePartyPose(2);
+        if (gNativeGuard == 2) NativeGuardPose();
         gGameState.hp = gNativePartyHealth.hp[gNativeParty];
         gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
         gNativeMoveLeft = sPartyMove[gNativeParty];
@@ -1324,7 +1424,7 @@ static void NativeInit(s32 arg) {
         gNativeParty = sSuspend.party;
         gGameState.hp = gNativePartyHealth.hp[gNativeParty];
         gNativeGuard = sSuspend.guard;
-        if (gNativeGuard == 2) NativePartyPose(2);
+        if (gNativeGuard == 2) NativeGuardPose();
         gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
         gNativeMoveLeft = sPartyMove[gNativeParty];
         gNativeActionLeft = sPartyAction[gNativeParty];
@@ -1373,7 +1473,7 @@ static void NativeInit(s32 arg) {
 static void NativeDamageEnemy(Task* task, u16 damage) {
     u8 i;
     MapFloorRoom* room;
-    damage += gNativeRoster.power[gNativeParty];
+    damage += gNativeRoster.power[NativeHero(gNativeParty)];
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] == task) {
         if (sPlayedValue && sPlayedValue < 3 + gNativeFloor) {
             gNativeBreaks++;
@@ -1749,11 +1849,11 @@ static s32 NativeFireDistance(Task* task) {
     s32 dz = NativeAbs(work->obj.fieldPosition.z - gFieldState->actor.fieldPosition.z);
     return dz <= (24 << 8) ? dx + dy : 128 << 8;
 }
-static Task* NativeFireTarget(void) {
+static Task* NativeRangedTarget(int range) {
     ListNode* node = gFieldState->tasks4.head.activeHead;
     Task* target = NULL;
     Task* task;
-    s32 best = 128 << 8, distance;
+    s32 best = range << 8, distance;
     if (gNativeFireChoice >= 0 && gNativeFireChoice < 6 &&
         sEnemyTasks[gNativeFireChoice] &&
         NativeFireDistance(sEnemyTasks[gNativeFireChoice]) < best)
@@ -1767,13 +1867,20 @@ static Task* NativeFireTarget(void) {
     }
     return target;
 }
+static Task* NativeFireTarget(void) {return NativeRangedTarget(128);}
+static void NativeCloudSlash(void) {
+    Task* target = NativeRangedTarget(64);
+    if (target) NativeDamageEnemy(target, 12 + sPlayedValue);
+}
 static void NativeCycleFireTarget(void) {
-    Task* current = NativeFireTarget();
+    int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
+    int range = card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY && NativeHero(gNativeParty) == FIELD_CLOUD ? 64 : 128;
+    Task* current = NativeRangedTarget(range);
     int i, slot = -1;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && sEnemyTasks[i] == current) slot = i;
     for (i = 1; i <= 6; i++) {
         int next = (slot + i) % 6;
-        if (sEnemyTasks[next] && NativeFireDistance(sEnemyTasks[next]) < (128 << 8)) {
+        if (sEnemyTasks[next] && NativeFireDistance(sEnemyTasks[next]) < (range << 8)) {
             gNativeFireChoice = next;
             return;
         }
@@ -1782,7 +1889,7 @@ static void NativeCycleFireTarget(void) {
 }
 static void NativeFire(void) {
     Task* target = NativeFireTarget();
-    if (target) NativeDamageEnemy(target, 6 + sPlayedValue + (gNativeParty == 1 ? 3 : 0));
+    if (target) NativeDamageEnemy(target, 6 + sPlayedValue + (NativeHero(gNativeParty) == FIELD_DONALD ? 3 : 0));
 }
 
 u16 gNativeSkillDamage[6];
@@ -1825,9 +1932,9 @@ static void NativeCardIntentDraw(void) {
             sValueTiles, sValuePalette, NULL, 0, 0);
         return;
     }
-    if (gNativeParty == 2 && gNativeDeck.kind[card] == FIELD_CARD_KEY) {
+    if (NativeHero(gNativeParty) == FIELD_GOOFY && gNativeDeck.kind[card] == FIELD_CARD_KEY) {
         for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeShieldHits(i)) {
-            damage = 4 + gNativeDeck.value[card] + gNativeRoster.power[gNativeParty];
+            damage = 4 + gNativeDeck.value[card] + gNativeRoster.power[NativeHero(gNativeParty)];
             if (gNativeDeck.value[card] && gNativeDeck.value[card] < 3 + gNativeFloor) damage = 0;
             if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
             gNativeSkillDamage[i] = damage;
@@ -1843,12 +1950,12 @@ static void NativeCardIntentDraw(void) {
         return;
     }
     if (gNativeDeck.kind[card] != FIELD_CARD_FIRE &&
-        !(gNativeParty == 1 && gNativeDeck.kind[card] == FIELD_CARD_KEY)) return;
-    target = NativeFireTarget();
+        !((NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD) && gNativeDeck.kind[card] == FIELD_CARD_KEY)) return;
+    target = NativeRangedTarget(gNativeDeck.kind[card] == FIELD_CARD_KEY && NativeHero(gNativeParty) == FIELD_CLOUD ? 64 : 128);
     if (!target) return;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] == target) {
         gNativeFireTarget = i;
-        damage = 6 + gNativeDeck.value[card] + (gNativeParty == 1 ? 3 : 0) + gNativeRoster.power[gNativeParty];
+        damage = (gNativeDeck.kind[card] == FIELD_CARD_KEY && NativeHero(gNativeParty) == FIELD_CLOUD ? 12 : 6) + gNativeDeck.value[card] + (NativeHero(gNativeParty) == FIELD_DONALD ? 3 : 0) + gNativeRoster.power[NativeHero(gNativeParty)];
         if (gNativeDeck.value[card] && gNativeDeck.value[card] < 3 + gNativeFloor) damage = 0;
         if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
         gNativeFireDamage = damage;
@@ -1891,7 +1998,7 @@ static void NativeCycleCureTarget(void) {
     }
 }
 static u16 NativeCureRecovery(u8 target, u8 value) {
-    u16 amount = 8 + value + (gNativeParty == 1 ? 8 : 0);
+    u16 amount = 8 + value + (NativeHero(gNativeParty) == FIELD_DONALD ? 8 : 0);
     u16 missing = gNativePartyHealth.maxHp[target] - gNativePartyHealth.hp[target];
     return amount < missing ? amount : missing;
 }
@@ -1905,7 +2012,7 @@ u16 gNativeSleightDamage[6];
 u16 gNativeSleightHeal[3];
 static u16 NativeSleightRecovery(u8 member, int value, int recipe) {
     u16 amount = 12 + value + (recipe ? 8 : 0) +
-        (recipe && (gNativeRoster.sleights[gNativeParty] & 4) ? 4 : 0);
+        (recipe && (gNativeRoster.sleights[NativeHero(gNativeParty)] & 4) ? 4 : 0);
     u16 missing = gNativePartyHealth.maxHp[member] - gNativePartyHealth.hp[member];
     return amount < missing ? amount : missing;
 }
@@ -1917,8 +2024,8 @@ static int NativeSleightHits(u8 slot, int kind) {
         NativeAbs(work->obj.fieldPosition.z - gFieldState->actor.fieldPosition.z) <= (24 << 8);
 }
 static u16 NativeSleightPower(int kind, int value, int recipe) {
-    return 8 + value + (recipe ? 6 : 0) + (gNativeParty == 1 && kind == FIELD_CARD_FIRE ? 4 : 0) +
-        (kind < 3 && recipe && (gNativeRoster.sleights[gNativeParty] & (1 << kind)) ? 4 : 0);
+    return 8 + value + (recipe ? 6 : 0) + (NativeHero(gNativeParty) == FIELD_DONALD && kind == FIELD_CARD_FIRE ? 4 : 0) +
+        (kind < 3 && recipe && (gNativeRoster.sleights[NativeHero(gNativeParty)] & (1 << kind)) ? 4 : 0);
 }
 static void NativeSleightIntentDraw(void) {
     int kind, value;
@@ -1947,7 +2054,7 @@ static void NativeSleightIntentDraw(void) {
         return;
     }
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeSleightHits(i, kind)) {
-        damage = NativeSleightPower(kind, value, FieldDeckRecipe(&gNativeDeck)) + gNativeRoster.power[gNativeParty];
+        damage = NativeSleightPower(kind, value, FieldDeckRecipe(&gNativeDeck)) + gNativeRoster.power[NativeHero(gNativeParty)];
         if (value && value < 3 + gNativeFloor) damage = 0;
         if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
         gNativeSleightDamage[i] = damage;
@@ -2027,7 +2134,7 @@ static void NativeUpdate(void) {
         else if (pressed & DPAD_DOWN) sProgressKind = (sProgressKind + 1) % options;
         if ((pressed & A_BUTTON) && !gNativeBusy && !gNativeEnemyFrames &&
             (sProgressKind == 4 ? FieldRosterRecruit(&gNativeRoster, FIELD_CLOUD) :
-                FieldRosterUpgrade(&gNativeRoster, sProgressHero, sProgressKind))) {
+                FieldRosterUpgrade(&gNativeRoster, NativeHero(sProgressHero), sProgressKind))) {
             gNativeProgressReward = 0;NativeRecruitFinish();
         }
         else if ((raw & (START_BUTTON | SELECT_BUTTON)) == (START_BUTTON | SELECT_BUTTON) &&
@@ -2037,6 +2144,8 @@ static void NativeUpdate(void) {
     if (gNativeAssembly) {
         if (pressed & (L_BUTTON | DPAD_LEFT)) sAssemblyChoice = (sAssemblyChoice + 2) % 3;
         else if (pressed & (R_BUTTON | DPAD_RIGHT)) sAssemblyChoice = (sAssemblyChoice + 1) % 3;
+        if (pressed & DPAD_UP) NativeAssemblyCycle(1);
+        else if (pressed & DPAD_DOWN) NativeAssemblyCycle(-1);
         if (pressed & (A_BUTTON | START_BUTTON)) NativeAssemblyCommit();
         pressed = 0;
     }
@@ -2080,7 +2189,7 @@ static void NativeUpdate(void) {
             int selected = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
             if (selected >= 0 && !gNativeDeck.stocked &&
                 (gNativeDeck.kind[selected] == FIELD_CARD_FIRE ||
-                 (gNativeParty == 1 && gNativeDeck.kind[selected] == FIELD_CARD_KEY))) NativeCycleFireTarget();
+                 ((NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD) && gNativeDeck.kind[selected] == FIELD_CARD_KEY))) NativeCycleFireTarget();
             else if (selected >= 0 && !gNativeDeck.stocked &&
                 gNativeDeck.kind[selected] == FIELD_CARD_CURE) NativeCycleCureTarget();
         } else if ((pressed & SELECT_BUTTON) && player->state == FLD_STATE_GROUND) {
@@ -2117,13 +2226,15 @@ static void NativeUpdate(void) {
                     if (kind == FIELD_CARD_CURE) {
                         NativeCure();
                     } else if (kind == FIELD_CARD_GUARD) {
-                        gNativeGuard = gNativeParty == 2 ? 2 : 1;
+                        gNativeGuard = NativeHero(gNativeParty) == FIELD_GOOFY ? 2 : 1;
                     } else if (kind == FIELD_CARD_FIRE) {
                         NativeFire();
-                    } else if (gNativeParty == 1) {
+                    } else if (NativeHero(gNativeParty) == FIELD_DONALD) {
                         NativeFire();
-                    } else if (gNativeParty == 2) {
+                    } else if (NativeHero(gNativeParty) == FIELD_GOOFY) {
                         NativeShieldSpin();
+                    } else if (NativeHero(gNativeParty) == FIELD_CLOUD) {
+                        NativeCloudSlash();
                     } else {
                         edge = A_BUTTON;
                         sAttack = 1;
@@ -2242,6 +2353,9 @@ static void NativeUpdate(void) {
             gNativeActionLeft = 1;
             sPartyMove[0] = sPartyMove[1] = sPartyMove[2] = 3;
             sPartyAction[0] = sPartyAction[1] = sPartyAction[2] = 1;
+            {u8 hero;for (hero = 0; hero < FIELD_HEROES; hero++) {
+                gNativeRoster.heroMove[hero] = 3;gNativeRoster.heroAction[hero] = 1;
+            }}
                     gNativeGuard = 0;
             gFieldState->flags &= ~FIELD_FLAG_FREEZE_PLAYER;
         }
@@ -2276,6 +2390,7 @@ static void NativeUpdate(void) {
         GetMapFloorRoom(gMapFloorState.room)->enemiesLeft == 0)
         gNativeProgressReward = FieldRosterClear(&gNativeRoster, gMapFloorState.room == 7 || (gNativeFloor == 0 && gMapFloorState.room == 9)) != FIELD_REWARD_NONE;
     if (gNativeProgressReward) NativeRecruitInit();
+    NativeRosterSync();
     NativePreviewThreats();
     NativePartyDraw();
     NativeAssemblyDraw();

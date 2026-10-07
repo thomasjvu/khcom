@@ -936,3 +936,14 @@ Generator: `tools/tactics_cloud_recruit_smoke.py`, with `--power` for alternativ
 loot. Setup and enemy HP/positions are fixtures, not input-only optional-route
 proof. Original art is visible in `cloud.png` and `recruit.png`.
 Cloud's roster unlock is connected; playable deployment is still unfinished.
+
+Cloud party mapping and format-10 bench state: sixteen explicit native checks
+pass in `cloud-deploy-budget-evidence/deploy.txt`, including controller-driven
+setup after an explicit unlock fixture, sword preview/resolution, per-hero
+health/caps/power, preserved injured/spent benched Donald, and native reboot.
+Recorded format-8 and format-9 SRAM fixtures pass host migration decoding.
+These checks do not prove input-only optional-route recruitment or complete
+Cloud-party runs. The native ROM and all host rule/save tests build and pass.
+Summon artwork is reserved for setup/recruitment; combat Guard uses original
+Guard Armor enemy-card artwork. Per-character HP/movement/action records fit
+the existing 1,024-byte suspend slots (983-byte payload, plus header/checksum).

@@ -16,8 +16,9 @@ typedef struct FieldRoster {
     unsigned char unlocked, deployed[3], power[FIELD_HEROES];
     unsigned char sleights[FIELD_HEROES];
     unsigned short cleared;
-    unsigned char phase, reward, room;
+    unsigned char phase, reward, room, heroHp[FIELD_HEROES], heroMove[FIELD_HEROES], heroAction[FIELD_HEROES];
 } FieldRoster;
+int FieldHeroMaxHp(int hero);
 void FieldRosterInit(FieldRoster* roster);
 int FieldRosterValid(const FieldRoster* roster);
 int FieldRosterDeploy(FieldRoster* roster, int slot, int hero);
