@@ -20,7 +20,7 @@ for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).spli
 keys = ('gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
         'gTaskDescMapDoor', 'gNativeBusy', 'gNativePreview',
         'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing',
-        'sRoutePos', 'sCursorX', 'sCursorY', 'gMapRoomState', 'sMapCells', 'sMapPlatforms', 'gCellMasks', 'sEnemyTasks', 'gNativeDeck', 'gNativePartyHealth', 'gNativeKills', 'gNativeResult')
+        'sRoutePos', 'sCursorX', 'sCursorY', 'gMapRoomState', 'sMapCells', 'sMapPlatforms', 'gCellMasks', 'sEnemyTasks', 'gNativeDeck', 'gNativePartyHealth', 'gNativeKills', 'gNativeResult', 'sColliderPoolObstacle')
 out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
 header = f'local goalRoom={a.rooms}\n' + ''.join(f'local {key}=0x{names[key]:08x}\n' for key in keys)

@@ -1,6 +1,6 @@
 local f=0
 local out=io.open('@OUTPUT@/routes.txt','w')
-local directions={16,32,64,128}
+local directions={16,32,64,128,80,96,144,160}
 local chosen=nil
 local target=nil
 local multi=nil
@@ -58,7 +58,7 @@ callbacks:add('frame',function()
  end
  if f==840 then emu:setKeys(8) end
  if f==844 then emu:setKeys(0) end
- if f>=960 and f<1280 then
+ if f>=960 and f<1600 then
   local slot=math.floor((f-960)/80)+1
   local phase=(f-960)%80
   if phase==0 then emu:setKeys(512+directions[slot]) end
@@ -71,14 +71,14 @@ callbacks:add('frame',function()
   end
   if phase==28 then emu:setKeys(0) end
  end
- if f==1310 then
+ if f==1630 then
   check(multi~=nil,'native room provides a two-segment route')
   if multi then emu:setKeys(512+multi) end
  end
- if f==1314 then emu:setKeys(0) end
- if f==1324 and multi then emu:setKeys(multi) end
- if f==1328 then emu:setKeys(0) end
- if f==1350 and multi then
+ if f==1634 then emu:setKeys(0) end
+ if f==1644 and multi then emu:setKeys(multi) end
+ if f==1648 then emu:setKeys(0) end
+ if f==1670 and multi then
   local x=signed16(emu:read16(sCursorX))
   local y=signed16(emu:read16(sCursorY))
   local address=sRoutePos+((y+4)*9+x+4)*16
@@ -86,8 +86,8 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeRouteCost)==2,'preview reports two-segment movement cost')
   emu:screenshot('@OUTPUT@/two-step-preview.png');emu:setKeys(1)
  end
- if f==1354 then emu:setKeys(0) end
- if f==1600 then
+ if f==1674 then emu:setKeys(0) end
+ if f==1920 then
   if multi then
    local p=emu:read32(gFieldState)
    local dx=math.abs(emu:read32(p+0x18)-target[1])
@@ -96,23 +96,23 @@ callbacks:add('frame',function()
    check(emu:read16(gNativeMoveLeft)==1,'two-segment route costs two movement points')
   end
  end
- if f==1640 and multi then
-  back=multi==16 and 32 or multi==32 and 16 or multi==64 and 128 or 64
+ if f==1960 and multi then
+  back=({[16]=32,[32]=16,[64]=128,[128]=64,[80]=160,[96]=144,[144]=96,[160]=80})[multi]
   emu:setKeys(512+back)
  end
- if f==1644 then emu:setKeys(0) end
- if f==1654 and back then emu:setKeys(back) end
- if f==1658 then emu:setKeys(0) end
- if f==1680 and back then
+ if f==1964 then emu:setKeys(0) end
+ if f==1974 and back then emu:setKeys(back) end
+ if f==1978 then emu:setKeys(0) end
+ if f==2000 and back then
   check(emu:read16(gNativeRouteCost)==2,'return preview exposes route beyond remaining budget')
   emu:setKeys(1)
  end
- if f==1684 then emu:setKeys(0) end
- if f==1710 and back then
+ if f==2004 then emu:setKeys(0) end
+ if f==2030 and back then
   check(emu:read16(gNativePreview)==1 and emu:read16(gNativeBusy)==0,'A rejects route exceeding movement budget')
   check(emu:read16(gNativeMoveLeft)==1,'rejected route preserves remaining movement')
   emu:setKeys(2)
  end
- if f==1714 then emu:setKeys(0) end
- if f==1750 then out:close() end
+ if f==2034 then emu:setKeys(0) end
+ if f==2070 then out:close() end
 end)

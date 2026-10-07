@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.10-diagonals.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.10-diagonals.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.11-surfaces.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.11-surfaces.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -227,3 +227,33 @@ also pass with eight-direction search and quarter-segment geometry checks.
 The traversal driver now uses a wider read-only floor search, low-ledge
 endpoints and native card input against nearby enemies. Its room-one stall
 persists; these changes do not establish room-wide physical reachability.
+
+Surface navigation: `tools/tactics_ledge_smoke.py ELF OUTPUT` generates a
+seven-check upper-ledge fixture. It finds original generated geometry with a
+finite upper floor and void below, places Sora on an adjacent floor, and checks
+preview cost, native arrival, height and resources. With `--props`, the same
+tool generates an independent eight-check prop fixture. It isolates one native
+solid prop by temporarily suppressing other colliders, places Sora beside it,
+checks blocked commit/resource preservation, then removes its collider while
+the cursor remains open. The preview must update to a two-point route and the
+native controller must reach the destination. These are explicit fixtures,
+not input-only complete-run evidence. Original cell/prop artwork is retained.
+Open previews now rebuild from the current actor and collider state; props can
+be enabled or broken by native tasks between inputs. Both player and enemy
+routes sample solid obstacle colliders using native radius, doubled world Y
+and height overlap. Upper ledges are validated by their sampled standing
+surface rather than rejected solely because their lower surface is void.
+The input-only walking replay scans all eight directions for a two-segment
+route, since solid props can correctly block its former cardinal candidates.
+
+Surface build verification (2026-10-07): 123 emulator checks pass across
+walking (27), diagonals (18), party (28), upper ledge (7), prop removal (8),
+stairs/suspend (19) and guardian (16), under `build/tactics-us/surface-final-*`.
+The strict host suite and four BPS tests pass; the 21,046-byte 0.11 BPS patch
+reconstructs the built ROM byte-for-byte. Save format remains 8. The final
+input-only chain probe still stalls in room one at native projected position
+`(67869,61916,0)`, with three enemy kills; its final actor has no contact
+collision. Global climb/jump planning and complete-run verification remain
+unfinished. The prop fixture suppresses neighbouring/enemy/player contact
+colliders to isolate route geometry, and holds the selected collider removed
+because native prop tasks can re-enable colliders on subsequent updates.

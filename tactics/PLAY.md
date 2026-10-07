@@ -38,7 +38,9 @@ segments use native diagonal movement and check the floor footprint at quarter
 intervals. Routes beyond the remaining budget cannot be
 confirmed. The original player controller walks each segment; it stops if
 collision prevents progress and refunds segments that never started. Preview
-walking stays on the current floor level and avoids occupied destinations.
+walking stays on the current floor level, allows safe upper ledges above void,
+and avoids occupied destinations and solid props. Preview costs update as
+native prop colliders change.
 Entering stairs through a movement step attaches the native climbing
 controller. Holding a direction still commits only one segment. You can end
 a turn while attached to recover movement; Select is disabled until landing

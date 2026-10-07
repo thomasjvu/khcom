@@ -82,7 +82,7 @@ def main():
     if hashlib.sha1(source).hexdigest()!=US_SHA1:p.error('source is not the supported original US ROM')
     data=a.input.read_bytes()
     if a.command=='create':
-        result=create(source,data,b'<kh-tactics version="0.10-diagonals"/>')
+        result=create(source,data,b'<kh-tactics version="0.11-surfaces"/>')
         if apply(source,result)!=data:raise ValueError('patch round-trip differs')
     else:result=apply(source,data)
     a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_bytes(result)

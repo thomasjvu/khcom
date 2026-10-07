@@ -25,6 +25,17 @@ local function walkingDirection(tx,ty)
   return ground==z and not blocked
  end
  local function clear(x,y)
+  local node=emu:read32(sColliderPoolObstacle+8)
+  while node~=0 do
+   if (emu:read16(node+12)&2)==0 then
+    local c=emu:read32(node);local radius=emu:read32(c+16)+1024
+    local dx=math.abs(x-signed(emu:read32(c+4)))
+    local dy=math.abs((y-z)*2-signed(emu:read32(c+8)))
+    local dz=z-signed(emu:read32(c+12))
+    if dx<radius and dy<radius and dz<8192 and -dz<emu:read32(c+20) and dx*dx+dy*dy<radius*radius then return false end
+   end
+   node=emu:read32(node+8)
+  end
   return sample(x,y) and sample(x,y-1536) and sample(x,y+1536)
  end
  local queue={{x=0,y=0,first=nil}}
@@ -41,9 +52,9 @@ local function walkingDirection(tx,ty)
    local nx=n.x+step[1];local ny=n.y+step[2]
    local key=nx..':'..ny
    if not seen[key] then
-    seen[key]=true
     local ex=ox+nx*4096;local ey=oy+ny*2048
     if clear(ex,ey) and clear((x+ex)/2,(y+ey)/2) then
+     seen[key]=true
      queue[#queue+1]={x=nx,y=ny,first=n.first or step[3]}
     end
    end

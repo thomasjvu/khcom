@@ -51,6 +51,7 @@ extern void Mode_MapFld_2();
 extern void MapEnmUpdateAnim(MapEnmWork* work);
 extern s32 MapEnmCheckAttacked(MapEnmWork* work);
 extern void ColliderUpdateAll();
+extern void* ColliderGetPool(u32 type);
 extern void ColliderSetDisabled(Collider* collider, u8 disabled);
 
 /* Public diagnostic state for emulator replay. */
@@ -740,14 +741,40 @@ static FieldRoute sEnemyRoute;
 static FldPos sRoutePos[FIELD_ROUTE_CELLS];
 static u8 sRouteValid[FIELD_ROUTE_CELLS];
 static Task* sRouteActor;
+static ListPool* sRouteObstacles;
+static int NativeRoutePropsClear(const FldPos* pos) {
+    ListNode* node = sRouteObstacles->activeHead;
+    Collider* collider;
+    s32 dx, dy, dz, radius;
+    s32 actorRadius = sRouteActor ? ((MapEnmWork*)sRouteActor->work)->collider.radius : 1024;
+    s32 actorHeight = sRouteActor ? ((MapEnmWork*)sRouteActor->work)->collider.height : 8192;
+    while (node) {
+        if (!(node->flags & LIST_NODE_FLAG_SKIP)) {
+            collider = node->owner;
+            radius = collider->radius + actorRadius;
+            dx = NativeAbs(pos->x - collider->x);
+            dy = NativeAbs(pos->y * 2 - collider->y);
+            dz = pos->z - collider->z;
+            if (dx < radius && dy < radius && dz < actorHeight && -dz < collider->height) {
+                /* Scale before squaring, as native collision does, to keep
+                 * fixed-point circle arithmetic inside signed 32-bit range. */
+                dx >>= 4; dy >>= 4; radius >>= 4;
+                if (dx * dx + dy * dy < radius * radius) return 0;
+            }
+        }
+        node = node->next;
+    }
+    return 1;
+}
 static int NativeRouteClear(FldPos pos) {
-    if (IsFldPosBlocked(&pos)) return 0;
+    if (IsFldPosBlocked(&pos) || !NativeRoutePropsClear(&pos)) return 0;
     if (!sRoutePlayer) return 1;
     /* Match the native controller's six-pixel front/back footprint. */
     pos.y -= 1536;
     if (IsFldPosBlocked(&pos) || GetFldPosGround(&pos) != pos.ground) return 0;
     pos.y += 3072;
-    return !IsFldPosBlocked(&pos) && GetFldPosGround(&pos) == pos.ground;
+    if (IsFldPosBlocked(&pos) || GetFldPosGround(&pos) != pos.ground) return 0;
+    return 1;
 }
 static int NativeRouteEdge(int from, int to, void* context) {
     FldPos probe;
@@ -782,6 +809,7 @@ static void NativeBuildRoute(FldPos origin, Task* task) {
     int i;
     s32 floor;
     sRouteActor = task;
+    sRouteObstacles = ColliderGetPool(6);
     for (i = 0; i < FIELD_ROUTE_CELLS; i++) {
         pos = &sRoutePos[i];
         *pos = origin;
@@ -792,8 +820,11 @@ static void NativeBuildRoute(FldPos origin, Task* task) {
             pos->x >= (gMapRoomState->cols << 13) ||
             pos->y + pos->z >= (gMapRoomState->rows << 12)) continue;
         cell = MapCellAtPos(pos->x, pos->y + pos->z);
-        if (!cell || cell->lowerZ == 0x100000) continue;
+        if (!cell) continue;
         floor = sRoutePlayer ? GetFldPosGround(pos) : GetFldPosFloor(pos);
+        /* An upper ledge may be walkable above a void lower surface.
+         * Reject the sampled floor, not the unrelated surface below it. */
+        if (floor == 0x100000 || floor == -0x100000) continue;
         pos->y += pos->z - floor;
         pos->z = pos->ground = floor;
         if (NativeRouteClear(*pos)) sRouteValid[i] = 1;
@@ -811,11 +842,13 @@ static void NativePreviewInput(u16 pressed) {
     if (!gNativePreview) {
         gNativePreview = 1;
         sCursorX = sCursorY = 0;
-        sRoutePlayer = 1;
-        sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
-        NativeBuildRoute(gFieldState->actor.fieldPosition, NULL);
     }
     if (pressed & (B_BUTTON | SELECT_BUTTON)) {gNativePreview = 0; return;}
+    /* Props can enable, move or break while their native animations run.
+     * Revalidate from the current actor before showing or committing a route. */
+    sRoutePlayer = 1;
+    sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
+    NativeBuildRoute(gFieldState->actor.fieldPosition, NULL);
     if ((pressed & DPAD_LEFT) && sCursorX > -4) sCursorX--;
     if ((pressed & DPAD_RIGHT) && sCursorX < 4) sCursorX++;
     if ((pressed & DPAD_UP) && sCursorY > -4) sCursorY--;

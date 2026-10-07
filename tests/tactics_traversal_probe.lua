@@ -104,6 +104,9 @@ local function finish(ok,why)
   local a=cells+(cy*cols+cx)*32
   if (emu:read16(a)&32)~=0 or (emu:read8(a+2)>=3 and emu:read8(a+2)<=6 and signed(emu:read32(a+8))~=-1048576 and signed(emu:read32(a+12))~=1048576) then out:write('EDGE '..cx..' '..cy..' '..emu:read8(a+2)..' '..signed(emu:read32(a+8))..' '..signed(emu:read32(a+12))..'\n') end
  end end
+ local field=emu:read32(gFieldState);local task=emu:read32(emu:read32(field+0x94));local w=emu:read32(task+4)
+ out:write('ACTOR state='..emu:read32(w+0x94)..' ground='..signed(emu:read32(field+0x24))..' angle='..emu:read8(field+0x2c)..' collision='..emu:read8(w+0x64)..' other='..emu:read32(w+0x6c)..'\n')
+ for cy=13,21 do for cx=5,9 do local a=cells+(cy*cols+cx)*32;out:write('CELL '..cx..' '..cy..' '..emu:read8(a+2)..' '..signed(emu:read32(a+8))..' '..signed(emu:read32(a+12))..'\n') end end
  local platforms=emu:read32(sMapPlatforms)
  for i=0,11 do local p=platforms+i*24;out:write('PLATFORM '..i..' '..emu:read16(p)..' '..emu:read16(p+2)..' '..signed(emu:read32(p+4))..' '..emu:read8(p+8)..' '..emu:read16(p+10)..' '..emu:read16(p+12)..' '..emu:read8(p+14)..' '..signed(emu:read32(p+16))..' '..signed(emu:read32(p+20))..'\n') end
  local dx,dy,dz=door();out:write('DOOR '..tostring(dx)..','..tostring(dy)..','..tostring(dz)..'\n')
@@ -163,7 +166,7 @@ callbacks:add('frame',function()
    local px=signed(emu:read32(a));local z=signed(emu:read32(a+8))
    local py=signed(emu:read32(a+4))+z
    local score=math.abs(px-dx)+2*math.abs(py-dy)+math.abs(z-dz)+(visits[cell(px,py,z)] or 0)*16384
-   if planned==dirs[index] then score=score-10000000 end
+   if planned==dirs[index] and (visits[cell(px,py,z)] or 0)<2 then score=score-10000000 end
    if not best or score<best.score then best={dir=dirs[index],score=score,key=cell(px,py,z)} end
   end
   emu:setKeys(2);phase='cancel';nextFrame=f+4;return

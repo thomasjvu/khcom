@@ -731,3 +731,12 @@ TacFar_CpuFastSet:
 .thumb_func
 TacFar__call_via_r0:
  bx r0
+
+.balign 4
+.global TacFar_ColliderGetPool
+.thumb_func
+TacFar_ColliderGetPool:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word ColliderGetPool + 1
