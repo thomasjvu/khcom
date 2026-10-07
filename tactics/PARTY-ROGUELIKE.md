@@ -66,8 +66,10 @@ room travel. Host checks and native build pass. A fresh input-only Cloud-route r
 verifies suspend/reset and full deployed HP (80,72,72) at both later world
 entries. It wins at frame 93534 with Sora HP80 and reaches stable PASS at
 93654: 15 kills, 769 movement commands. Evidence:
-`world-rest-cloud-full-run-evidence`. A two-run replay using native retry to
-advance the seed is in progress in `two-seed-rest-cloud-evidence`.
+`world-rest-cloud-full-run-evidence`. A two-run replay uses native retry to advance the seed, recruits/deploys Cloud
+and verifies suspend/reset in both runs. Victories at frames 93487 and 230989
+end with Sora HP80; stable final PASS is 231109, with 1875 cumulative movement
+commands. Evidence: `two-seed-rest-cloud-evidence`.
 
 ## Remaining scope
 

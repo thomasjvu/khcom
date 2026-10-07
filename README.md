@@ -32,8 +32,9 @@ matching-type sleights and three-card chest reward choices. Palette budgets
 keep party, card artwork and value digits visible beside generated scenery.
 The exact 0.18 ROM completes a fresh-SRAM input-only Cloud recruitment,
 deployment and suspend/reset replay through all three worlds. World exits rest
-the recruited roster, including benched heroes. Consecutive-seed retry coverage
-is in progress; broader optional paths, chests and hardware remain unverified.
+the recruited roster, including benched heroes. Two consecutive runs using native retry
+complete different seeds, with Cloud recruitment/deployment and suspend/reset
+in each. Broader optional paths, chests and hardware remain unverified.
 Physical room reachability guarantees, complete climb/jump navigation,
 additional recruits and content/polish remain unfinished.
 Development patch notes: [0.18 party roguelike](tactics/PARTY-ROGUELIKE-0.18.md). Native stairs use one movement point per sixteen-pixel
