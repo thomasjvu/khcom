@@ -721,5 +721,10 @@ position and HP fixtures, not an input-only complete-run claim. ROM build and
 host checks pass; host generation asserts solo Traverse Town encounters across
 1,000 seeds. Save format remains 8; previously saved room counts remain exact.
 `boss-resource-hud-evidence/hud.txt` also passes all 11 glyph/upload checks
-after releasing the scenery reservation. A fresh input-only three-world replay
-is running in `guard-armor-full-run-evidence`; its outcome is not yet verified.
+after releasing the scenery reservation. The fresh input-only three-world replay
+in `guard-armor-full-run-evidence` reached Agrabah's room-7 elite, then ended
+in defeat at frame 53,352, with eight kills and 485 movement commands. Its ROM
+SHA-256 is `13d640c6c27ab533f03867776449da405d5e8c2e60fbd75c41801ce17da8565b`.
+It passed Traverse Town's new solo Guard Armor but does not verify complete-run
+victory. Party survival and the traversal driver's boss-defense policy remain
+open work; this result must not be presented as a successful full-run test.
