@@ -84,9 +84,12 @@ the reward choice before using field commands or suspend. Confirmed cards,
 healing and opened chests survive suspend/resume; an unconfirmed choice has
 not been saved. Chest flags and room enemy
 counts persist. World groups mix Shadow, ranged Red Nocturne, Darkball and
-Black Fungus. Room 7 includes a Large Body guardian with 40/48/56 HP. Within
+Black Fungus. Traverse Town room 7 has a solo Guard Armor with 40 HP, rendered
+using its original seven animated sprite components. Its warned slam reaches
+80 pixels. Agrabah and Castle Oblivion still use Large Body elites with
+48/56 HP and a 64-pixel strike. Within
 96 pixels it spends a decision charging, then on its next decision strikes
-all party members within a 64-pixel Manhattan radius and 24 pixels of height.
+all party members within its Manhattan strike radius and 24 pixels of height.
 Move out during the warning or play Guard. Incoming damage uses original
 value digits above threatened characters as well as the NEXT footer. The
 warning is based on current positions; it updates as the party moves.
@@ -103,7 +106,7 @@ suspends. This build uses save format 8 to preserve enemy identity, charged atta
 stair controller’s target/facing. Format 7 and earlier saves are incompatible.
 
 This is still a development build. Physical room reachability guarantees, climb/jump routes and
-full area/range overlays, reward choices, canonical bosses, complete
+full area/range overlays, richer rewards, the remaining canonical bosses, complete
 input-only run testing and hardware validation remain unfinished. Native room
 creation gathers the party at the entry door, preserving the selected member,
 health, remaining movement/actions and Guard. Only ending a turn renews budgets.

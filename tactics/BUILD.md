@@ -693,3 +693,33 @@ costs the current point while refunding the later segment, and zero prior
 travel refunds both points. These fixtures represent prior travel by setting
 the recorded segment origin; they do not demonstrate a naturally occurring
 dynamic obstruction. Dynamic-prop obstruction remains unverified.
+
+Traverse Town room 7 now has a solo Guard Armor presentation built from the
+original torso, head, hands, feet and collar animations/palette. Its field
+collision task remains the Large Body controller; native tactics owns its
+40 HP and warned 80-pixel slam. Shared preview/resolution checks include
+the 24-pixel height limit. Other worlds retain their Large Body elites.
+Idle poses animate; attack poses and multipart damage phases remain pending.
+
+Native initialization releases the invisible vanilla scenery tile-reservation
+task. That task reserves unused scenery capacity and has no rendered output;
+native rooms retain their generated terrain, props and doors. This frees OBJ
+space for party/card assets and the seven boss components. Boss initialization
+replaces the collision proxy's palette/tiles, allocates only idle animation
+frames, and restores proxy assets on allocation failure. Palette references
+are shared correctly between field task destruction and room release.
+
+`guard-armor-reservation-evidence/boss.txt` passes 17 explicit-fixture checks:
+all card/digit assets in entry/boss rooms, all seven boss components, exact
+slam range/height boundaries, actual party damage, charge consumption and
+suspend reconstruction. Screenshots confirm multipart original art in the
+original field world. Earlier allocation failures are preserved in evidence
+directories. `guard-armor-cleanup-evidence/boss.txt` passes 18 checks covering
+real windup, evasion, Guard, save/reset, Fire defeat, task release, room exit
+and subsequent card resource reconstruction. These tests use explicit room,
+position and HP fixtures, not an input-only complete-run claim. ROM build and
+host checks pass; host generation asserts solo Traverse Town encounters across
+1,000 seeds. Save format remains 8; previously saved room counts remain exact.
+`boss-resource-hud-evidence/hud.txt` also passes all 11 glyph/upload checks
+after releasing the scenery reservation. A fresh input-only three-world replay
+is running in `guard-armor-full-run-evidence`; its outcome is not yet verified.

@@ -1,4 +1,7 @@
 #include "field_enemy.h"
+int FieldEnemyBlastRange(int floor, int room) {
+    return floor == 0 && room == 7 ? 80 : 64;
+}
 int FieldEnemyKind(unsigned int seed, int floor, int room, int slot) {
     static const unsigned char groups[3][4] = {{0,0,1,3},{1,3,0,1},{0,3,6,1}};
     if (room == 7 && slot == 0) return 2;

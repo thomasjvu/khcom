@@ -11,8 +11,8 @@ callbacks:add('frame',function()
   emu:write32(field()+0x70,emu:read32(field()+0x70)|16)
  end
  if f==340 then
-  check(emu:read8(gNativeEnemyKind)==2,'exit encounter spawns native Large Body guardian task')
-  check(emu:read16(gNativeEnemyHp)==40,'Large Body guardian uses boss health')
+  check(emu:read8(gNativeEnemyKind)==2,'Guard Armor retains the native field collision task')
+  check(emu:read16(gNativeEnemyHp)==40,'Guard Armor starts with 40 HP')
   local p=field();local e=enemy(0)
   for j=0,3 do emu:write32(e+8+j*4,emu:read32(p+0x18+j*4)) end
   emu:write32(e+8,emu:read32(e+8)+8192)
@@ -34,7 +34,7 @@ callbacks:add('frame',function()
  if f==464 then emu:setKeys(0) end
  if f==500 then check(emu:read16(gNativeSaveNotice)==1,'charged boss encounter saves');emu:reset() end
  if f==740 then
-  check(emu:read8(gNativeEnemyKind)==2 and emu:read8(gNativeEnemyCharge)==1,'reset restores Large Body guardian identity and windup')
+  check(emu:read8(gNativeEnemyKind)==2 and emu:read8(gNativeEnemyCharge)==1,'reset restores the field collision role and boss windup')
   check(emu:read16(gNativeEnemyHp)==40,'reset preserves boss health')
   emu:write32(sPartyPos+32,emu:read32(field()+0x18)+49152)
  end
@@ -69,6 +69,16 @@ callbacks:add('frame',function()
  if f==1244 then emu:setKeys(0) end
  if f==1320 then
   check(emu:read16(gNativeEnemyHp)==0 and emu:read32(sEnemyTasks)==0,'native Fire card defeats boss and releases its task')
-  emu:screenshot('@OUTPUT@/boss-defeated.png');out:close()
+  emu:screenshot('@OUTPUT@/boss-defeated.png')
+  local r=emu:read32(gMapRoomState)
+  emu:write8(r+15,0);emu:write8(r+16,1)
+  emu:write32(field()+0x70,emu:read32(field()+0x70)|16)
+ end
+ if f==1480 then
+  check(emu:read8(gMapFloorState+6)==0 and emu:read16(gNativeBossReady)==0,'leaving defeated boss releases its presentation')
+  local ready=true
+  for i=0,3 do ready=ready and emu:read32(sCardTiles+i*4)~=0 and emu:read32(sCardPalettes+i*4)~=0 end
+  check(ready,'next room reconstructs all card artwork after boss resource release')
+  out:close()
  end
 end)

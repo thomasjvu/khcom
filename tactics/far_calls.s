@@ -749,3 +749,12 @@ TacFar_AnimSetFrame:
  bx r3
 .balign 4
 1: .word AnimSetFrame + 1
+
+.balign 4
+.global TacFar_GetSpriteTileBytes
+.thumb_func
+TacFar_GetSpriteTileBytes:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word GetSpriteTileBytes + 1

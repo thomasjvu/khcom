@@ -5,4 +5,5 @@ int FieldEnemyHp(int kind, int floor);
 int FieldEnemyRange(int kind);
 int FieldEnemyHeight(int kind);
 int FieldEnemyDamage(int kind, int floor);
+int FieldEnemyBlastRange(int floor, int room);
 #endif

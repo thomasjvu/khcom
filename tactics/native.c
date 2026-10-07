@@ -23,6 +23,8 @@
 #include "sprites_frd.h"
 #include "sprites_btl.h"
 #include "sprites_sora.h"
+#include "sprites_room.h"
+#include "task_descriptors.h"
 #include "battle_actor.h"
 #include "sprite_palettes.h"
 #include "card_def_data.h"
@@ -54,6 +56,7 @@ extern s32 MapEnmCheckAttacked(MapEnmWork* work);
 extern void ColliderUpdateAll();
 extern void* ColliderGetPool(u32 type);
 extern void ColliderSetDisabled(Collider* collider, u8 disabled);
+extern TaskDesc gTaskDescMapGmkDmy;
 
 /* Public diagnostic state for emulator replay. */
 u32 gNativeCommands;
@@ -159,6 +162,91 @@ u16 gNativeCureHeal;
 s16 gNativeCureChoice;
 
 static Task* sEnemyTasks[6];
+/* Guard Armor uses its original seven sprite components on the field actor.
+ * The field task retains collision, hit detection and destruction ownership. */
+static AnimState sArmorAnim[7];
+static void* sArmorTiles[7];
+static ObjPalette* sArmorPalette;
+static TaskDesc sArmorTaskDesc;
+u16 gNativeBossReady;
+u16 gNativeBossAllocation;
+static const AnimDef sArmorDefs[7] = {
+    {gBosGaTorsoFrames,gBosGaTorsoAnims,gBosGaTorsoTiles,0},
+    {gBosGaHeadFrames,gBosGaHeadAnims,gBosGaHeadTiles,0},
+    {gBosGaNearHandFrames,gBosGaNearHandAnims,gBosGaNearHandTiles,0},
+    {gBosGaFarHandFrames,gBosGaFarHandAnims,gBosGaFarHandTiles,0},
+    {gBosGaNearFootFrames,gBosGaNearFootAnims,gBosGaNearFootTiles,0},
+    {gBosGaFarFootFrames,gBosGaFarFootAnims,gBosGaFarFootTiles,0},
+    {gBosGaCollarFrames,gBosGaCollarAnims,gBosGaCollarTiles,0}
+};
+static void NativeArmorDraw(void* arg) {
+    static const s16 dx[7] = {0,-10,10,-44,15,-13,0};
+    static const s16 dy[7] = {-62,-90,-36,-61,-6,-15,-62};
+    MapEnmWork* work = arg;
+    u8 i;
+    s16 x = (work->obj.fieldPosition.x - gFieldState->x) >> 8;
+    s16 y = (work->obj.fieldPosition.y + work->obj.fieldPosition.z - gFieldState->y) >> 8;
+    u16 priority = -0x1004 - (work->obj.fieldPosition.y >> 8) * 4;
+    for (i = 0; i < 7; i++)
+        DrawSprite(x + dx[i], y + dy[i], AnimUpdate(&sArmorAnim[i]),
+            sArmorTiles[i], sArmorPalette, NULL, 0x800, priority);
+    if (sPartyShadowTiles && sPartyShadowPalette)
+        DrawSprite(x, (work->obj.fieldPosition.y + work->obj.fieldPosition.ground - gFieldState->y) >> 8,
+            gBtlShadowFrames[0], sPartyShadowTiles, sPartyShadowPalette, NULL, 0x800, priority + 1);
+}
+static void NativeArmorInit(void) {
+    u8 i;
+    u16 j, size, bytes;
+    AnimHeader* idle;
+    MapEnmWork* work;
+    gNativeBossReady = 0;
+    gNativeBossAllocation = 0;
+    sArmorPalette = NULL;
+    for (i = 0; i < 7; i++) sArmorTiles[i] = NULL;
+    if (gNativeFloor || gMapFloorState.room != 7 || !sEnemyTasks[0]) return;
+    work = sEnemyTasks[0]->work;
+    ReleaseObjTiles(work->tiles);
+    work->tiles = NULL;
+    /* Replace the proxy's unique palette instead of consuming another of
+     * the GBA's sixteen OBJ palette banks. */
+    ReleaseObjPalette(work->palette);
+    work->palette = NULL;
+    sArmorPalette = LoadObjPalette(gBoss01objPalette, 32);
+    if (!sArmorPalette) {
+        gNativeBossAllocation = 1;
+        work->palette = LoadObjPalette(work->def->palette, 32);
+        work->tiles = AllocObjTiles(work->def->tileCount * 32, NULL);
+        return;
+    }
+    for (i = 0; i < 7; i++) {
+        /* Reserve the idle animation's frames, rather than every battle
+         * attack frame, so the complete armor fits beside field/party art. */
+        idle = ((AnimHeader**)sArmorDefs[i].anims)[0];
+        size = 0;
+        for (j = 0; j < idle->frameCount; j++) {
+            bytes = GetSpriteTileBytes(((void**)sArmorDefs[i].gfxTable)[idle->frames[j].gfxIndex]);
+            if (bytes > size) size = bytes;
+        }
+        sArmorTiles[i] = AllocObjTiles(size, sArmorDefs[i].tiles);
+        if (!sArmorTiles[i]) {
+            gNativeBossAllocation = i + 2;
+            for (j = 0; j < i; j++) {ReleaseObjTiles(sArmorTiles[j]);sArmorTiles[j] = NULL;}
+            ReleaseObjPalette(sArmorPalette);
+            sArmorPalette = NULL;
+            work->palette = LoadObjPalette(work->def->palette, 32);
+            work->tiles = AllocObjTiles(work->def->tileCount * 32, NULL);
+            return;
+        }
+        AnimInit(&sArmorAnim[i], sArmorDefs[i].anims, sArmorDefs[i].gfxTable);
+        AnimStart(&sArmorAnim[i], 0, ANIM_FLAG_LOOP);
+    }
+    /* Task destruction and room resource release each own one reference. */
+    work->palette = LoadObjPalette(gBoss01objPalette, 32);
+    sArmorTaskDesc = *sEnemyTasks[0]->desc;
+    sArmorTaskDesc.draw = NativeArmorDraw;
+    sEnemyTasks[0]->desc = &sArmorTaskDesc;
+    gNativeBossReady = 1;
+}
 u16 gNativeEnemyHp[6];
 u8 gNativeEnemyKind[6];
 u8 gNativeEnemyCharge[6];
@@ -333,6 +421,9 @@ static void NativePartyDraw(void) {
 }
 static void NativePartyFree(void) {
     u8 i;
+    for (i = 0; i < 7; i++) if (sArmorTiles[i]) ReleaseObjTiles(sArmorTiles[i]);
+    if (sArmorPalette) ReleaseObjPalette(sArmorPalette);
+    gNativeBossReady = 0;
     for (i = 0; i < 2; i++) {
         ReleaseObjTiles(sFriends[i].tiles);
         ReleaseObjPalette(sFriends[i].palette);
@@ -611,7 +702,7 @@ static void NativePreviewThreats(void) {
                 distance = NativeAbs(work->obj.fieldPosition.x - pos.x) +
                     NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - pos.y - pos.z);
                 dz = NativeAbs(work->obj.fieldPosition.z - pos.z);
-                if (distance <= (64 << 8) && dz <= (24 << 8))
+                if (distance <= (FieldEnemyBlastRange(gNativeFloor, gMapFloorState.room) << 8) && dz <= (24 << 8))
                     gNativeThreats[j] += gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : FieldEnemyDamage(2, gNativeFloor);
             }
             continue;
@@ -677,7 +768,7 @@ static void NativeHud(void) {
     NativeLabel(0, 0, line);
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
     gNativeCureTarget = NativeCureTarget();
-    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? "GUARDIAN CHARGING" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? "GUARD ARMOR SLAM" : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, gNativeCureTarget == 0 ? "CURE SORA A PLAY" :
@@ -744,6 +835,9 @@ static void NativeInit(s32 arg) {
     const struct TacWorldRoom* room = &sWorld.rooms[gMapFloorState.room];
     MapFloorRoom* saved = GetMapFloorRoom(gMapFloorState.room);
     MapEnmArgs enemy;
+    ListNode* node;
+    ListNode* next;
+    Task* task;
     u8 i, kind;
     gMapForm.layout = room->layout;
     gMapForm.minWidth = gMapForm.maxWidth = room->width;
@@ -753,6 +847,16 @@ static void NativeInit(s32 arg) {
     gMapForm.maxDepth = room->depthMax;
     gMapChkUseParams = 1;
     Mode_MapFld_0();
+    /* Vanilla reserves all unused scenery tiles with an invisible dummy.
+     * Native rooms never add frame-driven scenery; return this reservation
+     * to the shared OBJ budget for party, cards and multipart bosses. */
+    node = gFieldState->tasks.head.activeHead;
+    while (node) {
+        next = node->next;
+        task = node->owner;
+        if (task->desc == &gTaskDescMapGmkDmy) TaskKill(&gFieldState->tasks, task);
+        node = next;
+    }
     gMapChkUseParams = 0;
     gNativeRoomVisits++;
     /* Spawn once from the room seed, never from idle frame timing. */
@@ -785,6 +889,7 @@ static void NativeInit(s32 arg) {
     gNativePreview = 0;
     sPathLength = 0;
     NativePartyInit();
+    NativeArmorInit();
     if (sCarryTurn) {
         for (i = 0; i < 3; i++) {
             sPartyMove[i] = sCarryMove[i];
@@ -1118,7 +1223,7 @@ static void NativeEnemyTurn(void) {
             for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j]) {
                 distance = NativeAbs(work->obj.fieldPosition.x - sPartyPos[j].x) +
                     NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - sPartyPos[j].y - sPartyPos[j].z);
-                if (distance <= (64 << 8) && NativeAbs(work->obj.fieldPosition.z - sPartyPos[j].z) <= (24 << 8))
+                if (distance <= (FieldEnemyBlastRange(gNativeFloor, gMapFloorState.room) << 8) && NativeAbs(work->obj.fieldPosition.z - sPartyPos[j].z) <= (24 << 8))
                     if (FieldPartyDamage(&gNativePartyHealth, j, gNativeGuard == 2 ? 0 :
                         gNativeGuard ? 1 : FieldEnemyDamage(2, gNativeFloor))) gNativeResult = 1;
             }
@@ -1156,13 +1261,13 @@ static void NativeEnemies(void) {
         work = task->work;
         if (!(work->flags & 0x8000)) {
             work->flags |= 0x8000;
-            MapEnmSetAnim(work, 1, 1);
+            if (task->desc != &sArmorTaskDesc) MapEnmSetAnim(work, 1, 1);
             ColliderSetDisabled(&work->collider, 0);
         }
         if (sAttack && !(work->flags & 0x2000) && MapEnmCheckAttacked(work)) {
             work->flags |= 0x2000;
             NativeDamageEnemy(task, sPlayedValue ? 5 + sPlayedValue / 2 : 3);
-        } else {
+        } else if (task->desc != &sArmorTaskDesc) {
             MapEnmUpdateAnim(work);
         }
         node = next;

@@ -15,6 +15,9 @@ int main(void) {
     assert(FieldEnemyRange(1)>FieldEnemyRange(0));
     assert(FieldEnemyHeight(1)>FieldEnemyHeight(0));
     assert(FieldEnemyHp(2,2)==56&&FieldEnemyDamage(2,2)==14);
+    assert(FieldEnemyBlastRange(0,7)==80);
+    assert(FieldEnemyBlastRange(0,3)==64);
+    assert(FieldEnemyBlastRange(1,7)==64);
     puts("field enemy: seeded world groups, boss HP, ranged and height roles passed");
     return 0;
 }
