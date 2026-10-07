@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.14-terminal.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.14-terminal.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.15-party-rewards.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.15-party-rewards.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -487,3 +487,16 @@ Cure/Fire/reward prompt from retaining a previous label's trailing glyphs.
 The current reward/save/capacity fixture passes 25 checks, including a native
 tilemap assertion that the shorter reward footer leaves only blank tiles to
 its right (`hud-reward-final-evidence/reward-save.txt`).
+
+0.15 party/reward development build: the diagnostic rerun on the same ROM
+SHA-256 `7732bd31a0d436d679bd33d5b763572544026e49584a021a323c7288fb12db37`
+completed all three worlds and passed 120-frame terminal stability at frame
+82,661, with 17 kills, 691 movement commands and Sora HP 57. Evidence:
+`build/tactics-us/party-reward-health-trace-evidence/traversal.txt`. This
+input-only rerun contrasts with the earlier defeat on the identical ROM;
+repeatable replay outcomes are not yet established. Both results remain
+preserved. The development BPS includes original party walk/jump presentation,
+sleight/Cure/Fire previews, chest card choices and HUD label cleanup.
+The 25-check reward/save/capacity fixture also passes. Optional branches,
+input-only chest collection, other seeds and physical hardware remain
+unverified. This is not a fully polished release.

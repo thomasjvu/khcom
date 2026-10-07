@@ -68,6 +68,11 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Input-only default-seed three-world victory on the final 0.14 ROM, stable for 120 further frames: 79,338 frames, 17 kills, 680 movement commands and 24 Goofy Guards; no teleports, forced exits or emulated RAM writes.
 - Asset-free rules/save/graph tests and local mGBA smoke/scenario replays.
 
+- Current 0.15 ROM also has an input-only three-world victory with 120-frame
+  terminal stability at frame 82,661 (17 kills, 691 movement commands, Sora HP
+  57). A prior replay on the identical ROM lost in Castle Oblivion; consistent
+  replay outcomes still require investigation.
+
 ## Remaining implementation sequence
 
 1. **Height-aware tactical navigation.** Extend the implemented flat-surface walking
