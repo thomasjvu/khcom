@@ -12,6 +12,8 @@ local commands=0
 local done=false
 local suspendStage=0
 local suspendSnapshot=nil
+local cloudRecruited=false
+local cloudDeployed=false
 local previousRoom=0
 local previousWorld=0
 local victoryFrame=nil
@@ -35,7 +37,11 @@ local function door()
      local w=emu:read32(task+4)
      local d=emu:read32(w)
      local room=emu:read8(gMapFloorState+6)
-     if emu:read8(d+7)==(room==7 and 253 or room+1) then
+     local target=room==7 and 253 or room+1
+     if recruitCloud and emu:read16(gNativeFloor)==0 then
+      if room==1 then target=8 elseif room==9 then target=4 end
+     end
+     if emu:read8(d+7)==target then
       return signed(emu:read32(w+4)),signed(emu:read32(w+8))+signed(emu:read32(w+12)),signed(emu:read32(w+12))
      end
     end
@@ -80,7 +86,8 @@ local function stairGoal(tx,ty,tz)
  return tx,ty,tz,false
 end
 local function encounterGoal()
- if emu:read8(gMapFloorState+6)~=7 then return nil end
+ local room=emu:read8(gMapFloorState+6)
+ if room~=7 and not (recruitCloud and emu:read16(gNativeFloor)==0 and room==9) then return nil end
  local x,y,z=pos();local best=nil
  for i=0,5 do
   local t=emu:read32(sEnemyTasks+i*4)
@@ -185,6 +192,13 @@ local function replayFrame()
   out:write('MODE current='..string.format('%x',emu:read32(gCurrentMode))..' update='..string.format('%x',emu:read32(gCurrentModeUpdate))..' pending='..string.format('%x',emu:read32(gPendingMode))..' busy='..emu:read16(gNativeBusy)..'\n')
   finish(false,'left native tactics mode');return
  end
+ if recruitCloud and not cloudRecruited and (emu:read8(gNativeRoster)&8)~=0 then
+  cloudRecruited=true;out:write('CLOUD RECRUITED frame='..f..'\n');out:flush()
+ end
+ if recruitCloud and not cloudDeployed and emu:read8(gNativeRoster+2)==3 and emu:read16(gNativeAssembly)==0 then
+  cloudDeployed=true;out:write('CLOUD DEPLOYED frame='..f..'\n');out:flush()
+  emu:screenshot('@OUTPUT@/cloud-deployed.png')
+ end
  if goalWorlds==3 and world>=3 and emu:read16(gNativeResult)==2 then
   emu:setKeys(0)
   if not victoryFrame then
@@ -192,7 +206,7 @@ local function replayFrame()
    out:write('VICTORY frame='..f..' hp='..victoryHealth..'\n');out:flush()
   end
   if f-victoryFrame>=120 then
-   finish(world==3 and emu:read8(gNativePartyHealth)==victoryHealth,'completed three worlds; terminal floor and Sora HP remain stable for 120 frames')
+   finish(world==3 and emu:read8(gNativePartyHealth)==victoryHealth and (not recruitCloud or (cloudRecruited and cloudDeployed)),'completed three worlds; terminal floor and Sora HP remain stable for 120 frames')
   end
   return
  end
@@ -214,6 +228,7 @@ local function replayFrame()
  if suspendStage==2 and (world~=0 or room~=suspendRoom) then finish(false,'resume changed world or room');return end
  if suspendRoom and suspendRoom>0 and suspendStage<3 and world==0 and room==suspendRoom then
   if suspendStage==0 and phase=='scan' and emu:read16(gNativePreview)==0 and
+     emu:read16(gNativeAssembly)==0 and emu:read16(gNativeProgressReward)==0 and
      emu:read16(gNativeEnemyFrames)==0 and emu:read16(gNativeClimbing)==0 and emu:read16(gNativeReward)==0 then
    suspendSnapshot={}
    for i=0,2 do suspendSnapshot[i+1]=emu:read8(gNativePartyHealth+i) end
@@ -252,11 +267,25 @@ local function replayFrame()
  end
  if phase=='progress_release' then phase='scan';nextFrame=f+4;return end
  if gNativeProgressReward and emu:read16(gNativeProgressReward)~=0 then
+  if recruitCloud and world==0 and room==9 and not cloudRecruited then
+   emu:setKeys(emu:read16(sProgressKind)==4 and 1 or 64)
+   phase='progress_release';nextFrame=f+4;return
+  end
   local hero=emu:read8(gNativeRoster+1+emu:read16(sProgressHero))
   emu:setKeys(emu:read8(gNativeRoster+4+hero)>=8 and 256 or 1)
   phase='progress_release';nextFrame=f+4;return
  end
+ if phase=='assembly_release' then phase='scan';nextFrame=f+4;return end
  if gNativeAssembly and emu:read16(gNativeAssembly)~=0 then
+  if recruitCloud and cloudRecruited and emu:read8(gNativeRoster+2)~=3 then
+   local slot=emu:read16(sAssemblyChoice)
+   -- Select Donald's slot, then cycle down directly to unlocked Cloud.
+   emu:setKeys(slot==1 and 128 or 256)
+   phase='assembly_release';nextFrame=f+4;return
+  end
+  if recruitCloud and cloudRecruited and emu:read16(sAssemblyChoice)~=0 then
+   emu:setKeys(512);phase='assembly_release';nextFrame=f+4;return
+  end
   emu:setKeys(8);phase='release';nextFrame=f+4;return
  end
  if phase=='release' then phase='scan';nextFrame=f+8;return end

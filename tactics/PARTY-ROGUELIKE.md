@@ -23,51 +23,51 @@ an implementation assumption until corrected by the user.
 - Persist roster, deployment, unlocks and character upgrades in suspend saves;
   validate all assembly/reward transitions and full-run reset/recruitment.
 
-Current source starts distinct base attacks: Donald's attack card casts targeted
-magic; Goofy's attack card spins his shield through nearby enemies. Native ROM
-compilation and emulator checks are required before treating these as verified.
-Assembly, recruitment, upgrades and full reachable-tile overlays remain work.
-The existing shared card model will need character loadouts and a separate
-summon inventory; existing three fixed party identities cannot represent the
-complete roster without a save/state redesign.
+## Current implementation
 
-Roster model implemented in `field_roster.c`: assembly-only deployment with
-duplicate swaps, locked character checks, every-second-clear upgrade rewards,
-boss recruitment, repeat-clear reward suppression and bounded per-hero upgrades.
-It is stored in format-9 native suspend state. Format-8 saves migrate to the
-starter roster; a recorded native format-8 SRAM fixture passes decode/migration.
-Eleven native emulator checks verify character attacks and roster unlock/power/
-sleight persistence. The assembly/recruitment UI and combat identity mapping
-are not connected yet; Cloud is not playable simply because the roster holds
-his unlocked bit. Gameplay wiring remains required.
+Sora, Donald and Goofy are individually controllable with separate movement
+and action budgets. Donald uses ranged magic and stronger healing; Goofy uses
+shield spins and protection. Cloud uses a targeted sword slash and his original
+battle animations. Character power and matching-sleight upgrades apply in combat.
 
-First round-start setup UI is now connected. It shows original Donald/Goofy
-character cards and Sora's Keyblade card, selects a starting controllable hero
-with L/R, and commits with A/Start. Combat commands are gated until confirmation.
-Donald's setup card borrows the Fire artwork budget; confirmation releases it
-and restores Fire. Ten native setup checks pass, including action preservation
-and control selection. This currently chooses the starter leader, not a custom
-recruited team. Character slot mapping, bench/roster selection, Cloud recruitment
-and battle rewards still need gameplay integration. Text HUD readability remains
-unfinished. Evidence: `assembly-evidence/assembly.txt` and screenshots.
+Round setup shows original character cards. L/R selects a deployed slot;
+Up/Down changes an unlocked companion; A/Start confirms. Sora remains required.
+Companion swaps preserve each character's health and spent turn resources.
+Summon cards appear in setup and recruitment; combat Guard uses the original
+Guard Armor enemy card. Walking previews show reachable terrain tiles. Climb
+and jump connections still need integration into the reachable overlay.
 
-Encounter-clear reward UI is connected for every second new clear and all
-world bosses. Per-hero attack power and matching-sleight enhancements apply in
-combat; pending/confirmed rewards and clear masks persist. Recruitable boss
-cards remain to be connected. Fourteen native reward checks pass.
+Traverse Town's optional room-9 Cloud challenge offers his recruitment card or
+a personal power/sleight upgrade. Every second unique room clear and world boss
+also offers a personal upgrade; revisits cannot duplicate rewards. Cloud can
+replace Donald or Goofy in either companion slot after recruitment.
 
-Cloud's optional Traverse Town room-9 challenge and recruit/power reward choice
-are connected using original battle sprites and summon-card art. Both loot
-paths pass fifteen native checks and persist. Next: connect Cloud to deployed
-slot identity, animation, health, movesets and party assembly; keep summon cards
-in recruitment/setup and replace the current Goofy art used for combat Guard.
+Suspend format 10 stores roster identities, deployment, personal upgrades,
+bench health and turn resources. Recorded format-8 and format-9 saves migrate.
+Sixteen native deployment checks verify locked-character rejection, controller
+selection, original art, Cloud damage, bench health/action and reboot recovery.
+Both Cloud challenge reward choices have fifteen native fixture checks.
 
-Cloud deployment and character slot mapping are connected. Setup cycles
-unlocked companions with Up/Down; Sora remains required. Donald, Goofy and Cloud
-use their own animations, caps and card moves in either companion slot. Bench
-health and budgets persist in format 10; swaps cannot refill a spent action.
-Combat Guard uses original Guard Armor card art, keeping summon cards in setup
-and recruitment. Sixteen native checks pass for locked recruitment, controller
-deployment, original art, Cloud targeting/damage, bench health/action and reboot
-reconstruction. Evidence: `cloud-deploy-budget-evidence/deploy.txt`.
-Full input-only optional-route recruitment/deployment coverage remains open.
+A fresh-SRAM input-only run using the starter party completes all three worlds,
+including suspend/reset with the complete roster comparison: victory at frame
+108366, stable terminal PASS at 108486, 14 kills and 899 movement commands.
+Evidence: `build/tactics-us/cloud-party-map-suspend-full-run-evidence`.
+Fixtures are distinct from full-run proof. An additional fresh input-only replay fights and recruits Cloud, deploys him,
+saves at frame 13411 and verifies the complete resumed roster at 13741. It
+completes all three worlds with 15 kills and 777 movement commands, stable PASS
+at frame 92877. Evidence: `cloud-recruit-resume-full-run-evidence`. Cloud and
+Goofy are KO later in the run; this proves route completion and persistence,
+not balanced companion survival or a Cloud-led combat strategy.
+
+## Remaining scope
+
+- Verify more party compositions, companion survival and character-led combat.
+- Integrate height traversal into reachable movement previews and verify physical
+  procedural-room connectivity across seeds and optional branches.
+- Improve character loadouts, reward availability feedback and tactical guidance.
+- Add further recruitable characters after checking original assets. Aerith's
+  field sprites (`gEarF00`, `gEarB00`, `gEarF01`, `gEarB01`, `gEarisPalette`)
+  and portrait card (`gCardNpcEx06`) exist in the decomp. No Tifa assets have
+  been located; neither character is currently recruitable.
+- Broaden encounter/content coverage and package a verified current BPS patch.
+  The existing 0.16 patch predates party assembly and recruitment.

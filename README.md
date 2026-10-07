@@ -152,6 +152,8 @@ required before packaging the Castle boss build.
 Current source also supports recruiting Cloud in an optional original-sprite
 battle and deploying him in either companion slot through the round-start card
 screen. Character health, turn resources and upgrades follow identities across
-swaps and suspend saves. Sixteen native deployment checks pass; complete runs
-with the new party mapping still require verification. The packaged 0.16 patch
+swaps and suspend saves. Sixteen native deployment checks pass. A fresh input-only starter-party run
+completes all three worlds with suspend/reset and full roster verification
+(PASS at frame 108486). A second fresh input-only run fights, recruits and deploys Cloud, verifies
+suspend/reset, and finishes all three worlds (PASS at frame 92877). The packaged 0.16 patch
 predates this work. See `tactics/PARTY-ROGUELIKE.md` for remaining scope.
