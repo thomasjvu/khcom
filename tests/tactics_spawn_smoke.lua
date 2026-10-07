@@ -3,6 +3,7 @@ local f=0
 local out=io.open('@OUTPUT@/spawn.txt','w')
 local slot=nil
 local target=nil
+local targetX=nil
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 callbacks:add('frame',function()
  f=f+1
@@ -28,6 +29,17 @@ callbacks:add('frame',function()
  end
  if f==200 then emu:setKeys(256) end
  if f==204 then emu:setKeys(0) end
+ if f==220 then
+  check(slot and emu:read16(gNativeFireTarget)==slot,'Fire preview identifies the same fresh enemy before play')
+  check(slot and emu:read16(gNativeFireDamage)==emu:read16(gNativeEnemyHp+slot*2),'Fire preview caps lethal damage at remaining enemy HP')
+  emu:screenshot('@OUTPUT@/fire-preview.png')
+ end
+ if f==224 and target then targetX=emu:read32(target+8);emu:write32(target+8,458752) end
+ if f==230 then
+  check(emu:read16(gNativeFireTarget)==65535 and emu:read16(gNativeFireDamage)==0,'Fire preview clears when no enemy is in range')
+  check(emu:read16(gNativeActionLeft)==1,'inspecting an empty Fire target preserves the action')
+ end
+ if f==234 and targetX then emu:write32(target+8,targetX) end
  if f==240 then emu:setKeys(1) end
  if f==244 then emu:setKeys(0) end
  if f==400 then

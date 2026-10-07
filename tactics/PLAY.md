@@ -107,3 +107,5 @@ dropping. Outside a preview, B retains the normal drop action. These are
 single-segment previews, not combined walking/climbing routes.
 
 Selecting Cure names its intended party member in the HUD before play. It chooses the nearby member missing the most HP, including knocked-out friends; height and range still constrain healing.
+
+Selecting Fire projects the expected HP loss above its nearest valid enemy using original number sprites. The HUD says FIRE NO TARGET when none is in range. The projection accounts for card-value breaks, Donald’s bonus and remaining enemy HP.

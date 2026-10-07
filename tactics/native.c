@@ -133,6 +133,10 @@ static void NativePreviewDraw(void);
 static void NativePreviewInput(u16 pressed);
 static u16 NativeRouteWalk(void);
 static u8 NativeCureTarget(void);
+static Task* NativeFireTarget(void);
+static void NativeCardIntentDraw(void);
+s16 gNativeFireTarget;
+u16 gNativeFireDamage;
 u16 gNativeCureTarget;
 
 static Task* sEnemyTasks[6];
@@ -600,6 +604,10 @@ static void NativeHud(void) {
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, gNativeCureTarget == 0 ? "CURE SORA A PLAY" :
             gNativeCureTarget == 1 ? "CURE DONALD A PLAY" : "CURE GOOFY A PLAY");
+    if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
+        !gNativeClimbing && !charging && card >= 0 && !gNativeDeck.stocked &&
+        gNativeDeck.kind[card] == FIELD_CARD_FIRE && gNativeActionLeft)
+        NativeLabel(0, 8, gNativeFireTarget < 0 ? "FIRE NO TARGET" : "FIRE A PLAY");
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
@@ -1055,7 +1063,7 @@ static void NativeEnemies(void) {
     gMapRoomState->flags &= ~(ROOM_FLAG_ENEMY_STRUCK | ROOM_FLAG_START_BATTLE);
 }
 
-static void NativeFire(void) {
+static Task* NativeFireTarget(void) {
     ListNode* node = gFieldState->tasks4.head.activeHead;
     Task* target = NULL;
     Task* task;
@@ -1076,7 +1084,43 @@ static void NativeFire(void) {
         }
         node = node->next;
     }
+    return target;
+}
+static void NativeFire(void) {
+    Task* target = NativeFireTarget();
     if (target) NativeDamageEnemy(target, 6 + sPlayedValue + (gNativeParty == 1 ? 3 : 0));
+}
+
+static void NativeCardIntentDraw(void) {
+    Task* target;
+    MapEnmWork* work;
+    int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
+    u8 i;
+    u16 damage;
+    s16 x, y;
+    gNativeFireTarget = -1;
+    gNativeFireDamage = 0;
+    if (gNativeResult || gNativeEnemyFrames || gNativeBusy || gNativePreview ||
+        !gNativeActionLeft || card < 0 || gNativeDeck.stocked ||
+        gNativeDeck.kind[card] != FIELD_CARD_FIRE) return;
+    target = NativeFireTarget();
+    if (!target) return;
+    for (i = 0; i < 6; i++) if (sEnemyTasks[i] == target) {
+        gNativeFireTarget = i;
+        damage = 6 + gNativeDeck.value[card] + (gNativeParty == 1 ? 3 : 0);
+        if (gNativeDeck.value[card] && gNativeDeck.value[card] < 3 + gNativeFloor) damage = 0;
+        if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
+        gNativeFireDamage = damage;
+        if (!sValueTiles || !sValuePalette) return;
+        work = target->work;
+        x = (work->obj.fieldPosition.x - gFieldState->x) >> 8;
+        y = ((work->obj.fieldPosition.y + work->obj.fieldPosition.z - gFieldState->y) >> 8) - 28;
+        if (damage >= 10) DrawSprite(x - 6, y, gCardValueDigitFrames[damage / 10],
+            sValueTiles, sValuePalette, NULL, 0, 0);
+        DrawSprite(x + 2, y, gCardValueDigitFrames[damage % 10],
+            sValueTiles, sValuePalette, NULL, 0, 0);
+        return;
+    }
 }
 
 static u8 NativeCureTarget(void) {
@@ -1366,6 +1410,7 @@ static void NativeUpdate(void) {
     NativePreviewThreats();
     NativePartyDraw();
     NativeIntentDraw();
+    NativeCardIntentDraw();
     NativePreviewDraw();
     NativeHud();
     if (gNativeBusy) sFrames++;

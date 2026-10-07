@@ -448,3 +448,16 @@ replay passes all 30 checks in `cure-target-evidence/party.txt`, including
 pre-play target checks for injured Donald and nearby knocked-out Donald,
 matching heals, card costs, independent budgets, Guard, dual-slot corruption
 recovery and friend knockout. `cure-target.png` captures the actual native HUD.
+
+
+Fire intent: preview and play share `NativeFireTarget`, retaining native
+world-space range and height rules and nearest-target tie order. Selected
+Fire projects expected HP loss with original digit sprites, including Donald's
+bonus, card-value breaks and remaining HP. The HUD reports no target when
+none is in range. It is suppressed during movement previews, busy commands,
+enemy turns, terminal state, exhausted actions and stocked sleights. Ten
+checks pass in `fire-preview-final-evidence/spawn.txt`: original ranged spawn,
+pre-play target/remaining-HP agreement, out-of-range clearing without action
+cost, and a real Fire kill with exact reward/action cost. The fixture moves
+the actor temporarily out of range, then restores it; it is not input-only
+complete-run evidence. The strict host suite also passes.
