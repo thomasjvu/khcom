@@ -568,3 +568,14 @@ input-only walking fixture passes in `swept-actor-route-fixed-evidence`,
 including multi-segment execution and budget rejection. Strict host tests
 and ROM build pass. A dedicated enemy crossing scenario and full-run
 regression remain required; quarter samples are not a continuous sweep.
+
+Replay evidence metadata: traversal generation now writes
+`replay-metadata.json` with SHA-256 of the built ROM, ELF and complete generated
+Lua driver (including geometry helpers), goals and frame bound. Generation
+requires the matching ROM beside the ELF and rejects direct emulated-memory
+write calls in the generated script. Metadata explicitly leaves result
+unobserved; completion must still be read from `traversal.txt`. This helps
+separate differing drivers from differing binaries and does not prove replay
+determinism. Current route-regression full-run evidence is being collected in
+`swept-route-full-run-evidence` for ROM SHA-256
+`404bb62955d9090a7e39145be51fa2054062e2cd8be3ef05e5fb7476683ef7b1`.

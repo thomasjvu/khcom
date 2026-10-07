@@ -4,6 +4,8 @@ Reads diagnostics and original door geometry; never writes emulated memory.
 A failed probe is navigation evidence, not a claim that the room is impossible.
 """
 import argparse
+import hashlib
+import json
 import subprocess
 from pathlib import Path
 
@@ -28,5 +30,24 @@ keys = ('gCurrentMode', 'gCurrentModeUpdate', 'gPendingMode', 'sNativeMode', 'Na
 out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
 header = f'local goalRoom={a.rooms}\nlocal goalFrames={a.frames}\nlocal goalWorlds={a.worlds or 0}\n' + ''.join(f'local {key}=0x{names[key]:08x}\n' for key in keys)
-(out / 'traversal.lua').write_text(header + Path(
-    'tests/tactics_traversal_probe.lua').read_text().replace('-- @GEOMETRY@', Path('tests/tactics_traversal_geometry.lua').read_text()).replace('-- @REGIONS@', Path('tests/tactics_traversal_regions.lua').read_text()).replace('@OUTPUT@', str(out)))
+script = header + Path(
+    'tests/tactics_traversal_probe.lua').read_text().replace('-- @GEOMETRY@', Path('tests/tactics_traversal_geometry.lua').read_text()).replace('-- @REGIONS@', Path('tests/tactics_traversal_regions.lua').read_text()).replace('@OUTPUT@', str(out))
+
+# Tie replay evidence to the exact executable and driver, including helper code.
+elf = Path(a.elf).resolve()
+rom = elf.with_suffix('.gba')
+if not rom.is_file():
+    p.error('matching built .gba is required beside the ELF')
+if 'emu:write' in script or 'emu.write' in script:
+    p.error('input-only traversal cannot contain emulated memory writes')
+(out / 'traversal.lua').write_text(script)
+(out / 'replay-metadata.json').write_text(json.dumps({
+    'elf_sha256': hashlib.sha256(elf.read_bytes()).hexdigest(),
+    'rom_sha256': hashlib.sha256(rom.read_bytes()).hexdigest(),
+    'driver_sha256': hashlib.sha256(script.encode()).hexdigest(),
+    'goal_worlds': a.worlds or 0,
+    'goal_room': a.rooms,
+    'frame_limit': a.frames,
+    'input_only': True,
+    'result': 'not yet observed; inspect traversal.txt',
+}, indent=2) + '\n')
