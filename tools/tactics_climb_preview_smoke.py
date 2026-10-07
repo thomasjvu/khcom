@@ -8,6 +8,6 @@ for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitl
     v=line.split()
     if len(v)==3:names[v[2]]=int(v[0],16)
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
-keys=('gFieldState','gMapRoomState','sMapCells','gNativePreview','gNativeRouteCost','gNativeMoveLeft','gNativeActionLeft','gNativeBusy','gNativeParty','gNativeClimbing','gNativeSaveNotice','sEnemyTasks')
+keys=('gFieldState','gMapRoomState','sMapCells','sClimbPreviewPos','gNativePreview','gNativeRouteCost','gNativeMoveLeft','gNativeActionLeft','gNativeBusy','gNativeParty','gNativeClimbing','gNativeSaveNotice','sEnemyTasks')
 header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 (out/'climb.lua').write_text(header+Path('tests/tactics_climb_preview_smoke.lua').read_text().replace('@OUTPUT@',str(out)))

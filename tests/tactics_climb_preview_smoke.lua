@@ -65,9 +65,20 @@ callbacks:add('frame',function()
  if f==610 then
   check(startZ and math.abs(emu:read32(field()+0x20)-(startZ-4096))<=48,'Down descends one native stair level')
   check(emu:read16(gNativeMoveLeft)==0,'third climb step exhausts movement budget')
-  emu:setKeys(64)
+  emu:setKeys(576)
  end
  if f==614 then emu:setKeys(0) end
+ if f==630 then
+  check(emu:read16(gNativePreview)==2,'exhausted party member can inspect a stair preview')
+  emu:setKeys(1)
+ end
+ if f==634 then emu:setKeys(0) end
+ if f==644 then
+  check(emu:read16(gNativeBusy)==0 and emu:read16(gNativeMoveLeft)==0,'unaffordable stair confirmation cannot start native motion')
+  check(startZ and math.abs(emu:read32(field()+0x20)-(startZ-4096))<=48,'unaffordable preview retains vertical position')
+  emu:setKeys(2)
+ end
+ if f==648 then emu:setKeys(0) end
  if f==660 then savedZ=emu:read32(field()+0x20);emu:setKeys(12) end
  if f==664 then emu:setKeys(0) end
  if f==690 then
@@ -83,9 +94,17 @@ callbacks:add('frame',function()
  if f==864 then emu:setKeys(0) end
  if f==970 then
   check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeClimbing)==1,'ending turn restores movement without losing stair attachment')
-  emu:setKeys(2)
+  emu:setKeys(640)
  end
  if f==974 then emu:setKeys(0) end
+ if f==995 then
+  check(emu:read16(gNativePreview)==2 and emu:read16(gNativeRouteCost)==1,'Down previews the final segment to the native floor')
+  check(emu:read32(sClimbPreviewPos+8)==startZ,'descending marker matches the supporting floor')
+  emu:setKeys(2)
+ end
+ if f==999 then emu:setKeys(0) end
+ if f==1020 then emu:setKeys(2) end
+ if f==1024 then emu:setKeys(0) end
  if f==1280 then
   check(emu:read32(player()+0x94)==0 and emu:read16(gNativeBusy)==0,'B drops from stairs and finishes native landing')
   check(emu:read16(gNativeActionLeft)==0,'dropping consumes the action')

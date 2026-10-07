@@ -429,3 +429,13 @@ drop and post-landing party selection remain valid. The projected original
 value digit indicates the vertical target; original physics controls any
 horizontal shift and climb-over at the top. Combined walking/stair/jump paths
 and guaranteed landing previews remain unfinished.
+
+
+Stair preview limits: descending markers clamp to the actual supporting floor,
+including a native prop platform below an attached actor. Zero-distance descent
+is rejected. The expanded fixture passes 28 checks in
+`climb-preview-floor-evidence/climb-preview.txt`: exhausted movement permits
+inspection but blocks A without changing height, and the last descending
+marker matches the native floor. Cancellation, exact costs, attached suspend,
+drop and later party switching still pass. This does not add a guaranteed
+horizontal landing preview for the native climb-over animation.

@@ -860,6 +860,7 @@ static int NativeEnemyRoute(Task* task, const FldPos* target) {
 }
 static void NativePreviewInput(u16 pressed) {
     FldWork* player = ((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
+    s32 lowerLimit;
     if (player->state == FLD_STATE_CLIMB) {
         if (!gNativePreview) sClimbPreviewDirection = 0;
         gNativePreview = 2;
@@ -869,7 +870,17 @@ static void NativePreviewInput(u16 pressed) {
         sClimbPreviewPos = gFieldState->actor.fieldPosition;
         sClimbPreviewPos.z = ((player->targetZ >> 12) +
             (sClimbPreviewDirection == DPAD_UP ? -1 : 1)) << 12;
+        lowerLimit = gFieldState->actor.fieldPosition.ground;
+        if ((player->collider.standFlags & COLLIDER_STAND_OVER_PLATFORM) &&
+            player->collider.platformZ < lowerLimit) lowerLimit = player->collider.platformZ;
+        /* Native descent lands at the supporting floor, which can interrupt
+         * the final sixteen-pixel segment. Show that actual vertical limit. */
+        if (sClimbPreviewDirection == DPAD_DOWN && sClimbPreviewPos.z > lowerLimit)
+            sClimbPreviewPos.z = lowerLimit;
         gNativeRouteCost = sClimbPreviewDirection ? 1 : -1;
+        if (sClimbPreviewDirection == DPAD_DOWN &&
+            sClimbPreviewPos.z <= gFieldState->actor.fieldPosition.z + 48)
+            gNativeRouteCost = -1;
         if ((pressed & A_BUTTON) && gNativeRouteCost == 1 && gNativeMoveLeft) {
             gNativeMoveLeft--;
             gNativeDirection = sClimbPreviewDirection;
