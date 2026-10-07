@@ -234,3 +234,24 @@ The preceding six-check attack attempt expected destruction and failed that
 assertion; its log remains preserved. Further work must test native climbing
 onto/over the prop or validate placement so solid scenery preserves a physical
 route. Breaking the smaller decoration is not a fix for this obstruction.
+
+### Verified native pillar traversal
+
+`castle-pillar-crossing-evidence` passes eight native checks on the existing
+memory-compact ROM. From an explicit approach 36 pixels to the right of the
+radius32 Castle pillar, free facing then Left+B uses the original jump controller
+to land on its 32-pixel top: x37533/y83968/z0, supporting ground8192. The jump
+spends exactly one movement and one action. Native Start refreshes the turn;
+three subsequent Left movement commands carry Sora over the prop and off its
+far side: x18963/y83968/z8192, movement0/action1. Native physics lands on the
+original supporting floor; no coordinates are written after the approach.
+Screenshots record the top and far-side landing. The earlier six-check jump
+probe passes separately. These are saved-room/approach/card/enemy-absence
+fixtures, not input-only full campaigns or proof of door arrival.
+
+The room's lack of a same-height walking path does not imply an impossible
+room: native prop-top traversal exists. Next integrate prop-top connections
+into reachable navigation and preview/execution, with action-aware jump cost,
+then rerun the second seed's complete campaign at the original bounded limit.
+Do not replace original scenery or claim the current replay already uses this
+connection. The current traversal driver only models terrain wall connections.
