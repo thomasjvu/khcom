@@ -1,5 +1,54 @@
 #include "field_route.h"
 static int Abs(int value) {return value < 0 ? -value : value;}
+int FieldTacticsSearch(FieldTacticsRoute* r,int nodes,int origin,int movement,
+    int action,FieldTacticsLinks links,void* context) {
+    int i,best,count=0,index,to,move,act,kind,state,cost,result;
+    if(!r)return -1;
+    r->nodes=0;
+    if(!links||nodes<1||nodes>FIELD_TACTICS_NODES||origin<0||origin>=nodes||movement<0||movement>254||action<0||action>1)return -1;
+    r->nodes=nodes;r->origin=origin;
+    for(i=0;i<nodes*2;i++){r->move[i]=255;r->visited[i]=0;r->parent[i]=65535;r->kind[i]=0;}
+    r->move[origin]=0;r->parent[origin]=origin;
+    for(;;) {
+        best=-1;
+        for(i=0;i<nodes*(action+1);i++)if(!r->visited[i]&&r->move[i]!=255&&
+            (best<0||r->move[i]<r->move[best]))best=i;
+        if(best<0)break;
+        r->visited[best]=1;count++;
+        for(index=0;index<=FIELD_TACTICS_NODES;index++) {
+            result=links(best%nodes,index,&to,&move,&act,&kind,context);
+            if(!result)break;
+            if(result!=1||to<0||to>=nodes||move<0||move>254||act<0||act>1||
+                move+act==0||kind<0||kind>FIELD_EDGE_JUMP){r->nodes=0;return -1;}
+            if(best/nodes+act>action)continue;
+            cost=r->move[best]+move;if(cost>movement)continue;
+            state=to+(best/nodes+act)*nodes;
+            if(cost<r->move[state]) {
+                r->move[state]=cost;r->parent[state]=best;r->kind[state]=kind;
+            }
+        }
+        if(index>FIELD_TACTICS_NODES){r->nodes=0;return -1;}
+    }
+    return count;
+}
+int FieldTacticsPath(const FieldTacticsRoute* r,int target,unsigned short* nodes,
+    unsigned char* kinds,int capacity,int* movement,int* action) {
+    int state,count=0,current,i;
+    if(!r||!nodes||!kinds||!movement||!action||r->nodes<1||r->nodes>FIELD_TACTICS_NODES||
+        r->origin>=r->nodes||target<0||target>=r->nodes||capacity<0)return -1;
+    state=target;
+    if(r->move[target+r->nodes]<r->move[target])state+=r->nodes;
+    if(r->move[state]==255)return -1;
+    current=state;
+    while(current!=r->origin) {
+        if(current<0||current>=r->nodes*2||r->parent[current]==65535||count>=r->nodes*2)return -1;
+        current=r->parent[current];count++;
+    }
+    if(count>capacity)return -1;
+    *movement=r->move[state];*action=state/r->nodes;current=state;
+    for(i=count-1;i>=0;i--){nodes[i]=current%r->nodes;kinds[i]=r->kind[current];current=r->parent[current];}
+    return count;
+}
 int FieldRouteSegmentBox(const int from[3],const int to[3],const int half[3]) {
     int axis,delta,low,high,enter,leave,denom;
     int enterN=0,enterD=1,leaveN=1,leaveD=1;

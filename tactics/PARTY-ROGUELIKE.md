@@ -112,3 +112,14 @@ in the decoder. A full Cloud-route regression passes in
 complete 33-byte roster, and stable three-world PASS occurs at 88532
 (15 kills, 730 movement commands). The packaged 0.19 BPS uses format 10 and
 predates this direction-persistence change.
+
+The height-route foundation now searches separate movement/action resource
+states for up to 162 standing surfaces. Directed walking, climbing and jumping
+links can therefore retain a longer walking route that saves the action needed
+for a later jump. Invalid geometry callbacks invalidate the result; path
+extraction is bounded. The native ROM builds and host sanitizer checks compare
+all resource-state costs against an independent relaxation solver on 1,000
+generated graphs, alongside explicit mixed walk/climb/jump cases.
+This core is not yet connected to native surface discovery, reachable markers
+or controller execution. In-game walking and attached-stair previews remain
+separate; combined height routes are still unfinished.

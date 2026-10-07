@@ -776,3 +776,15 @@ TacFar_TaskPoolUpdate:
  bx r3
 .balign 4
 1: .word TaskPoolUpdate + 1
+
+.balign 4
+.global TacFar__call_via_r7
+.thumb_func
+TacFar__call_via_r7:
+ bx r7
+
+.balign 4
+.global TacFar__call_via_r4
+.thumb_func
+TacFar__call_via_r4:
+ bx r4
