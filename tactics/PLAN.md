@@ -82,6 +82,28 @@ PASS 102902, 19 kills, 720 movement commands. The byte-exact local 0.22 BPS and
 manifest preserve its ROM/evidence hashes; see `tactics/PARTY-HEALING-0.22.md`.
 This single-seed proof does not establish physical generation guarantees.
 
+Current native source `79c27ab63` removes 48 bytes of redundant stair-preview
+positions and draws from route waypoints directly. Reserved EWRAM is now
+8132/8192 bytes (60 free). The exact ROM passes 113 stair/composed-route checks,
+26 rendered party-loadout checks, 17 Donald healing/persistence checks, and
+11 native retry/reset checks. Retry policy tests cover held/released input,
+wrapped seed advancement, stale recruitment rejection, mode readiness and a
+bounded initialization wait. An earlier two-run attempt passed one campaign
+then failed because its one-frame retry input was not consumed; that failure
+is preserved. The corrected driver holds Select for twelve frames and verifies
+the advanced seed and reset roster before proceeding.
+
+`compact-workspace-held-retry-evidence` passes campaign one: victory 110890
+with HP80, stable state 111010, native retry verified 111022 (seed 2658846982).
+Campaign two verifies Cloud recruitment/deployment, suspend/reset and composed
+descent, then completes Traverse Town and Agrabah. It fails the 240000-frame
+bound in Castle room 0, with repeated movement around a large pillar near the
+lower platform edge. This is incomplete navigation coverage, not proof of an
+impossible room. Inspect physical terrain/prop connectivity and the replay's
+path choices for that seed before increasing any timeout or claiming two-run
+coverage. The current memory-compact ROM is newer than packaged 0.22; older
+patches and their manifests retain their original hashes.
+
 ## Remaining implementation sequence
 
 1. **Height-aware tactical navigation.** Extend the implemented flat-surface walking
