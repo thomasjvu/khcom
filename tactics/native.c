@@ -712,7 +712,11 @@ static void NativeHud(void) {
         sleight[5] += sleightValue % 10;
         NativeLabel(0, 24, sleight);
         if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
-            !gNativeClimbing && !charging) NativeLabel(0, 8, "A SLEIGHT L B CANCEL");
+            !gNativeClimbing && !charging) {
+            int recipe = FieldDeckRecipe(&gNativeDeck);
+            NativeLabel(0, 8, recipe == 1 ? "TRIPLE KEY A PLAY" : recipe == 2 ? "FIRAGA A PLAY" :
+                recipe == 3 ? "CURAGA A PLAY" : recipe == 4 ? "AEGIS A PLAY" : "A SLEIGHT L B CANCEL");
+        }
     } else NativeLabel(0, 24, gNativeDeck.stocked ? stock : threat);
     if (gNativeReward) {
         NativeLabel(0, 8, gNativeDeck.count < FIELD_DECK_MAX ? "CHEST CHOOSE L R A" : "DECK FULL A HEAL");
@@ -1291,8 +1295,8 @@ static int NativeSleightHits(u8 slot, int kind) {
         ((kind == FIELD_CARD_FIRE ? 144 : 64) << 8) &&
         NativeAbs(work->obj.fieldPosition.z - gFieldState->actor.fieldPosition.z) <= (24 << 8);
 }
-static u16 NativeSleightPower(int kind, int value) {
-    return 8 + value + (gNativeParty == 1 && kind == FIELD_CARD_FIRE ? 4 : 0);
+static u16 NativeSleightPower(int kind, int value, int recipe) {
+    return 8 + value + (recipe ? 6 : 0) + (gNativeParty == 1 && kind == FIELD_CARD_FIRE ? 4 : 0);
 }
 static void NativeSleightIntentDraw(void) {
     int kind, value;
@@ -1305,7 +1309,7 @@ static void NativeSleightIntentDraw(void) {
         !gNativeActionLeft || !FieldDeckSleightPreview(&gNativeDeck, &kind, &value) ||
         kind == FIELD_CARD_CURE || kind == FIELD_CARD_GUARD) return;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeSleightHits(i, kind)) {
-        damage = NativeSleightPower(kind, value);
+        damage = NativeSleightPower(kind, value, FieldDeckRecipe(&gNativeDeck));
         if (value && value < 3 + gNativeFloor) damage = 0;
         if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
         gNativeSleightDamage[i] = damage;
@@ -1322,17 +1326,18 @@ static void NativeSleightIntentDraw(void) {
 u16 gNativeSleights;
 static void NativeSleight(void) {
     int kind, value;
+    int recipe = FieldDeckRecipe(&gNativeDeck);
     u8 i;
     if (!FieldDeckSleight(&gNativeDeck, &kind, &value)) return;
     sPlayedValue = value;
     NativePartyPose(gNativeParty);
     if (kind == FIELD_CARD_CURE) {
-        for (i = 0; i < 3; i++) FieldPartyHeal(&gNativePartyHealth, i, 12 + value);
+        for (i = 0; i < 3; i++) FieldPartyHeal(&gNativePartyHealth, i, 12 + value + (recipe ? 8 : 0));
         gGameState.hp = gNativePartyHealth.hp[gNativeParty];
     } else if (kind == FIELD_CARD_GUARD) gNativeGuard = 2;
     else {
         for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeSleightHits(i, kind))
-            NativeDamageEnemy(sEnemyTasks[i], NativeSleightPower(kind, value));
+            NativeDamageEnemy(sEnemyTasks[i], NativeSleightPower(kind, value, recipe));
     }
     gNativeSleights++;
     gNativeActionLeft = 0;

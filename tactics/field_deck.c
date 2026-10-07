@@ -38,6 +38,13 @@ int FieldDeckStock(FieldDeck* d) {
     while(d->selected&&FieldDeckHand(d,d->selected)<0)d->selected--;
     return 1;
 }
+int FieldDeckRecipe(const FieldDeck* d) {
+    int kind;
+    if(d->stocked!=3)return 0;
+    kind=d->kind[d->stock[0]];
+    if(d->kind[d->stock[1]]!=kind||d->kind[d->stock[2]]!=kind)return 0;
+    return kind+1;
+}
 int FieldDeckSleightPreview(const FieldDeck* d,int* kind,int* value) {
     int i,counts[4]={0,0,0,0};
     if(d->stocked!=3)return 0;

@@ -85,7 +85,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 2. **Authoritative field combat.** Party/enemy occupancy is now sampled along route edges with overlap-exit handling. Validate dedicated enemy crossings, extend to continuous swept collision, and add world-specific behaviors. Extend current damage and charge warnings into full area/range overlays.
    Enemy preview/turn targeting now prefers currently attackable members over nearer height-ineligible members. Independent party HP and partial encounter persistence are implemented. Keep animations
    running during input wait without advancing authoritative actions.
-3. **Port the tested card systems.** Fire and Cure now support explicit enemy/party cycling with shared preview/resolution validation; Cure also projects capped recovery and revival HP. Extend targeting to other effects and add richer named sleight recipes.
+3. **Port the tested card systems.** Fire and Cure now support explicit enemy/party cycling with shared preview/resolution validation; Cure also projects capped recovery and revival HP. Extend targeting to other effects and expand the matching-type field recipes (enhanced Key/Fire power and Cure healing are implemented).
    The basic draw/discard/reload and card effects already run in the field.
    Remove assumptions about an 8x6 board. Add projected target/range previews
    and a GBA-sized card HUD using original resources.

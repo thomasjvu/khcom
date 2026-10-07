@@ -632,3 +632,13 @@ position as an enemy but 64 pixels higher, while Donald remains attackable.
 Donald’s predicted/actual damage and Sora remaining unharmed. This verifies
 the focused targeting case, not full height-aware pursuit or a complete run.
 The packaged 0.15 patch is unchanged.
+
+Matching-stock field recipes: pure `FieldDeckRecipe` identifies three matching
+types without mutation. Named HUD recipes give Key/Fire +6 power and Cure +8
+healing; Guard retains existing full protection. Preview and attack share
+recipe power; resolution captures the recipe before consuming stock. Strict
+host tests verify mixed/Fire/Cure classification. The ROM builds and all 11
+area boundary/multiple-target checks pass in `enhanced-recipe-evidence`; three
+Fire sixes preview and deal 32 damage to both 40-HP fixture enemies. Dedicated
+Curaga healing and enhanced melee resolution fixtures remain outstanding.
+The packaged 0.15 patch remains unchanged.

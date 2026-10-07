@@ -25,6 +25,7 @@ int main(void) {
     {
         int kind,value;
         FieldDeck before;
+        assert(FieldDeckRecipe(&d)==0);
         before=d;
         assert(FieldDeckSleightPreview(&d,&kind,&value)&&kind==0&&value==18);
         assert(memcmp(&before,&d,sizeof(d))==0);
@@ -34,6 +35,10 @@ int main(void) {
         assert(FieldDeckSleightPreview(&d,&kind,&value)&&kind==FIELD_CARD_FIRE);
         d.kind[d.stock[2]]=FIELD_CARD_CURE;
         assert(FieldDeckSleightPreview(&d,&kind,&value)&&kind==FIELD_CARD_CURE);
+        d.kind[d.stock[0]]=d.kind[d.stock[1]]=d.kind[d.stock[2]]=FIELD_CARD_FIRE;
+        assert(FieldDeckRecipe(&d)==2);
+        d.kind[d.stock[0]]=d.kind[d.stock[1]]=d.kind[d.stock[2]]=FIELD_CARD_CURE;
+        assert(FieldDeckRecipe(&d)==3);
         d=before;
         assert(FieldDeckSleight(&d,&kind,&value)&&kind==0&&value==18);
         assert(d.pile[0]==3&&d.pile[1]==2&&d.pile[2]==2);

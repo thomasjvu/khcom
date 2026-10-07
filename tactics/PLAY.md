@@ -152,3 +152,10 @@ caps displayed damage at the enemy’s remaining HP.
 Attached-stair previews label A as CLIMB or DESCEND according to the chosen
 direction; B cancels the preview without dropping. Budget and blocked-route
 warnings take priority over the confirm prompt.
+
+Three matching card types unlock named field recipes: TRIPLE KEY and FIRAGA
+add 6 damage to the usual attack sleight; CURAGA adds 8 party healing. AEGIS
+labels the existing full-Guard sleight and grants the same protection as mixed
+Guard stocks. These are custom field rules, not reproductions of the original
+battle recipes. Mixed stocks retain their majority-type effect. The first
+card is still exhausted and the action cost remains one.
