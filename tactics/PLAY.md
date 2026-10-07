@@ -7,6 +7,7 @@ tiles, card pictures, value digits, chests and doors.
 | Button | Action |
 | --- | --- |
 | D-pad | Commit a short movement step; adjacent directions allow diagonals |
+| L + D-pad | Open a projected walking route preview; D-pad moves the cursor, A confirms, B cancels |
 | Select | Switch Sora → Donald → Goofy; each retains movement/action budgets |
 | L / R | Select the previous/next card in the five-card hand |
 | L + A | Stock the selected card; stock three, then release L and press A for a sleight |
@@ -27,6 +28,15 @@ falling ends the run. Knocked-out friends are skipped by selection until
 Cure or a chest revives them. The footer shows all three health pools and a NEXT damage estimate for
 each member before ending the turn. This estimate uses current positions;
 later enemies can retarget if an earlier attack knocks out a member.
+
+Walking previews show movement costs using the original card-value digits on
+native field surfaces. A route charges one point per 16-pixel horizontal or
+8-pixel vertical segment. Routes beyond the remaining budget cannot be
+confirmed. The original player controller walks each segment; it stops if
+collision prevents progress and refunds segments that never started. Preview
+walking stays on the current floor level and avoids occupied destinations.
+Use the existing B jump/climb controls to cross height changes; jump and climb
+edges are not yet part of the route cursor.
 
 The shared deck starts with twelve cards. The hand contains up to five cards;
 playing a card discards it and draws a replacement. L+R reloads discarded cards.
@@ -55,7 +65,7 @@ health and positions when you backtrack. A damaged
 latest slot falls back to the older valid slot. Defeat/run clear invalidates
 suspends. Save files from earlier flat-board or field prototypes are incompatible.
 
-This is still a development build. Physical route guarantees, cursor/path and
-projected intent previews, reward choices, distinct boss sprites/AI, complete
+This is still a development build. Physical room reachability guarantees, climb/jump routes and
+projected attack intent previews, reward choices, distinct boss sprites/AI, complete
 input-only run testing and hardware validation remain unfinished. Native room
 creation currently resets party positions/budgets to the entry door.

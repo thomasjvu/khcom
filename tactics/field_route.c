@@ -28,3 +28,23 @@ int FieldRouteStep(FieldRoute* route, int targetX, int targetY,
     while (route->parent[best] != 40) best = route->parent[best];
     return best;
 }
+
+int FieldRoutePath(FieldRoute* route, int targetX, int targetY,
+    FieldRouteEdge edge, void* context, unsigned char* path) {
+    int node, count, i;
+    unsigned char swap;
+    if (!route || !edge || !path || targetX < -4 || targetX > 4 ||
+        targetY < -4 || targetY > 4) return -1;
+    FieldRouteStep(route, targetX, targetY, edge, context);
+    node = (targetY + 4) * 9 + targetX + 4;
+    if (route->parent[node] == 255) return -1;
+    count = 0;
+    while (node != 40) {
+        path[count++] = node;
+        node = route->parent[node];
+    }
+    for (i = 0; i < count / 2; i++) {
+        swap = path[i]; path[i] = path[count - i - 1]; path[count - i - 1] = swap;
+    }
+    return count;
+}

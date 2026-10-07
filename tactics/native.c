@@ -32,6 +32,8 @@
 #include "field_party.h"
 #include "field_route.h"
 #include "display.h"
+#include "malloc.h"
+#include "gba/macro.h"
 
 typedef char NativeActorOffset[(offsetof(FieldState, actor) == 0x18) ? 1 : -1];
 typedef char NativeDoorOffset[(offsetof(MapRoomState, doorRoom) == 0x0f) ? 1 : -1];
@@ -113,6 +115,17 @@ static u8 sResume;
 static u8 sTerminalSaveCleared;
 u16 gNativeSaveNotice;
 static u16 sPlayedValue;
+/* Preview state is transient; suspend is only available outside a preview. */
+u16 gNativePreview;
+s16 gNativeRouteCost;
+static s16 sCursorX, sCursorY;
+static u8 sPlayerPath[FIELD_ROUTE_CELLS];
+static u8 sPathIndex, sPathLength;
+static u8 sRoutePlayer;
+static void NativePreviewDraw(void);
+static void NativePreviewInput(u16 pressed);
+static u16 NativeRouteWalk(void);
+
 static Task* sEnemyTasks[6];
 u16 gNativeEnemyHp[6];
 u16 gNativeBreaks;
@@ -403,19 +416,46 @@ static const u16 sHudPalette[16] = {
     0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff
 };
 extern void MapEnmSetAnim(MapEnmWork* work, u8 index, u16 flags);
+extern u8 gDebugFont0Tiles[];
+static u32* sHudTiles;
+static u16* sHudScreen;
+static volatile u8 sHudPending;
+extern void (*gModeVBlankCallback)();
+static void (*sPreviousVBlank)();
 static void NativeLabel(u8 x, u8 y, const char* text) {
-    char encoded[80];
-    u8 i = 0;
-    while (*text && i < 76) {
-        if (*text == ' ') { encoded[i++] = 0x81; encoded[i++] = 0x40; }
-        else { encoded[i++] = 0x82;
-            if (*text >= '0' && *text <= '9') encoded[i++] = *text - '0' + 0x4f;
-            else encoded[i++] = *text - 'A' + 0x60;
+    int tile = (y / 8) * 32 + x / 8 + 1;
+    int column = x / 8;
+    int row = y == 24 ? 19 : y == 32 ? 18 : y / 8;
+    int glyph, i;
+    u32 pixels;
+    const u32* source;
+    if (!sHudTiles || !sHudScreen) return;
+    while (*text && column < 30 && tile < 161) {
+        glyph = *text == ' ' ? 0 : *text >= '0' && *text <= '9' ?
+            *text - '0' + 0x40 : *text - 'A' + 0x60;
+        source = (const u32*)(gDebugFont0Tiles + glyph * 32);
+        for (i = 0; i < 8; i++) {
+            pixels = source[i];
+            pixels = (pixels | (pixels >> 1) | (pixels >> 2) | (pixels >> 3)) & 0x11111111;
+            sHudTiles[tile * 8 + i] = 0x11111111 | (pixels << 1);
         }
-        text++;
+        sHudScreen[row * 32 + column] = tile | 0xf000;
+        text++; column++; tile++;
     }
-    encoded[i] = 0;
-    DebugTextPrint(x, y, 0, encoded);
+}
+static void NativeHudUpload(void) {
+    if (!sHudPending || !sHudTiles || !sHudScreen) return;
+    /* Defer a late frame rather than write through the visible scanout. */
+    if (REG_VCOUNT < 160 || REG_VCOUNT > 208) return;
+    /* Upload after the original VBlank display transfer. No visible-frame
+     * VRAM writes, and the font stays within its 16 KiB BG character bank. */
+    CpuFastCopy(sHudTiles, GetBgCharBase(0), 161 * 32);
+    CpuFastCopy(sHudScreen, GetBgScreenBase(0), 2048);
+    sHudPending = 0;
+}
+static void NativeHudVBlank(void) {
+    if (sPreviousVBlank) sPreviousVBlank();
+    NativeHudUpload();
 }
 static s32 NativeAbs(s32 n);
 /* The preview uses the same metric and thresholds as enemy resolution. */
@@ -451,11 +491,11 @@ static void NativeHud(void) {
     u16 hp = gGameState.hp;
     int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
     static const char* const names[4] = {"KEYBLADE A PLAY", "FIRE A PLAY", "CURE A PLAY", "GUARD A PLAY"};
-    vu16* screen = GetBgScreenBase(0);
-    vu32* fontTiles = GetBgCharBase(0);
     u16 i;
-    for (i = 0; i < 1024; i++) screen[i] = 0xf000;
-    for (i = 0; i < 161 * 8; i++) fontTiles[i] = 0;
+    if (!sHudTiles || !sHudScreen) return;
+    sHudPending = 0;
+    for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
+    for (i = 0; i < 161 * 8; i++) sHudTiles[i] = 0x11111111;
     /* Darken only the scenery under the HUD; card and actor OBJ art stays
      * full color. Outside these two windows the field has no blend effect. */
     gDispCnt |= 0x6000;
@@ -474,11 +514,16 @@ static void NativeHud(void) {
     while (hp >= 10) { line[17]++; hp -= 10; }
     line[18] += hp;
     NativeLabel(0, 0, line);
-    NativeLabel(0, 8, gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
-    NativeLabel(0, 16, location);
+    if (gNativePreview) {
+        char route[] = "ROUTE 0 MOVE 0";
+        route[6] += gNativeRouteCost >= 0 && gNativeRouteCost < 10 ? gNativeRouteCost : 0;
+        route[13] += gNativeMoveLeft;
+        NativeLabel(0, 16, route);
+    } else NativeLabel(0, 16, location);
     NativeLabel(128, 16, gNativeParty == 0 ? "SORA" : gNativeParty == 1 ? "DONALD" : "GOOFY");
     for (i = 0; i < 3; i++) {
         health[1 + i * 4] = '0' + gNativePartyHealth.hp[i] / 10;
@@ -493,26 +538,15 @@ static void NativeHud(void) {
     }
     stock[6] += gNativeDeck.stocked;
     NativeLabel(0, 24, gNativeDeck.stocked ? stock : threat);
-    DebugTextDraw(0);
-    /* DebugText indexes tiles by screen row. Rendering below y=120 from
-     * char bank 3 would overflow BG VRAM into actor OBJ tiles. Render the
-     * two footer rows in safe tile slots, then move only their tilemap cells. */
-    for (i = 0; i < 32; i++) {
-        screen[19 * 32 + i] = screen[3 * 32 + i];
-        screen[18 * 32 + i] = screen[4 * 32 + i];
-        screen[3 * 32 + i] = screen[4 * 32 + i] = 0xf000;
-    }
-    /* Opaque BG0 panels keep text readable on bright Castle Oblivion art.
-     * Collapse each glyph nibble to a white foreground over dark index 1. */
-    for (i = 0; i < 8; i++) fontTiles[i] = 0x11111111;
-    for (i = 8; i < 161 * 8; i++) {
-        u32 pixels = fontTiles[i];
-        pixels = (pixels | (pixels >> 1) | (pixels >> 2) | (pixels >> 3)) & 0x11111111;
-        fontTiles[i] = 0x11111111 | (pixels << 1);
-    }
-    DebugTextClear();
+    sHudPending = 1;
 }
 static void NativeExit(void) {
+    sHudPending = 0;
+    if (gModeVBlankCallback == NativeHudVBlank) gModeVBlankCallback = sPreviousVBlank;
+    if (sHudTiles) EwramFree(sHudTiles);
+    if (sHudScreen) EwramFree(sHudScreen);
+    sHudTiles = NULL;
+    sHudScreen = NULL;
     NativePartyFree();
     DebugTextFree();
     Mode_MapFld_2();
@@ -550,6 +584,8 @@ static void NativeInit(s32 arg) {
     gNativeDirection = 0;
     sFrames = 0;
     sAttack = 0;
+    gNativePreview = 0;
+    sPathLength = 0;
     NativePartyInit();
     if (sResume) {
         u8 j;
@@ -578,8 +614,13 @@ static void NativeInit(s32 arg) {
                 work->obj.fieldPosition.y, work->obj.fieldPosition.z);
         }
     }
+    sHudPending = 0;
+    sHudTiles = EwramAlloc(161 * 32);
+    sHudScreen = EwramAlloc(2048);
     DebugTextInit(0, 0x2000, 0x800);
     DebugTextLoadPalette(0, sHudPalette, 32, 15);
+    sPreviousVBlank = gModeVBlankCallback;
+    gModeVBlankCallback = NativeHudVBlank;
 }
 
 static void NativeDamageEnemy(Task* task, u16 damage) {
@@ -607,20 +648,29 @@ static FieldRoute sEnemyRoute;
 static FldPos sRoutePos[FIELD_ROUTE_CELLS];
 static u8 sRouteValid[FIELD_ROUTE_CELLS];
 static Task* sRouteActor;
+static int NativeRouteClear(FldPos pos) {
+    if (IsFldPosBlocked(&pos)) return 0;
+    if (!sRoutePlayer) return 1;
+    /* Match the native controller's six-pixel front/back footprint. */
+    pos.y -= 1536;
+    if (IsFldPosBlocked(&pos) || GetFldPosGround(&pos) != pos.ground) return 0;
+    pos.y += 3072;
+    return !IsFldPosBlocked(&pos) && GetFldPosGround(&pos) == pos.ground;
+}
 static int NativeRouteEdge(int from, int to, void* context) {
     FldPos probe;
     MapEnmWork* other;
     u8 i;
     (void)context;
     if (!sRouteValid[to] ||
-        NativeAbs(sRoutePos[to].z - sRoutePos[from].z) > (16 << 8)) return 0;
+        NativeAbs(sRoutePos[to].z - sRoutePos[from].z) > (sRoutePlayer ? 0 : (16 << 8))) return 0;
     /* Check the middle as well as the destination: thin walls and holes
      * must not disappear between route samples. */
     probe = sRoutePos[from];
     probe.x = (probe.x + sRoutePos[to].x) / 2;
     probe.y = (probe.y + probe.z + sRoutePos[to].y + sRoutePos[to].z) / 2 - probe.z;
-    if (IsFldPosBlocked(&probe)) return 0;
-    for (i = 0; i < 3; i++) if (gNativePartyHealth.hp[i] &&
+    if (!NativeRouteClear(probe)) return 0;
+    for (i = 0; i < 3; i++) if (gNativePartyHealth.hp[i] && (!sRoutePlayer || i != gNativeParty) &&
         NativeAbs(sRoutePos[to].x - sPartyPos[i].x) < (12 << 8) &&
         NativeAbs(sRoutePos[to].y + sRoutePos[to].z - sPartyPos[i].y - sPartyPos[i].z) < (6 << 8) &&
         NativeAbs(sRoutePos[to].z - sPartyPos[i].z) < (16 << 8)) return 0;
@@ -632,9 +682,7 @@ static int NativeRouteEdge(int from, int to, void* context) {
     }
     return 1;
 }
-static int NativeEnemyRoute(Task* task, const FldPos* target) {
-    MapEnmWork* work = task->work;
-    FldPos origin = work->obj.fieldPosition;
+static void NativeBuildRoute(FldPos origin, Task* task) {
     FldPos* pos;
     MapCell* cell;
     int i;
@@ -651,14 +699,90 @@ static int NativeEnemyRoute(Task* task, const FldPos* target) {
             pos->y + pos->z >= (gMapRoomState->rows << 12)) continue;
         cell = MapCellAtPos(pos->x, pos->y + pos->z);
         if (!cell || cell->lowerZ == 0x100000) continue;
-        floor = GetFldPosFloor(pos);
+        floor = sRoutePlayer ? GetFldPosGround(pos) : GetFldPosFloor(pos);
         pos->y += pos->z - floor;
         pos->z = pos->ground = floor;
-        if (!IsFldPosBlocked(pos)) sRouteValid[i] = 1;
+        if (NativeRouteClear(*pos)) sRouteValid[i] = 1;
     }
+}
+static int NativeEnemyRoute(Task* task, const FldPos* target) {
+    MapEnmWork* work = task->work;
+    FldPos origin = work->obj.fieldPosition;
+    sRoutePlayer = 0;
+    NativeBuildRoute(origin, task);
     return FieldRouteStep(&sEnemyRoute, (target->x - origin.x) / 4096,
         (target->y + target->z - origin.y - origin.z) / 2048, NativeRouteEdge, NULL);
 }
+static void NativePreviewInput(u16 pressed) {
+    if (!gNativePreview) {
+        gNativePreview = 1;
+        sCursorX = sCursorY = 0;
+        sRoutePlayer = 1;
+        sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
+        NativeBuildRoute(gFieldState->actor.fieldPosition, NULL);
+    }
+    if (pressed & (B_BUTTON | SELECT_BUTTON)) {gNativePreview = 0; return;}
+    if ((pressed & DPAD_LEFT) && sCursorX > -4) sCursorX--;
+    if ((pressed & DPAD_RIGHT) && sCursorX < 4) sCursorX++;
+    if ((pressed & DPAD_UP) && sCursorY > -4) sCursorY--;
+    if ((pressed & DPAD_DOWN) && sCursorY < 4) sCursorY++;
+    gNativeRouteCost = FieldRoutePath(&sEnemyRoute, sCursorX, sCursorY,
+        NativeRouteEdge, NULL, sPlayerPath);
+    if ((pressed & A_BUTTON) && gNativeRouteCost > 0 && gNativeRouteCost <= gNativeMoveLeft) {
+        sPathLength = gNativeRouteCost;
+        sPathIndex = 0;
+        gNativeMoveLeft -= sPathLength;
+        gNativePreview = 0;
+        gNativeBusy = 3;
+        sFrames = 0;
+        gNativeCommands++;
+    }
+}
+static u16 NativeRouteWalk(void) {
+    FldPos* target;
+    FldPos* actor = &gFieldState->actor.fieldPosition;
+    s32 dx, dy;
+    if (sPathIndex >= sPathLength) {
+        gNativeBusy = 0;
+        gFieldState->actor.speed = 0;
+        return 0;
+    }
+    target = &sRoutePos[sPlayerPath[sPathIndex]];
+    dx = target->x - actor->x;
+    dy = target->y + target->z - actor->y - actor->z;
+    if (NativeAbs(dx) <= 512 && NativeAbs(dy) <= 512) {
+        sPathIndex++;
+        sFrames = 0;
+        gFieldState->actor.speed = 0;
+        return 0;
+    }
+    if (sFrames >= 40) {
+        /* The original controller remains authoritative. A blocked route
+         * stops safely and refunds segments that were never started. */
+        gNativeMoveLeft += sPathLength - sPathIndex - 1;
+        gNativeBusy = 0;
+        gFieldState->actor.speed = 0;
+        return 0;
+    }
+    if (NativeAbs(dx) > NativeAbs(dy)) return dx < 0 ? DPAD_LEFT : DPAD_RIGHT;
+    return dy < 0 ? DPAD_UP : DPAD_DOWN;
+}
+static void NativePreviewDraw(void) {
+    int i, node, count;
+    s16 x, y;
+    FldPos* pos;
+    if (!gNativePreview || !sValueTiles || !sValuePalette) return;
+    count = gNativeRouteCost > 0 && gNativeRouteCost <= gNativeMoveLeft ? gNativeRouteCost : 0;
+    for (i = 0; i < (count ? count : 1); i++) {
+        node = count ? sPlayerPath[i] : (sCursorY + 4) * 9 + sCursorX + 4;
+        pos = &sRoutePos[node];
+        x = (pos->x - gFieldState->x) >> 8;
+        y = (pos->y + pos->z - gFieldState->y) >> 8;
+        DrawSprite(x, y, gCardValueDigitFrames[count ? i + 1 : 0],
+            sValueTiles, sValuePalette, NULL, 0, 0);
+    }
+}
+
 static void NativeEnemyTurn(void) {
     u8 i, j, closest;
     s32 distance, best, dz;
@@ -820,7 +944,9 @@ static void NativeUpdate(void) {
     }
     if (!gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
         !(gFieldState->flags & (FIELD_FLAG_FREEZE_PLAYER | FIELD_FLAG_ROOM_CREATE))) {
-        if ((raw & (START_BUTTON | SELECT_BUTTON)) == (START_BUTTON | SELECT_BUTTON) &&
+        if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY))) {
+            NativePreviewInput(pressed);
+        } else if ((raw & (START_BUTTON | SELECT_BUTTON)) == (START_BUTTON | SELECT_BUTTON) &&
             (pressed & (START_BUTTON | SELECT_BUTTON))) {
             NativeWriteSuspend();
         } else if ((raw & L_BUTTON) && (pressed & A_BUTTON)) {
@@ -901,6 +1027,7 @@ static void NativeUpdate(void) {
             gNativeCommands++;
         }
     }
+    if (gNativeBusy == 3) held = NativeRouteWalk();
     if (gNativeBusy == 1) {
         dx = gFieldState->actor.fieldPosition.x - sStartX;
         dy = gFieldState->actor.fieldPosition.y - sStartY;
@@ -973,6 +1100,7 @@ static void NativeUpdate(void) {
     }
     gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
     NativePartyDraw();
+    NativePreviewDraw();
     NativeHud();
     if (gNativeBusy) sFrames++;
     if (gNativeBusy == 2 && sFrames >= 48 &&

@@ -26,6 +26,8 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Enemy damage and positions persist across all visited rooms and reboot.
 - Original Donald casting and Goofy guard animation resources.
 - Discrete enemy decisions, health, value checks, height-limited attacks and stronger exits.
+- Player walk cursor projected with original value digits; exact route costs, budget rejection and native controller execution, tested with input-only mGBA replay.
+- HUD renders original font glyphs in RAM and uploads during VBlank.
 - Bounded 9×9 enemy route search with native floor/collision sampling, midpoint checks, height limits and occupied destination checks.
 - Three-card native sleights, combined values, first-card exhaustion, stock cancellation
   and original stock artwork; emulator-verified save/reload behavior.
@@ -41,10 +43,8 @@ interactions. Do not replace field actors with icons or flatten elevations.
 
 ## Remaining implementation sequence
 
-1. **Height-aware tactical navigation.** Build a graph of traversable field
-   surfaces from generated cells, stairs and climb/jump edges. Preview a route
-   with the original projection; charge movement by route cost. Preserve
-   terrain collision during animation. Validate spawn-to-door and chest
+1. **Height-aware tactical navigation.** Extend the implemented flat-surface walking
+   preview and native route execution with stairs and climb/jump edges. Validate spawn-to-door and chest
    reachability for every generated room, then regenerate invalid rooms using
    a bounded retry policy. Current graph tests verify room connectivity, not
    complete physical navigation inside each room.

@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.5-party.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.5-party.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.6-navigation.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.6-navigation.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -134,8 +134,8 @@ set partial damage; they do not replace input-only route testing.
 Run integration replays against a fresh copy of the ROM with its own filename
 and save file, so an existing suspend does not change the starting state.
 
-The native version still needs height-aware route and
-intent previews, physical reachability guarantees, distinct bosses, named sleight recipes,
+The native version still needs climb/jump route and
+attack intent previews, physical reachability guarantees, distinct bosses, named sleight recipes,
 input-only complete-run QA and hardware validation. The board alpha's earlier
 emulator results do not establish these features in the native target.
 
@@ -149,3 +149,18 @@ low stairs and enclosed actors. The 28-check party replay passes with routing
 enabled (`build/tactics-us/route-party-evidence/party.txt`). Native sampling
 checks endpoint and midpoint collision and rejects occupied destinations; this
 is not yet a continuous swept collision test or a player route preview.
+
+Player route replay: generate with `tools/tactics_route_smoke.py ELF OUTPUT`
+and run `routes.lua` with mGBA against a fresh ROM copy. This replay uses only
+button input (no state writes) and verifies cursor cancellation, exact one- and
+two-segment costs, native controller arrival and rejection of routes beyond
+the movement budget. The preview uses the original card-value digit sprites.
+HUD glyphs now render from the original font into heap buffers, with a
+VBlank upload into bounded BG0 tiles and tilemap.
+
+Navigation build verification (2026-10-07): the input-only route replay passes
+27 checks (`build/tactics-us/navigation-release-route-evidence/routes.txt`),
+the party replay passes 28 checks, and world-transition scenarios pass 13.
+Screenshots confirm the buffered HUD remains readable in Agrabah and Castle
+Oblivion. The upload runs in the mode VBlank callback before audio mixing;
+a late callback defers its upload instead of writing during visible scanout.

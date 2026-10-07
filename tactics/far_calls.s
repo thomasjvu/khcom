@@ -689,3 +689,45 @@ TacFar_IsFldPosBlocked:
  bx r3
 .balign 4
 1: .word IsFldPosBlocked + 1
+
+.balign 4
+.global TacFar_GetFldPosGround
+.thumb_func
+TacFar_GetFldPosGround:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word GetFldPosGround + 1
+
+.balign 4
+.global TacFar_EwramAlloc
+.thumb_func
+TacFar_EwramAlloc:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word EwramAlloc + 1
+
+.balign 4
+.global TacFar_EwramFree
+.thumb_func
+TacFar_EwramFree:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word EwramFree + 1
+
+.balign 4
+.global TacFar_CpuFastSet
+.thumb_func
+TacFar_CpuFastSet:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word CpuFastSet + 1
+
+.balign 4
+.global TacFar__call_via_r0
+.thumb_func
+TacFar__call_via_r0:
+ bx r0

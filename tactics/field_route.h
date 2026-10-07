@@ -10,4 +10,7 @@ typedef struct FieldRoute {
 } FieldRoute;
 int FieldRouteStep(FieldRoute* route, int targetX, int targetY,
     FieldRouteEdge edge, void* context);
+/* Exact destination; -1 means unreachable, 0 is the origin. */
+int FieldRoutePath(FieldRoute* route, int targetX, int targetY,
+    FieldRouteEdge edge, void* context, unsigned char* path);
 #endif
