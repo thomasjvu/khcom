@@ -621,3 +621,14 @@ on the current ROM. The first attempt used incorrect post-reset selection
 expectations; those failed assertions are preserved in `reward-control-evidence`.
 Capacity/pending-state fixtures explicitly write emulated state; this is
 focused native control QA, not input-only chest exploration evidence.
+
+Enemy height targeting: threat preview and enemy turns now share a target
+selector that prefers a living member within attack range and height; if
+none qualifies, it retains nearest-member pursuit. Large Body uses its
+existing charge range/height for this decision and retains area resolution.
+The updated party fixture explicitly places Sora at the same projected
+position as an enemy but 64 pixels higher, while Donald remains attackable.
+`enemy-height-target-evidence/party.txt` passes all 44 checks, including
+Donald’s predicted/actual damage and Sora remaining unharmed. This verifies
+the focused targeting case, not full height-aware pursuit or a complete run.
+The packaged 0.15 patch is unchanged.

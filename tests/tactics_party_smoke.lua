@@ -117,6 +117,10 @@ callbacks:add('frame',function()
   if n~=0 then
    local e=emu:read32(emu:read32(n)+4)
    for j=0,3 do emu:write32(e+8+j*4,emu:read32(p+0x18+j*4)) end
+   -- Closer projected Sora is above the attack height; Donald remains reachable.
+   emu:write32(sPartyPos,emu:read32(e+8))
+   emu:write32(sPartyPos+8,emu:read32(e+16)-16384)
+   emu:write32(sPartyPos+4,emu:read32(e+12)+16384)
    n=emu:read32(n+8)
    while n~=0 do
     e=emu:read32(emu:read32(n)+4)

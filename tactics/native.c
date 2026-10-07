@@ -570,6 +570,29 @@ static void NativeHudVBlank(void) {
     NativeHudUpload();
 }
 static s32 NativeAbs(s32 n);
+/* Prefer a member attackable now; otherwise pursue the closest living member.
+ * Preview and resolution share this decision, including height eligibility. */
+static u8 NativeEnemyTarget(u8 slot, s32* best, s32* height) {
+    MapEnmWork* work = sEnemyTasks[slot]->work;
+    FldPos pos;
+    s32 distance, dz;
+    u8 j, target = 0, canAttack = 0, eligible;
+    *best = 0x7fffffff;
+    *height = 0;
+    for (j = 0; j < 3; j++) {
+        if (!gNativePartyHealth.hp[j]) continue;
+        pos = j == gNativeParty ? gFieldState->actor.fieldPosition : sPartyPos[j];
+        distance = NativeAbs(work->obj.fieldPosition.x - pos.x) +
+            NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - pos.y - pos.z);
+        dz = NativeAbs(work->obj.fieldPosition.z - pos.z);
+        eligible = distance <= ((gNativeEnemyKind[slot] == 2 ? 96 : FieldEnemyRange(gNativeEnemyKind[slot])) << 8) &&
+            dz <= ((gNativeEnemyKind[slot] == 2 ? 32 : FieldEnemyHeight(gNativeEnemyKind[slot])) << 8);
+        if ((eligible && !canAttack) || (eligible == canAttack && distance < *best)) {
+            target = j;*best = distance;*height = dz;canAttack = eligible;
+        }
+    }
+    return target;
+}
 /* The preview uses the same metric and thresholds as enemy resolution. */
 u16 gNativeThreats[3];
 static void NativePreviewThreats(void) {
@@ -592,16 +615,7 @@ static void NativePreviewThreats(void) {
             }
             continue;
         }
-        best = 0x7fffffff; target = 0;
-        for (j = 0; j < 3; j++) {
-            if (!gNativePartyHealth.hp[j]) continue;
-            pos = j == gNativeParty ? gFieldState->actor.fieldPosition : sPartyPos[j];
-            distance = NativeAbs(work->obj.fieldPosition.x - pos.x) +
-                NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - pos.y - pos.z);
-            if (distance < best) {best = distance;target = j;}
-        }
-        pos = target == gNativeParty ? gFieldState->actor.fieldPosition : sPartyPos[target];
-        dz = NativeAbs(work->obj.fieldPosition.z - pos.z);
+        target = NativeEnemyTarget(i, &best, &dz);
         if (best <= (FieldEnemyRange(gNativeEnemyKind[i]) << 8) && dz <= (FieldEnemyHeight(gNativeEnemyKind[i]) << 8))
             gNativeThreats[target] += gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : FieldEnemyDamage(gNativeEnemyKind[i], gNativeFloor);
     }
@@ -1085,15 +1099,7 @@ static void NativeEnemyTurn(void) {
     gNativeTurn++;
     for (i = 0; i < 6 && !gNativeResult; i++) if (sEnemyTasks[i]) {
         work = sEnemyTasks[i]->work;
-        best = 0x7fffffff; closest = 0;
-        for (j = 0; j < 3; j++) {
-            if (!gNativePartyHealth.hp[j]) continue;
-            distance = NativeAbs(work->obj.fieldPosition.x - sPartyPos[j].x) +
-                NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z -
-                    sPartyPos[j].y - sPartyPos[j].z);
-            if (distance < best) {best = distance; closest = j;}
-        }
-        dz = NativeAbs(work->obj.fieldPosition.z - sPartyPos[closest].z);
+        closest = NativeEnemyTarget(i, &best, &dz);
         if (gNativeEnemyKind[i] == 2 && gNativeEnemyCharge[i]) {
             for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j]) {
                 distance = NativeAbs(work->obj.fieldPosition.x - sPartyPos[j].x) +
