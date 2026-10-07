@@ -129,6 +129,12 @@ static const CardDef* sAssemblyDonald;
 static void* sAssemblyTiles;
 static ObjPalette* sAssemblyPalette;
 FieldRoster gNativeRoster;
+static void* sReachTiles;
+u16 gNativeReachCount;
+u8 gNativeReachCost[FIELD_ROUTE_CELLS];
+/* Small terrain-space diamond: UI geometry, alongside original game artwork. */
+static const u32 sReachGraphic[8] = {0x000cc000,0x00c00c00,0x0c0000c0,0xc000000c,
+    0xc000000c,0x0c0000c0,0x00c00c00,0x000cc000};
 static FldPos sPartyPos[3];
 static u16 sPartyMove[3], sPartyAction[3];
 static u16 sCarryMove[3], sCarryAction[3];
@@ -478,6 +484,8 @@ static void NativePartyInit(void) {
             sCardPalettes[i] = LoadObjPalette(sCards[i]->palette2, 32);
         }
     }
+    sReachTiles = LoadObjTiles((void*)sReachGraphic, 32);
+    gNativeReachCount = 0;
     sValueTiles = LoadObjTiles(gCardValueDigitTiles, 0x1e0);
     sValuePalette = LoadObjPalette(gCard00Palette, 32);
     gNativeParty = 0;
@@ -642,6 +650,8 @@ static void NativePartyDraw(void) {
 static void NativePartyFree(void) {
     u8 i;
     NativeAssemblyFree();
+    if (sReachTiles) ReleaseObjTiles(sReachTiles);
+    sReachTiles = NULL;gNativeReachCount = 0;
     if (sMarlTiles) ReleaseObjTiles(sMarlTiles);
     if (sMarlPalette) ReleaseObjPalette(sMarlPalette);
     gNativeMarlReady = 0;
@@ -1420,6 +1430,8 @@ static void NativePreviewInput(u16 pressed) {
     if ((pressed & DPAD_DOWN) && sCursorY < 4) sCursorY++;
     gNativeRouteCost = FieldRoutePath(&sEnemyRoute, sCursorX, sCursorY,
         NativeRouteEdge, NULL, sPlayerPath);
+    gNativeReachCount = FieldRouteReach(&sEnemyRoute, gNativeMoveLeft,
+        NativeRouteEdge, NULL, gNativeReachCost);
     if ((pressed & A_BUTTON) && gNativeRouteCost > 0 && gNativeRouteCost <= gNativeMoveLeft) {
         sPathLength = gNativeRouteCost;
         sPathIndex = 0;
@@ -1480,6 +1492,13 @@ static void NativePreviewDraw(void) {
         DrawSprite(x, y, gCardValueDigitFrames[1], sValueTiles,
             sValuePalette, NULL, 0, 0);
         return;
+    }
+    if (sReachTiles) for (i = 0; i < FIELD_ROUTE_CELLS; i++) if (gNativeReachCost[i] != 255 && gNativeReachCost[i]) {
+        pos = &sRoutePos[i];
+        x = (pos->x - gFieldState->x) >> 8;
+        y = (pos->y + pos->z - gFieldState->y) >> 8;
+        DrawSprite(x - 12, y - 7, gCardValueDigitFrames[0], sReachTiles,
+            sValuePalette, NULL, 0x800, -0x1003 - (pos->y >> 8) * 4);
     }
     count = gNativeRouteCost > 0 && gNativeRouteCost <= gNativeMoveLeft ? gNativeRouteCost : 0;
     for (i = 0; i < (count ? count : 1); i++) {

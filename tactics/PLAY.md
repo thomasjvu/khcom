@@ -187,3 +187,9 @@ sleight damage or healing. Each enhancement can be granted once per hero; power
 is capped at eight. Revisited cleared rooms cannot grant another reward.
 Pending rewards may be suspended with Start+Select. Finish the reward before
 leaving the room. Recruit-card rewards and custom roster deployment remain work.
+
+Walking preview now outlines all reachable destinations on the original
+terrain within the selected hero's remaining movement. The cursor and numbered
+route use the same collision, occupancy and cost rules. Spent movement removes
+these outlines. This local walking overlay covers the current surface; stair
+and jump connections still use their separate controls and previews.

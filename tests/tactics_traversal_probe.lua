@@ -250,10 +250,11 @@ local function replayFrame()
    suspendStage=3;terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+8;return
   end
  end
+ if phase=='progress_release' then phase='scan';nextFrame=f+4;return end
  if gNativeProgressReward and emu:read16(gNativeProgressReward)~=0 then
   local hero=emu:read16(sProgressHero)
   emu:setKeys(emu:read8(gNativeRoster+4+hero)>=8 and 256 or 1)
-  phase='release';nextFrame=f+4;return
+  phase='progress_release';nextFrame=f+4;return
  end
  if gNativeAssembly and emu:read16(gNativeAssembly)~=0 then
   emu:setKeys(8);phase='release';nextFrame=f+4;return

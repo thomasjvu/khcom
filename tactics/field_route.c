@@ -50,3 +50,26 @@ int FieldRoutePath(FieldRoute* route, int targetX, int targetY,
     }
     return count;
 }
+
+int FieldRouteReach(FieldRoute* route, int budget, FieldRouteEdge edge,
+    void* context, unsigned char* cost) {
+    int head=0,tail=1,node,next,direction,x,y,i;
+    static const int stepX[8]={-1,1,0,0,-1,1,-1,1};
+    static const int stepY[8]={0,0,-1,1,-1,-1,1,1};
+    if(!route||!edge||!cost||budget<0||budget>=FIELD_ROUTE_CELLS)return -1;
+    for(i=0;i<FIELD_ROUTE_CELLS;i++)cost[i]=255;
+    route->queue[0]=40;cost[40]=0;
+    while(head<tail) {
+        node=route->queue[head++];
+        if(cost[node]>=budget)continue;
+        x=node%9;y=node/9;
+        for(direction=0;direction<8;direction++) {
+            if(x+stepX[direction]<0||x+stepX[direction]>=9||
+               y+stepY[direction]<0||y+stepY[direction]>=9)continue;
+            next=node+stepX[direction]+stepY[direction]*9;
+            if(cost[next]!=255||!edge(node,next,context))continue;
+            cost[next]=cost[node]+1;route->queue[tail++]=next;
+        }
+    }
+    return tail-1;
+}

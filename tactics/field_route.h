@@ -13,4 +13,7 @@ int FieldRouteStep(FieldRoute* route, int targetX, int targetY,
 /* Exact destination; -1 means unreachable, 0 is the origin. */
 int FieldRoutePath(FieldRoute* route, int targetX, int targetY,
     FieldRouteEdge edge, void* context, unsigned char* path);
+/* Reachable destinations within budget; 255 means unavailable. Origin is 0. */
+int FieldRouteReach(FieldRoute* route, int budget, FieldRouteEdge edge,
+    void* context, unsigned char* cost);
 #endif

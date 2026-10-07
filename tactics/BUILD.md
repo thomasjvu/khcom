@@ -905,3 +905,18 @@ magic previews and resolves 16 damage using the value-6 Fire card. Rendered HUD
 now keeps foreground F ink and excludes D shadow pixels, so numeric values stay
 distinct. The first power fixture expected the wrong card value and failed;
 `progress-power-evidence` is retained, then corrected expectations passed.
+
+Reachable movement overlay: native `reach-overlay-evidence/reach.txt` passes
+eight checks, including allocation, reachable mask/cursor cost agreement,
+three/one/zero-point budgets and cancellation. `reach.png` shows terrain-space
+diamond outlines alongside original party/room art. Host bounded flood-fill
+tests compare every reachable cost against destination routing, including
+diagonals, height barriers and enclosed actors. Stair/jump destinations are
+not part of this overlay yet.
+
+Progression full-run evidence is a failed replay, retained in
+`progression-suspend-full-run-evidence`: the driver stopped on Guard Armor's
+reward and hit the 120,001-frame bound (6 kills, 285 moves). Its reward branch
+repeated held A without a release phase, so a rejected early press did not
+produce another edge. The driver now inserts a release frame between reward
+choices; a corrected full-run replay is required.

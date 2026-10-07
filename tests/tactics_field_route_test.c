@@ -11,7 +11,14 @@ int main(void) {
     FieldRoute route;
     Board board = {{0}, {0}};
     int i, step;
-    unsigned char path[81];
+    unsigned char path[81],cost[81];
+    assert(FieldRouteReach(&route,0,Edge,&board,cost)==0&&cost[40]==0&&cost[41]==255);
+    assert(FieldRouteReach(&route,3,Edge,&board,cost)==48);
+    assert(cost[70]==3&&cost[43]==3&&cost[44]==255);
+    for(i=0;i<81;i++)if(cost[i]!=255) {
+        int length=FieldRoutePath(&route,i%9-4,i/9-4,Edge,&board,path);
+        assert(length==cost[i]);
+    }
     assert(FieldRouteStep(&route, 3, 0, Edge, &board) == 41);
     assert(FieldRoutePath(&route, 3, 0, Edge, &board, path) == 3);
     assert(path[0] == 41 && path[2] == 43);
@@ -27,6 +34,7 @@ int main(void) {
     for (i = 0; i < 81; i++) {board.blocked[i] = 0; if (i % 9 > 4) board.height[i] = 3;}
     assert(FieldRouteStep(&route, 3, 0, Edge, &board) == -1);
     assert(FieldRoutePath(&route, 3, 0, Edge, &board, path) == -1);
+    assert(FieldRouteReach(&route,3,Edge,&board,cost)>0&&cost[41]==255);
     /* A low stair is traversable. */
     for (i = 0; i < 81; i++) if (i % 9 > 4) board.height[i] = 1;
     assert(FieldRouteStep(&route, 3, 0, Edge, &board) == 41);
@@ -41,6 +49,7 @@ int main(void) {
     board.blocked[30] = board.blocked[32] = board.blocked[48] = board.blocked[50] = 1;
     assert(FieldRouteStep(&route, 1000, -1000, Edge, &board) == -1);
     assert(FieldRouteStep(&route, 0, 0, Edge, &board) == -1);
+    assert(FieldRouteReach(&route,3,Edge,&board,cost)==0);
     puts("field route: detours, height limits, stairs and enclosed actors passed");
     return 0;
 }
