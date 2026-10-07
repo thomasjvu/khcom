@@ -2422,6 +2422,10 @@ static void NativeUpdate(void) {
                     gFieldState->flags &= ~FIELD_FLAG_EXIT_ROOM;
                 }
                 else {
+                    NativeRosterSync();
+                    FieldRosterRest(&gNativeRoster);
+                    NativeRosterHealth();
+                    gNativeGuard = 0;
                     NativeCarryTurn();
                     NativeBuildWorld();
                     ModeRequest(&sNativeMode, 0);

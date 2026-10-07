@@ -26,4 +26,5 @@ int FieldRosterBegin(FieldRoster* roster, int room);
 int FieldRosterClear(FieldRoster* roster, int boss);
 int FieldRosterUpgrade(FieldRoster* roster, int hero, int sleight);
 int FieldRosterRecruit(FieldRoster* roster, int hero);
+int FieldRosterRest(FieldRoster* roster);
 #endif

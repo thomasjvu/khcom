@@ -59,6 +59,12 @@ at frame 92877. Evidence: `cloud-recruit-resume-full-run-evidence`. Cloud and
 Goofy are KO later in the run; this proves route completion and persistence,
 not balanced companion survival or a Cloud-led combat strategy.
 
+World transitions now rest all recruited heroes, including the bench: full
+health, revival, three movement points and one action. Rest preserves identities,
+recruitment and upgrades, requires assembly phase, and does not occur on ordinary
+room travel. Host checks and native build pass; a new Cloud-route full-run replay
+is in progress in `world-rest-cloud-full-run-evidence`.
+
 ## Remaining scope
 
 - Verify more party compositions, companion survival and character-led combat.

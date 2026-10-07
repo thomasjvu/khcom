@@ -28,7 +28,7 @@ an action and a directional jump also consumes movement. Holding a direction
 commits one command; release and press again for the next. A completely blocked
 step refunds its movement point. Sora has 80 HP, Donald 56 and Goofy 72. Sora
 falling ends the run. Knocked-out friends are skipped by selection until
-Cure or a chest revives them. The footer shows all three health pools and a NEXT damage estimate for
+Cure, a chest, or the rest after a world boss revives them. The footer shows all three health pools and a NEXT damage estimate for
 each member before ending the turn. This estimate uses current positions;
 later enemies can retarget if an earlier attack knocks out a member.
 
@@ -75,8 +75,10 @@ and Goofy's guard use original animation assets. Zero cards bypass the value
 check with weaker melee damage. Values below an enemy's threshold are broken.
 
 Walk through doors to explore twelve generated rooms per world, including side
-branches. Door travel and world advancement preserve the current party turn.
-Backtracking gives no free movement, actions or Guard reset. Strike chests with
+branches. Ordinary door travel preserves the current party turn.
+Backtracking gives no free movement, actions or Guard reset. Completing a world
+boss and entering the next world fully heals all recruited characters, including
+benched heroes, and refreshes movement/actions. Strike chests with
 a Kingdom Key card to open them. Choose among three seeded cards with L/R or
 Left/Right, then confirm with A. The selected card joins the deck and every
 party member heals 12 HP. At the 24-card limit, A grants healing only. Finish

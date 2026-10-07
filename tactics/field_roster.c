@@ -53,3 +53,11 @@ int FieldRosterRecruit(FieldRoster* r,int hero) {
     if(!FieldRosterValid(r)||r->phase!=FIELD_REWARD||r->reward!=FIELD_REWARD_BOSS||hero<0||hero>=FIELD_HEROES||(r->unlocked&(1<<hero)))return 0;
     r->unlocked|=1<<hero;r->reward=0;r->phase=FIELD_ASSEMBLY;return 1;
 }
+int FieldRosterRest(FieldRoster* r) {
+    int i;
+    if(!FieldRosterValid(r)||r->phase!=FIELD_ASSEMBLY)return 0;
+    for(i=0;i<FIELD_HEROES;i++)if(r->unlocked&(1<<i)) {
+        r->heroHp[i]=FieldHeroMaxHp(i);r->heroMove[i]=3;r->heroAction[i]=1;
+    }
+    return 1;
+}
