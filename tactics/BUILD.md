@@ -605,3 +605,10 @@ SHA-256 `404bb62955d9090a7e39145be51fa2054062e2cd8be3ef05e5fb7476683ef7b1`.
 This run precedes the sleight preview change. It provides navigation/combat
 failure evidence, not a victory or proof that the run is unwinnable. Current
 source still needs a complete-run pass and reproducibility investigation.
+
+Climb prompt polish: attached-stair previews now show `A CLIMB B CANCEL` or
+`A DESCEND B CANCEL`, retaining higher-priority blocked/unaffordable warnings.
+`climb-prompt-evidence/climb-preview.txt` passes all 28 existing stair checks
+(save/reset, exact level movement, budget rejection, bounded descent and
+landing/party control). The Up preview screenshot was visually inspected.
+The fixture generator also captures the Down preview for future review.

@@ -100,7 +100,7 @@ callbacks:add('frame',function()
  if f==995 then
   check(emu:read16(gNativePreview)==2 and emu:read16(gNativeRouteCost)==1,'Down previews the final segment to the native floor')
   check(emu:read32(sClimbPreviewPos+8)==startZ,'descending marker matches the supporting floor')
-  emu:setKeys(2)
+  emu:screenshot('@OUTPUT@/descending-preview.png');emu:setKeys(2)
  end
  if f==999 then emu:setKeys(0) end
  if f==1020 then emu:setKeys(2) end

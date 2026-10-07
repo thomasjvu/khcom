@@ -662,7 +662,7 @@ static void NativeHud(void) {
     NativeLabel(0, 0, line);
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
     gNativeCureTarget = NativeCureTarget();
-    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? "GUARDIAN CHARGING" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? "GUARDIAN CHARGING" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, gNativeCureTarget == 0 ? "CURE SORA A PLAY" :

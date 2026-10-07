@@ -148,3 +148,7 @@ full-health target shows zero; a knocked-out target shows revival HP.
 With three cards stocked, attack sleights project damage digits above each
 enemy they will hit. The preview uses the attack’s area and height limits and
 caps displayed damage at the enemy’s remaining HP.
+
+Attached-stair previews label A as CLIMB or DESCEND according to the chosen
+direction; B cancels the preview without dropping. Budget and blocked-route
+warnings take priority over the confirm prompt.
