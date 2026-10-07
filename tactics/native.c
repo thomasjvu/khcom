@@ -180,8 +180,6 @@ static u8 sPathIndex, sPathLength;
 static s32 sPathStartX, sPathStartY;
 static u8 sRoutePlayer;
 static u16 sClimbPreviewDirection;
-static FldPos sClimbPreviewPos;
-static FldPos sClimbReachPos[2];
 u16 gNativeClimbReachMask;
 static void NativePreviewDraw(void);
 static void NativePreviewInput(u16 pressed);
@@ -1842,7 +1840,6 @@ static void NativePreviewInput(u16 pressed) {
                     NativeClimbFloor(floor,0);
                 }
             }
-            sClimbReachPos[0]=sRoutePos[2];sClimbReachPos[1]=sRoutePos[4];
             for (i=0;i<11;i++) sPlayerLinksKnown[i]=0;
             gNativeClimbReachMask=0;
             if (FieldTacticsSearch(&sPlayerRoute,gNativePreview==3 ? 56 : 7,3,gNativeMoveLeft,0,NativeClimbLinks,NULL)>=0) {
@@ -1858,7 +1855,6 @@ static void NativePreviewInput(u16 pressed) {
             sPlayerGeometry=geometry;sPlayerMoveBudget=gNativeMoveLeft;sPlayerActionBudget=gNativeActionLeft;
         }
         target=gNativePreview==3 ? 7+(sCursorY+3)*7+sCursorX+3 : sCursorY+3;
-        sClimbPreviewPos=sRoutePos[target];
         length=FieldTacticsPath(&sPlayerRoute,target,sPlayerPath,sPlayerEdge,
             FIELD_ROUTE_CELLS,&cost,&action);
         gNativeRouteCost=length>=0 ? cost : -1;
@@ -2021,8 +2017,9 @@ static void NativePreviewDraw(void) {
             }
             return;
         }
-        x = (sClimbPreviewPos.x - gFieldState->x) >> 8;
-        y = (sClimbPreviewPos.y + sClimbPreviewPos.z - gFieldState->y) >> 8;
+        pos=&sRoutePos[sCursorY+3];
+        x = (pos->x - gFieldState->x) >> 8;
+        y = (pos->y + pos->z - gFieldState->y) >> 8;
         DrawSprite(x, y, gCardValueDigitFrames[gNativeRouteCost>0 && gNativeRouteCost<4 ? gNativeRouteCost : 0], sValueTiles,
             sValuePalette, NULL, 0, 0);
         return;

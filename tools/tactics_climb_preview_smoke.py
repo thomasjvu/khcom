@@ -10,8 +10,15 @@ for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitl
     v=line.split()
     if len(v)==3:names[v[2]]=int(v[0],16)
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
-keys=('gFieldState','gMapRoomState','sMapCells','sClimbPreviewPos','sClimbReachPos','gNativeClimbReachMask','gNativePreview','gNativeRouteCost','gNativeMoveLeft','gNativeActionLeft','gNativeBusy','gNativeParty','gNativeClimbing','gNativeSaveNotice','sEnemyTasks','sPartyPos','gNativeReachCount','gNativeReachCost','sPlayerPath','sPlayerEdge')
+keys=('gFieldState','gMapRoomState','sMapCells','sRoutePos','sCursorX','sCursorY','gNativeClimbReachMask','gNativePreview','gNativeRouteCost','gNativeMoveLeft','gNativeActionLeft','gNativeBusy','gNativeParty','gNativeClimbing','gNativeSaveNotice','sEnemyTasks','sPartyPos','gNativeReachCount','gNativeReachCost','sPlayerPath','sPlayerEdge')
 header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
+header+="""local function previewPos()
+ local x=emu:read16(sCursorX);local y=emu:read16(sCursorY)
+ if x>=32768 then x=x-65536 end
+ if y>=32768 then y=y-65536 end
+ return sRoutePos+(emu:read16(gNativePreview)==3 and 7+(y+3)*7+x+3 or y+3)*16
+end
+"""
 script=header+Path('tests/tactics_climb_walk_smoke.lua' if a.walk else 'tests/tactics_climb_top_smoke.lua' if a.top else 'tests/tactics_climb_occupancy_smoke.lua' if a.occupancy else 'tests/tactics_climb_route_smoke.lua' if a.multi else 'tests/tactics_climb_preview_smoke.lua').read_text().replace('@OUTPUT@',str(out))
 (out/'climb.lua').write_text(script)
 elf=Path(a.elf).resolve();rom=elf.with_suffix('.gba')

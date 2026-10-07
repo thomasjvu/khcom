@@ -45,7 +45,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativePreview)==2 and emu:read16(gNativeRouteCost)==2,'two Up selections preview a two-point climb route')
   check((emu:read16(gNativeClimbReachMask)&5)==5,'both affordable ascent levels have reachable markers')
   check(emu:read16(gNativeMoveLeft)==2 and emu:read16(gNativeActionLeft)==1,'multi-segment preview preserves both budgets')
-  check(startZ and emu:read32(sClimbPreviewPos+8)==startZ-12288,'selected marker predicts both native vertical segments')
+  check(startZ and emu:read32(previewPos()+8)==startZ-12288,'selected marker predicts both native vertical segments')
   emu:screenshot('@OUTPUT@/two-level-preview.png')
  end
  if f==430 then emu:setKeys(1) end
@@ -84,8 +84,8 @@ callbacks:add('frame',function()
  if f==1200 then
   check(emu:read16(gNativePreview)==2 and emu:read16(gNativeRouteCost)==3,'three Down selections preview a three-point descent')
   check((emu:read16(gNativeClimbReachMask)&42)==42,'all three affordable descent levels are marked reachable')
-  check(startZ and emu:read32(sClimbPreviewPos+8)==startZ,'descent marker lands on the supporting floor')
-  landingX=emu:read32(sClimbPreviewPos);landingY=emu:read32(sClimbPreviewPos+4)
+  check(startZ and emu:read32(previewPos()+8)==startZ,'descent marker lands on the supporting floor')
+  landingX=emu:read32(previewPos());landingY=emu:read32(previewPos()+4)
   check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'descent preview spends neither movement nor action')
   emu:screenshot('@OUTPUT@/three-level-descent.png')
  end

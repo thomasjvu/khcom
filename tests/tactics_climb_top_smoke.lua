@@ -44,7 +44,7 @@ callbacks:add('frame',function()
  if f==460 or f==480 then emu:setKeys(64) end
  if f==464 or f==484 then emu:setKeys(0) end
  if f==520 then
-  check(emu:read16(gNativeRouteCost)==3 and signed(emu:read32(sClimbPreviewPos+8))==upperZ,'three-level ascent previews the actual top platform height')
+  check(emu:read16(gNativeRouteCost)==3 and signed(emu:read32(previewPos()+8))==upperZ,'three-level ascent previews the actual top platform height')
   check((emu:read16(gNativeClimbReachMask)&21)==21,'all three affordable top-route heights are marked reachable')
   check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'top preview preserves movement and action')
   emu:screenshot('@OUTPUT@/top-preview.png');lastTarget=signed(emu:read32(player()+0xb8))

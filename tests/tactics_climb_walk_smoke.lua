@@ -67,7 +67,7 @@ callbacks:add('frame',function()
  if f==470 then
   check(emu:read16(gNativeRouteCost)==2,'selected floor destination previews total descent plus walking cost')
   check(emu:read8(sPlayerEdge)==1 and emu:read8(sPlayerEdge+1)==0,'planned native path contains a climb edge followed by a walking edge')
-  target=pos(sClimbPreviewPos);emu:screenshot('@OUTPUT@/descent-walk-preview.png');emu:setKeys(2)
+  target=pos(previewPos());emu:screenshot('@OUTPUT@/descent-walk-preview.png');emu:setKeys(2)
  end
  if f==474 then emu:setKeys(0) end
  if f==510 then
