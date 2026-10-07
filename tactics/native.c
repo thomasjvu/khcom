@@ -1288,6 +1288,12 @@ static void NativeCure(void) {
 }
 
 u16 gNativeSleightDamage[6];
+u16 gNativeSleightHeal[3];
+static u16 NativeSleightRecovery(u8 member, int value, int recipe) {
+    u16 amount = 12 + value + (recipe ? 8 : 0);
+    u16 missing = gNativePartyHealth.maxHp[member] - gNativePartyHealth.hp[member];
+    return amount < missing ? amount : missing;
+}
 static int NativeSleightHits(u8 slot, int kind) {
     MapEnmWork* work = sEnemyTasks[slot]->work;
     return NativeAbs(work->obj.fieldPosition.x - gFieldState->actor.fieldPosition.x) +
@@ -1305,9 +1311,25 @@ static void NativeSleightIntentDraw(void) {
     s16 x, y;
     MapEnmWork* work;
     for (i = 0; i < 6; i++) gNativeSleightDamage[i] = 0;
+    for (i = 0; i < 3; i++) gNativeSleightHeal[i] = 0;
     if (gNativeResult || gNativeEnemyFrames || gNativeBusy || gNativePreview || gNativeReward ||
         !gNativeActionLeft || !FieldDeckSleightPreview(&gNativeDeck, &kind, &value) ||
-        kind == FIELD_CARD_CURE || kind == FIELD_CARD_GUARD) return;
+        kind == FIELD_CARD_GUARD) return;
+    if (kind == FIELD_CARD_CURE) {
+        for (i = 0; i < 3; i++) {
+            FldPos* pos = &sPartyPos[i];
+            damage = NativeSleightRecovery(i, value, FieldDeckRecipe(&gNativeDeck));
+            gNativeSleightHeal[i] = damage;
+            if (!sValueTiles || !sValuePalette) continue;
+            x = (pos->x - gFieldState->x) >> 8;
+            y = ((pos->y + pos->z - gFieldState->y) >> 8) - 40;
+            if (damage >= 10) DrawSprite(x - 6, y, gCardValueDigitFrames[damage / 10],
+                sValueTiles, sValuePalette, NULL, 0, 0);
+            DrawSprite(x + 2, y, gCardValueDigitFrames[damage % 10],
+                sValueTiles, sValuePalette, NULL, 0, 0);
+        }
+        return;
+    }
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeSleightHits(i, kind)) {
         damage = NativeSleightPower(kind, value, FieldDeckRecipe(&gNativeDeck));
         if (value && value < 3 + gNativeFloor) damage = 0;
@@ -1332,7 +1354,7 @@ static void NativeSleight(void) {
     sPlayedValue = value;
     NativePartyPose(gNativeParty);
     if (kind == FIELD_CARD_CURE) {
-        for (i = 0; i < 3; i++) FieldPartyHeal(&gNativePartyHealth, i, 12 + value + (recipe ? 8 : 0));
+        for (i = 0; i < 3; i++) FieldPartyHeal(&gNativePartyHealth, i, NativeSleightRecovery(i, value, recipe));
         gGameState.hp = gNativePartyHealth.hp[gNativeParty];
     } else if (kind == FIELD_CARD_GUARD) gNativeGuard = 2;
     else {

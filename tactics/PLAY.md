@@ -159,3 +159,6 @@ labels the existing full-Guard sleight and grants the same protection as mixed
 Guard stocks. These are custom field rules, not reproductions of the original
 battle recipes. Mixed stocks retain their majority-type effect. The first
 card is still exhausted and the action cost remains one.
+
+Cure and Curaga sleights preview capped healing above all three party
+positions, including revival HP for knocked-out friends.

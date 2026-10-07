@@ -13,10 +13,14 @@ callbacks:add('frame',function()
  if f==300 then
   check(emu:read8(gNativeDeck+77)==3,'three Cure cards stock through native input')
   check(emu:read16(gNativeActionLeft)==1,'Curaga inspection preserves action')
+  check(emu:read16(gNativeSleightHeal)==38,'Curaga previews enhanced recovery for Sora')
+  check(emu:read16(gNativeSleightHeal+2)==38,'Curaga previews exact Donald revival HP')
+  check(emu:read16(gNativeSleightHeal+4)==7,'Curaga preview caps Goofy recovery at missing HP')
   emu:screenshot('@OUTPUT@/curaga.png');emu:setKeys(1)
  end
  if f==304 or f==404 or f==664 then emu:setKeys(0) end
  if f==340 then
+  check(emu:read16(gNativeSleightHeal)==0 and emu:read16(gNativeSleightHeal+2)==0 and emu:read16(gNativeSleightHeal+4)==0,'resolved Curaga clears all party recovery previews')
   check(emu:read16(gGameState+0x32)==68,'Curaga adds eight healing to the base party sleight')
   check(emu:read8(gNativePartyHealth+1)==38,'Curaga revives knocked-out Donald with enhanced healing')
   check(emu:read8(gNativePartyHealth+2)==72,'Curaga caps Goofy healing at maximum HP')

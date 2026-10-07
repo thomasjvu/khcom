@@ -651,3 +651,13 @@ action cost; then a real enemy turn refreshes the action before Triple Key's
 enemy-position fixtures isolate the recipes; stock, turn and attack commands
 use native input. This fills the focused Curaga/Triple Key validation gap
 noted above, without claiming full-run or canonical recipe fidelity.
+
+Party-wide Cure sleight preview now shares capped recovery calculations with
+resolution. `curaga-preview-evidence/recipes.txt` passes 16 checks, including
+38 HP recovery for injured Sora and knocked-out Donald, a seven-HP Goofy cap,
+and preview clearing after resolution. ROM build passes. A full-disk error
+blocked the first replay copy; 170 redundant generated ROM copies from
+completed evidence folders were removed after recording SHA-256/size in each
+folder's `removed-rom-hashes.jsonl`. Logs/screenshots and current release
+artifacts were preserved. Historical evidence paths may therefore no longer
+contain a ROM copy; use the recorded hash when assessing their scope.

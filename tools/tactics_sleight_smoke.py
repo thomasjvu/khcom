@@ -8,7 +8,7 @@ for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitl
     v=line.split()
     if len(v)==3:names[v[2]]=int(v[0],16)
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
-keys=('gNativeSleightDamage','gNativeEnemyHp','gNativePartyHealth','gGameState','gNativeDeck','gNativeSleights','gNativeActionLeft','gNativeSaveNotice','gNativeKills','gFieldState','sEnemyTasks')
+keys=('gNativeSleightHeal','gNativeSleightDamage','gNativeEnemyHp','gNativePartyHealth','gGameState','gNativeDeck','gNativeSleights','gNativeActionLeft','gNativeSaveNotice','gNativeKills','gFieldState','sEnemyTasks')
 header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 (out/'sleights.lua').write_text(header+Path('tests/tactics_sleight_smoke.lua').read_text().replace('@OUTPUT@',str(out)))
 
