@@ -30,6 +30,7 @@
 #include "field_deck.h"
 #include "field_save.h"
 #include "field_party.h"
+#include "field_route.h"
 #include "display.h"
 
 typedef char NativeActorOffset[(offsetof(FieldState, actor) == 0x18) ? 1 : -1];
@@ -601,11 +602,68 @@ static void NativeDamageEnemy(Task* task, u16 damage) {
     }
 }
 static s32 NativeAbs(s32 n) {return n < 0 ? -n : n;}
+/* Keep the route workspace in reserved RAM, outside the small native stack. */
+static FieldRoute sEnemyRoute;
+static FldPos sRoutePos[FIELD_ROUTE_CELLS];
+static u8 sRouteValid[FIELD_ROUTE_CELLS];
+static Task* sRouteActor;
+static int NativeRouteEdge(int from, int to, void* context) {
+    FldPos probe;
+    MapEnmWork* other;
+    u8 i;
+    (void)context;
+    if (!sRouteValid[to] ||
+        NativeAbs(sRoutePos[to].z - sRoutePos[from].z) > (16 << 8)) return 0;
+    /* Check the middle as well as the destination: thin walls and holes
+     * must not disappear between route samples. */
+    probe = sRoutePos[from];
+    probe.x = (probe.x + sRoutePos[to].x) / 2;
+    probe.y = (probe.y + probe.z + sRoutePos[to].y + sRoutePos[to].z) / 2 - probe.z;
+    if (IsFldPosBlocked(&probe)) return 0;
+    for (i = 0; i < 3; i++) if (gNativePartyHealth.hp[i] &&
+        NativeAbs(sRoutePos[to].x - sPartyPos[i].x) < (12 << 8) &&
+        NativeAbs(sRoutePos[to].y + sRoutePos[to].z - sPartyPos[i].y - sPartyPos[i].z) < (6 << 8) &&
+        NativeAbs(sRoutePos[to].z - sPartyPos[i].z) < (16 << 8)) return 0;
+    for (i = 0; i < 6; i++) if (sEnemyTasks[i] && sEnemyTasks[i] != sRouteActor) {
+        other = sEnemyTasks[i]->work;
+        if (NativeAbs(sRoutePos[to].x - other->obj.fieldPosition.x) < (12 << 8) &&
+            NativeAbs(sRoutePos[to].y + sRoutePos[to].z - other->obj.fieldPosition.y - other->obj.fieldPosition.z) < (6 << 8) &&
+            NativeAbs(sRoutePos[to].z - other->obj.fieldPosition.z) < (16 << 8)) return 0;
+    }
+    return 1;
+}
+static int NativeEnemyRoute(Task* task, const FldPos* target) {
+    MapEnmWork* work = task->work;
+    FldPos origin = work->obj.fieldPosition;
+    FldPos* pos;
+    MapCell* cell;
+    int i;
+    s32 floor;
+    sRouteActor = task;
+    for (i = 0; i < FIELD_ROUTE_CELLS; i++) {
+        pos = &sRoutePos[i];
+        *pos = origin;
+        pos->x += (i % 9 - 4) * 4096;
+        pos->y += (i / 9 - 4) * 2048;
+        sRouteValid[i] = 0;
+        if (pos->x < 0 || pos->y + pos->z < 0 ||
+            pos->x >= (gMapRoomState->cols << 13) ||
+            pos->y + pos->z >= (gMapRoomState->rows << 12)) continue;
+        cell = MapCellAtPos(pos->x, pos->y + pos->z);
+        if (!cell || cell->lowerZ == 0x100000) continue;
+        floor = GetFldPosFloor(pos);
+        pos->y += pos->z - floor;
+        pos->z = pos->ground = floor;
+        if (!IsFldPosBlocked(pos)) sRouteValid[i] = 1;
+    }
+    return FieldRouteStep(&sEnemyRoute, (target->x - origin.x) / 4096,
+        (target->y + target->z - origin.y - origin.z) / 2048, NativeRouteEdge, NULL);
+}
 static void NativeEnemyTurn(void) {
     u8 i, j, closest;
-    s32 distance, best, dx, dy, dz, floor;
+    s32 distance, best, dz;
+    int step;
     FldPos pos;
-    MapCell* cell;
     MapEnmWork* work;
     sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
     gNativeTurn++;
@@ -625,21 +683,9 @@ static void NativeEnemyTurn(void) {
                 gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : 4 + gNativeFloor))
                 gNativeResult = 1;
         } else {
-            pos = work->obj.fieldPosition;
-            dx = sPartyPos[closest].x - pos.x;
-            dy = sPartyPos[closest].y + sPartyPos[closest].z - pos.y - pos.z;
-            if (NativeAbs(dx) > NativeAbs(dy)) pos.x += dx < 0 ? -4096 : 4096;
-            else pos.y += dy < 0 ? -2048 : 2048;
-            /* Bound before the vanilla u16 cell conversion. */
-            if (pos.x < 0 || pos.y + pos.z < 0 ||
-                pos.x >= (gMapRoomState->cols << 13) ||
-                pos.y + pos.z >= (gMapRoomState->rows << 12)) continue;
-            cell = MapCellAtPos(pos.x, pos.y + pos.z);
-            if (!cell || cell->lowerZ == 0x100000) continue;
-            floor = GetFldPosFloor(&pos);
-            if (NativeAbs(floor - pos.ground) > (16 << 8)) continue;
-            pos.y += pos.z - floor;
-            pos.z = pos.ground = floor;
+            step = NativeEnemyRoute(sEnemyTasks[i], &sPartyPos[closest]);
+            if (step < 0) continue;
+            pos = sRoutePos[step];
             work->obj.fieldPosition = pos;
             ColliderSetPosition(&work->collider, pos.x, pos.y, pos.z);
         }

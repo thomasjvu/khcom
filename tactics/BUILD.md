@@ -142,3 +142,10 @@ emulator results do not establish these features in the native target.
 Native sleight replay: generate with `tools/tactics_sleight_smoke.py ELF OUTPUT`,
 then run its `sleights.lua` in mGBA against a fresh ROM copy. It verifies
 stocking, save/reset recovery, field effect, exhaustion, reload and cancellation.
+
+Native enemy routing uses a bounded 81-node workspace in reserved tactics RAM.
+The strict C89 sanitizer suite covers obstacle detours, impassable height changes,
+low stairs and enclosed actors. The 28-check party replay passes with routing
+enabled (`build/tactics-us/route-party-evidence/party.txt`). Native sampling
+checks endpoint and midpoint collision and rejects occupied destinations; this
+is not yet a continuous swept collision test or a player route preview.

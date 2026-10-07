@@ -26,6 +26,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Enemy damage and positions persist across all visited rooms and reboot.
 - Original Donald casting and Goofy guard animation resources.
 - Discrete enemy decisions, health, value checks, height-limited attacks and stronger exits.
+- Bounded 9×9 enemy route search with native floor/collision sampling, midpoint checks, height limits and occupied destination checks.
 - Three-card native sleights, combined values, first-card exhaustion, stock cancellation
   and original stock artwork; emulator-verified save/reload behavior.
 - Native twelve-card shared deck, five-card hand, original card/value artwork,
@@ -47,8 +48,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
    reachability for every generated room, then regenerate invalid rooms using
    a bounded retry policy. Current graph tests verify room connectivity, not
    complete physical navigation inside each room.
-2. **Authoritative field combat.** Extend discrete enemy decisions with bounded movement paths, blocked-axis
-   recovery, world-specific behavior and collision/occupancy checks. Add telegraphed targets, occupancy rules and richer enemy behaviors.
+2. **Authoritative field combat.** Extend the bounded enemy route search with world-specific behavior and swept actor collision checks. Add telegraphed targets, occupancy rules and richer enemy behaviors.
    Independent party HP and partial encounter persistence are implemented. Keep animations
    running during input wait without advancing authoritative actions.
 3. **Port the tested card systems.** Extend the native deck with target selection and richer named sleight recipes.

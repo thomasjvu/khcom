@@ -680,3 +680,12 @@ TacFar_memset:
  bx r3
 .balign 4
 1: .word memset + 1
+
+.balign 4
+.global TacFar_IsFldPosBlocked
+.thumb_func
+TacFar_IsFldPosBlocked:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word IsFldPosBlocked + 1
