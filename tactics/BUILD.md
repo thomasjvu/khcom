@@ -287,3 +287,12 @@ world in 23,479 frames, with five kills and 178 movement commands. It crosses
 all seven doors, clears the exit encounter and takes the original world exit
 using buttons only. Current post-fix jump (11), jump/stair (8) and native
 command-boundary (17) checks pass, alongside the strict host and four BPS tests.
+The 13 world/chest/retry/defeat scenario fixtures also pass after the fix
+(49 current emulator checks total). The 21,260-byte 0.12 patch reconstructs
+the ROM byte-for-byte. The three-world input-only probe reaches Agrabah room
+four, then exhausts its 120,000-frame bound: Sora `(124262,83519,8192)` and
+door `(20480,83456,8192)` are on separate same-height platforms. The local
+driver does not plan an intermediate height change between those platforms.
+Evidence: `footprint-three-world-evidence/traversal.txt`. This is a navigation
+failure, not a demonstrated impossible room; complete-run verification remains
+pending.
