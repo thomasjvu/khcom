@@ -311,6 +311,9 @@ u8 NativeGmkFindSpot(FldPos* pos, u8 finder) {
     s16 x, y;
     pos->x = pos->y = pos->z = pos->ground = 0;
     if (finder < 14 && gMapGmkSpotFuncs[finder](pos)) return 1;
+    /* Optional decorations must retain their original footprint constraints.
+     * Only mandatory base-floor objects use finder 13 and ignore failure. */
+    if (finder != 13) return 0;
     /* Vanilla mandatory-prop callers ignore placement failure. Generated rooms
      * must never pass uninitialized stack coordinates to a chest or collider. */
     for (y = gMapRoomState->topRow; y <= gMapRoomState->bottomRow; y++) {
@@ -1163,8 +1166,14 @@ static void NativeUpdate(void) {
             edge = pressed & (A_BUTTON | B_BUTTON);
             sAttack = (edge & A_BUTTON) != 0;
             gNativeDirection = sAttack ? 0 : raw & DPAD_ANY;
-            if (gNativeDirection && gNativeMoveLeft) gNativeMoveLeft--;
-            else gNativeDirection = 0;
+            if (gNativeDirection && gNativeMoveLeft) {
+                gNativeMoveLeft--;
+                /* A committed moving jump starts with native running speed;
+                 * otherwise short tactical steps leave every jump at rest. */
+                if (player->state == FLD_STATE_GROUND) gFieldState->actor.speed = 0x266;
+            } else gNativeDirection = 0;
+            sStartX = gFieldState->actor.fieldPosition.x;
+            sStartY = gFieldState->actor.fieldPosition.y;
             gNativeBusy = 2;
             sFrames = 0;
             gNativeActionLeft--;
@@ -1184,6 +1193,12 @@ static void NativeUpdate(void) {
     }
     /* A native stair attachment must finish its vertical segment before
      * another command can replace the controller's target. */
+    if (gNativeBusy == 2 && !sAttack && player->state == FLD_STATE_CLIMB) {
+        gNativeBusy = 4;
+        gNativeDirection = 0;
+        gFieldState->flags &= ~FIELD_FLAG_PLAYER_JUMPING;
+        sFrames = 0;
+    }
     if (gNativeBusy == 1 && player->state == FLD_STATE_CLIMB) {
         gNativeBusy = 4;
         sFrames = 0;
@@ -1214,7 +1229,17 @@ static void NativeUpdate(void) {
     if ((gFieldState->flags & FIELD_FLAG_FREEZE_PLAYER) && !gNativeEnemyFrames)
         edge = pressed & (A_BUTTON | B_BUTTON);
     if (gNativeBusy == 2 && !sAttack) {
-        if (sFrames < 16) held = gNativeDirection;
+        /* One press commits a full-height native ascent. Movement is bounded
+         * in world space, so falling to a lower floor cannot buy extra travel. */
+        if (player->state == FLD_STATE_GROUND || player->state == FLD_STATE_JUMP_START ||
+            player->state == FLD_STATE_JUMP_RISE || player->state == FLD_STATE_FALL) {
+            dx = NativeAbs(gFieldState->actor.fieldPosition.x - sStartX);
+            dy = NativeAbs(gFieldState->actor.fieldPosition.y - sStartY);
+            if (dx + dy * 2 < (32 << 8)) held = gNativeDirection;
+            else gFieldState->actor.speed = 0;
+            if (player->state == FLD_STATE_JUMP_START || player->state == FLD_STATE_JUMP_RISE)
+                held |= B_BUTTON;
+        }
         if (player->state == FLD_STATE_LEDGE_CATCH || player->state == FLD_STATE_LEDGE_HANG) {
             held = raw & DPAD_ANY;
             edge = pressed & (B_BUTTON | DPAD_ANY);

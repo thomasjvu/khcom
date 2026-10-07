@@ -13,7 +13,7 @@ tiles, card pictures, value digits, chests and doors.
 | L + A | Stock the selected card; stock three, then release L and press A for a sleight |
 | L + B | Return stocked cards to the deck without exhaustion |
 | A | Play the selected card from the active member's position |
-| B | Jump; combine with a direction for a moving jump |
+| B | Commit a full-height native jump; combine with a direction for a moving jump |
 | D-pad on stairs | Climb/descend one 16-pixel level for one movement point |
 | B on stairs | Drop using native physics, spending the action |
 | D-pad / B while hanging | Climb / drop using native ledge physics |
@@ -45,6 +45,13 @@ Entering stairs through a movement step attaches the native climbing
 controller. Holding a direction still commits only one segment. You can end
 a turn while attached to recover movement; Select is disabled until landing
 so another party member cannot inherit the stair controller’s target.
+A B press commits the full native ascent even if released immediately. A moving
+jump spends one action and one movement point; its directional input stops at
+32 pixels of weighted world-space travel (horizontal distance plus twice depth).
+Native collision and landing remain authoritative. With no movement left, B
+performs a stationary jump. Catching stairs hands off to the budgeted stair
+controller and clears the airborne flag.
+
 Use the existing B jump/climb controls to cross other height changes; jump and climb
 edges are not yet part of the route cursor.
 

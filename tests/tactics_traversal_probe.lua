@@ -11,6 +11,7 @@ local visits={}
 local commands=0
 local done=false
 local previousRoom=0
+local previousWorld=0
 local function signed(v) if v>=2147483648 then return v-4294967296 end return v end
 local function pos()
  local p=emu:read32(gFieldState)
@@ -29,7 +30,8 @@ local function door()
     if emu:read32(task)==gTaskDescMapDoor then
      local w=emu:read32(task+4)
      local d=emu:read32(w)
-     if emu:read8(d+7)==emu:read8(gMapFloorState+6)+1 then
+     local room=emu:read8(gMapFloorState+6)
+     if emu:read8(d+7)==(room==7 and 253 or room+1) then
       return signed(emu:read32(w+4)),signed(emu:read32(w+8))+signed(emu:read32(w+12)),signed(emu:read32(w+12))
      end
     end
@@ -42,6 +44,9 @@ end
 -- @GEOMETRY@
 local function stairGoal(tx,ty,tz)
  local x,y,z=pos()
+ -- Prop tops can share the height of a different map platform. Plan the
+ -- next map connection from the underlying ground rather than the prop top.
+ z=signed(emu:read32(emu:read32(gFieldState)+0x24))
  if math.abs(z-tz)<2048 then return tx,ty,tz,false end
  local room=emu:read32(gMapRoomState)
  local cols=emu:read16(room+4);local rows=emu:read16(room+6)
@@ -58,7 +63,7 @@ local function stairGoal(tx,ty,tz)
     if not best or score<best.score then best={x=sx,y=sy,score=score,key=(flags&32)~=0 and 64 or (kind==6 and 82 or 98)} end
    end
    if (kind==3 or kind==5) and math.abs(upper-z)<2048 and math.abs(lower-tz)<math.abs(z-tz) then
-    local sx=(cx*32+16)*256;local sy=(cy*16+2)*256
+    local sx=(cx*32+16)*256;local sy=(cy*16+((flags&32)~=0 and 2 or -4))*256
     local score=math.abs(sx-x)+2*math.abs(sy-y)+math.abs(lower-tz)
     if not best or score<best.score then best={x=sx,y=sy,score=score,key=(flags&32)~=0 and 128 or (kind==5 and 160 or 144)} end
    end
@@ -66,6 +71,19 @@ local function stairGoal(tx,ty,tz)
  end
  if best then return best.x,best.y,z,best.key end
  return tx,ty,tz,false
+end
+local function encounterGoal()
+ if emu:read8(gMapFloorState+6)~=7 then return nil end
+ local x,y,z=pos();local best=nil
+ for i=0,5 do
+  local t=emu:read32(sEnemyTasks+i*4)
+  if t~=0 then
+   local w=emu:read32(t+4);local ex=signed(emu:read32(w+8));local ez=signed(emu:read32(w+16));local ey=signed(emu:read32(w+12))+ez
+   local score=math.abs(ex-x)+2*math.abs(ey-y)+math.abs(ez-z)
+   if not best or score<best.score then best={x=ex,y=ey,z=ez,score=score} end
+  end
+ end
+ if best then return best.x,best.y,best.z end
 end
 local function combatInput()
  local x,y,z=pos();local near=false
@@ -118,13 +136,19 @@ callbacks:add('frame',function()
  f=f+1
  if done or f<180 then return end
  local room=emu:read8(gMapFloorState+6)
- if room>=goalRoom then finish(true,'walked from native spawn to room '..room);return end
+ local world=emu:read16(gNativeFloor)
+ if goalWorlds>0 and world>=goalWorlds and (goalWorlds<3 or emu:read16(gNativeResult)==2) then finish(true,'completed '..goalWorlds..' worlds through native input');return end
+ if goalWorlds==0 and room>=goalRoom then finish(true,'walked from native spawn to room '..room);return end
+ if world~=previousWorld then
+  out:write('WORLD '..world..' frames='..f..'\n');out:flush()
+  previousWorld=world;previousRoom=-1
+ end
  if room~=previousRoom then
   out:write('ROOM '..room..' frames='..f..'\n');out:flush()
   previousRoom=room;best=nil;visits={};index=1;phase='release';nextFrame=f+60
  end
  if emu:read16(gNativeResult)~=0 then finish(false,'run ended before traversal goal');return end
- if f>12000 then finish(false,'bounded explorer did not reach room '..goalRoom);return end
+ if f>goalFrames then finish(false,'bounded explorer did not reach '..(goalWorlds>0 and ('world '..goalWorlds) or ('room '..goalRoom)));return end
  if f<nextFrame then return end
  emu:setKeys(0)
  if emu:read16(gNativeBusy)~=0 then nextFrame=f+8;return end
@@ -134,16 +158,34 @@ callbacks:add('frame',function()
  end
  local dx,dy,dz=door()
  if not dx then finish(false,'forward door missing');return end
+ local ex,ey,ez=encounterGoal()
+ if ex then
+  dx,dy,dz=ex,ey,ez
+  local x,y,z=pos()
+  if phase=='scan' and index==1 and math.abs(x-ex)+math.abs(y-ey)<32768 and math.abs(z-ez)<=6144 and emu:read16(gNativeActionLeft)==0 then
+   emu:setKeys(8);phase='release';nextFrame=f+4;return
+  end
+ end
  if emu:read16(gNativeClimbing)~=0 then
   -- Original stairs ascend with Up; each command is budgeted by the ROM.
   local _,_,z=pos();emu:setKeys(dz>z and 128 or 64);commands=commands+1;phase='release';nextFrame=f+4;return
  end
  if phase=='scan' and index==1 then
+  local x,y,z=pos()
   local key=combatInput()
   if key then emu:setKeys(key);phase='release';nextFrame=f+4;return end
+  if (visits[cell(x,y,z)] or 0)>=3 and emu:read16(gNativeActionLeft)==0 then
+   emu:setKeys(8);phase='release';nextFrame=f+4;return
+  end
+  if (visits[cell(x,y,z)] or 0)>=3 and emu:read16(gNativeActionLeft)>0 and emu:read16(gNativeMoveLeft)>0 then
+   local tx,ty=stairGoal(dx,dy,dz)
+   local key=(tx<x and 32 or 16)+(ty<y and 64 or 128)
+   out:write('JUMP '..f..' '..x..' '..y..' '..z..'\n');out:flush()
+   emu:setKeys(key+2);commands=commands+1;visits[cell(x,y,z)]=0;phase='release';nextFrame=f+4;return
+  end
  end
  local x0,y0,z0=pos()
- if phase=='scan' and math.abs(x0-dx)<8192 and math.abs(y0-dy)<4096 and math.abs(z0-dz)<2048 then
+ if not ex and phase=='scan' and math.abs(x0-dx)<8192 and math.abs(y0-dy)<4096 and math.abs(z0-dz)<2048 then
   emu:setKeys((dx<x0 and 32 or 16)+(dy<y0 and 64 or 128));commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
  end
  local stair
@@ -180,6 +222,7 @@ callbacks:add('frame',function()
    -- Walking into a stair or a door uses the original controller, not flat route edges.
    local x,y,z=pos();local key=dy<y and 64 or 128
    if math.abs(dx-x)>math.abs(dy-y)*2 then key=dx<x and 32 or 16 end
+   local k=cell(x,y,z);visits[k]=(visits[k] or 0)+1
    emu:setKeys(key);commands=commands+1;phase='release';nextFrame=f+4
   end
   return

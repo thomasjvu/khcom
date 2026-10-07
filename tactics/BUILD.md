@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.11-surfaces.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.11-surfaces.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.12-jumps.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.12-jumps.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -212,7 +212,7 @@ is impossible. The default first-door replay passed in 965 frames and ten
 movement commands, including both height changes from the actual spawn
 (`build/tactics-us/traversal-door-evidence/traversal.txt`). This is one fixed
 seed, not a generated-room guarantee or a complete combat run.
-The extended `--rooms 7` probe reaches room one, then exhausts its 12,000-frame
+The earlier 0.9 `--rooms 7` probe reached room one, then exhausted its 12,000-frame
 bound there (`build/tactics-us/traversal-chain2-evidence/traversal.txt`): final
 projected position `(74873,62597,0)`, forward door `(12288,91648,12288)`, in
 native 8.8 units. Local flat previews plus greedy stair selection are therefore
@@ -257,3 +257,33 @@ collision. Global climb/jump planning and complete-run verification remain
 unfinished. The prop fixture suppresses neighbouring/enemy/player contact
 colliders to isolate route geometry, and holds the selected collider removed
 because native prop tasks can re-enable colliders on subsequent updates.
+
+Tactical jumps: `tools/tactics_jump_smoke.py ELF OUTPUT` generates `jumps.lua`
+with 11 input-only checks for full-height ascent after early release, useful
+movement from rest, bounded weighted world-space travel, native landing and
+exact movement/action costs. `--stairs` generates an independent eight-check
+position fixture for a jump catching an original tall stair. It verifies the
+handoff releases the command gate, clears the airborne flag, retains costs,
+renews the turn and allows a normal one-level movement-only climb afterward.
+The native command-boundary replay passes 17 checks and the existing attached
+stair/save replay passes 19 checks on this build (55 current emulator checks).
+
+Optional native decorations now retain their original footprint and sparsity
+requirements when a spot finder fails. The initialized-position fallback is
+limited to mandatory base-floor objects (finder 13); large decorations can no
+longer fall back to a single floor cell and crowd generated routes.
+
+The input-only traversal probe now supports `--frames 180..120000` (default
+36000), `--rooms 1..7`, and `--worlds 1..3`. It records native jump attempts,
+uses underlying map ground when standing on a prop, and can target the exit
+encounter before attempting world advancement. A fresh fixed-seed run crossed
+all seven main-path doors from the actual spawn to room seven in 33,810 frames
+with six enemy kills (`build/tactics-us/jump-ground-chain-evidence/traversal.txt`).
+This proves that main-path traversal for one seed, not all generated rooms,
+chests, the exit encounter or a complete three-world run. World-advancement
+probes remain separate from the successful room-seven traversal. After the
+decoration fix, `footprint-world-evidence/traversal.txt` passes one complete
+world in 23,479 frames, with five kills and 178 movement commands. It crosses
+all seven doors, clears the exit encounter and takes the original world exit
+using buttons only. Current post-fix jump (11), jump/stair (8) and native
+command-boundary (17) checks pass, alongside the strict host and four BPS tests.
