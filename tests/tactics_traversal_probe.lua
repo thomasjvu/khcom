@@ -217,11 +217,18 @@ local function replayFrame()
      emu:read16(gNativeEnemyFrames)==0 and emu:read16(gNativeClimbing)==0 and emu:read16(gNativeReward)==0 then
    suspendSnapshot={}
    for i=0,2 do suspendSnapshot[i+1]=emu:read8(gNativePartyHealth+i) end
+   suspendSnapshot.party=emu:read16(gNativeParty)
+   suspendSnapshot.positions={};suspendSnapshot.enemies={};suspendSnapshot.charges={}
+   for i=0,11 do suspendSnapshot.positions[i]=emu:read32(sPartyPos+i*4) end
+   for i=0,5 do
+    suspendSnapshot.enemies[i]=emu:read16(gNativeEnemyHp+i*2)
+    suspendSnapshot.charges[i]=emu:read8(gNativeEnemyCharge+i)
+   end
    suspendSnapshot.move=emu:read16(gNativeMoveLeft)
    suspendSnapshot.action=emu:read16(gNativeActionLeft)
    suspendSnapshot.guard=emu:read16(gNativeGuard)
    suspendSnapshot.deck={}
-   for i=0,72 do suspendSnapshot.deck[i]=emu:read8(gNativeDeck+i) end
+   for i=0,73 do suspendSnapshot.deck[i]=emu:read8(gNativeDeck+i) end
    emu:setKeys(12);suspendStage=1;nextFrame=f+4;return
   elseif suspendStage==1 then
    if emu:read16(gNativeSaveNotice)~=1 then finish(false,'input-only suspend failed');return end
@@ -231,8 +238,11 @@ local function replayFrame()
    local matches=emu:read16(gNativeMoveLeft)==suspendSnapshot.move and
     emu:read16(gNativeActionLeft)==suspendSnapshot.action and emu:read16(gNativeGuard)==suspendSnapshot.guard
    for i=0,2 do matches=matches and emu:read8(gNativePartyHealth+i)==suspendSnapshot[i+1] end
-   for i=0,72 do matches=matches and emu:read8(gNativeDeck+i)==suspendSnapshot.deck[i] end
-   if not matches then finish(false,'resume changed party HP budgets Guard or deck');return end
+   for i=0,73 do matches=matches and emu:read8(gNativeDeck+i)==suspendSnapshot.deck[i] end
+   matches=matches and emu:read16(gNativeParty)==suspendSnapshot.party
+   for i=0,11 do matches=matches and emu:read32(sPartyPos+i*4)==suspendSnapshot.positions[i] end
+   for i=0,5 do matches=matches and emu:read16(gNativeEnemyHp+i*2)==suspendSnapshot.enemies[i] and emu:read8(gNativeEnemyCharge+i)==suspendSnapshot.charges[i] end
+   if not matches then finish(false,'resume changed party state enemy HP windups or deck');return end
    out:write('RESUME verified frame='..f..' room='..room..'\n');out:flush()
    suspendStage=3;terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+8;return
   end

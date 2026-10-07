@@ -964,6 +964,10 @@ static void NativeHud(void) {
         !gNativeClimbing && !charging && card >= 0 && !gNativeDeck.stocked &&
         gNativeDeck.kind[card] == FIELD_CARD_FIRE && gNativeActionLeft)
         NativeLabel(0, 8, gNativeFireTarget < 0 ? "FIRE NO TARGET" : !gNativeFireDamage ? "FIRE CARD BREAK" : "FIRE R B TARGET A");
+    if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames && !gNativeClimbing &&
+        !charging && card >= 0 && !gNativeDeck.stocked && gNativeActionLeft &&
+        gNativeDeck.kind[card] == FIELD_CARD_KEY && gNativeParty)
+        NativeLabel(0, 8, gNativeParty == 1 ? "DONALD MAGIC R B A" : "GOOFY SPIN A PLAY");
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
@@ -1541,6 +1545,19 @@ static void NativeFire(void) {
     if (target) NativeDamageEnemy(target, 6 + sPlayedValue + (gNativeParty == 1 ? 3 : 0));
 }
 
+u16 gNativeSkillDamage[6];
+static int NativeShieldHits(u8 slot) {
+    FldPos* pos = &((MapEnmWork*)sEnemyTasks[slot]->work)->obj.fieldPosition;
+    return NativeAbs(pos->x - gFieldState->actor.fieldPosition.x) +
+        NativeAbs(pos->y - gFieldState->actor.fieldPosition.y) <= (48 << 8) &&
+        NativeAbs(pos->z - gFieldState->actor.fieldPosition.z) <= (24 << 8);
+}
+static void NativeShieldSpin(void) {
+    u8 i;
+    for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeShieldHits(i))
+        NativeDamageEnemy(sEnemyTasks[i], 4 + sPlayedValue);
+}
+
 static void NativeCardIntentDraw(void) {
     Task* target;
     MapEnmWork* work;
@@ -1551,6 +1568,7 @@ static void NativeCardIntentDraw(void) {
     gNativeFireTarget = -1;
     gNativeFireDamage = 0;
     gNativeCureHeal = 0;
+    for (i = 0; i < 6; i++) gNativeSkillDamage[i] = 0;
     if (gNativeResult || gNativeEnemyFrames || gNativeBusy || gNativePreview ||
         !gNativeActionLeft || card < 0 || gNativeDeck.stocked || gNativeReward) return;
     if (gNativeDeck.kind[card] == FIELD_CARD_CURE) {
@@ -1567,7 +1585,25 @@ static void NativeCardIntentDraw(void) {
             sValueTiles, sValuePalette, NULL, 0, 0);
         return;
     }
-    if (gNativeDeck.kind[card] != FIELD_CARD_FIRE) return;
+    if (gNativeParty == 2 && gNativeDeck.kind[card] == FIELD_CARD_KEY) {
+        for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeShieldHits(i)) {
+            damage = 4 + gNativeDeck.value[card];
+            if (gNativeDeck.value[card] && gNativeDeck.value[card] < 3 + gNativeFloor) damage = 0;
+            if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
+            gNativeSkillDamage[i] = damage;
+            if (!sValueTiles || !sValuePalette) continue;
+            work = sEnemyTasks[i]->work;
+            x = (work->obj.fieldPosition.x - gFieldState->x) >> 8;
+            y = ((work->obj.fieldPosition.y + work->obj.fieldPosition.z - gFieldState->y) >> 8) - 28;
+            if (damage >= 10) DrawSprite(x - 6, y, gCardValueDigitFrames[damage / 10],
+                sValueTiles, sValuePalette, NULL, 0, 0);
+            DrawSprite(x + 2, y, gCardValueDigitFrames[damage % 10],
+                sValueTiles, sValuePalette, NULL, 0, 0);
+        }
+        return;
+    }
+    if (gNativeDeck.kind[card] != FIELD_CARD_FIRE &&
+        !(gNativeParty == 1 && gNativeDeck.kind[card] == FIELD_CARD_KEY)) return;
     target = NativeFireTarget();
     if (!target) return;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] == target) {
@@ -1778,7 +1814,8 @@ static void NativeUpdate(void) {
             ((raw & B_BUTTON) && (pressed & R_BUTTON))) {
             int selected = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
             if (selected >= 0 && !gNativeDeck.stocked &&
-                gNativeDeck.kind[selected] == FIELD_CARD_FIRE) NativeCycleFireTarget();
+                (gNativeDeck.kind[selected] == FIELD_CARD_FIRE ||
+                 (gNativeParty == 1 && gNativeDeck.kind[selected] == FIELD_CARD_KEY))) NativeCycleFireTarget();
             else if (selected >= 0 && !gNativeDeck.stocked &&
                 gNativeDeck.kind[selected] == FIELD_CARD_CURE) NativeCycleCureTarget();
         } else if ((pressed & SELECT_BUTTON) && player->state == FLD_STATE_GROUND) {
@@ -1818,6 +1855,10 @@ static void NativeUpdate(void) {
                         gNativeGuard = gNativeParty == 2 ? 2 : 1;
                     } else if (kind == FIELD_CARD_FIRE) {
                         NativeFire();
+                    } else if (gNativeParty == 1) {
+                        NativeFire();
+                    } else if (gNativeParty == 2) {
+                        NativeShieldSpin();
                     } else {
                         edge = A_BUTTON;
                         sAttack = 1;

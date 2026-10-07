@@ -165,3 +165,10 @@ positions, including revival HP for knocked-out friends.
 When the active member has spent their action, the HUD says ACT SPENT START
 TURN. Start ends the party turn; you may still use remaining movement or
 switch to another available member before doing so.
+
+Donald plays attack cards as ranged magic (128-pixel range, 24-pixel height);
+R+B cycles targets. Goofy plays attack cards as a shield spin hitting every
+enemy within 48 world pixels and 24 pixels of height. Original number sprites
+preview damage. Sora retains native Keyblade swings. These are the first distinct
+character attacks; party assembly, recruitable character cards and upgrades are
+being implemented according to `PARTY-ROGUELIKE.md`.

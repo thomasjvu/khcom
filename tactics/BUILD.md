@@ -866,3 +866,17 @@ save/reset checkpoint in Traverse Town. The driver releases save keys, resets,
 waits for native boot and compares party HP, budgets, Guard, world/room and deck
 before continuing. This mode is prepared for integration testing; generation
 and the existing combat/party policy tests pass, but its full replay is pending.
+
+The first controller-only suspend/reset three-world replay passes at frame
+95,837 with 14 kills and 788 movement commands. It saved at 18,168 in Traverse
+Town room 2 and verified resume at 18,498 before continuing to victory. Evidence:
+`marluxia-suspend-run-evidence/traversal.txt`. This driver checked HP, budgets,
+Guard and deck; the subsequently strengthened position/enemy checks await a
+new replay. The replay predates the distinct Donald/Goofy attack implementation.
+
+Distinct character base attacks now pass eight explicit native emulator checks
+in `character-moves-evidence/moves.txt`: Donald targets ranged magic and Goofy
+spins his shield across nearby enemies; previews match actual damage and attacks
+spend the selected member's action. Generator:
+`tools/tactics_character_moves_smoke.py`. Recruitment and party assembly requirements
+are tracked in `tactics/PARTY-ROGUELIKE.md`; those systems remain unfinished.

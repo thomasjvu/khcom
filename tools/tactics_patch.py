@@ -77,12 +77,14 @@ def apply(source,patch):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('command',choices=['create','apply'])
-    p.add_argument('source',type=Path);p.add_argument('input',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
+    p.add_argument('source',type=Path);p.add_argument('input',type=Path);p.add_argument('output',type=Path)
+    p.add_argument('--version',default='0.17-castle-boss');a=p.parse_args()
+    if not a.version or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-' for c in a.version):p.error('version must use letters, digits, dots or hyphens')
     source=a.source.read_bytes()
     if hashlib.sha1(source).hexdigest()!=US_SHA1:p.error('source is not the supported original US ROM')
     data=a.input.read_bytes()
     if a.command=='create':
-        result=create(source,data,b'<kh-tactics version="0.16-world-bosses"/>')
+        result=create(source,data,f'<kh-tactics version="{a.version}"/>'.encode())
         if apply(source,result)!=data:raise ValueError('patch round-trip differs')
     else:result=apply(source,data)
     a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_bytes(result)
