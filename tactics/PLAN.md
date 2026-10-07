@@ -75,6 +75,13 @@ interactions. Do not replace field actors with icons or flatten elevations.
   57). A prior replay on the identical ROM lost in Castle Oblivion; consistent
   replay outcomes still require investigation.
 
+The exact party-loadout/healing ROM at `4025e129b` passes 59 focused native
+checks and a fresh input-only three-world campaign with composed stair routing,
+Cloud recruitment/deployment and suspend/reset. Victory is 102782 HP70; stable
+PASS 102902, 19 kills, 720 movement commands. The byte-exact local 0.22 BPS and
+manifest preserve its ROM/evidence hashes; see `tactics/PARTY-HEALING-0.22.md`.
+This single-seed proof does not establish physical generation guarantees.
+
 ## Remaining implementation sequence
 
 1. **Height-aware tactical navigation.** Extend the implemented flat-surface walking
