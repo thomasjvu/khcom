@@ -50,3 +50,8 @@ and control selection. This currently chooses the starter leader, not a custom
 recruited team. Character slot mapping, bench/roster selection, Cloud recruitment
 and battle rewards still need gameplay integration. Text HUD readability remains
 unfinished. Evidence: `assembly-evidence/assembly.txt` and screenshots.
+
+Encounter-clear reward UI is connected for every second new clear and all
+world bosses. Per-hero attack power and matching-sleight enhancements apply in
+combat; pending/confirmed rewards and clear masks persist. Recruitable boss
+cards remain to be connected. Fourteen native reward checks pass.

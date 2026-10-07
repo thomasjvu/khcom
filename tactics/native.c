@@ -121,6 +121,8 @@ static void NativePartyPose(u8 member) {
     AnimChangeWithDef(sFriendAnims[member - 1], &friend->anim, 1,
         ANIM_FLAG_LOOP, friend->tiles);
 }
+u16 gNativeProgressReward;
+static u16 sProgressHero, sProgressKind;
 u16 gNativeAssembly;
 static u16 sAssemblyChoice, sAssemblyResume;
 static const CardDef* sAssemblyDonald;
@@ -728,6 +730,7 @@ static void NativeBuildWorld(void) {
     u8 i;
     MapFloorRoom* room;
     static const u8 worlds[3] = {WORLD_TRAVERSE_TOWN, WORLD_AGRABAH, WORLD_CASTLE_OBLIVION};
+    if (!sResume) gNativeRoster.cleared = 0;
     TacWorldGenerate(&sWorld, gNativeSeed, gNativeFloor);
     sFloorDef.entryRoom = 0;
     sFloorDef.exitRoom = 7;
@@ -870,7 +873,10 @@ static void NativeLabel(u8 x, u8 y, const char* text) {
         source = (const u32*)(gDebugFont0Tiles + glyph * 32);
         for (i = 0; i < 8; i++) {
             pixels = source[i];
-            pixels = (pixels | (pixels >> 1) | (pixels >> 2) | (pixels >> 3)) & 0x11111111;
+            /* The debug font uses F for ink and D for its drop shadow.
+             * Folding every nonzero nibble into ink fills digit counters and
+             * makes different resource values look like zero. Keep only F. */
+            pixels = (pixels & (pixels >> 1) & (pixels >> 2) & (pixels >> 3)) & 0x11111111;
             sHudTiles[tile * 8 + i] = 0x11111111 | (pixels << 1);
         }
         sHudScreen[row * 32 + column] = tile | 0xf000;
@@ -1071,6 +1077,14 @@ static void NativeHud(void) {
         NativeLabel(0, 32, sAssemblyChoice == 0 ? "SORA KEYBLADE" :
             sAssemblyChoice == 1 ? "DONALD MAGIC" : "GOOFY SHIELD");
     }
+    if (gNativeProgressReward) {
+        NativeLabel(0, 8, "CLEAR REWARD L R A");
+        NativeLabel(0, 24, sProgressKind == 0 ? "POWER PLUS 1" :
+            sProgressKind == 1 ? "KEY SLEIGHT PLUS 4" :
+            sProgressKind == 2 ? "FIRE SLEIGHT PLUS 4" : "CURE SLEIGHT PLUS 4");
+        NativeLabel(0, 32, sProgressHero == 0 ? "SORA UP DOWN CHOOSE" :
+            sProgressHero == 1 ? "DONALD UP DOWN CHOOSE" : "GOOFY UP DOWN CHOOSE");
+    }
     sHudPending = 1;
 }
 static void NativeExit(void) {
@@ -1204,6 +1218,8 @@ static void NativeInit(s32 arg) {
     }
     gNativeAssembly = sAssemblyResume ? gNativeRoster.phase == FIELD_ASSEMBLY : 1;
     if (gNativeAssembly) {gNativeRoster.phase = FIELD_ASSEMBLY;gNativeRoster.reward = 0;}
+    gNativeProgressReward = gNativeRoster.phase == FIELD_REWARD;
+    sProgressHero = sProgressKind = 0;
     NativeAssemblyInit();
     sHudPending = 0;
     sHudTiles = EwramAlloc(161 * 32);
@@ -1217,6 +1233,7 @@ static void NativeInit(s32 arg) {
 static void NativeDamageEnemy(Task* task, u16 damage) {
     u8 i;
     MapFloorRoom* room;
+    damage += gNativeRoster.power[gNativeParty];
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] == task) {
         if (sPlayedValue && sPlayedValue < 3 + gNativeFloor) {
             gNativeBreaks++;
@@ -1654,7 +1671,7 @@ static void NativeCardIntentDraw(void) {
     }
     if (gNativeParty == 2 && gNativeDeck.kind[card] == FIELD_CARD_KEY) {
         for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeShieldHits(i)) {
-            damage = 4 + gNativeDeck.value[card];
+            damage = 4 + gNativeDeck.value[card] + gNativeRoster.power[gNativeParty];
             if (gNativeDeck.value[card] && gNativeDeck.value[card] < 3 + gNativeFloor) damage = 0;
             if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
             gNativeSkillDamage[i] = damage;
@@ -1675,7 +1692,7 @@ static void NativeCardIntentDraw(void) {
     if (!target) return;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] == target) {
         gNativeFireTarget = i;
-        damage = 6 + gNativeDeck.value[card] + (gNativeParty == 1 ? 3 : 0);
+        damage = 6 + gNativeDeck.value[card] + (gNativeParty == 1 ? 3 : 0) + gNativeRoster.power[gNativeParty];
         if (gNativeDeck.value[card] && gNativeDeck.value[card] < 3 + gNativeFloor) damage = 0;
         if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
         gNativeFireDamage = damage;
@@ -1731,7 +1748,8 @@ static void NativeCure(void) {
 u16 gNativeSleightDamage[6];
 u16 gNativeSleightHeal[3];
 static u16 NativeSleightRecovery(u8 member, int value, int recipe) {
-    u16 amount = 12 + value + (recipe ? 8 : 0);
+    u16 amount = 12 + value + (recipe ? 8 : 0) +
+        (recipe && (gNativeRoster.sleights[gNativeParty] & 4) ? 4 : 0);
     u16 missing = gNativePartyHealth.maxHp[member] - gNativePartyHealth.hp[member];
     return amount < missing ? amount : missing;
 }
@@ -1743,7 +1761,8 @@ static int NativeSleightHits(u8 slot, int kind) {
         NativeAbs(work->obj.fieldPosition.z - gFieldState->actor.fieldPosition.z) <= (24 << 8);
 }
 static u16 NativeSleightPower(int kind, int value, int recipe) {
-    return 8 + value + (recipe ? 6 : 0) + (gNativeParty == 1 && kind == FIELD_CARD_FIRE ? 4 : 0);
+    return 8 + value + (recipe ? 6 : 0) + (gNativeParty == 1 && kind == FIELD_CARD_FIRE ? 4 : 0) +
+        (kind < 3 && recipe && (gNativeRoster.sleights[gNativeParty] & (1 << kind)) ? 4 : 0);
 }
 static void NativeSleightIntentDraw(void) {
     int kind, value;
@@ -1772,7 +1791,7 @@ static void NativeSleightIntentDraw(void) {
         return;
     }
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeSleightHits(i, kind)) {
-        damage = NativeSleightPower(kind, value, FieldDeckRecipe(&gNativeDeck));
+        damage = NativeSleightPower(kind, value, FieldDeckRecipe(&gNativeDeck)) + gNativeRoster.power[gNativeParty];
         if (value && value < 3 + gNativeFloor) damage = 0;
         if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
         gNativeSleightDamage[i] = damage;
@@ -1843,6 +1862,17 @@ static void NativeUpdate(void) {
         ModeRequest(&sNativeMode, 0);
         return;
     }
+    if (gNativeProgressReward) {
+        if (pressed & (L_BUTTON | DPAD_LEFT)) sProgressHero = (sProgressHero + 2) % 3;
+        else if (pressed & (R_BUTTON | DPAD_RIGHT)) sProgressHero = (sProgressHero + 1) % 3;
+        if (pressed & DPAD_UP) sProgressKind = (sProgressKind + 3) % 4;
+        else if (pressed & DPAD_DOWN) sProgressKind = (sProgressKind + 1) % 4;
+        if ((pressed & A_BUTTON) && !gNativeBusy && !gNativeEnemyFrames &&
+            FieldRosterUpgrade(&gNativeRoster, sProgressHero, sProgressKind)) gNativeProgressReward = 0;
+        else if ((raw & (START_BUTTON | SELECT_BUTTON)) == (START_BUTTON | SELECT_BUTTON) &&
+            (pressed & (START_BUTTON | SELECT_BUTTON)) && !gNativeBusy && !gNativeEnemyFrames) NativeWriteSuspend();
+        pressed = 0;
+    }
     if (gNativeAssembly) {
         if (pressed & (L_BUTTON | DPAD_LEFT)) sAssemblyChoice = (sAssemblyChoice + 2) % 3;
         else if (pressed & (R_BUTTON | DPAD_RIGHT)) sAssemblyChoice = (sAssemblyChoice + 1) % 3;
@@ -1866,7 +1896,7 @@ static void NativeUpdate(void) {
          * opened chest before its reward has been granted. */
         pressed = 0;
     }
-    if (!gNativeAssembly && !gNativeReward && !gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
+    if (!gNativeProgressReward && !gNativeAssembly && !gNativeReward && !gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
         !(gFieldState->flags & (FIELD_FLAG_FREEZE_PLAYER | FIELD_FLAG_ROOM_CREATE))) {
         if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY) &&
             (player->state == FLD_STATE_GROUND || player->state == FLD_STATE_CLIMB))) {
@@ -2081,6 +2111,9 @@ static void NativeUpdate(void) {
         gMapRoomState->flags &= ~ROOM_FLAG_HIDE_PLAYER;
     }
     gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
+    if (!gNativeResult && !gNativeAssembly && gNativeRoster.phase == FIELD_BATTLE &&
+        GetMapFloorRoom(gMapFloorState.room)->enemiesLeft == 0)
+        gNativeProgressReward = FieldRosterClear(&gNativeRoster, gMapFloorState.room == 7) != FIELD_REWARD_NONE;
     NativePreviewThreats();
     NativePartyDraw();
     NativeAssemblyDraw();
@@ -2097,7 +2130,7 @@ static void NativeUpdate(void) {
     }
     /* The native actor can still detect the doorway while standing at the
      * final exit. A terminal run must not keep advancing its floor counter. */
-    if (gNativeResult || gNativeReward) gFieldState->flags &= ~FIELD_FLAG_EXIT_ROOM;
+    if (gNativeResult || gNativeReward || gNativeProgressReward || gNativeAssembly) gFieldState->flags &= ~FIELD_FLAG_EXIT_ROOM;
     if (gFieldState->flags & FIELD_FLAG_EXIT_ROOM) {
         if (gMapFloorState.room == 7 && gMapRoomState->doorRoom == TAC_WORLD_EXIT) {
             if (GetMapFloorRoom(7)->enemiesLeft == 0) {

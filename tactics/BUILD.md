@@ -891,3 +891,17 @@ including selection, enemy HP and windups; then completes all three worlds and
 Format-9 roster state: host save/rules tests and `roster-save-evidence/moves.txt`
 pass (11 native fixture checks). `tactics_field_legacy_save_test.c` also reads
 recorded format-8 native SRAM and verifies default roster migration.
+
+Round setup build (361b911c1) completes all three worlds with a mid-run
+suspend/reset: `assembly-suspend-full-run-evidence/traversal.txt`, PASS at
+96,493, 15 kills, 797 movement commands, Sora HP 80. Save/resume at 18,154/18,484.
+This predates encounter-clear reward gameplay and the font fix.
+
+Encounter progression and HUD: fourteen explicit native checks in
+`progress-power-verified-evidence/progress.txt` pass. Card attacks clear the
+second-new-encounter fixture, a reward opens, Donald alone receives power +1,
+and pending/confirmed state survives reset without duplicate grants. Upgraded
+magic previews and resolves 16 damage using the value-6 Fire card. Rendered HUD
+now keeps foreground F ink and excludes D shadow pixels, so numeric values stay
+distinct. The first power fixture expected the wrong card value and failed;
+`progress-power-evidence` is retained, then corrected expectations passed.

@@ -178,3 +178,12 @@ hero; A or Start confirms. Confirmation changes control without spending the
 hero's action. Combat and movement wait for confirmation. Resuming an active
 battle preserves it and skips setup. This is the initial starter-leader screen;
 custom roster deployment and recruitment remain unfinished.
+
+Every second newly cleared encounter offers a character reward, and room-7
+bosses always offer one. L/R chooses Sora, Donald or Goofy; Up/Down chooses
+POWER PLUS 1 or a personal Key/Fire/Cure sleight enhancement; A confirms. Power
+adds one to that hero's card damage. Sleight enhancements add four to matching
+sleight damage or healing. Each enhancement can be granted once per hero; power
+is capped at eight. Revisited cleared rooms cannot grant another reward.
+Pending rewards may be suspended with Start+Select. Finish the reward before
+leaving the room. Recruit-card rewards and custom roster deployment remain work.
