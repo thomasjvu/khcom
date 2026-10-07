@@ -138,6 +138,7 @@ s16 gNativeRouteCost;
 static s16 sCursorX, sCursorY;
 static u8 sPlayerPath[FIELD_ROUTE_CELLS];
 static u8 sPathIndex, sPathLength;
+static s32 sPathStartX, sPathStartY;
 static u8 sRoutePlayer;
 static u16 sClimbPreviewDirection;
 static FldPos sClimbPreviewPos;
@@ -1033,6 +1034,8 @@ static void NativePreviewInput(u16 pressed) {
     if ((pressed & A_BUTTON) && gNativeRouteCost > 0 && gNativeRouteCost <= gNativeMoveLeft) {
         sPathLength = gNativeRouteCost;
         sPathIndex = 0;
+        sPathStartX = gFieldState->actor.fieldPosition.x;
+        sPathStartY = gFieldState->actor.fieldPosition.y;
         gNativeMoveLeft -= sPathLength;
         gNativePreview = 0;
         gNativeBusy = 3;
@@ -1054,6 +1057,8 @@ static u16 NativeRouteWalk(void) {
     dy = target->y + target->z - actor->y - actor->z;
     if (NativeAbs(dx) <= 512 && NativeAbs(dy) <= 512) {
         sPathIndex++;
+        sPathStartX = actor->x;
+        sPathStartY = actor->y;
         sFrames = 0;
         gFieldState->actor.speed = 0;
         return 0;
@@ -1062,6 +1067,8 @@ static u16 NativeRouteWalk(void) {
         /* The original controller remains authoritative. A blocked route
          * stops safely and refunds segments that were never started. */
         gNativeMoveLeft += sPathLength - sPathIndex - 1;
+        if (NativeAbs(actor->x - sPathStartX) + NativeAbs(actor->y - sPathStartY) < (4 << 8))
+            gNativeMoveLeft++;
         gNativeBusy = 0;
         gFieldState->actor.speed = 0;
         return 0;

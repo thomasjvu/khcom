@@ -114,5 +114,21 @@ callbacks:add('frame',function()
   emu:setKeys(2)
  end
  if f==2034 then emu:setKeys(0) end
- if f==2070 then out:close() end
+ if f==2070 then
+  -- Explicit blocked-execution fixture: real native route controller times out.
+  local p=emu:read32(gFieldState)
+  local x=emu:read32(p+0x18);local y=emu:read32(p+0x1c)
+  for i=0,3 do emu:write32(sRoutePos+41*16+i*4,emu:read32(p+0x18+i*4)) end
+  emu:write32(sRoutePos+41*16,x+4096)
+  emu:write8(sPlayerPath,41);emu:write8(sPathIndex,0);emu:write8(sPathLength,1)
+  emu:write32(sPathStartX,x);emu:write32(sPathStartY,y);emu:write16(sFrames,0)
+  emu:write16(gNativeMoveLeft,0);emu:write16(gNativeBusy,3)
+  emu:write32(p+0x70,emu:read32(p+0x70)|4096)
+ end
+ if f==2190 then
+  check(emu:read16(gNativeBusy)==0,'frozen route times out and releases command gate')
+  check(emu:read16(gNativeMoveLeft)==1,'route that never starts refunds its first movement point')
+  local p=emu:read32(gFieldState);emu:write32(p+0x70,emu:read32(p+0x70)&~4096)
+  out:close()
+ end
 end)

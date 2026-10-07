@@ -676,3 +676,13 @@ with `ACT SPENT START TURN`, retaining higher-priority climb, charge, preview,
 reward, enemy-turn and terminal displays. The HUD smoke fixture now compares
 the complete prompt against original font glyph RAM; all 11 checks pass in
 `spent-action-hud-evidence/hud.txt`. ROM builds and diff checks pass.
+
+Route timeout refunds: native execution records each segment's starting
+position. On timeout it refunds the current movement point if horizontal
+progress is under four pixels, alongside all unstarted later segments. This
+matches the existing direct-step no-progress threshold.
+`route-refund-evidence/routes.txt` passes 29 checks: 27 normal input-only
+route checks plus an explicit frozen one-segment execution fixture verifying
+timeout releases the gate and refunds the point. The appended fixture writes
+route/controller state and is not input-only proof. Partial-progress timeout
+and dynamic-prop obstruction scenarios remain unverified. ROM builds.

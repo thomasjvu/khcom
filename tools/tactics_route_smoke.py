@@ -11,6 +11,6 @@ for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).spli
         names[words[2]] = int(words[0], 16)
 out = Path(a.output).resolve(); out.mkdir(parents=True, exist_ok=True)
 keys = ('gNativePreview', 'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft',
-        'gNativeBusy', 'gNativeCommands', 'gNativePartyHealth', 'gGameState', 'gFieldState', 'sRoutePos', 'sCursorX', 'sCursorY')
+        'gNativeBusy', 'gNativeCommands', 'gNativePartyHealth', 'gGameState', 'gFieldState', 'sRoutePos', 'sCursorX', 'sCursorY','sPathLength','sPathIndex','sFrames','sPathStartX','sPathStartY','sPlayerPath')
 header = ''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 (out / 'routes.lua').write_text(header + Path('tests/tactics_route_smoke.lua').read_text().replace('@OUTPUT@', str(out)))
