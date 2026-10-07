@@ -182,3 +182,15 @@ recruitment fixtures; it does not prove fresh-run Cloud recruitment. Earlier
 staging-buffer inspection failures remain recorded and were corrected to read
 the actual display. These UI checks belong to a newer ROM than packaged 0.21;
 that patch and its complete-run proof retain their original exact ROM hash.
+
+Donald now carries his eight-point healing specialty into party-healing
+sleights as well as single Cure. Seventeen native checks in
+`donald-healing-persistence-evidence` verify predicted/executed recovery,
+individual caps, Goofy revival, owned-Cure stacking, one-action resolution,
+first-card exhaustion, and exact healing/upgrade/deck persistence after reset.
+Health, cards, upgrades and enemy positions are explicit fixtures; deployment,
+stocking, execution and suspend/reset use native inputs. Sixteen Sora Curaga
+and melee recipe regression checks pass on the same ROM; the legacy recipe
+driver now confirms round assembly before stocking. Twenty-six rendered
+party-loadout checks also pass on this ROM. Full campaign evidence is recorded
+separately, with its exact ROM hash rather than inferred from focused checks.

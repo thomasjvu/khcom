@@ -2316,6 +2316,7 @@ u16 gNativeSleightDamage[6];
 u16 gNativeSleightHeal[3];
 static u16 NativeSleightRecovery(u8 member, int value, int recipe) {
     u16 amount = 12 + value + (recipe ? 8 : 0) +
+        (NativeHero(gNativeParty) == FIELD_DONALD ? 8 : 0) +
         (recipe && (gNativeRoster.sleights[NativeHero(gNativeParty)] & 4) ? 4 : 0);
     u16 missing = gNativePartyHealth.maxHp[member] - gNativePartyHealth.hp[member];
     return amount < missing ? amount : missing;

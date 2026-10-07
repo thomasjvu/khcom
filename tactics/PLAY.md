@@ -261,3 +261,9 @@ between rooms, or resuming a format-11 suspend. Older saves migrate with each
 hero facing up; attached stair saves retain their recorded climb direction.
 The 0.20 development patch includes per-hero facing persistence; the earlier
 0.19 patch predates it.
+
+Donald adds eight healing points to single Cure and party-healing sleights.
+His personal Cure recipe enhancement adds another four to matching three-Cure
+sleights. Recovery is capped separately at each hero's missing health, including
+revival of knocked-out companions. Original digits preview the exact recovery
+before the action and cards are spent.
