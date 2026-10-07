@@ -1,4 +1,5 @@
 local f=0
+local predicted=0
 local out=io.open('@OUTPUT@/sleights.txt','w')
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 callbacks:add('frame',function()
@@ -21,9 +22,14 @@ callbacks:add('frame',function()
    local e=emu:read32(t+4)
    for j=0,3 do emu:write32(e+8+j*4,emu:read32(p+0x18+j*4)) end
   end
-  emu:setKeys(1)
  end
- if f==584 then emu:setKeys(0) end
+ if f==590 then
+  predicted=emu:read16(gNativeSleightDamage)
+  check(predicted>0 and predicted==emu:read16(gNativeEnemyHp),
+    'sleight preview caps damage at nearby enemy HP')
+  emu:screenshot('@OUTPUT@/area-preview.png');emu:setKeys(1)
+ end
+ if f==594 then emu:setKeys(0) end
  if f==620 then
   check(emu:read16(gNativeSleights)==1,'A resolves stocked sleight in native field')
   check(emu:read32(gNativeKills)>=1,'melee sleight damages nearby original field enemy')

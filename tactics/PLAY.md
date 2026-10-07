@@ -144,3 +144,7 @@ transient and resets on room entry or resume.
 Cure projects original value digits above its chosen recipient to show actual
 HP recovery, capped at missing HP. Donald’s casting bonus is included. A
 full-health target shows zero; a knocked-out target shows revival HP.
+
+With three cards stocked, attack sleights project damage digits above each
+enemy they will hit. The preview uses the attack’s area and height limits and
+caps displayed damage at the enemy’s remaining HP.

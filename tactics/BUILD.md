@@ -579,3 +579,12 @@ separate differing drivers from differing binaries and does not prove replay
 determinism. Current route-regression full-run evidence is being collected in
 `swept-route-full-run-evidence` for ROM SHA-256
 `404bb62955d9090a7e39145be51fa2054062e2cd8be3ef05e5fb7476683ef7b1`.
+
+Attack sleight area preview: native attack and preview now share range/height
+eligibility and power calculations. Original digits show capped damage above
+each eligible enemy; the preview is suppressed while busy, in enemy phases,
+reward choices, route previews and terminal states.
+`sleight-area-evidence/sleights.txt` passes 14 checks, including capped preview
+on an explicitly positioned enemy and actual native resolution afterward.
+This fixture covers the basic melee sleight; separate Fire-area boundary and
+multiple-target scenarios remain needed. The 0.15 patch remains unchanged.

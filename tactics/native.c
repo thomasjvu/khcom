@@ -1277,12 +1277,46 @@ static void NativeCure(void) {
     gGameState.hp = gNativePartyHealth.hp[gNativeParty];
 }
 
+u16 gNativeSleightDamage[6];
+static int NativeSleightHits(u8 slot, int kind) {
+    MapEnmWork* work = sEnemyTasks[slot]->work;
+    return NativeAbs(work->obj.fieldPosition.x - gFieldState->actor.fieldPosition.x) +
+        NativeAbs(work->obj.fieldPosition.y - gFieldState->actor.fieldPosition.y) <=
+        ((kind == FIELD_CARD_FIRE ? 144 : 64) << 8) &&
+        NativeAbs(work->obj.fieldPosition.z - gFieldState->actor.fieldPosition.z) <= (24 << 8);
+}
+static u16 NativeSleightPower(int kind, int value) {
+    return 8 + value + (gNativeParty == 1 && kind == FIELD_CARD_FIRE ? 4 : 0);
+}
+static void NativeSleightIntentDraw(void) {
+    int kind, value;
+    u8 i;
+    u16 damage;
+    s16 x, y;
+    MapEnmWork* work;
+    for (i = 0; i < 6; i++) gNativeSleightDamage[i] = 0;
+    if (gNativeResult || gNativeEnemyFrames || gNativeBusy || gNativePreview || gNativeReward ||
+        !gNativeActionLeft || !FieldDeckSleightPreview(&gNativeDeck, &kind, &value) ||
+        kind == FIELD_CARD_CURE || kind == FIELD_CARD_GUARD) return;
+    for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeSleightHits(i, kind)) {
+        damage = NativeSleightPower(kind, value);
+        if (value && value < 3 + gNativeFloor) damage = 0;
+        if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
+        gNativeSleightDamage[i] = damage;
+        if (!sValueTiles || !sValuePalette) continue;
+        work = sEnemyTasks[i]->work;
+        x = (work->obj.fieldPosition.x - gFieldState->x) >> 8;
+        y = ((work->obj.fieldPosition.y + work->obj.fieldPosition.z - gFieldState->y) >> 8) - 28;
+        if (damage >= 10) DrawSprite(x - 6, y, gCardValueDigitFrames[damage / 10],
+            sValueTiles, sValuePalette, NULL, 0, 0);
+        DrawSprite(x + 2, y, gCardValueDigitFrames[damage % 10],
+            sValueTiles, sValuePalette, NULL, 0, 0);
+    }
+}
 u16 gNativeSleights;
 static void NativeSleight(void) {
     int kind, value;
     u8 i;
-    MapEnmWork* work;
-    s32 distance, height;
     if (!FieldDeckSleight(&gNativeDeck, &kind, &value)) return;
     sPlayedValue = value;
     NativePartyPose(gNativeParty);
@@ -1291,14 +1325,8 @@ static void NativeSleight(void) {
         gGameState.hp = gNativePartyHealth.hp[gNativeParty];
     } else if (kind == FIELD_CARD_GUARD) gNativeGuard = 2;
     else {
-        for (i = 0; i < 6; i++) if (sEnemyTasks[i]) {
-            work = sEnemyTasks[i]->work;
-            distance = NativeAbs(work->obj.fieldPosition.x - gFieldState->actor.fieldPosition.x) +
-                NativeAbs(work->obj.fieldPosition.y - gFieldState->actor.fieldPosition.y);
-            height = NativeAbs(work->obj.fieldPosition.z - gFieldState->actor.fieldPosition.z);
-            if (distance <= ((kind == FIELD_CARD_FIRE ? 144 : 64) << 8) && height <= (24 << 8))
-                NativeDamageEnemy(sEnemyTasks[i], 8 + value + (gNativeParty == 1 && kind == FIELD_CARD_FIRE ? 4 : 0));
-        }
+        for (i = 0; i < 6; i++) if (sEnemyTasks[i] && NativeSleightHits(i, kind))
+            NativeDamageEnemy(sEnemyTasks[i], NativeSleightPower(kind, value));
     }
     gNativeSleights++;
     gNativeActionLeft = 0;
@@ -1571,6 +1599,7 @@ static void NativeUpdate(void) {
     NativePartyDraw();
     NativeIntentDraw();
     NativeCardIntentDraw();
+    NativeSleightIntentDraw();
     NativePreviewDraw();
     NativeHud();
     if (gNativeBusy) sFrames++;
