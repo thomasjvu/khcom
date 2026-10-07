@@ -231,3 +231,8 @@ On the ground, R + D-pad faces the active character in any of eight directions
 without moving or spending movement/action points. It preserves the selected
 card. Cancel a movement preview with B before facing. Use this to aim Sora's
 Keyblade at a chest or nearby enemy without walking past it.
+
+Current source preserves each hero's facing when switching, benching, traveling
+between rooms, or resuming a format-11 suspend. Older saves migrate with each
+hero facing up; attached stair saves retain their recorded climb direction.
+The packaged 0.19 development patch predates per-hero facing persistence.

@@ -292,7 +292,7 @@ local function replayFrame()
    suspendSnapshot={}
    for i=0,2 do suspendSnapshot[i+1]=emu:read8(gNativePartyHealth+i) end
    suspendSnapshot.roster={}
-   for i=0,28 do suspendSnapshot.roster[i]=emu:read8(gNativeRoster+i) end
+   for i=0,32 do suspendSnapshot.roster[i]=emu:read8(gNativeRoster+i) end
    suspendSnapshot.party=emu:read16(gNativeParty)
    suspendSnapshot.positions={};suspendSnapshot.enemies={};suspendSnapshot.charges={}
    for i=0,11 do suspendSnapshot.positions[i]=emu:read32(sPartyPos+i*4) end
@@ -315,7 +315,7 @@ local function replayFrame()
     emu:read16(gNativeActionLeft)==suspendSnapshot.action and emu:read16(gNativeGuard)==suspendSnapshot.guard
    for i=0,2 do matches=matches and emu:read8(gNativePartyHealth+i)==suspendSnapshot[i+1] end
    for i=0,73 do matches=matches and emu:read8(gNativeDeck+i)==suspendSnapshot.deck[i] end
-   for i=0,28 do matches=matches and emu:read8(gNativeRoster+i)==suspendSnapshot.roster[i] end
+   for i=0,32 do matches=matches and emu:read8(gNativeRoster+i)==suspendSnapshot.roster[i] end
    matches=matches and emu:read16(gNativeParty)==suspendSnapshot.party
    for i=0,11 do matches=matches and emu:read32(sPartyPos+i*4)==suspendSnapshot.positions[i] end
    for i=0,5 do matches=matches and emu:read16(gNativeEnemyHp+i*2)==suspendSnapshot.enemies[i] and emu:read8(gNativeEnemyCharge+i)==suspendSnapshot.charges[i] end

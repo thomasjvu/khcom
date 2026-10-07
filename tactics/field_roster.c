@@ -3,7 +3,7 @@ int FieldHeroMaxHp(int hero) {return hero==0?80:hero==1?56:hero==2||hero==3?72:0
 void FieldRosterInit(FieldRoster* r) {
     int i;r->unlocked=7;r->cleared=0;r->phase=FIELD_ASSEMBLY;r->reward=0;r->room=0;
     for(i=0;i<3;i++)r->deployed[i]=i;
-    for(i=0;i<FIELD_HEROES;i++){r->power[i]=0;r->sleights[i]=0;r->heroHp[i]=FieldHeroMaxHp(i);r->heroMove[i]=3;r->heroAction[i]=1;}
+    for(i=0;i<FIELD_HEROES;i++){r->power[i]=0;r->sleights[i]=0;r->heroHp[i]=FieldHeroMaxHp(i);r->heroMove[i]=3;r->heroAction[i]=1;r->heroAngle[i]=0;}
 }
 int FieldRosterValid(const FieldRoster* r) {
     int i,j;

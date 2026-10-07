@@ -153,6 +153,7 @@ static const u32 sReachGraphic[8] = {0x000cc000,0x00c00c00,0x0c0000c0,0xc000000c
 static FldPos sPartyPos[3];
 static u16 sPartyMove[3], sPartyAction[3];
 static u16 sCarryMove[3], sCarryAction[3];
+static u8 sPartyAngle[3], sCarryAngle[3];
 static u8 sCarryTurn, sCarryParty, sCarryGuard;
 u16 gNativeParty;
 FieldParty gNativePartyHealth;
@@ -527,9 +528,11 @@ static void NativeCarryTurn(void) {
     u8 i;
     sPartyMove[gNativeParty] = gNativeMoveLeft;
     sPartyAction[gNativeParty] = gNativeActionLeft;
+    sPartyAngle[gNativeParty] = gFieldState->actor.angle;
     for (i = 0; i < 3; i++) {
         sCarryMove[i] = sPartyMove[i];
         sCarryAction[i] = sPartyAction[i];
+        sCarryAngle[i] = sPartyAngle[i];
     }
     sCarryParty = gNativeParty;
     sCarryGuard = gNativeGuard;
@@ -541,6 +544,7 @@ static void NativeRosterSync(void) {
         gNativeRoster.heroHp[NativeHero(i)] = gNativePartyHealth.hp[i];
         gNativeRoster.heroMove[NativeHero(i)] = i == gNativeParty ? gNativeMoveLeft : sPartyMove[i];
         gNativeRoster.heroAction[NativeHero(i)] = i == gNativeParty ? gNativeActionLeft : sPartyAction[i];
+        gNativeRoster.heroAngle[NativeHero(i)] = i == gNativeParty ? gFieldState->actor.angle : sPartyAngle[i];
     }
 }
 static void NativeRosterHealth(void) {
@@ -550,6 +554,7 @@ static void NativeRosterHealth(void) {
         gNativePartyHealth.hp[i] = gNativeRoster.heroHp[NativeHero(i)];
         sPartyMove[i] = gNativeRoster.heroMove[NativeHero(i)];
         sPartyAction[i] = gNativeRoster.heroAction[NativeHero(i)];
+        sPartyAngle[i] = gNativeRoster.heroAngle[NativeHero(i)];
     }
     gGameState.hp = gNativePartyHealth.hp[gNativeParty];
     gNativeMoveLeft = sPartyMove[gNativeParty];gNativeActionLeft = sPartyAction[gNativeParty];
@@ -596,6 +601,7 @@ static void NativePartyInit(void) {
         sPartyPos[i] = gFieldState->actor.fieldPosition;
         sPartyMove[i] = 3;
         sPartyAction[i] = 1;
+        sPartyAngle[i] = gNativeRoster.heroAngle[NativeHero(i)];
     }
     for (i = 0; i < 4; i++) {
         sCards[i] = NULL;
@@ -618,6 +624,7 @@ static void NativePartyInit(void) {
     sValueTiles = LoadObjTiles(gCardValueDigitTiles, 0x1e0);
     sValuePalette = LoadObjPalette(gCard00Palette, 32);
     gNativeParty = 0;
+    gFieldState->actor.angle = sPartyAngle[0];
     gGameState.hp = gNativePartyHealth.hp[0];
     gNativeGuard = 0;
 }
@@ -633,6 +640,7 @@ static void NativePartySelect(void) {
     sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
     sPartyMove[gNativeParty] = gNativeMoveLeft;
     sPartyAction[gNativeParty] = gNativeActionLeft;
+    sPartyAngle[gNativeParty] = gFieldState->actor.angle;
     gNativeParty = FieldPartyNext(&gNativePartyHealth, gNativeParty);
     if (player->state != FLD_STATE_GROUND) {
         player->state = FLD_STATE_GROUND;
@@ -642,6 +650,7 @@ static void NativePartySelect(void) {
     }
     gGameState.hp = gNativePartyHealth.hp[gNativeParty];
     gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
+    gFieldState->actor.angle = sPartyAngle[gNativeParty];
     gFieldState->actor.speed = 0;
     gNativeMoveLeft = sPartyMove[gNativeParty];
     gNativeActionLeft = sPartyAction[gNativeParty];
@@ -732,6 +741,7 @@ static void NativeAssemblyCycle(int direction) {
     }
     if (FieldRosterDeploy(&gNativeRoster, sAssemblyChoice, hero)) {
         NativeRosterHealth();
+        gFieldState->actor.angle = sPartyAngle[gNativeParty];
         if (!gNativePartyHealth.hp[gNativeParty]) NativePartySelect();
         NativeFriendsReload();NativeAssemblyCards();
     }
@@ -1412,8 +1422,10 @@ static void NativeInit(s32 arg) {
         for (i = 0; i < 3; i++) {
             sPartyMove[i] = sCarryMove[i];
             sPartyAction[i] = sCarryAction[i];
+            sPartyAngle[i] = sCarryAngle[i];
         }
         gNativeParty = sCarryParty;
+        gFieldState->actor.angle = sPartyAngle[gNativeParty];
         gNativeGuard = sCarryGuard;
         if (gNativeGuard == 2) NativeGuardPose();
         gGameState.hp = gNativePartyHealth.hp[gNativeParty];
@@ -1428,8 +1440,10 @@ static void NativeInit(s32 arg) {
             for (j = 0; j < 4; j++) ((s32*)&sPartyPos[i])[j] = sSuspend.partyPos[i][j];
             sPartyMove[i] = sSuspend.move[i];
             sPartyAction[i] = sSuspend.action[i];
+            sPartyAngle[i] = gNativeRoster.heroAngle[NativeHero(i)];
         }
         gNativeParty = sSuspend.party;
+        gFieldState->actor.angle = sPartyAngle[gNativeParty];
         gGameState.hp = gNativePartyHealth.hp[gNativeParty];
         gNativeGuard = sSuspend.guard;
         if (gNativeGuard == 2) NativeGuardPose();

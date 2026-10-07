@@ -5,7 +5,8 @@ import json
 import subprocess
 from pathlib import Path
 p=argparse.ArgumentParser()
-p.add_argument('elf');p.add_argument('output');p.add_argument('--crossings',action='store_true');p.add_argument('--facing',action='store_true');p.add_argument('--party',type=int,choices=range(3),default=0);a=p.parse_args()
+p.add_argument('elf');p.add_argument('output');p.add_argument('--crossings',action='store_true');p.add_argument('--facing',action='store_true');p.add_argument('--facing-persistence',action='store_true');p.add_argument('--party',type=int,choices=range(3),default=0);a=p.parse_args()
+if a.facing_persistence:a.facing=True
 if a.crossings and a.facing:p.error('select one fixture mode')
 if a.party and not a.facing:p.error('--party requires --facing')
 names={}
@@ -20,7 +21,7 @@ keys=('gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
  'sValueTiles','sValuePalette','sCardTiles','sCardPalettes')
 header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 header+=f'local testParty={a.party}\n'
-script=header+Path('tests/tactics_facing_smoke.lua' if a.facing else 'tests/tactics_actor_crossing_smoke.lua' if a.crossings else 'tests/tactics_reach_overlay_smoke.lua').read_text().replace('@OUTPUT@',str(out))
+script=header+Path('tests/tactics_facing_persistence_smoke.lua' if a.facing_persistence else 'tests/tactics_facing_smoke.lua' if a.facing else 'tests/tactics_actor_crossing_smoke.lua' if a.crossings else 'tests/tactics_reach_overlay_smoke.lua').read_text().replace('@OUTPUT@',str(out))
 rom=Path(a.elf).resolve().with_suffix('.gba')
 if not rom.is_file():p.error('matching built ROM required beside ELF')
 (out/'boss.lua').write_text(script)
@@ -31,7 +32,7 @@ if not rom.is_file():p.error('matching built ROM required beside ELF')
  'driver_logic_sha256':hashlib.sha256(script.replace(str(out),'@OUTPUT@').encode()).hexdigest(),
  'explicit_memory_fixtures':not a.facing,
  'input_only':a.facing,
- 'expected_checks':33 if a.facing else 9 if a.crossings else 8,
+ 'expected_checks':8 if a.facing_persistence else 33 if a.facing else 9 if a.crossings else 8,
  'party':a.party if a.facing else None,
  'result':'not yet observed; inspect boss.txt'
 },indent=2)+'\n')

@@ -98,3 +98,15 @@ room-generation guarantee.
   The local 0.18 development BPS includes party assembly, recruitment and
   world recovery, with byte-exact apply verification and an exact-ROM successful
   Cloud-route replay. Full release readiness remains unproven.
+
+Current source stores per-hero facing in suspend format 11, preserving direction
+when switching or benching a character. Eight input-only switching/resume checks
+pass (`hero-facing-save-evidence`). The corrected Cloud fixture passes eighteen
+checks, including actual bench identity and Donald health/action/facing after
+resume (`cloud-bench-facing-evidence`). The older sixteen-check fixture had
+Donald deployed again and did not prove its claimed bench-specific behavior.
+Recorded format-10 saves migrate with default facing and byte-exact format-11
+re-encoding; a recorded format-9 save still decodes. Format-8 support is retained
+in the decoder. A full Cloud-route regression is pending in
+`hero-facing-cloud-full-run-evidence`. The packaged 0.19 BPS uses format 10 and
+predates this direction-persistence change.
