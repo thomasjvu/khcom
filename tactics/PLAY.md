@@ -162,3 +162,7 @@ card is still exhausted and the action cost remains one.
 
 Cure and Curaga sleights preview capped healing above all three party
 positions, including revival HP for knocked-out friends.
+
+When the active member has spent their action, the HUD says ACT SPENT START
+TURN. Start ends the party turn; you may still use remaining movement or
+switch to another available member before doing so.

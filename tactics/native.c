@@ -718,6 +718,9 @@ static void NativeHud(void) {
                 recipe == 3 ? "CURAGA A PLAY" : recipe == 4 ? "AEGIS A PLAY" : "A SLEIGHT L B CANCEL");
         }
     } else NativeLabel(0, 24, gNativeDeck.stocked ? stock : threat);
+    if (!gNativeReward && !gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
+        !gNativeClimbing && !charging && !gNativeActionLeft)
+        NativeLabel(0, 8, "ACT SPENT START TURN");
     if (gNativeReward) {
         NativeLabel(0, 8, gNativeDeck.count < FIELD_DECK_MAX ? "CHEST CHOOSE L R A" : "DECK FULL A HEAL");
         NativeLabel(0, 24, "PARTY HEAL 12");

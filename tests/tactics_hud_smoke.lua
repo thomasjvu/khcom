@@ -37,6 +37,22 @@ callbacks:add('frame',function()
   check(digit(18,3,true) and digit(19,7,true),'active HP change reaches VRAM')
   check(digit(134,1,false) and digit(135,4,false),'Donald HP change updates party footer')
   check(digit(138,0,false) and digit(139,0,false),'knocked-out Goofy shows zero HP')
-  emu:screenshot('@OUTPUT@/changed.png');out:close()
+  emu:screenshot('@OUTPUT@/changed.png');emu:write16(gNativeActionLeft,0)
+ end
+ if f==300 then
+  local text='ACT SPENT START TURN'
+  local matches=true
+  local base=emu:read32(sHudTiles)
+  for column=1,#text do
+   local ch=text:sub(column,column)
+   local glyph=ch==' ' and 0 or string.byte(ch)-string.byte('A')+0x60
+   for row=0,7 do
+    local source=emu:read32(gDebugFont0Tiles+glyph*32+row*4)
+    local pixels=(source|(source>>1)|(source>>2)|(source>>3))&0x11111111
+    matches=matches and emu:read32(base+(32+column)*32+row*4)==(0x11111111|(pixels<<1))
+   end
+  end
+  check(matches,'spent action replaces play prompt with Start turn guidance')
+  emu:screenshot('@OUTPUT@/spent-action.png');out:close()
  end
 end)

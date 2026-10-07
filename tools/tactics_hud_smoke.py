@@ -7,6 +7,6 @@ for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitl
  v=line.split()
  if len(v)==3:symbols[v[2]]=int(v[0],16)
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
-keys=('gGameState','gNativePartyHealth','sHudTiles','gDebugFont0Tiles','gModeVBlankCallback','sHudPending')
+keys=('gGameState','gNativePartyHealth','sHudTiles','gDebugFont0Tiles','gModeVBlankCallback','sHudPending','gNativeActionLeft')
 header=''.join(f'local {k}=0x{symbols[k]:08x}\n' for k in keys)
 (out/'hud.lua').write_text(header+Path('tests/tactics_hud_smoke.lua').read_text().replace('@OUTPUT@',str(out)))

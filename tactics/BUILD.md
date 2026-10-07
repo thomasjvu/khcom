@@ -670,3 +670,9 @@ the first card and clears stock. Card setup and post-reset enemy placement
 are explicit fixtures; stocking, save and attack use native input. Recipe
 identity is derived from the persisted deck, so no save-format change is
 required. This verifies enhanced recipe persistence, not full-run reset QA.
+
+Spent-action guidance: the native HUD replaces unavailable play/sleight prompts
+with `ACT SPENT START TURN`, retaining higher-priority climb, charge, preview,
+reward, enemy-turn and terminal displays. The HUD smoke fixture now compares
+the complete prompt against original font glyph RAM; all 11 checks pass in
+`spent-action-hud-evidence/hud.txt`. ROM builds and diff checks pass.
