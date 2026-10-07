@@ -775,3 +775,21 @@ Oblivion room 0 at frame 59,050, with 11 kills/518 commands. Earlier arrival in
 the second trace is not proof of better combat performance. Both metadata files
 record their terminal log result. The latest source still lacks a verified
 complete-run victory; party deployment/recovery and card-use policy need work.
+
+Guard Armor's replacement draw callback now draws its original child task pool
+after setting the ground shadow position/priority, restoring original shadow
+and spark rendering. Native enemy maintenance updates child visual tasks while
+the original parent AI remains frozen. This also lets ordinary field hit sparks
+advance and release their resources instead of retaining frozen child effects.
+When nonlethal card damage crosses an armor phase, an original `MapSpark` effect
+is created once for that attack. Resume derives the phase from HP without
+replaying the break effect. Child task capacity bounds effect creation.
+
+`guard-armor-effect-turn-evidence/boss.txt` passes 37 checks. Added cases verify
+a native Fire threshold crossing starts a visible original spark, its child
+task expires, it is not emitted again during idle rendering, and visual updates
+do not advance the authoritative enemy-turn counter. The existing 33 asset,
+phase, range/height, damage and suspend checks also pass. Screenshot inspection
+confirms the original yellow spark against the multipart boss. ROM build,
+host checks and diff checks pass. This is focused visual/phase evidence, not
+full-run victory or broader seed/hardware certification.

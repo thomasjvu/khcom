@@ -57,6 +57,7 @@ extern void ColliderUpdateAll();
 extern void* ColliderGetPool(u32 type);
 extern void ColliderSetDisabled(Collider* collider, u8 disabled);
 extern TaskDesc gTaskDescMapGmkDmy;
+extern TaskDesc gTaskDescMapSpark;
 
 /* Public diagnostic state for emulator replay. */
 u32 gNativeCommands;
@@ -175,6 +176,7 @@ static u16 sArmorImpact;
 extern u8 gNativeEnemyCharge[6];
 extern u16 gNativeEnemyHp[6];
 u16 gNativeBossPhase;
+u16 gNativeBossBreaks, gNativeBossEffects;
 static u8 NativeArmorAnimId(u8 part, u8 pose) {
     if (!pose) return 0;
     if (part == 0) return 2;
@@ -215,9 +217,9 @@ static void NativeArmorDraw(void* arg) {
         DrawSprite(x + dx[i], y + dy[i] + offset, AnimUpdate(&sArmorAnim[i]),
             sArmorTiles[i], sArmorPalette, NULL, 0x800, priority);
     }
-    if (sPartyShadowTiles && sPartyShadowPalette)
-        DrawSprite(x, (work->obj.fieldPosition.y + work->obj.fieldPosition.ground - gFieldState->y) >> 8,
-            gBtlShadowFrames[0], sPartyShadowTiles, sPartyShadowPalette, NULL, 0x800, priority + 1);
+    work->obj.shadowZ = work->obj.fieldPosition.ground;
+    work->obj.shadowPriority = priority + 1;
+    TaskPoolDraw(&work->tasks);
 }
 static void NativeArmorInit(void) {
     u8 i, pose;
@@ -228,6 +230,7 @@ static void NativeArmorInit(void) {
     gNativeBossAllocation = 0;
     gNativeBossPose = sArmorImpact = 0;
     gNativeBossPhase = 0;
+    gNativeBossBreaks = gNativeBossEffects = 0;
     sArmorPalette = NULL;
     for (i = 0; i < 7; i++) sArmorTiles[i] = NULL;
     if (gNativeFloor || gMapFloorState.room != 7 || !sEnemyTasks[0]) return;
@@ -999,7 +1002,14 @@ static void NativeDamageEnemy(Task* task, u16 damage) {
             gNativeBreaks++;
             return;
         }
-        if (damage < gNativeEnemyHp[i]) {gNativeEnemyHp[i] -= damage;return;}
+        if (damage < gNativeEnemyHp[i]) {
+            u8 phase = FieldArmorPhase(gNativeEnemyHp[i]);
+            MapEnmWork* work = task->work;
+            gNativeEnemyHp[i] -= damage;
+            if (task->desc == &sArmorTaskDesc && FieldArmorPhase(gNativeEnemyHp[i]) > phase)
+                if (TaskCreate(&work->tasks, &gTaskDescMapSpark, &work->obj)) gNativeBossBreaks++;
+            return;
+        }
         gNativeEnemyHp[i] = 0;
         sEnemyTasks[i] = NULL;
         ((MapEnmWork*)task->work)->flags |= MAP_ENM_FLAG_REMOVED;
@@ -1293,10 +1303,22 @@ static void NativeEnemies(void) {
     ListNode* next;
     Task* task;
     MapEnmWork* work;
+    ListNode* effect;
+    gNativeBossEffects = 0;
     while (node != NULL) {
         next = node->next;
         task = node->owner;
         work = task->work;
+        /* Child tasks own only shadows and visual sparks. Advance those
+         * while keeping the parent enemy's real-time AI frozen. */
+        TaskPoolUpdate(&work->tasks);
+        if (task->desc == &sArmorTaskDesc) {
+            effect = work->tasks.head.activeHead;
+            while (effect) {
+                if (((Task*)effect->owner)->desc == &gTaskDescMapSpark) gNativeBossEffects++;
+                effect = effect->next;
+            }
+        }
         if (!(work->flags & 0x8000)) {
             work->flags |= 0x8000;
             if (task->desc != &sArmorTaskDesc) MapEnmSetAnim(work, 1, 1);

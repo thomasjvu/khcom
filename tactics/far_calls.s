@@ -758,3 +758,21 @@ TacFar_GetSpriteTileBytes:
  bx r3
 .balign 4
 1: .word GetSpriteTileBytes + 1
+
+.balign 4
+.global TacFar_TaskPoolDraw
+.thumb_func
+TacFar_TaskPoolDraw:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word TaskPoolDraw + 1
+
+.balign 4
+.global TacFar_TaskPoolUpdate
+.thumb_func
+TacFar_TaskPoolUpdate:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word TaskPoolUpdate + 1

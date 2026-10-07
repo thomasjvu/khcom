@@ -10,7 +10,7 @@ for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitl
     if len(parts)==3:names[parts[2]]=int(parts[0],16)
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
 keys=('gFieldState','gMapRoomState','gMapFloorState','gNativeBossReady',
-      'sCardTiles','sCardPalettes','sValueTiles','sValuePalette','gNativeEnemyHp','gNativeBossPhase','gNativeBossPose','gNativeBossAllocation','sArmorTiles','sArmorPalette','sEnemyTasks','gNativeEnemyCharge',
+      'sCardTiles','sCardPalettes','sValueTiles','sValuePalette','gNativeBossBreaks','gNativeBossEffects','gNativeTurn','gNativeEnemyHp','gNativeBossPhase','gNativeBossPose','gNativeBossAllocation','sArmorTiles','sArmorPalette','sEnemyTasks','gNativeEnemyCharge',
       'gNativeThreats','gNativePartyHealth','sPartyPos','gNativeSaveNotice')
 header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 (out/'boss.lua').write_text(header+Path('tests/tactics_guard_armor_smoke.lua').read_text().replace('@OUTPUT@',str(out)))

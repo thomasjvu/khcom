@@ -1,4 +1,5 @@
 local f=0
+local breakTurn=0
 local out=io.open('@OUTPUT@/boss.txt','w')
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 local function place(distance,height)
@@ -101,9 +102,16 @@ callbacks:add('frame',function()
   emu:write16(gNativeEnemyHp,27);place(64,0);emu:setKeys(256)
  end
  if f==1124 then emu:setKeys(0) end
- if f==1140 then emu:setKeys(1) end
+ if f==1140 then breakTurn=emu:read16(gNativeTurn);emu:setKeys(1) end
  if f==1144 then emu:setKeys(0) end
+ if f==1150 then
+  check(emu:read16(gNativeBossBreaks)==1 and emu:read16(gNativeBossEffects)==1,'native Fire breaking armor starts original spark effect')
+  emu:screenshot('@OUTPUT@/armor-break-spark.png')
+ end
  if f==1180 then
+  check(emu:read16(gNativeBossEffects)==0,'original break spark expires while enemy AI remains frozen')
+  check(emu:read16(gNativeTurn)==breakTurn,'visual spark updates do not advance authoritative enemy decisions')
+  check(emu:read16(gNativeBossBreaks)==1,'break spark is emitted once per threshold crossing')
   check(emu:read16(gNativeEnemyHp)==15,'native Fire crosses the first armor-break threshold')
   check(emu:read16(gNativeBossPhase)==1,'card damage changes the rendered armor phase')
   emu:write16(gNativeEnemyHp,26);place(64,0)
