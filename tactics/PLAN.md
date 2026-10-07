@@ -218,3 +218,19 @@ native Keyblade interaction with this particular pillar, then integrate prop
 interaction into navigation and repeat campaign coverage. Do not erase native
 props or increase replay bounds solely to bypass the failure. Diagnostic ROM
 copies were removed after disk exhaustion; saves, logs and snapshots remain.
+
+### Static pillar identity correction
+
+The large radius32/height32 Castle pillar is a gTaskDescMapGmk00 static
+prop, not the smaller gTaskDescMapGmkGP01 breakable decoration. The earlier
+suggestion that its collider could be removed by native Keyblade attack was
+incorrect. `castle-static-pillar-evidence` passes seven native fixture checks:
+identifies the original task at the recorded collider position, faces Sora by
+controller input, attacks with an available Keyblade, and verifies that the
+pillar stays solid while the card and action are spent. The approach, saved
+room, card hand and absent enemies are explicit fixtures. This demonstrates
+interaction behavior only, not campaign or complete physical navigation.
+The preceding six-check attack attempt expected destruction and failed that
+assertion; its log remains preserved. Further work must test native climbing
+onto/over the prop or validate placement so solid scenery preserves a physical
+route. Breaking the smaller decoration is not a fix for this obstruction.
