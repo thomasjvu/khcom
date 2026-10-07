@@ -62,8 +62,12 @@ not balanced companion survival or a Cloud-led combat strategy.
 World transitions now rest all recruited heroes, including the bench: full
 health, revival, three movement points and one action. Rest preserves identities,
 recruitment and upgrades, requires assembly phase, and does not occur on ordinary
-room travel. Host checks and native build pass; a new Cloud-route full-run replay
-is in progress in `world-rest-cloud-full-run-evidence`.
+room travel. Host checks and native build pass. A fresh input-only Cloud-route replay
+verifies suspend/reset and full deployed HP (80,72,72) at both later world
+entries. It wins at frame 93534 with Sora HP80 and reaches stable PASS at
+93654: 15 kills, 769 movement commands. Evidence:
+`world-rest-cloud-full-run-evidence`. A two-run replay using native retry to
+advance the seed is in progress in `two-seed-rest-cloud-evidence`.
 
 ## Remaining scope
 

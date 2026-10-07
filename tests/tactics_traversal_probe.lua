@@ -17,6 +17,7 @@ local cloudDeployed=false
 local previousRoom=0
 local previousWorld=0
 local victoryFrame=nil
+local completedRuns=0
 local victoryHealth=nil
 local function signed(v) if v>=2147483648 then return v-4294967296 end return v end
 local function pos()
@@ -206,7 +207,18 @@ local function replayFrame()
    out:write('VICTORY frame='..f..' hp='..victoryHealth..'\n');out:flush()
   end
   if f-victoryFrame>=120 then
-   finish(world==3 and emu:read8(gNativePartyHealth)==victoryHealth and (not recruitCloud or (cloudRecruited and cloudDeployed)),'completed three worlds; terminal floor and Sora HP remain stable for 120 frames')
+   local valid=world==3 and emu:read8(gNativePartyHealth)==victoryHealth and (not recruitCloud or (cloudRecruited and cloudDeployed))
+   if not valid then finish(false,'terminal state or required recruitment changed');return end
+   completedRuns=completedRuns+1
+   out:write('RUN COMPLETE '..completedRuns..' frame='..f..'\n');out:flush()
+   if completedRuns<(goalRuns or 1) then
+    emu:setKeys(4)
+    victoryFrame=nil;victoryHealth=nil;cloudRecruited=false;cloudDeployed=false
+    previousWorld=0;previousRoom=-1;suspendStage=0
+    terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+120
+   else
+    finish(true,'completed '..completedRuns..' three-world runs; terminal floor and Sora HP remain stable for 120 frames')
+   end
   end
   return
  end
