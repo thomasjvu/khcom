@@ -32,7 +32,7 @@ void TacWorldGenerate(struct TacWorld* world, unsigned int seed, unsigned char f
             room->depthMax = 12;
         }
         room->enemies = room->chest ? 0 : (unsigned char)(2 + (floor != 0));
-        if (floor <= 1 && i == 7) room->enemies = 1;
+        if (i == 7) room->enemies = 1;
     }
     for (i = 0; i < 7; i++) Link(world, i, 1, i+1);
     /* Seed selects which side the optional loops occupy. */

@@ -24,6 +24,7 @@
 #include "sprites_btl.h"
 #include "sprites_sora.h"
 #include "sprites_room.h"
+#include "sprites_hum.h"
 #include "task_descriptors.h"
 #include "battle_actor.h"
 #include "sprite_palettes.h"
@@ -173,6 +174,68 @@ static ObjPalette* sArmorPalette;
 static TaskDesc sArmorTaskDesc;
 extern u8 gNativeEnemyCharge[6];
 extern u8 gNativeEnemyKind[6];
+static TaskDesc sMarlTaskDesc;
+static AnimState sMarlAnim;
+static void* sMarlTiles;
+static ObjPalette* sMarlPalette;
+static u16 sMarlImpact;
+u16 gNativeMarlReady, gNativeMarlPose;
+static const AnimDef sMarlDefs[3] = {
+    {gMaruxhaIdleFrames,gMaruxhaIdleAnims,gMaruxhaIdleTiles,0},
+    {gMaruxhaAtk4Frames,gMaruxhaAtk4Anims,gMaruxhaAtk4Tiles,1},
+    {gMaruxhaAtk1Frames,gMaruxhaAtk1Anims,gMaruxhaAtk1Tiles,1}
+};
+static void NativeMarlDraw(void* arg) {
+    MapEnmWork* work = arg;
+    u8 pose = gNativeEnemyCharge[0] ? 1 : sMarlImpact ? 2 : 0;
+    s16 x = (work->obj.fieldPosition.x - gFieldState->x) >> 8;
+    s16 y = (work->obj.fieldPosition.y + work->obj.fieldPosition.z - gFieldState->y) >> 8;
+    u16 priority = -0x1004 - (work->obj.fieldPosition.y >> 8) * 4;
+    if (pose != gNativeMarlPose) {
+        AnimChangeWithDef(sMarlDefs, &sMarlAnim, pose, pose == 2 ? 0 : ANIM_FLAG_LOOP, sMarlTiles);
+        gNativeMarlPose = pose;
+    }
+    if (sMarlImpact) sMarlImpact--;
+    DrawSprite(x, y, AnimUpdate(&sMarlAnim), sMarlTiles, sMarlPalette, NULL,
+        0x800 | (work->obj.fieldPosition.x < gFieldState->actor.fieldPosition.x ? SPRITE_FLAG_HFLIP : 0), priority);
+    work->obj.shadowZ = work->obj.fieldPosition.ground;
+    work->obj.shadowPriority = priority + 1;
+    TaskPoolDraw(&work->tasks);
+}
+static void NativeMarlInit(void) {
+    MapEnmWork* work;
+    AnimHeader* anim;
+    u16 size = 0, bytes, frame;
+    u8 pose;
+    gNativeMarlReady = gNativeMarlPose = sMarlImpact = 0;
+    sMarlTiles = NULL;sMarlPalette = NULL;
+    if (gNativeFloor != 2 || gMapFloorState.room != 7 || !sEnemyTasks[0] || gNativeEnemyKind[0] != 2) return;
+    work = sEnemyTasks[0]->work;
+    ReleaseObjTiles(work->tiles);work->tiles = NULL;
+    ReleaseObjPalette(work->palette);work->palette = NULL;
+    for (pose = 0; pose < 3; pose++) {
+        anim = ((AnimHeader**)sMarlDefs[pose].anims)[sMarlDefs[pose].animId];
+        for (frame = 0; frame < anim->frameCount; frame++) {
+            bytes = GetSpriteTileBytes(((void**)sMarlDefs[pose].gfxTable)[anim->frames[frame].gfxIndex]);
+            if (bytes > size) size = bytes;
+        }
+    }
+    sMarlTiles = AllocObjTiles(size, gMaruxhaIdleTiles);
+    sMarlPalette = LoadObjPalette(gMaruxhaPalette, 32);
+    if (!sMarlTiles || !sMarlPalette) {
+        if (sMarlTiles) ReleaseObjTiles(sMarlTiles);
+        if (sMarlPalette) ReleaseObjPalette(sMarlPalette);
+        sMarlTiles = NULL;sMarlPalette = NULL;
+        work->tiles = AllocObjTiles(work->def->tileCount * 32, NULL);
+        work->palette = LoadObjPalette(work->def->palette, 32);
+        return;
+    }
+    work->palette = LoadObjPalette(gMaruxhaPalette, 32);
+    AnimInit(&sMarlAnim, gMaruxhaIdleAnims, gMaruxhaIdleFrames);
+    AnimStart(&sMarlAnim, 0, ANIM_FLAG_LOOP);
+    sMarlTaskDesc = *sEnemyTasks[0]->desc;sMarlTaskDesc.draw = NativeMarlDraw;
+    sEnemyTasks[0]->desc = &sMarlTaskDesc;gNativeMarlReady = 1;
+}
 static TaskDesc sJafarTaskDesc;
 static void* sJafarTiles[2];
 static ObjPalette* sJafarPalette;
@@ -336,6 +399,18 @@ static ObjPalette* sCardPalettes[4];
 static const CardDef* sCards[4];
 u16 gNativeGuard;
 static u16 NativeJafarDamage(void) {return gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : 10;}
+static int NativeWindupRange(u8 slot) {return sEnemyTasks[slot]->desc == &sMarlTaskDesc ? 112 : 96;}
+static u16 NativeMarlDamage(u8 slot) {
+    return gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : gNativeEnemyHp[slot] <= 28 ? 14 : 10;
+}
+static int NativeMarlHits(u8 slot, const FldPos* pos) {
+    FldPos* enemy = &((MapEnmWork*)sEnemyTasks[slot]->work)->obj.fieldPosition;
+    s32 dx = enemy->x - pos->x;
+    s32 dy = enemy->y + enemy->z - pos->y - pos->z;
+    s32 dz = enemy->z - pos->z;
+    return dx >= -(96 << 8) && dx <= (96 << 8) && dy >= -(16 << 8) && dy <= (16 << 8) &&
+        dz >= -(24 << 8) && dz <= (24 << 8);
+}
 static int NativeBlastRange(u8 slot) {
     return sEnemyTasks[slot]->desc == &sArmorTaskDesc ? FieldArmorRange(gNativeEnemyHp[slot]) :
         FieldEnemyBlastRange(gNativeFloor, gMapFloorState.room);
@@ -510,6 +585,9 @@ static void NativePartyDraw(void) {
 }
 static void NativePartyFree(void) {
     u8 i;
+    if (sMarlTiles) ReleaseObjTiles(sMarlTiles);
+    if (sMarlPalette) ReleaseObjPalette(sMarlPalette);
+    gNativeMarlReady = 0;
     for (i = 0; i < 2; i++) if (sJafarTiles[i]) ReleaseObjTiles(sJafarTiles[i]);
     if (sJafarPalette) ReleaseObjPalette(sJafarPalette);
     gNativeJafarReady = 0;
@@ -772,7 +850,7 @@ static u8 NativeEnemyTarget(u8 slot, s32* best, s32* height) {
         distance = NativeAbs(work->obj.fieldPosition.x - pos.x) +
             NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - pos.y - pos.z);
         dz = NativeAbs(work->obj.fieldPosition.z - pos.z);
-        eligible = distance <= ((gNativeEnemyKind[slot] == 2 ? 96 : FieldEnemyRange(gNativeEnemyKind[slot])) << 8) &&
+        eligible = distance <= ((gNativeEnemyKind[slot] == 2 ? NativeWindupRange(slot) : FieldEnemyRange(gNativeEnemyKind[slot])) << 8) &&
             dz <= ((gNativeEnemyKind[slot] == 2 ? 32 : FieldEnemyHeight(gNativeEnemyKind[slot])) << 8);
         if ((eligible && !canAttack) || (eligible == canAttack && distance < *best)) {
             target = j;*best = distance;*height = dz;canAttack = eligible;
@@ -790,6 +868,14 @@ static void NativePreviewThreats(void) {
     for (j = 0; j < 3; j++) gNativeThreats[j] = 0;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i]) {
         work = sEnemyTasks[i]->work;
+        if (sEnemyTasks[i]->desc == &sMarlTaskDesc) {
+            if (gNativeEnemyCharge[i]) for (j = 0; j < 3; j++) {
+                if (!gNativePartyHealth.hp[j]) continue;
+                pos = j == gNativeParty ? gFieldState->actor.fieldPosition : sPartyPos[j];
+                if (NativeMarlHits(i, &pos)) gNativeThreats[j] += NativeMarlDamage(i);
+            }
+            continue;
+        }
         if (sEnemyTasks[i]->desc == &sJafarTaskDesc) {
             target = NativeEnemyTarget(i, &best, &dz);
             if (gNativeEnemyCharge[i] && best <= (96 << 8) && dz <= (32 << 8))
@@ -869,7 +955,7 @@ static void NativeHud(void) {
     NativeLabel(0, 0, line);
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
     gNativeCureTarget = NativeCureTarget();
-    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : gNativeJafarReady ? "JAFAR SPELL 96" : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : gNativeJafarReady ? "JAFAR SPELL 96" : gNativeMarlReady ? (gNativeEnemyHp[0] <= 28 ? "MARLUXIA RAGE SCYTHE" : "MARLUXIA SCYTHE") : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, gNativeCureTarget == 0 ? "CURE SORA A PLAY" :
@@ -992,6 +1078,7 @@ static void NativeInit(s32 arg) {
     NativePartyInit();
     NativeArmorInit();
     NativeJafarInit();
+    NativeMarlInit();
     if (sCarryTurn) {
         for (i = 0; i < 3; i++) {
             sPartyMove[i] = sCarryMove[i];
@@ -1329,6 +1416,13 @@ static void NativeEnemyTurn(void) {
         work = sEnemyTasks[i]->work;
         closest = NativeEnemyTarget(i, &best, &dz);
         if (gNativeEnemyKind[i] == 2 && gNativeEnemyCharge[i]) {
+            if (sEnemyTasks[i]->desc == &sMarlTaskDesc) {
+                sMarlImpact = 24;
+                for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j] && NativeMarlHits(i, &sPartyPos[j]))
+                    if (FieldPartyDamage(&gNativePartyHealth, j, NativeMarlDamage(i))) gNativeResult = 1;
+                gNativeEnemyCharge[i] = 0;
+                continue;
+            }
             if (sEnemyTasks[i]->desc == &sJafarTaskDesc) {
                 sJafarImpact = 24;
                 if (best <= (96 << 8) && dz <= (32 << 8))
@@ -1347,7 +1441,7 @@ static void NativeEnemyTurn(void) {
             gNativeEnemyCharge[i] = 0;
             continue;
         }
-        if (gNativeEnemyKind[i] == 2 && best <= (96 << 8) && dz <= (32 << 8)) {
+        if (gNativeEnemyKind[i] == 2 && best <= (NativeWindupRange(i) << 8) && dz <= (32 << 8)) {
             gNativeEnemyCharge[i] = 1;
             continue;
         }
@@ -1390,13 +1484,13 @@ static void NativeEnemies(void) {
         }
         if (!(work->flags & 0x8000)) {
             work->flags |= 0x8000;
-            if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc) MapEnmSetAnim(work, 1, 1);
+            if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc && task->desc != &sMarlTaskDesc) MapEnmSetAnim(work, 1, 1);
             ColliderSetDisabled(&work->collider, 0);
         }
         if (sAttack && !(work->flags & 0x2000) && MapEnmCheckAttacked(work)) {
             work->flags |= 0x2000;
             NativeDamageEnemy(task, sPlayedValue ? 5 + sPlayedValue / 2 : 3);
-        } else if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc) {
+        } else if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc && task->desc != &sMarlTaskDesc) {
             MapEnmUpdateAnim(work);
         }
         node = next;

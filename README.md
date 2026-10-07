@@ -131,3 +131,20 @@ The project can target the following versions:
 ## License
 
 This project is released under the [CC0 1.0 Universal](LICENSE.md) license.
+
+### Castle boss work after 0.16
+
+The current source replaces Castle room 7 with humanoid Marluxia using the
+original battle idle, scythe windup and attack animation assets. His horizontal
+sweep reaches 96 pixels, spans 16 pixels in projected depth and respects a
+24-pixel height difference. Damage increases from 10 to 14 at half health;
+Guard and the threat preview use the same resolution rules. The encounter
+preserves Sora, Donald, Goofy and original card artwork.
+
+`tools/tactics_marluxia_smoke.py` generates an explicit emulator fixture from the
+built ELF. Its 28 checks pass, including resource allocation, all-party damage,
+range/depth/height boundaries, enrage, Guard, charged suspend/resume, native Fire
+defeat and room-exit cleanup. Fixtures write setup state and are not full-run
+proof. Evidence: `build/tactics-us/marluxia-verified-evidence/boss.txt`.
+The published local 0.16 patch predates this change; a new full-run replay is
+required before packaging the Castle boss build.

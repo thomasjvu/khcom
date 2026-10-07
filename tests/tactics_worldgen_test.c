@@ -27,7 +27,7 @@ int main(void) {
         }
         for(i=0;i<12;i++)assert(reached[i]);
         assert(world.rooms[9].chest && world.rooms[11].chest);
-        assert(world.rooms[7].enemies==(floor<=1 ? 1 : 3));
+        assert(world.rooms[7].enemies==1);
         assert(world.links[7][1]==TAC_WORLD_EXIT);
         assert(world.links[0][0]==TAC_WORLD_NONE);
     }
