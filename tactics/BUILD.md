@@ -199,3 +199,22 @@ It never writes room-transition flags. Neither test is an input-only full run.
 The 13 world scenarios now end the turn in the reward room before opening its
 chest, since entering that room no longer restores a spent action. Save format
 8 remains compatible with the 0.8 climbing development build.
+
+Input-only traversal probe: generate with
+`python3 tools/tactics_traversal_probe.py ELF OUTPUT [--rooms 1..7]`, then run
+`OUTPUT/traversal.lua` in mGBA against a fresh ROM copy. The bounded explorer
+reads original door/cell geometry and route diagnostics, and sends buttons only.
+It scans flat route previews, approaches generated stair tops/bases, climbs or
+descends using native input, renews spent movement through Start, and uses the
+original diagonal door approach. It never writes emulated RAM or forces exits.
+A failure reports the final position and door target; it does not prove a room
+is impossible. The default first-door replay passed in 965 frames and ten
+movement commands, including both height changes from the actual spawn
+(`build/tactics-us/traversal-door-evidence/traversal.txt`). This is one fixed
+seed, not a generated-room guarantee or a complete combat run.
+The extended `--rooms 7` probe reaches room one, then exhausts its 12,000-frame
+bound there (`build/tactics-us/traversal-chain2-evidence/traversal.txt`): final
+projected position `(74873,62597,0)`, forward door `(12288,91648,12288)`, in
+native 8.8 units. Local flat previews plus greedy stair selection are therefore
+insufficient for the main chain. Global platform planning and jump edges remain
+required; do not count this replay as a complete-run pass.
