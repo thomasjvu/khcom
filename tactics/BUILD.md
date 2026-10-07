@@ -642,3 +642,12 @@ area boundary/multiple-target checks pass in `enhanced-recipe-evidence`; three
 Fire sixes preview and deal 32 damage to both 40-HP fixture enemies. Dedicated
 Curaga healing and enhanced melee resolution fixtures remain outstanding.
 The packaged 0.15 patch remains unchanged.
+
+Enhanced Cure/melee recipe resolution: the sleight generator also produces
+`recipes.lua`. `recipe-resolution-evidence/recipes.txt` passes 12 checks:
+Curaga's +8 party healing, knockout revival, HP cap, normal exhaustion and
+action cost; then a real enemy turn refreshes the action before Triple Key's
+32-damage preview/resolution and out-of-area exclusion. Explicit card, HP and
+enemy-position fixtures isolate the recipes; stock, turn and attack commands
+use native input. This fills the focused Curaga/Triple Key validation gap
+noted above, without claiming full-run or canonical recipe fidelity.
