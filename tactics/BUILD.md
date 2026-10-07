@@ -518,3 +518,12 @@ This locates divergence earlier than Castle Oblivion but does not prove an
 RNG cause. Room generation explicitly seeds from room state and native enemy
 placement is also seeded; the unresolved audit must consider frame-sensitive
 input/controller behavior as well as presentation/enemy RNG.
+
+Native Fire selection: `tools/tactics_fire_target_smoke.py ELF OUTPUT` generates
+13 checks using two explicitly placed original enemy actors. Native R+B input
+selects the farther target, rejects invalid height/range, preserves budgets
+and the selected card, and A applies exactly the previewed damage only to the
+chosen enemy. `fire-choice-evidence/fire-target.txt` passes all 13 checks; the
+existing spawn/Fire break/height regression passes all 14 checks in
+`fire-choice-regression-evidence/spawn.txt`. Target choice is transient and
+resets on room initialization/resume. The packaged 0.15 patch is unchanged.

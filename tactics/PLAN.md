@@ -85,7 +85,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 2. **Authoritative field combat.** Extend the bounded enemy route search with swept actor collision checks and additional world-specific behaviors. Extend current damage and charge warnings into full area/range overlays.
    Independent party HP and partial encounter persistence are implemented. Keep animations
    running during input wait without advancing authoritative actions.
-3. **Port the tested card systems.** Extend the native deck with target selection and richer named sleight recipes.
+3. **Port the tested card systems.** Fire now supports explicit enemy cycling with shared preview/resolution validation. Extend targeting to other effects and add richer named sleight recipes.
    The basic draw/discard/reload and card effects already run in the field.
    Remove assumptions about an 8x6 board. Add projected target/range previews
    and a GBA-sized card HUD using original resources.

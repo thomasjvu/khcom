@@ -146,8 +146,10 @@ static void NativePreviewInput(u16 pressed);
 static u16 NativeRouteWalk(void);
 static u8 NativeCureTarget(void);
 static Task* NativeFireTarget(void);
+static void NativeCycleFireTarget(void);
 static void NativeCardIntentDraw(void);
 s16 gNativeFireTarget;
+s16 gNativeFireChoice;
 u16 gNativeFireDamage;
 u16 gNativeCureTarget;
 
@@ -663,7 +665,7 @@ static void NativeHud(void) {
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && !gNativeDeck.stocked &&
         gNativeDeck.kind[card] == FIELD_CARD_FIRE && gNativeActionLeft)
-        NativeLabel(0, 8, gNativeFireTarget < 0 ? "FIRE NO TARGET" : !gNativeFireDamage ? "FIRE CARD BREAK" : "FIRE A PLAY");
+        NativeLabel(0, 8, gNativeFireTarget < 0 ? "FIRE NO TARGET" : !gNativeFireDamage ? "FIRE CARD BREAK" : "FIRE R B TARGET A");
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
@@ -748,6 +750,7 @@ static void NativeInit(s32 arg) {
     gNativeActionLeft = 1;
     gNativeBusy = 0;
     gNativeReward = gNativeRewardChoice = 0;
+    gNativeFireChoice = -1;
     gNativeEnemyFrames = 0;
     gNativeDirection = 0;
     sFrames = 0;
@@ -1131,28 +1134,43 @@ static void NativeEnemies(void) {
     gMapRoomState->flags &= ~(ROOM_FLAG_ENEMY_STRUCK | ROOM_FLAG_START_BATTLE);
 }
 
+static s32 NativeFireDistance(Task* task) {
+    MapEnmWork* work = task->work;
+    s32 dx = NativeAbs(work->obj.fieldPosition.x - gFieldState->actor.fieldPosition.x);
+    s32 dy = NativeAbs(work->obj.fieldPosition.y - gFieldState->actor.fieldPosition.y);
+    s32 dz = NativeAbs(work->obj.fieldPosition.z - gFieldState->actor.fieldPosition.z);
+    return dz <= (24 << 8) ? dx + dy : 128 << 8;
+}
 static Task* NativeFireTarget(void) {
     ListNode* node = gFieldState->tasks4.head.activeHead;
     Task* target = NULL;
     Task* task;
-    MapEnmWork* work;
-    s32 best = 128 << 8, dx, dy, dz;
+    s32 best = 128 << 8, distance;
+    if (gNativeFireChoice >= 0 && gNativeFireChoice < 6 &&
+        sEnemyTasks[gNativeFireChoice] &&
+        NativeFireDistance(sEnemyTasks[gNativeFireChoice]) < best)
+        return sEnemyTasks[gNativeFireChoice];
+    gNativeFireChoice = -1;
     while (node) {
         task = node->owner;
-        work = task->work;
-        dx = work->obj.fieldPosition.x - gFieldState->actor.fieldPosition.x;
-        dy = work->obj.fieldPosition.y - gFieldState->actor.fieldPosition.y;
-        dz = work->obj.fieldPosition.z - gFieldState->actor.fieldPosition.z;
-        if (dx < 0) dx = -dx;
-        if (dy < 0) dy = -dy;
-        if (dz < 0) dz = -dz;
-        if (dx + dy < best && dz <= (24 << 8)) {
-            best = dx + dy;
-            target = task;
-        }
+        distance = NativeFireDistance(task);
+        if (distance < best) {best = distance;target = task;}
         node = node->next;
     }
     return target;
+}
+static void NativeCycleFireTarget(void) {
+    Task* current = NativeFireTarget();
+    int i, slot = -1;
+    for (i = 0; i < 6; i++) if (sEnemyTasks[i] && sEnemyTasks[i] == current) slot = i;
+    for (i = 1; i <= 6; i++) {
+        int next = (slot + i) % 6;
+        if (sEnemyTasks[next] && NativeFireDistance(sEnemyTasks[next]) < (128 << 8)) {
+            gNativeFireChoice = next;
+            return;
+        }
+    }
+    gNativeFireChoice = -1;
 }
 static void NativeFire(void) {
     Task* target = NativeFireTarget();
@@ -1307,6 +1325,11 @@ static void NativeUpdate(void) {
             if (gNativeDeck.stocked < 3) FieldDeckStock(&gNativeDeck);
         } else if ((raw & L_BUTTON) && (pressed & B_BUTTON)) {
             FieldDeckCancelStock(&gNativeDeck);
+        } else if (((raw & R_BUTTON) && (pressed & B_BUTTON)) ||
+            ((raw & B_BUTTON) && (pressed & R_BUTTON))) {
+            int selected = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
+            if (selected >= 0 && !gNativeDeck.stocked &&
+                gNativeDeck.kind[selected] == FIELD_CARD_FIRE) NativeCycleFireTarget();
         } else if ((pressed & SELECT_BUTTON) && player->state == FLD_STATE_GROUND) {
             NativePartySelect();
         } else if ((raw & (L_BUTTON | R_BUTTON)) == (L_BUTTON | R_BUTTON) &&
