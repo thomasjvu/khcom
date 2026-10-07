@@ -570,6 +570,9 @@ static void NativeHud(void) {
     char health[] = "S00 D00 G00";
     char threat[] = "NEXT S00 D00 G00";
     char stock[] = "STOCK 0 A SLEIGHT";
+    char sleight[] = "KEY 00 A SLEIGHT";
+    int sleightKind, sleightValue;
+    static const char* const effects[4] = {"KEY", "FIR", "CUR", "GRD"};
     u16 hp = gGameState.hp;
     u8 charging = 0;
     int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
@@ -629,7 +632,14 @@ static void NativeHud(void) {
         threat[7 + i * 4] = '0' + gNativeThreats[i] % 10;
     }
     stock[6] += gNativeDeck.stocked;
-    NativeLabel(0, 24, gNativeDeck.stocked ? stock : threat);
+    if (FieldDeckSleightPreview(&gNativeDeck, &sleightKind, &sleightValue)) {
+        for (i = 0; i < 3; i++) sleight[i] = effects[sleightKind][i];
+        sleight[4] += sleightValue / 10;
+        sleight[5] += sleightValue % 10;
+        NativeLabel(0, 24, sleight);
+        if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
+            !gNativeClimbing && !charging) NativeLabel(0, 8, "A SLEIGHT L B CANCEL");
+    } else NativeLabel(0, 24, gNativeDeck.stocked ? stock : threat);
     sHudPending = 1;
 }
 static void NativeExit(void) {

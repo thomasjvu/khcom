@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include "field_deck.h"
 int main(void) {
     FieldDeck d;
@@ -23,11 +24,23 @@ int main(void) {
     assert(!FieldDeckStock(&d)&&FieldDeckValid(&d));
     {
         int kind,value;
+        FieldDeck before;
+        before=d;
+        assert(FieldDeckSleightPreview(&d,&kind,&value)&&kind==0&&value==18);
+        assert(memcmp(&before,&d,sizeof(d))==0);
+        d.kind[d.stock[0]]=FIELD_CARD_FIRE;
+        d.kind[d.stock[1]]=FIELD_CARD_CURE;
+        d.kind[d.stock[2]]=FIELD_CARD_GUARD;
+        assert(FieldDeckSleightPreview(&d,&kind,&value)&&kind==FIELD_CARD_FIRE);
+        d.kind[d.stock[2]]=FIELD_CARD_CURE;
+        assert(FieldDeckSleightPreview(&d,&kind,&value)&&kind==FIELD_CARD_CURE);
+        d=before;
         assert(FieldDeckSleight(&d,&kind,&value)&&kind==0&&value==18);
         assert(d.pile[0]==3&&d.pile[1]==2&&d.pile[2]==2);
         assert(FieldDeckReload(&d)&&d.pile[0]==3);
         assert(FieldDeckStock(&d));FieldDeckCancelStock(&d);
         assert(FieldDeckValid(&d)&&d.stocked==0);
+        assert(!FieldDeckSleightPreview(&d,&kind,&value));
         assert(!FieldDeckSleight(&d,&kind,&value));
     }
     d.kind[0] = 4;assert(!FieldDeckValid(&d));

@@ -38,12 +38,16 @@ int FieldDeckStock(FieldDeck* d) {
     while(d->selected&&FieldDeckHand(d,d->selected)<0)d->selected--;
     return 1;
 }
-int FieldDeckSleight(FieldDeck* d,int* kind,int* value) {
+int FieldDeckSleightPreview(const FieldDeck* d,int* kind,int* value) {
     int i,counts[4]={0,0,0,0};
     if(d->stocked!=3)return 0;
     *value=0;*kind=0;
     for(i=0;i<3;i++){counts[d->kind[d->stock[i]]]++;*value+=d->value[d->stock[i]];}
     for(i=1;i<4;i++)if(counts[i]>counts[*kind])*kind=i;
+    return 1;
+}
+int FieldDeckSleight(FieldDeck* d,int* kind,int* value) {
+    if(!FieldDeckSleightPreview(d,kind,value))return 0;
     d->pile[d->stock[0]]=3;
     d->pile[d->stock[1]]=d->pile[d->stock[2]]=2;
     d->stocked=0;return 1;

@@ -18,6 +18,7 @@ typedef struct FieldDeck {
 void FieldDeckInit(FieldDeck* deck);
 int FieldDeckHand(const FieldDeck* deck, int slot);
 int FieldDeckStock(FieldDeck* deck);
+int FieldDeckSleightPreview(const FieldDeck* deck, int* kind, int* value);
 int FieldDeckSleight(FieldDeck* deck, int* kind, int* value);
 void FieldDeckCancelStock(FieldDeck* deck);
 int FieldDeckPlay(FieldDeck* deck);

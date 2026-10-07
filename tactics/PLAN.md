@@ -41,7 +41,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Player walk cursor projected with original value digits; exact route costs, budget rejection and native controller execution, tested with input-only mGBA replay.
 - HUD renders original font glyphs in RAM and uploads during VBlank.
 - Bounded 9×9 enemy route search with native floor/collision sampling, midpoint checks, height limits and occupied destination checks.
-- Three-card native sleights, combined values, first-card exhaustion, stock cancellation
+- Three-card native sleights, combined effect/value preview, first-card exhaustion, stock cancellation
   and original stock artwork; emulator-verified save/reload behavior.
 - Native twelve-card shared deck, five-card hand, original card/value artwork,
   discard/reload, Kingdom Key/Fire/Cure/Guard, character bonuses and chest cards.

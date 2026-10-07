@@ -57,6 +57,10 @@ edges are not yet part of the route cursor.
 
 The shared deck starts with twelve cards. The hand contains up to five cards;
 playing a card discards it and draws a replacement. L+R reloads discarded cards.
+When three cards are stocked, the HUD previews their combined value and effect
+(KEY, FIR, CUR, or GRD) before A commits the sleight. Inspecting this preview
+does not spend cards or an action.
+
 A sleight combines three card values. The most frequent type chooses the
 result (ties favor Kingdom Key, then Fire, Cure and Guard): an area melee
 attack, an area Fire attack, party-wide Cure, or full Guard. It costs one
