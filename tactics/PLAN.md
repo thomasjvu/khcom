@@ -21,6 +21,9 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Traverse Town, Agrabah and Castle Oblivion tiles/palettes/props load normally.
 - Original Sora and field enemy animation, collision, camera and climbing tasks.
 - Selectable Sora/Donald/Goofy with individual movement/action budgets and original sprites.
+- Individual HP, friend knockouts, selection skipping and Cure/chest revival.
+- HUD damage estimates using enemy range/height/guard rules, emulator checked.
+- Enemy damage and positions persist across all visited rooms and reboot.
 - Original Donald casting and Goofy guard animation resources.
 - Discrete enemy decisions, health, value checks, height-limited attacks and stronger exits.
 - Native twelve-card shared deck, five-card hand, original card/value artwork,
@@ -43,8 +46,8 @@ interactions. Do not replace field actors with icons or flatten elevations.
    a bounded retry policy. Current graph tests verify room connectivity, not
    complete physical navigation inside each room.
 2. **Authoritative field combat.** Extend discrete enemy decisions with bounded movement paths, blocked-axis
-   recovery, world-specific behavior and collision/occupancy checks. Give party members independent HP and telegraphed targets; persist partial
-   enemy damage and positions during room backtracking. Keep animations
+   recovery, world-specific behavior and collision/occupancy checks. Add telegraphed targets, occupancy rules and richer enemy behaviors.
+   Independent party HP and partial encounter persistence are implemented. Keep animations
    running during input wait without advancing authoritative actions.
 3. **Port the tested card systems.** Extend the native deck with exhaust, sleights and target selection.
    The basic draw/discard/reload and card effects already run in the field.

@@ -68,8 +68,10 @@ python3 -m unittest discover -s tests -p 'test_tactics_*.py'
 Rules use C89 and bounded storage. Byte-only card, actor and intent records
 are explicitly packed because agbcc otherwise rounds their sizes to four
 bytes. Save fields are serialized explicitly with little-endian seed/state,
-a versioned header, generation counter and CRC32. Two 512-byte SRAM slots
-retain the previous valid snapshot while the next is written.
+a versioned header, generation counter and CRC32. The native format uses
+two 1,024-byte SRAM slots; the archived board format uses 512 bytes. The
+previous valid snapshot survives while the next is written. Decode keeps
+one bounded candidate on the GBA stack, rather than two complete world states.
 
 ## Native emulator verification
 
@@ -93,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.3-party.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.3-party.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.4-party.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.4-party.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -114,13 +116,20 @@ Distribute source and the patch, never the ROM or extracted assets.
 
 Native party/deck/save modules pass strict C89 and ASan/UBSan. Save tests
 flip every record byte, verify older-slot fallback and generation wraparound.
-Party mGBA replay passes selection, individual budgets, card effects, reload
-costs, reset restoration and corrupted-slot recovery. Generate it with:
+Party mGBA replay covers selection, individual budgets and HP, card effects,
+reload costs, knockouts/revival, incoming damage warnings, reset restoration and corrupted-slot recovery.
+Encounter replay checks exact positions and partial damage during backtracking
+and after reboot in multiple visited rooms. Enemy coordinates are whole native
+pixels, so signed pixel records preserve their 8.8 values exactly. Generate it with:
 
 ```sh
 python3 tools/tactics_party_smoke.py build/tactics-us/kh_tactics.elf build/tactics-us/party-evidence
 /Applications/mGBA.app/Contents/MacOS/mGBA --script build/tactics-us/party-evidence/party.lua build/tactics-us/kh_tactics.gba
 ```
+
+Generate encounter fixtures with `tools/tactics_encounter_smoke.py` and run
+its `encounters.lua` with mGBA. Fixtures explicitly request transitions and
+set partial damage; they do not replace input-only route testing.
 
 Run integration replays against a fresh copy of the ROM with its own filename
 and save file, so an existing suspend does not change the starting state.

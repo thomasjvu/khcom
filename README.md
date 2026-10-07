@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The current **0.3 native party development build** runs in the original 2.5D engine with full
+The current **0.4 native party development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -14,7 +14,8 @@ Sora, Donald and Goofy are selectable party members with separate action and
 movement budgets. A shared card deck uses original card artwork and values,
 with draw/discard/reload, melee, Fire, Cure, Guard and character bonuses.
 Versioned suspend saves preserve native field state and recover from a damaged
-latest slot. Party HP is currently shared. This remains a development build;
+latest slot. Party members have individual HP, knockouts and revival; partial encounter
+damage and enemy positions persist across backtracking and reboot. This remains a development build;
 physical route guarantees, previews, sleights and complete-run QA are pending.
 
 - [Controls and current scope](tactics/PLAY.md)

@@ -1,4 +1,4 @@
-"""Generate native party/card/save integration replay for mGBA."""
+"""Generate mGBA backtracking and all-room save integration fixtures."""
 import argparse
 import subprocess
 from pathlib import Path
@@ -8,7 +8,6 @@ for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitl
     v=line.split()
     if len(v)==3:names[v[2]]=int(v[0],16)
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
-keys=('gNativeThreats','sPartyPos','gNativePartyHealth','gNativeResult','gNativeParty','gNativeMoveLeft','gNativeActionLeft','gNativeGuard','gNativeDeck','gNativeSaveNotice','gGameState','gFieldState')
+keys=('gFieldState','gMapFloorState','gMapRoomState','gNativeEnemyHp','gNativeSaveNotice','sEnemyTasks')
 header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
-template=Path('tests/tactics_party_smoke.lua').read_text()
-(out/'party.lua').write_text(header+template.replace('@OUTPUT@',str(out)))
+(out/'encounters.lua').write_text(header+Path('tests/tactics_encounter_smoke.lua').read_text().replace('@OUTPUT@',str(out)))

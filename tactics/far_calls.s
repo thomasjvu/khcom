@@ -662,3 +662,12 @@ TacFar_AnimChangeWithDef:
  bx ip
 .balign 4
 1: .word AnimChangeWithDef + 1
+
+.balign 4
+.global TacFar_GetBgCharBase
+.thumb_func
+TacFar_GetBgCharBase:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word GetBgCharBase + 1

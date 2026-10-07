@@ -8,13 +8,15 @@ int main(void) {
     unsigned int gen;
     int i;
     memset(&s,0,sizeof(s));FieldDeckInit(&s.deck);
+    s.partyHp[0]=80;s.partyHp[1]=56;s.partyHp[2]=64;
     s.seed=0x434f4du;s.hp=64;s.party=2;s.move[2]=2;s.guard=2;
-    s.roomEnemies[0]=1;s.enemyHp[0]=19;s.enemyKind[0]=1;
+    s.roomEnemies[0]=1;s.roomCached[0]=1;s.encounters[0][0].hp=19;s.encounters[0][0].kind=1;
+    s.roomCached[9]=1;s.roomEnemies[9]=1;s.encounters[9][0].hp=7;s.encounters[9][0].pos[2]=-16;
     s.partyPos[2][0]=0x11000;s.partyPos[2][2]=-4096;
     assert(FieldSaveEncode(&s,0xffffffffu,a));
-    s.hp=72;assert(FieldSaveEncode(&s,0,b));
+    s.hp=72;s.partyHp[2]=72;assert(FieldSaveEncode(&s,0,b));
     assert(FieldSaveSelect(&loaded,&gen,a,b)==1&&gen==0&&loaded.hp==72);
-    assert(loaded.partyPos[2][2]==-4096&&loaded.enemyHp[0]==19);
+    assert(loaded.partyPos[2][2]==-4096&&loaded.encounters[0][0].hp==19&&loaded.encounters[9][0].hp==7&&loaded.encounters[9][0].pos[2]==-16);
     for(i=0;i<FIELD_SAVE_SIZE;i++) {
         b[i]^=1;
         assert(!FieldSaveDecode(&loaded,&gen,b));
