@@ -83,15 +83,18 @@ typedef struct NativeFriend {
     void* tiles;
     ObjPalette* palette;
     FldPos pos;
-    u16 pose, timer;
+    u16 pose, timer, facing;
 } NativeFriend;
 static NativeFriend sFriends[2];
 static void* sSoraIdleTiles;
-static const AnimDef sFriendAnims[2][2] = {
+u16 gNativeFriendPose[2];
+static const AnimDef sFriendAnims[2][3] = {
     {{gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,0},
-     {gDonaBtLl00Frames,gDonaBtLl00Anims,gDonaBtLl00Tiles,0}},
+     {gDonaBtLl00Frames,gDonaBtLl00Anims,gDonaBtLl00Tiles,0},
+     {gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,1}},
     {{gGoofyFl00Frames,gGoofyFl00Anims,gGoofyFl00Tiles,0},
-     {gGoofy16Frames,gGoofy16Anims,gGoofy16Tiles,0}}
+     {gGoofy16Frames,gGoofy16Anims,gGoofy16Tiles,0},
+     {gGoofy01Frames,gGoofy01Anims,gGoofy01Tiles,0}}
 };
 static void NativePartyPose(u8 member) {
     NativeFriend* friend;
@@ -171,7 +174,8 @@ static void NativePartyInit(void) {
     sFriends[1].palette = LoadObjPalette(gGoofyPalette, 32);
     AnimInit(&sFriends[1].anim, gGoofyFl00Anims, gGoofyFl00Frames);
     for (i = 0; i < 2; i++) {
-        sFriends[i].pose = sFriends[i].timer = 0;
+        sFriends[i].pose = sFriends[i].timer = sFriends[i].facing = 0;
+        gNativeFriendPose[i] = 0;
         AnimStart(&sFriends[i].anim, 0, ANIM_FLAG_LOOP);
         sFriends[i].pos = gFieldState->actor.fieldPosition;
     }
@@ -227,16 +231,24 @@ static void NativePartyDraw(void) {
     u8 i;
     s16 x, y;
     int card;
-    u8 kind;
+    u8 kind, pose;
     for (i = 0; i < 2; i++) {
         if (!gNativePartyHealth.hp[i + 1]) continue;
+        /* Animate only actual horizontal travel. Preview cursors and rejected
+         * commands cannot make a stationary party member run in place. */
+        pose = sFriends[i].pos.x != sPartyPos[i + 1].x ||
+            sFriends[i].pos.y != sPartyPos[i + 1].y ? 2 : 0;
+        if (sPartyPos[i + 1].x != sFriends[i].pos.x)
+            sFriends[i].facing = sPartyPos[i + 1].x > sFriends[i].pos.x;
         sFriends[i].pos = sPartyPos[i + 1];
         if (sFriends[i].timer) sFriends[i].timer--;
-        if (sFriends[i].pose && !sFriends[i].timer && !(i == 1 && gNativeGuard)) {
-            sFriends[i].pose = 0;
-            AnimChangeWithDef(sFriendAnims[i], &sFriends[i].anim, 0,
+        if (sFriends[i].timer || (i == 1 && gNativeGuard && sFriends[i].pose == 1)) pose = 1;
+        if (sFriends[i].pose != pose) {
+            sFriends[i].pose = pose;
+            AnimChangeWithDef(sFriendAnims[i], &sFriends[i].anim, pose,
                 ANIM_FLAG_LOOP, sFriends[i].tiles);
         }
+        gNativeFriendPose[i] = pose;
         AnimUpdate(&sFriends[i].anim);
         x = (sFriends[i].pos.x - gFieldState->x) >> 8;
         y = (sFriends[i].pos.y + sFriends[i].pos.z - gFieldState->y) >> 8;
@@ -247,7 +259,7 @@ static void NativePartyDraw(void) {
             x += i ? 24 : -24;
         if (sFriends[i].tiles && sFriends[i].palette)
             DrawSprite(x, y, AnimGetGfx(&sFriends[i].anim), sFriends[i].tiles,
-                sFriends[i].palette, NULL, 0x800,
+                sFriends[i].palette, NULL, 0x800 | (sFriends[i].facing ? SPRITE_FLAG_HFLIP : 0),
                 -0x1004 - (sFriends[i].pos.y >> 8) * 4);
     }
     for (i = 0; i < FIELD_HAND_MAX; i++) {

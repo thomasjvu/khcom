@@ -9,6 +9,8 @@ callbacks:add('frame',function()
  if f==184 then emu:setKeys(0) end
  if f==210 then check(emu:read16(gNativeParty)==1,'Select controls Donald');emu:setKeys(64) end
  if f==214 then emu:setKeys(0) end
+ if f==222 then check(emu:read16(gNativeFriendPose)==2,'Donald uses original walking animation during actual travel');emu:screenshot('@OUTPUT@/donald-walk.png') end
+ if f==280 then check(emu:read16(gNativeFriendPose)==0,'Donald returns to idle after movement') end
  if f==290 then check(emu:read16(gNativeMoveLeft)==2,'Donald has his own movement budget');emu:setKeys(256) end
  if f==294 then emu:setKeys(0) end
  if f==310 then emu:setKeys(256) end
@@ -124,6 +126,9 @@ callbacks:add('frame',function()
   check(emu:read8(gNativePartyHealth+1)==0,'enemy damage knocks out targeted Donald')
   check(emu:read8(gNativePartyHealth)==80 and emu:read16(gNativeResult)==0,'friend knockout does not damage or defeat Sora')
   check(emu:read16(gNativeParty)==2,'turn completion skips knocked-out member')
-  out:close()
+  emu:setKeys(64)
  end
+ if f==1104 then emu:setKeys(0) end
+ if f==1112 then check(emu:read16(gNativeFriendPose+2)==2,'Goofy uses original walking animation during actual travel');emu:screenshot('@OUTPUT@/goofy-walk.png') end
+ if f==1180 then check(emu:read16(gNativeFriendPose+2)==0,'Goofy returns to idle after movement');out:close() end
 end)

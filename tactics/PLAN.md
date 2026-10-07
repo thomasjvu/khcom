@@ -34,7 +34,11 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Seeded world-specific enemy groups with ranged Red Nocturnes, Darkballs and Black Fungus.
 - Large Body exit guardian with a charge/area-strike cycle, evasion, Guard interaction and saved windup state.
 - Enemy damage and positions persist across all visited rooms and reboot.
-- Original Donald casting and Goofy guard animation resources.
+- Original Donald casting and Goofy guard animation resources. Donald and Goofy
+  now use their original walking cycles only during actual horizontal travel,
+  face the travel direction, and return to idle when stopped; the 34-check
+  party emulator fixture also verifies saves, healing, Guard and knockouts.
+  Jump/climb-specific party poses remain unfinished.
 - Discrete enemy decisions, health, value checks, height-limited attacks and stronger exits.
 - Walkable upper ledges above void, solid native prop collision sampling and live preview revalidation.
 - Eight-direction local routes with one-point projected diagonals, native diagonal execution and quarter-segment geometry sampling.

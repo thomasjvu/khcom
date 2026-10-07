@@ -115,3 +115,7 @@ Selecting Cure names its intended party member in the HUD before play. It choose
 Selecting Fire projects the expected HP loss above its nearest valid enemy using original number sprites. The HUD says FIRE NO TARGET when none is in range. The projection accounts for card-value breaks, Donald’s bonus and remaining enemy HP.
 
 Fire displays FIRE CARD BREAK when its selected value will be broken by the current floor’s enemy threshold. Playing it still spends the action and card; the projected HP loss is zero.
+
+Donald and Goofy use original walking sprites while moving and return to idle
+when stopped. Casting and Guard keep their action poses. Their jump and climb
+presentation still needs dedicated poses.
