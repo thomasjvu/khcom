@@ -607,7 +607,7 @@ static void NativeHud(void) {
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && !gNativeDeck.stocked &&
         gNativeDeck.kind[card] == FIELD_CARD_FIRE && gNativeActionLeft)
-        NativeLabel(0, 8, gNativeFireTarget < 0 ? "FIRE NO TARGET" : "FIRE A PLAY");
+        NativeLabel(0, 8, gNativeFireTarget < 0 ? "FIRE NO TARGET" : !gNativeFireDamage ? "FIRE CARD BREAK" : "FIRE A PLAY");
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;

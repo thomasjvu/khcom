@@ -461,3 +461,13 @@ pre-play target/remaining-HP agreement, out-of-range clearing without action
 cost, and a real Fire kill with exact reward/action cost. The fixture moves
 the actor temporarily out of range, then restores it; it is not input-only
 complete-run evidence. The strict host suite also passes.
+
+
+Fire height/break verification: the HUD explicitly names a predicted card
+break instead of only showing zero damage. Fourteen checks pass in
+`fire-break-verified-evidence/spawn.txt`, including a nearby target above the
+24-pixel height limit, a low-value card that projects zero and records an
+actual native break with no HP loss, its action cost, and an independent lethal
+Fire case. This is a position/card fixture: after the actual break, the final
+case restores a single selected Fire hand card and places Sora near the target.
+It does not establish reload ordering or input-only run coverage.
