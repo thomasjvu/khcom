@@ -637,8 +637,9 @@ static void NativeHud(void) {
     int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
     static const char* const names[4] = {"KEYBLADE A PLAY", "FIRE A PLAY", "CURE A PLAY", "GUARD A PLAY"};
     u16 i;
-    if (!sHudTiles || !sHudScreen) return;
-    sHudPending = 0;
+    /* Keep completed tiles immutable until VBlank consumes them. Clearing
+     * pending at the next draw can otherwise starve uploads indefinitely. */
+    if (!sHudTiles || !sHudScreen || sHudPending) return;
     for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
     for (i = 0; i < 161 * 8; i++) sHudTiles[i] = 0x11111111;
     /* Darken only the scenery under the HUD; card and actor OBJ art stays

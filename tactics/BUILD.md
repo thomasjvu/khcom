@@ -543,3 +543,17 @@ chosen party position, offset above incoming damage digits.
 for injured Donald, zero recovery for full-health Sora, exact revival HP and
 clearing the preview after spending the action. These are explicit native
 party fixtures, not additional full-run evidence. The 0.15 patch is unchanged.
+
+HUD VBlank handoff regression: completed HUD RAM is now immutable while an
+upload is pending. `tools/tactics_hud_smoke.py ELF OUTPUT` generates ten checks
+against the original font glyphs, HUD RAM and BG0's actual configured VRAM
+character bank. It temporarily disables the callback and changes HP to verify
+the pending buffer is not overwritten, then restores the callback and verifies
+updated glyphs reach VRAM. `hud-handoff-evidence/hud.txt` passes all ten; the
+old-ROM control in `hud-handoff-control-evidence/hud.txt` fails the pending
+buffer immutability assertion. Both ROMs pass normal uploads; this proves a
+handoff invariant violation, not that ordinary uploads always starved. Earlier
+checks incorrectly assumed character bank zero and are superseded.
+`hud-cure-regression-evidence/party.txt` also passes all 44 party/Cure checks.
+Screenshots show active HP 037 and independent party HP after the fixture.
+The packaged 0.15 ROM remains unchanged.
