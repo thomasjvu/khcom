@@ -1233,7 +1233,7 @@ static void NativeHud(void) {
     char sleight[] = "KEY 00 A SLEIGHT";
     int sleightKind, sleightValue;
     static const char* const effects[4] = {"KEY", "FIR", "CUR", "GRD"};
-    u16 hp = gGameState.hp;
+    u16 hp = gNativeAssembly ? gNativePartyHealth.hp[sAssemblyChoice] : gGameState.hp;
     u8 charging = 0;
     int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
     static const char* const names[4] = {"KEYBLADE A PLAY", "FIRE A PLAY", "CURE A PLAY", "GUARD A PLAY"};
@@ -1254,8 +1254,8 @@ static void NativeHud(void) {
     gBldCnt = 0x00ee;
     gBldY = 10;
 
-    line[5] = '0' + gNativeMoveLeft;
-    line[11] = '0' + gNativeActionLeft;
+    line[5] = '0' + (gNativeAssembly && sAssemblyChoice!=gNativeParty ? sPartyMove[sAssemblyChoice] : gNativeMoveLeft);
+    line[11] = '0' + (gNativeAssembly && sAssemblyChoice!=gNativeParty ? sPartyAction[sAssemblyChoice] : gNativeActionLeft);
     line[16] = line[17] = line[18] = '0';
     while (hp >= 100) { line[16]++; hp -= 100; }
     while (hp >= 10) { line[17]++; hp -= 10; }
@@ -1322,9 +1322,18 @@ static void NativeHud(void) {
     if (gNativeAssembly) {
         NativeLabel(0, 8, "ROUND SETUP L R A");
         NativeLabel(0, 24, "UP DOWN CHANGE PARTY");
-        NativeLabel(0, 32, NativeHero(sAssemblyChoice) == FIELD_SORA ? "SORA KEYBLADE" :
-            NativeHero(sAssemblyChoice) == FIELD_DONALD ? "DONALD MAGIC" :
-            NativeHero(sAssemblyChoice) == FIELD_GOOFY ? "GOOFY SHIELD" : "CLOUD SWORD");
+        {
+            char bonuses[] = "POWER 0 KEY 0 FIR 0 CUR 0";
+            u8 hero=NativeHero(sAssemblyChoice);
+            bonuses[6]+=(char)gNativeRoster.power[hero];
+            bonuses[12]+=(gNativeRoster.sleights[hero]&1) ? 4 : 0;
+            bonuses[18]+=(gNativeRoster.sleights[hero]&2) ? 4 : 0;
+            bonuses[24]+=(gNativeRoster.sleights[hero]&4) ? 4 : 0;
+            NativeLabel(0,16,bonuses);
+            NativeLabel(0,32,hero==FIELD_SORA ? "SORA KEYBLADE CLOSE RANGE" :
+                hero==FIELD_DONALD ? "DONALD MAGIC CURE BONUS" :
+                hero==FIELD_GOOFY ? "GOOFY SPIN SHIELD GUARD" : "CLOUD SWORD TARGET RANGE 64");
+        }
     }
     if (gNativeProgressReward) {
         NativeLabel(0, 8, "CLEAR REWARD L R A");

@@ -172,3 +172,13 @@ Victory is 92563 with Sora HP75; stable PASS is 92683 (15 kills, 649 movement
 commands), recorded in `multi-climb-cloud-full-run-evidence`. This one-seed
 route does not cover every optional room or chest, and it does not establish
 physical generation guarantees across seeds.
+
+Round setup now displays the highlighted hero's own health and turn budgets,
+role, personal power and owned matching-sleight bonuses. Twenty-six native
+rendered checks in `assembly-distinct-budgets-evidence` cover all four heroes,
+Cloud replacement, independent budgets, upgrade isolation and deployment.
+The test reads uploaded VRAM glyphs and uses explicit budget, upgrade and
+recruitment fixtures; it does not prove fresh-run Cloud recruitment. Earlier
+staging-buffer inspection failures remain recorded and were corrected to read
+the actual display. These UI checks belong to a newer ROM than packaged 0.21;
+that patch and its complete-run proof retain their original exact ROM hash.

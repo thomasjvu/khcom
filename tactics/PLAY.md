@@ -24,6 +24,14 @@ tiles, card pictures, value digits, chests and doors.
 | Start + Select | Suspend while idle; the next boot automatically resumes |
 | Select after defeat/run clear | Start a new run with a new seed |
 
+During round setup, L/R highlights a deployed slot and Up/Down changes its
+character among the unlocked roster. Original character cards identify the
+party. The header shows the highlighted hero's own health, movement and action
+resources; the next line shows their power bonus and owned KEY/FIR/CUR sleight
+bonuses (4 means the matching recipe has its personal enhancement). The footer
+explains the highlighted character's role. A confirms the party and begins with
+that hero selected. Summon cards assemble the party during setup.
+
 Each member has three movement points and one action per turn. A jump consumes
 an action and a directional jump also consumes movement. Holding a direction
 commits one command; release and press again for the next. A completely blocked
