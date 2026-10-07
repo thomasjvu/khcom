@@ -12,6 +12,8 @@ local commands=0
 local done=false
 local previousRoom=0
 local previousWorld=0
+local victoryFrame=nil
+local victoryHealth=nil
 local function signed(v) if v>=2147483648 then return v-4294967296 end return v end
 local function pos()
  local p=emu:read32(gFieldState)
@@ -174,7 +176,18 @@ local function replayFrame()
   out:write('MODE current='..string.format('%x',emu:read32(gCurrentMode))..' update='..string.format('%x',emu:read32(gCurrentModeUpdate))..' pending='..string.format('%x',emu:read32(gPendingMode))..' busy='..emu:read16(gNativeBusy)..'\n')
   finish(false,'left native tactics mode');return
  end
- if goalWorlds>0 and world>=goalWorlds and (goalWorlds<3 or emu:read16(gNativeResult)==2) then finish(true,'completed '..goalWorlds..' worlds through native input');return end
+ if goalWorlds==3 and world>=3 and emu:read16(gNativeResult)==2 then
+  emu:setKeys(0)
+  if not victoryFrame then
+   victoryFrame=f;victoryHealth=emu:read8(gNativePartyHealth)
+   out:write('VICTORY frame='..f..' hp='..victoryHealth..'\n');out:flush()
+  end
+  if f-victoryFrame>=120 then
+   finish(world==3 and emu:read8(gNativePartyHealth)==victoryHealth,'completed three worlds; terminal floor and Sora HP remain stable for 120 frames')
+  end
+  return
+ end
+ if goalWorlds>0 and goalWorlds<3 and world>=goalWorlds then finish(true,'completed '..goalWorlds..' worlds through native input');return end
  if goalWorlds==0 and room>=goalRoom then finish(true,'walked from native spawn to room '..room);return end
  if world~=previousWorld then
   out:write('WORLD '..world..' frames='..f..'\n');out:flush()

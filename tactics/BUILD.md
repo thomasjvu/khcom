@@ -365,3 +365,17 @@ members and preserves native attached-stair input. `lua
 tests/tactics_traversal_party_test.lua` checks that input policy against a
 read-only memory mock. This is not a native gameplay rule change, damage
 adjustment or a complete-run pass.
+
+
+**Input-only three-world victory (final 0.13 ROM):**
+`party-guard-three-world-evidence/traversal.txt` passes at 79,150 frames with
+17 kills, 680 movement commands and 24 real Goofy Guards. The replay crosses
+all three native worlds, clears their exit encounters and reaches native
+`gNativeFloor=3` / `gNativeResult=2`. It never writes emulated RAM, teleports,
+changes enemy HP or forces a transition. Its ROM SHA-256 matches the final
+release exactly:
+`b62b7dd78a498760caee1fab0f8fc4b4c79540af3fa2ff575d5e352cdabf45d8`.
+This proves one default-seed victory path. It does not cover optional branches,
+input-only chest opening, other seeds, suspend during the full run or physical
+hardware. Those scopes remain separate from the passing explicit fixtures.
+The full polish goal remains active.

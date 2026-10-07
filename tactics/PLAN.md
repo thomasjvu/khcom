@@ -48,6 +48,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Three-world progression, defeat, run-clear and retry with a new seed.
 - Room/world transitions retain selected member, all party turn budgets and Guard; actual native forward/back door crossings are emulator checked.
 - Appended code and RAM, bounded Thumb hooks; original ROM assets keep their addresses.
+- Input-only default-seed three-world victory on the final 0.13 ROM: 79,150 frames, 17 kills, 680 movement commands and 24 Goofy Guards; no teleports, forced exits or emulated RAM writes.
 - Asset-free rules/save/graph tests and local mGBA smoke/scenario replays.
 
 ## Remaining implementation sequence
@@ -84,6 +85,6 @@ handlers and lifecycle/progression, not a complete player-driven run.
 Party/card/save integration replays verify selection, independent budgets,
 character bonuses, discards, reload costs, exact state restoration and
 corrupted-slot fallback. Healing HP and corruption are deliberate test fixtures.
-Physical hardware, physical route guarantees and an input-only three-world
-run remain unverified. The polish goal remains active. Keep the matching US build
+One default-seed input-only three-world victory is verified. Physical hardware,
+physical route guarantees, optional reward/branch coverage and other seeds remain unverified. The polish goal remains active. Keep the matching US build
 byte-identical and never include ROMs or extracted game assets in Git or patches.

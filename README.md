@@ -23,7 +23,8 @@ World-specific groups include Shadow, Red Nocturne, Darkball and Black Fungus.
 A Large Body exit guardian telegraphs its charged area attack before resolving
 it, with damage projected above threatened party members. Physical room
 reachability guarantees, climb/jump routes, canonical boss encounters, reward
-choices and complete-run QA remain pending. Native stairs now use one
+choices and broader complete-run QA remain pending. An input-only emulator replay
+completes all three worlds for the default seed, using native card combat and Goofy’s Guard. Native stairs now use one
 movement point per sixteen-pixel climb segment, with exact attached-state suspend.
 Door travel preserves the selected member, every party budget and active Guard;
 backtracking cannot refill turn resources. One B press commits a native full-height
