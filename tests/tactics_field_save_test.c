@@ -14,8 +14,10 @@ int main(void) {
     s.roomCached[9]=1;s.roomEnemies[9]=1;s.encounters[9][0].hp=7;s.encounters[9][0].pos[2]=-16;
     s.partyPos[2][0]=0x11000;s.partyPos[2][2]=-4096;
     assert(FieldSaveEncode(&s,0xffffffffu,a));
+    assert(FieldDeckStock(&s.deck)&&FieldDeckStock(&s.deck));
     s.hp=72;s.partyHp[2]=72;assert(FieldSaveEncode(&s,0,b));
     assert(FieldSaveSelect(&loaded,&gen,a,b)==1&&gen==0&&loaded.hp==72);
+    assert(loaded.deck.stocked==2&&loaded.deck.pile[loaded.deck.stock[0]]==4);
     assert(loaded.partyPos[2][2]==-4096&&loaded.encounters[0][0].hp==19&&loaded.encounters[9][0].hp==7&&loaded.encounters[9][0].pos[2]==-16);
     for(i=0;i<FIELD_SAVE_SIZE;i++) {
         b[i]^=1;

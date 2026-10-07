@@ -9,6 +9,8 @@ tiles, card pictures, value digits, chests and doors.
 | D-pad | Commit a short movement step; adjacent directions allow diagonals |
 | Select | Switch Sora → Donald → Goofy; each retains movement/action budgets |
 | L / R | Select the previous/next card in the five-card hand |
+| L + A | Stock the selected card; stock three, then release L and press A for a sleight |
+| L + B | Return stocked cards to the deck without exhaustion |
 | A | Play the selected card from the active member's position |
 | B | Jump; combine with a direction for a moving jump |
 | D-pad / B while hanging | Climb / drop using native ledge physics |
@@ -28,6 +30,12 @@ later enemies can retarget if an earlier attack knocks out a member.
 
 The shared deck starts with twelve cards. The hand contains up to five cards;
 playing a card discards it and draws a replacement. L+R reloads discarded cards.
+A sleight combines three card values. The most frequent type chooses the
+result (ties favor Kingdom Key, then Fire, Cure and Guard): an area melee
+attack, an area Fire attack, party-wide Cure, or full Guard. It costs one
+action. The first stocked card is exhausted for the run; the other two enter
+discard. Stocked cards use original card pictures and survive suspend/resume.
+
 Kingdom Key uses the original sword hitbox, Fire strikes the nearest enemy within
 range and height limits, Cure heals the most injured nearby member (including knocked-out friends), and Guard reduces the next enemy phase's
 damage. Donald gets a Cure/Fire bonus; Goofy gets stronger Guard. Donald's cast
@@ -48,6 +56,6 @@ latest slot falls back to the older valid slot. Defeat/run clear invalidates
 suspends. Save files from earlier flat-board or field prototypes are incompatible.
 
 This is still a development build. Physical route guarantees, cursor/path and
-projected intent previews, sleights, reward choices, distinct boss sprites/AI, complete
+projected intent previews, reward choices, distinct boss sprites/AI, complete
 input-only run testing and hardware validation remain unfinished. Native room
 creation currently resets party positions/budgets to the entry door.

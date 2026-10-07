@@ -18,6 +18,18 @@ int main(void) {
     assert(FieldDeckHand(&d, 4) >= 0);
     for (i = 0; i < 12; i++) assert(FieldDeckReward(&d, i * 983u));
     assert(!FieldDeckReward(&d, 1));assert(FieldDeckValid(&d));
+    FieldDeckInit(&d);
+    assert(FieldDeckStock(&d)&&FieldDeckStock(&d)&&FieldDeckStock(&d));
+    assert(!FieldDeckStock(&d)&&FieldDeckValid(&d));
+    {
+        int kind,value;
+        assert(FieldDeckSleight(&d,&kind,&value)&&kind==0&&value==18);
+        assert(d.pile[0]==3&&d.pile[1]==2&&d.pile[2]==2);
+        assert(FieldDeckReload(&d)&&d.pile[0]==3);
+        assert(FieldDeckStock(&d));FieldDeckCancelStock(&d);
+        assert(FieldDeckValid(&d)&&d.stocked==0);
+        assert(!FieldDeckSleight(&d,&kind,&value));
+    }
     d.kind[0] = 4;assert(!FieldDeckValid(&d));
     puts("field deck: depletion, reload, values, selection, rewards passed");
     return 0;

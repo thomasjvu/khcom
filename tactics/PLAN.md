@@ -26,6 +26,8 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Enemy damage and positions persist across all visited rooms and reboot.
 - Original Donald casting and Goofy guard animation resources.
 - Discrete enemy decisions, health, value checks, height-limited attacks and stronger exits.
+- Three-card native sleights, combined values, first-card exhaustion, stock cancellation
+  and original stock artwork; emulator-verified save/reload behavior.
 - Native twelve-card shared deck, five-card hand, original card/value artwork,
   discard/reload, Kingdom Key/Fire/Cure/Guard, character bonuses and chest cards.
 - Exact native suspend snapshots in checksummed dual SRAM slots; emulator-tested
@@ -49,7 +51,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
    recovery, world-specific behavior and collision/occupancy checks. Add telegraphed targets, occupancy rules and richer enemy behaviors.
    Independent party HP and partial encounter persistence are implemented. Keep animations
    running during input wait without advancing authoritative actions.
-3. **Port the tested card systems.** Extend the native deck with exhaust, sleights and target selection.
+3. **Port the tested card systems.** Extend the native deck with target selection and richer named sleight recipes.
    The basic draw/discard/reload and card effects already run in the field.
    Remove assumptions about an 8x6 board. Add projected target/range previews
    and a GBA-sized card HUD using original resources.

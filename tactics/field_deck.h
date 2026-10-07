@@ -13,9 +13,13 @@ typedef struct FieldDeck {
     unsigned char pile[FIELD_DECK_MAX];
     unsigned char count;
     unsigned char selected;
+    unsigned char stock[3], stocked;
 } FieldDeck;
 void FieldDeckInit(FieldDeck* deck);
 int FieldDeckHand(const FieldDeck* deck, int slot);
+int FieldDeckStock(FieldDeck* deck);
+int FieldDeckSleight(FieldDeck* deck, int* kind, int* value);
+void FieldDeckCancelStock(FieldDeck* deck);
 int FieldDeckPlay(FieldDeck* deck);
 void FieldDeckCycle(FieldDeck* deck, int direction);
 int FieldDeckReload(FieldDeck* deck);

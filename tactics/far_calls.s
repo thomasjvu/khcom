@@ -671,3 +671,12 @@ TacFar_GetBgCharBase:
  bx r3
 .balign 4
 1: .word GetBgCharBase + 1
+
+.balign 4
+.global TacFar_memset
+.thumb_func
+TacFar_memset:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word memset + 1

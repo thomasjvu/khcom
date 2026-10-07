@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.4-party.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.4-party.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.5-party.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.5-party.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -135,6 +135,10 @@ Run integration replays against a fresh copy of the ROM with its own filename
 and save file, so an existing suspend does not change the starting state.
 
 The native version still needs height-aware route and
-intent previews, physical reachability guarantees, distinct bosses, sleights,
+intent previews, physical reachability guarantees, distinct bosses, named sleight recipes,
 input-only complete-run QA and hardware validation. The board alpha's earlier
 emulator results do not establish these features in the native target.
+
+Native sleight replay: generate with `tools/tactics_sleight_smoke.py ELF OUTPUT`,
+then run its `sleights.lua` in mGBA against a fresh ROM copy. It verifies
+stocking, save/reset recovery, field effect, exhaustion, reload and cancellation.

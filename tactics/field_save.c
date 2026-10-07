@@ -40,6 +40,7 @@ static int Pack(const FieldSaveState* s,unsigned char* p) {
     WORD(s->turn);WORD(s->kills);WORD(s->chests);
     for(i=0;i<12;i++){WORD(s->roomFlags[i]);BYTE(s->roomEnemies[i]);}
     BYTE(s->deck.count);BYTE(s->deck.selected);
+    BYTE(s->deck.stocked);for(i=0;i<3;i++){BYTE(s->deck.stock[i]);}
     for(i=0;i<FIELD_DECK_MAX;i++){BYTE(s->deck.kind[i]);BYTE(s->deck.value[i]);BYTE(s->deck.pile[i]);}
     for(i=0;i<3;i++){for(j=0;j<4;j++){WORD(s->partyPos[i][j]);}BYTE(s->move[i]);BYTE(s->action[i]);BYTE(s->partyHp[i]);}
     for(k=0;k<12;k++) {
@@ -65,6 +66,7 @@ static int Unpack(FieldSaveState* s,const unsigned char* p) {
     WORD(s->turn);WORD(s->kills);WORD(s->chests);
     for(i=0;i<12;i++){WORD(s->roomFlags[i]);BYTE(s->roomEnemies[i]);}
     BYTE(s->deck.count);BYTE(s->deck.selected);
+    BYTE(s->deck.stocked);for(i=0;i<3;i++){BYTE(s->deck.stock[i]);}
     for(i=0;i<FIELD_DECK_MAX;i++){BYTE(s->deck.kind[i]);BYTE(s->deck.value[i]);BYTE(s->deck.pile[i]);}
     for(i=0;i<3;i++){for(j=0;j<4;j++){WORD(s->partyPos[i][j]);}BYTE(s->move[i]);BYTE(s->action[i]);BYTE(s->partyHp[i]);}
     for(k=0;k<12;k++) {
@@ -84,13 +86,13 @@ static int Unpack(FieldSaveState* s,const unsigned char* p) {
 int FieldSaveEncode(const FieldSaveState* s,unsigned int gen,unsigned char* out) {
     int i,n;if(!Valid(s))return 0;
     for(i=0;i<FIELD_SAVE_SIZE;i++)out[i]=0;
-    out[0]='K';out[1]='T';out[2]='F';out[3]='S';out[4]=5;
+    out[0]='K';out[1]='T';out[2]='F';out[3]='S';out[4]=6;
     Put(out+8,gen);n=Pack(s,out+16);out[6]=n&255;out[7]=n>>8;
     Put(out+FIELD_SAVE_SIZE-4,Crc(out));return 1;
 }
 int FieldSaveDecode(FieldSaveState* s,unsigned int* gen,const unsigned char* data) {
     FieldSaveState candidate;int n;
-    if(data[0]!='K'||data[1]!='T'||data[2]!='F'||data[3]!='S'||data[4]!=5||data[5]||Get(data+FIELD_SAVE_SIZE-4)!=Crc(data))return 0;
+    if(data[0]!='K'||data[1]!='T'||data[2]!='F'||data[3]!='S'||data[4]!=6||data[5]||Get(data+FIELD_SAVE_SIZE-4)!=Crc(data))return 0;
     n=Unpack(&candidate,data+16);
     if(n!=(data[6]|data[7]<<8)||!Valid(&candidate))return 0;
     *s=candidate;*gen=Get(data+8);return 1;

@@ -212,6 +212,16 @@ static void NativePartyDraw(void) {
             DrawSprite(x - 3, y - 4, gCardValueDigitFrames[gNativeDeck.value[card]],
                 sValueTiles, sValuePalette, NULL, 0, 1);
     }
+    for (i = 0; i < gNativeDeck.stocked; i++) {
+        card = gNativeDeck.stock[i];kind = gNativeDeck.kind[card];
+        if (sCardTiles[kind] && sCardPalettes[kind])
+            DrawSprite(164 + i * 27, 49, sCards[kind]->gfx2,
+                sCardTiles[kind], sCardPalettes[kind], NULL, 0, 2);
+        if (sValueTiles && sValuePalette)
+            DrawSprite(161 + i * 27, 45, gCardValueDigitFrames[gNativeDeck.value[card]],
+                sValueTiles, sValuePalette, NULL, 0, 1);
+    }
+
 }
 static void NativePartyFree(void) {
     u8 i;
@@ -436,6 +446,7 @@ static void NativeHud(void) {
     char location[] = "FLOOR 1 ROOM 00";
     char health[] = "S00 D00 G00";
     char threat[] = "NEXT S00 D00 G00";
+    char stock[] = "STOCK 0 A SLEIGHT";
     u16 hp = gGameState.hp;
     int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
     static const char* const names[4] = {"KEYBLADE A PLAY", "FIRE A PLAY", "CURE A PLAY", "GUARD A PLAY"};
@@ -479,7 +490,8 @@ static void NativeHud(void) {
         threat[6 + i * 4] = '0' + gNativeThreats[i] / 10;
         threat[7 + i * 4] = '0' + gNativeThreats[i] % 10;
     }
-    NativeLabel(0, 24, threat);
+    stock[6] += gNativeDeck.stocked;
+    NativeLabel(0, 24, gNativeDeck.stocked ? stock : threat);
     DebugTextDraw(0);
     /* DebugText indexes tiles by screen row. Rendering below y=120 from
      * char bank 3 would overflow BG VRAM into actor OBJ tiles. Render the
@@ -698,6 +710,34 @@ static void NativeCure(void) {
     gGameState.hp = gNativePartyHealth.hp[gNativeParty];
 }
 
+u16 gNativeSleights;
+static void NativeSleight(void) {
+    int kind, value;
+    u8 i;
+    MapEnmWork* work;
+    s32 distance, height;
+    if (!FieldDeckSleight(&gNativeDeck, &kind, &value)) return;
+    sPlayedValue = value;
+    NativePartyPose(gNativeParty);
+    if (kind == FIELD_CARD_CURE) {
+        for (i = 0; i < 3; i++) FieldPartyHeal(&gNativePartyHealth, i, 12 + value);
+        gGameState.hp = gNativePartyHealth.hp[gNativeParty];
+    } else if (kind == FIELD_CARD_GUARD) gNativeGuard = 2;
+    else {
+        for (i = 0; i < 6; i++) if (sEnemyTasks[i]) {
+            work = sEnemyTasks[i]->work;
+            distance = NativeAbs(work->obj.fieldPosition.x - gFieldState->actor.fieldPosition.x) +
+                NativeAbs(work->obj.fieldPosition.y - gFieldState->actor.fieldPosition.y);
+            height = NativeAbs(work->obj.fieldPosition.z - gFieldState->actor.fieldPosition.z);
+            if (distance <= ((kind == FIELD_CARD_FIRE ? 144 : 64) << 8) && height <= (24 << 8))
+                NativeDamageEnemy(sEnemyTasks[i], 8 + value + (gNativeParty == 1 && kind == FIELD_CARD_FIRE ? 4 : 0));
+        }
+    }
+    gNativeSleights++;
+    gNativeActionLeft = 0;
+    gNativeCommands++;
+}
+
 static void NativeSyncHealth(void) {
     if (gGameState.hp > gNativePartyHealth.maxHp[gNativeParty])
         gGameState.hp = gNativePartyHealth.maxHp[gNativeParty];
@@ -737,6 +777,10 @@ static void NativeUpdate(void) {
         if ((raw & (START_BUTTON | SELECT_BUTTON)) == (START_BUTTON | SELECT_BUTTON) &&
             (pressed & (START_BUTTON | SELECT_BUTTON))) {
             NativeWriteSuspend();
+        } else if ((raw & L_BUTTON) && (pressed & A_BUTTON)) {
+            if (gNativeDeck.stocked < 3) FieldDeckStock(&gNativeDeck);
+        } else if ((raw & L_BUTTON) && (pressed & B_BUTTON)) {
+            FieldDeckCancelStock(&gNativeDeck);
         } else if (pressed & SELECT_BUTTON) {
             NativePartySelect();
         } else if ((raw & (L_BUTTON | R_BUTTON)) == (L_BUTTON | R_BUTTON) &&
@@ -760,7 +804,9 @@ static void NativeUpdate(void) {
             gNativeMoveLeft--;
             gNativeCommands++;
         } else if ((pressed & (A_BUTTON | B_BUTTON)) && gNativeActionLeft) {
-            if (pressed & A_BUTTON) {
+            if ((pressed & A_BUTTON) && gNativeDeck.stocked == 3) {
+                NativeSleight();
+            } else if (pressed & A_BUTTON) {
                 int card = FieldDeckPlay(&gNativeDeck);
                 if (card >= 0) {
                     u8 kind = gNativeDeck.kind[card];
