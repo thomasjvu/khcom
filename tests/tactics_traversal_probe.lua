@@ -224,7 +224,42 @@ end
 local function requestTurn()
  endingTurn=true;best=nil;index=1;emu:setKeys(turnKey());phase='release';nextFrame=f+4
 end
+-- Read-only structured collision evidence for investigating failed navigation.
+local function navigationSnapshot(name)
+ local file=io.open('@OUTPUT@/'..(name or 'navigation-snapshot.json'),'w')
+ local r=emu:read32(gMapRoomState);local cols=emu:read16(r+4);local rows=emu:read16(r+6)
+ local x,y,z=pos();local dx,dy,dz=door();local cells=emu:read32(sMapCells)
+ file:write(string.format('{"seed":%u,"floor":%u,"room":%u,"cols":%u,"rows":%u,"position":[%d,%d,%d],"goal":[%d,%d,%d],"cells":[',emu:read32(gNativeSeed),emu:read16(gNativeFloor),emu:read8(gMapFloorState+6),cols,rows,x,y,z,dx or 0,dy or 0,dz or 0))
+ for cy=0,rows-1 do for cx=0,cols-1 do
+  local a=cells+(cy*cols+cx)*32
+  if cx+cy*cols>0 then file:write(',') end
+  file:write(string.format('{"kind":%u,"flags":%u,"upper":%d,"lower":%d,"mask":[',emu:read8(a+2),emu:read16(a),signed(emu:read32(a+8)),signed(emu:read32(a+12))))
+  local table=emu:read32(a+16)
+  for py=0,15 do
+   local bits=0
+   for px=0,31 do
+    local block=emu:read8(table+math.floor(px/8)+math.floor(py/8)*4)
+    local bit=(emu:read8(gCellMasks+block*8+py%8)>>(7-px%8))&1
+    bits=(bits<<1)|bit
+   end
+   file:write((py>0 and ',' or '')..string.format('%u',bits))
+  end
+  file:write(']}')
+ end end
+ file:write('],"props":[')
+ local node=emu:read32(sColliderPoolObstacle+8);local count=0
+ while node~=0 and count<128 do
+  if (emu:read16(node+12)&2)==0 then
+   local c=emu:read32(node)
+   file:write((count>0 and ',' or '')..string.format('[%d,%d,%d,%d,%d]',signed(emu:read32(c+4)),signed(emu:read32(c+8)),signed(emu:read32(c+12)),signed(emu:read32(c+16)),signed(emu:read32(c+20))))
+   count=count+1
+  end
+  node=emu:read32(node+8)
+ end
+ file:write(']}\n');file:close()
+end
 local function finish(ok,why)
+ navigationSnapshot()
  emu:setKeys(0)
  local x,y,z=pos()
  local r=emu:read32(gMapRoomState);local cols=emu:read16(r+4);local rows=emu:read16(r+6);local cells=emu:read32(sMapCells)
@@ -273,6 +308,7 @@ local function replayFrame()
   out:write('MODE current='..string.format('%x',emu:read32(gCurrentMode))..' update='..string.format('%x',emu:read32(gCurrentModeUpdate))..' pending='..string.format('%x',emu:read32(gPendingMode))..' busy='..emu:read16(gNativeBusy)..'\n')
   finish(false,'left native tactics mode');return
  end
+ if f==180 then navigationSnapshot('navigation-initial.json') end
  if recruitCloud and not cloudRecruited and (emu:read8(gNativeRoster)&8)~=0 then
   cloudRecruited=true;out:write('CLOUD RECRUITED frame='..f..'\n');out:flush()
  end

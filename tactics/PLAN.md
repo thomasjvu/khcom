@@ -191,3 +191,30 @@ corrupted-slot fallback. Healing HP and corruption are deliberate test fixtures.
 One default-seed input-only three-world victory is verified. Physical hardware,
 physical route guarantees, optional reward/branch coverage and other seeds remain unverified. The polish goal remains active. Keep the matching US build
 byte-identical and never include ROMs or extracted game assets in Git or patches.
+
+## Castle pillar physical-path investigation
+
+A diagnostic suspend reproduces seed 2658846982, Castle room 0, position
+47044/96763/8192 and door 12288/99840/8192. It explicitly removes enemies
+and overrides party state, so it is not input-only fresh-campaign evidence.
+The first fixture incorrectly cleared room-created flags and left doors closed;
+that failed run is excluded from normal door conclusions. The corrected fixture
+preserves FLOOR_ROOM_FLAG_CREATED and still reaches its navigation bound.
+Collision snapshots record original map masks and prop colliders read-only.
+
+`tools/tactics_navigation_analyze.py` sweeps same-height floor footprints and
+circular props at 16-, 8- and 4-pixel horizontal spacing. In the corrected
+snapshot no walking path reaches the door tolerance; closest distances are
+127.80, 127.80 and 123.80 pixels. Diagnostic exclusion of the large prop at
+36864/167936/8192 (radius8192) makes the 4-pixel path reach the door tolerance;
+excluding only the smaller prop does not. This model excludes actors, jumps,
+view-dependent collider disabling and native execution, so it is evidence of
+walking obstruction rather than proof that the room is impossible.
+
+Original MapGmkGp01WaitHit in src/map/map_tasks.c supports field attacks that
+disable its collider, mark its placement destroyed and play the break animation.
+The current replay never deliberately breaks blocking scenery. Next: verify
+native Keyblade interaction with this particular pillar, then integrate prop
+interaction into navigation and repeat campaign coverage. Do not erase native
+props or increase replay bounds solely to bypass the failure. Diagnostic ROM
+copies were removed after disk exhaustion; saves, logs and snapshots remain.
