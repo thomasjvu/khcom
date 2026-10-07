@@ -12,7 +12,7 @@ static unsigned int Crc(const unsigned char* p) {
 }
 static int Valid(const FieldSaveState* s) {
     int i,j,k,n;
-    if(s->floor>2||s->room>=12||s->party>2||!s->hp||s->hp>80||s->guard>2||!FieldDeckValid(&s->deck))return 0;
+    if(s->floor>2||s->room>=12||s->party>2||!s->hp||s->hp>80||s->guard>2||!FieldDeckValid(&s->deck)||!FieldRosterValid(&s->roster))return 0;
     if(s->climbing>1||s->climbTarget<-0x100000||s->climbTarget>0x100000||
         (s->climbing&&s->climbAngle!=45&&s->climbAngle!=211))return 0;
     for(i=0;i<12;i++)if(s->roomEnemies[i]>FIELD_SAVE_ENEMIES)return 0;
@@ -56,11 +56,16 @@ static int Pack(const FieldSaveState* s,unsigned char* p) {
         }
     }
     BYTE(s->climbing);BYTE(s->climbAngle);WORD(s->climbTarget);
+    BYTE(s->roster.unlocked);
+    for(i=0;i<3;i++){BYTE(s->roster.deployed[i]);}
+    for(i=0;i<FIELD_HEROES;i++){BYTE(s->roster.power[i]);BYTE(s->roster.sleights[i]);}
+    BYTE(s->roster.cleared);BYTE(s->roster.cleared>>8);
+    BYTE(s->roster.phase);BYTE(s->roster.reward);BYTE(s->roster.room);
 #undef BYTE
 #undef WORD
     return n;
 }
-static int Unpack(FieldSaveState* s,const unsigned char* p) {
+static int Unpack(FieldSaveState* s,const unsigned char* p,int version) {
     int n=0,i,j,k;
 #define BYTE(v) v=p[n++]
 #define WORD(v) v=Get(p+n);n+=4
@@ -83,6 +88,14 @@ static int Unpack(FieldSaveState* s,const unsigned char* p) {
         }
     }
     BYTE(s->climbing);BYTE(s->climbAngle);WORD(s->climbTarget);
+    FieldRosterInit(&s->roster);
+    if(version>=9) {
+        BYTE(s->roster.unlocked);
+        for(i=0;i<3;i++){BYTE(s->roster.deployed[i]);}
+        for(i=0;i<FIELD_HEROES;i++){BYTE(s->roster.power[i]);BYTE(s->roster.sleights[i]);}
+        s->roster.cleared=p[n]|((unsigned int)p[n+1]<<8);n+=2;
+        BYTE(s->roster.phase);BYTE(s->roster.reward);BYTE(s->roster.room);
+    }
 #undef BYTE
 #undef WORD
     return n;
@@ -90,14 +103,14 @@ static int Unpack(FieldSaveState* s,const unsigned char* p) {
 int FieldSaveEncode(const FieldSaveState* s,unsigned int gen,unsigned char* out) {
     int i,n;if(!Valid(s))return 0;
     for(i=0;i<FIELD_SAVE_SIZE;i++)out[i]=0;
-    out[0]='K';out[1]='T';out[2]='F';out[3]='S';out[4]=8;
-    Put(out+8,gen);n=Pack(s,out+16);out[6]=n&255;out[7]=n>>8;
+    out[0]='K';out[1]='T';out[2]='F';out[3]='S';out[4]=9;
+    Put(out+8,gen);n=Pack(s,out+16);if(n>FIELD_SAVE_SIZE-20)return 0;out[6]=n&255;out[7]=n>>8;
     Put(out+FIELD_SAVE_SIZE-4,Crc(out));return 1;
 }
 int FieldSaveDecode(FieldSaveState* s,unsigned int* gen,const unsigned char* data) {
     FieldSaveState candidate;int n;
-    if(data[0]!='K'||data[1]!='T'||data[2]!='F'||data[3]!='S'||data[4]!=8||data[5]||Get(data+FIELD_SAVE_SIZE-4)!=Crc(data))return 0;
-    n=Unpack(&candidate,data+16);
+    if(data[0]!='K'||data[1]!='T'||data[2]!='F'||data[3]!='S'||(data[4]!=8&&data[4]!=9)||data[5]||Get(data+FIELD_SAVE_SIZE-4)!=Crc(data))return 0;
+    n=Unpack(&candidate,data+16,data[4]);
     if(n!=(data[6]|data[7]<<8)||!Valid(&candidate))return 0;
     *s=candidate;*gen=Get(data+8);return 1;
 }

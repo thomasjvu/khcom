@@ -30,3 +30,13 @@ Assembly, recruitment, upgrades and full reachable-tile overlays remain work.
 The existing shared card model will need character loadouts and a separate
 summon inventory; existing three fixed party identities cannot represent the
 complete roster without a save/state redesign.
+
+Roster model implemented in `field_roster.c`: assembly-only deployment with
+duplicate swaps, locked character checks, every-second-clear upgrade rewards,
+boss recruitment, repeat-clear reward suppression and bounded per-hero upgrades.
+It is stored in format-9 native suspend state. Format-8 saves migrate to the
+starter roster; a recorded native format-8 SRAM fixture passes decode/migration.
+Eleven native emulator checks verify character attacks and roster unlock/power/
+sleight persistence. The assembly/recruitment UI and combat identity mapping
+are not connected yet; Cloud is not playable simply because the roster holds
+his unlocked bit. Gameplay wiring remains required.

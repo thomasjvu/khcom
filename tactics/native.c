@@ -121,6 +121,7 @@ static void NativePartyPose(u8 member) {
     AnimChangeWithDef(sFriendAnims[member - 1], &friend->anim, 1,
         ANIM_FLAG_LOOP, friend->tiles);
 }
+FieldRoster gNativeRoster;
 static FldPos sPartyPos[3];
 static u16 sPartyMove[3], sPartyAction[3];
 static u16 sCarryMove[3], sCarryAction[3];
@@ -704,6 +705,7 @@ static void NativeRestoreWorld(void) {
     for (i = 0; i < 3; i++) gNativePartyHealth.hp[i] = sSuspend.partyHp[i];
     gGameState.hp = sSuspend.hp;
     gNativeDeck = sSuspend.deck;
+    gNativeRoster = sSuspend.roster;
     gNativeKills = sSuspend.kills;
     gNativeChests = sSuspend.chests;
     gNativeTurn = sSuspend.turn;
@@ -763,6 +765,7 @@ static void NativeWriteSuspend(void) {
     sSuspend.kills = gNativeKills;
     sSuspend.chests = gNativeChests;
     sSuspend.deck = gNativeDeck;
+    sSuspend.roster = gNativeRoster;
     for (i = 0; i < TAC_WORLD_ROOMS; i++) {
         sSuspend.roomFlags[i] = GetMapFloorRoom(i)->flags;
         sSuspend.roomEnemies[i] = GetMapFloorRoom(i)->enemiesLeft;
@@ -1770,6 +1773,7 @@ static void NativeUpdate(void) {
         gNativeKills = gNativeChests = 0;
         gGameState.hp = gGameState.progression.maxHp;
         FieldPartyInit(&gNativePartyHealth);
+        FieldRosterInit(&gNativeRoster);
         FieldDeckInit(&gNativeDeck);
         NativeBuildWorld();
         ModeRequest(&sNativeMode, 0);
@@ -2054,6 +2058,7 @@ void TacticsNativeMain(void) {
     SetupSoraNewGame();
     gGameState.progression.tutorialFlags = 0xffff;
     FieldPartyInit(&gNativePartyHealth);
+        FieldRosterInit(&gNativeRoster);
     FieldDeckInit(&gNativeDeck);
     gNativeSeed = 0x434f4d;
     gNativeFloor = 0;

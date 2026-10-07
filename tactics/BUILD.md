@@ -880,3 +880,14 @@ spins his shield across nearby enemies; previews match actual damage and attacks
 spend the selected member's action. Generator:
 `tools/tactics_character_moves_smoke.py`. Recruitment and party assembly requirements
 are tracked in `tactics/PARTY-ROGUELIKE.md`; those systems remain unfinished.
+
+Character attack build full-run/reset verification: source c19ee99f6,
+`character-moves-suspend-full-run-evidence/traversal.txt`, PASS frame 94,761,
+12 kills, 780 moves, Sora HP 58. Suspend at 18,098, verified resume at 18,428.
+This driver verifies all party positions, active member, HP/budgets/Guard, deck
+including selection, enemy HP and windups; then completes all three worlds and
+120 terminal stability frames. It predates format-9 roster serialization.
+
+Format-9 roster state: host save/rules tests and `roster-save-evidence/moves.txt`
+pass (11 native fixture checks). `tactics_field_legacy_save_test.c` also reads
+recorded format-8 native SRAM and verifies default roster migration.

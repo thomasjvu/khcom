@@ -269,7 +269,7 @@ if missing_assets:
 
 tactics_objects = []
 if args.tactics:
-    for source in ("tactics/worldgen.c", "tactics/field_deck.c", "tactics/field_party.c", "tactics/field_route.c", "tactics/field_enemy.c", "tactics/field_save.c", "tactics/native.c"):
+    for source in ("tactics/worldgen.c", "tactics/field_deck.c", "tactics/field_party.c", "tactics/field_roster.c", "tactics/field_route.c", "tactics/field_enemy.c", "tactics/field_save.c", "tactics/native.c"):
         obj = f"{build_dir}/tactics/{Path(source).stem}.o"
         units.append((Path(source), obj, None))
         tactics_objects.append(obj)

@@ -7,7 +7,8 @@ int main(void) {
     unsigned char a[FIELD_SAVE_SIZE],b[FIELD_SAVE_SIZE];
     unsigned int gen;
     int i;
-    memset(&s,0,sizeof(s));FieldDeckInit(&s.deck);
+    memset(&s,0,sizeof(s));FieldDeckInit(&s.deck);FieldRosterInit(&s.roster);
+    s.roster.unlocked=15;s.roster.deployed[1]=FIELD_CLOUD;s.roster.power[FIELD_CLOUD]=3;s.roster.sleights[FIELD_DONALD]=5;
     s.partyHp[0]=80;s.partyHp[1]=56;s.partyHp[2]=64;
     s.seed=0x434f4du;s.hp=64;s.party=2;s.move[2]=2;s.guard=2;
     s.roomEnemies[0]=1;s.roomCached[0]=1;s.encounters[0][0].hp=19;s.encounters[0][0].kind=1;
@@ -17,6 +18,7 @@ int main(void) {
     assert(FieldDeckStock(&s.deck)&&FieldDeckStock(&s.deck));
     s.hp=72;s.partyHp[2]=72;assert(FieldSaveEncode(&s,0,b));
     assert(FieldSaveSelect(&loaded,&gen,a,b)==1&&gen==0&&loaded.hp==72);
+    assert(loaded.roster.unlocked==15&&loaded.roster.deployed[1]==FIELD_CLOUD&&loaded.roster.power[FIELD_CLOUD]==3&&loaded.roster.sleights[FIELD_DONALD]==5);
     assert(loaded.deck.stocked==2&&loaded.deck.pile[loaded.deck.stock[0]]==4);
     assert(loaded.partyPos[2][2]==-4096&&loaded.encounters[0][0].hp==19&&loaded.encounters[9][0].hp==7&&loaded.encounters[9][0].pos[2]==-16);
     for(i=0;i<FIELD_SAVE_SIZE;i++) {

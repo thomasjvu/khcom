@@ -1,6 +1,7 @@
 #ifndef FIELD_SAVE_H
 #define FIELD_SAVE_H
 #include "field_deck.h"
+#include "field_roster.h"
 #define FIELD_SAVE_SIZE 1024
 #define FIELD_SAVE_ENEMIES 6
 /* Field enemies move on whole pixels. Signed pixel coordinates preserve the
@@ -15,6 +16,7 @@ typedef struct FieldSaveState {
     unsigned int roomFlags[12];
     unsigned char roomEnemies[12];
     FieldDeck deck;
+    FieldRoster roster;
     int partyPos[3][4];
     FieldEncounter encounters[12][FIELD_SAVE_ENEMIES];
     unsigned char roomCached[12];

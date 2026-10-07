@@ -98,8 +98,8 @@ the shared deck, individual HP, every visited room encounter and seed in
 two checksummed 1,024-byte SRAM slots. Partially damaged enemies keep their
 health and positions when you backtrack. A damaged
 latest slot falls back to the older valid slot. Defeat/run clear invalidates
-suspends. This build uses save format 8 to preserve enemy identity, charged attacks and the active
-stair controller’s target/facing. Format 7 and earlier saves are incompatible.
+suspends. This build writes save format 9 (including roster state) and reads format 8 to preserve enemy identity, charged attacks and the active
+stair controller’s target/facing. Format 8 initializes the starter roster; format 7 and earlier saves are incompatible.
 
 This is still a development build. Physical room reachability guarantees, climb/jump routes and
 full area/range overlays, richer rewards, additional boss moves, complete
