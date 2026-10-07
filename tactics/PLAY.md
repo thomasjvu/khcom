@@ -267,3 +267,8 @@ His personal Cure recipe enhancement adds another four to matching three-Cure
 sleights. Recovery is capped separately at each hero's missing health, including
 revival of knocked-out companions. Original digits preview the exact recovery
 before the action and cards are spent.
+
+After landing on solid scenery, L+D-pad can preview walking across its top.
+Reachable destinations stay within the original prop footprint and preserve the
+terrain ground beneath it. Use native jump/drop movement to leave the edge;
+prop ascent and descent are not yet combined into a single preview route.

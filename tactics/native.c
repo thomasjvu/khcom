@@ -1688,6 +1688,27 @@ static u32 NativeRouteFingerprint(void) {
 #undef ROUTE_HASH
     return hash;
 }
+/* Preserve native ground beneath a prop while previewing its standing top.
+ * Only centers inside the original collider footprint are admitted; walking
+ * off an edge still uses the separate native drop/jump controller. */
+static int NativeRoutePropTop(const FldPos* pos) {
+    ListNode* node=sRouteObstacles->activeHead;
+    Collider* collider;
+    s32 dx,dy,radius;
+    while (node) {
+        if (!(node->flags & LIST_NODE_FLAG_SKIP)) {
+            collider=node->owner;
+            if (pos->z==collider->z-collider->height) {
+                dx=NativeAbs(pos->x-collider->x)>>4;
+                dy=NativeAbs(pos->y*2-collider->y)>>4;
+                radius=collider->radius>>4;
+                if (dx<radius && dy<radius && dx*dx+dy*dy<radius*radius) return 1;
+            }
+        }
+        node=node->next;
+    }
+    return 0;
+}
 static void NativeBuildRoute(FldPos origin, Task* task) {
     FldPos* pos;
     MapCell* cell;
@@ -1710,8 +1731,13 @@ static void NativeBuildRoute(FldPos origin, Task* task) {
         /* An upper ledge may be walkable above a void lower surface.
          * Reject the sampled floor, not the unrelated surface below it. */
         if (floor == 0x100000 || floor == -0x100000) continue;
-        pos->y += pos->z - floor;
-        pos->z = pos->ground = floor;
+        if (sRoutePlayer && origin.z<origin.ground && NativeRoutePropTop(pos)) {
+            /* z is the top height; ground remains the terrain below it. */
+            pos->ground=GetFldPosGround(pos);
+        } else {
+            pos->y += pos->z - floor;
+            pos->z = pos->ground = floor;
+        }
         if (NativeRouteClear(*pos)) sRouteValid[i] = 1;
     }
 }

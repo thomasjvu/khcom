@@ -53,9 +53,19 @@ callbacks:add('frame',function()
   emu:screenshot('@OUTPUT@/top.png');emu:setKeys(8)
  end
  if f==324 then emu:setKeys(0) end
- if f==440 or f==500 or f==560 then emu:setKeys(32) end
- if f==444 or f==504 or f==564 then emu:setKeys(0) end
- if f==680 then
+ if f==440 then emu:setKeys(544) end
+ if f==480 then
+  check(emu:read16(gNativePreview)==1 and emu:read16(gNativeRouteCost)==1,'pillar top exposes an affordable walking preview')
+  emu:screenshot('@OUTPUT@/top-preview.png');emu:setKeys(1)
+ end
+ if f==484 then emu:setKeys(0) end
+ if f==540 then
+  check(emu:read32(emu:read32(gFieldState)+0x20)==0,'previewed walking preserves native pillar top height')
+  check(emu:read16(gNativeMoveLeft)==2 and emu:read16(gNativeActionLeft)==1,'top route charges one movement and preserves refreshed action')
+ end
+ if f==560 or f==620 then emu:setKeys(32) end
+ if f==444 or f==564 or f==624 then emu:setKeys(0) end
+ if f==740 then
   local p=emu:read32(gFieldState)
   out:write('FAR SIDE x='..emu:read32(p+0x18)..' y='..emu:read32(p+0x1c)..' z='..emu:read32(p+0x20)..' ground='..emu:read32(p+0x24)..' move='..emu:read16(gNativeMoveLeft)..' action='..emu:read16(gNativeActionLeft)..'\n');out:flush()
   check(emu:read32(p+0x18)<emu:read32(collider+4)-emu:read32(collider+16),'native movement crosses beyond the pillar footprint')

@@ -255,3 +255,24 @@ into reachable navigation and preview/execution, with action-aware jump cost,
 then rerun the second seed's complete campaign at the original bounded limit.
 Do not replace original scenery or claim the current replay already uses this
 connection. The current traversal driver only models terrain wall connections.
+
+### Native prop-top walking previews
+
+Walking route generation now recognizes the top of enabled original scenery
+colliders when the player stands above the terrain ground. Preview positions
+preserve the native underlying ground and top height instead of snapping back
+to the floor. Centers must remain inside the original circular footprint;
+terrain footprint checks, actor occupancy, swept walking links and the native
+controller still apply. No additional reserved RAM is used (8132/8192 bytes).
+Ascent and leaving a prop edge remain separate native commands.
+
+`castle-top-preview-final-evidence` passes eleven native checks on this ROM:
+original static pillar identity, jump landing/resource cost, affordable top
+walking preview, native confirmation at top height with one movement and
+unspent action, and subsequent far-side floor landing. The approach and saved
+room are explicit fixtures, so this is not full campaign proof. Twenty-seven
+composed stair/descent/party/save checks pass separately on the same exact ROM.
+The build/header limits and full host sanitizer suite pass. A screenshot
+confirms original sprites/scenery and card-digit route overlay on the pillar.
+The second-seed replay still needs prop connections in its navigator and a new
+complete campaign verification; earlier campaign evidence is on older ROMs.
