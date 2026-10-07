@@ -27,6 +27,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Player-facing attached-stair segment preview via L+Up/Down, projected original digit, A confirmation and B cancellation; 23 emulator checks include attached saves and drop.
 - Budgeted 16-pixel stair segments, native ascent/descent/drop, safe party switching and exact stair suspend/resume.
 - Selectable Sora/Donald/Goofy with individual movement/action budgets and original sprites.
+- Selected Cure names the intended recipient using the same range/height/missing-health calculation as the actual heal; party replay covers injured and knocked-out targets.
 - Individual HP, friend knockouts, selection skipping and Cure/chest revival.
 - HUD and projected original-digit damage estimates using enemy range/height/guard rules, emulator checked.
 - Seeded world-specific enemy groups with ranged Red Nocturnes, Darkballs and Black Fungus.

@@ -15,8 +15,9 @@ callbacks:add('frame',function()
  if f==314 then emu:setKeys(0) end
  if f==330 then
   check(emu:read8(gNativeDeck+73)==2,'R selects Cure in the real hand')
-  emu:write16(gGameState+0x32,40);emu:setKeys(1)
+  emu:write16(gGameState+0x32,40)
  end
+ if f==332 then check(emu:read16(gNativeCureTarget)==1,'Cure preview selects injured Donald before play');emu:screenshot('@OUTPUT@/cure-target.png');emu:setKeys(1) end
  if f==334 then emu:setKeys(0) end
  if f==370 then
   check(hp()==56,'Donald Cure has healing bonus')
@@ -86,8 +87,8 @@ callbacks:add('frame',function()
     slot=slot+1
    end
   end
-  emu:setKeys(1)
  end
+ if f==922 then check(emu:read16(gNativeCureTarget)==1,'Cure preview identifies nearby knocked-out Donald');emu:setKeys(1) end
  if f==924 then emu:setKeys(0) end
  if f==960 then
   check(emu:read8(gNativePartyHealth+1)==reviveHp and reviveHp>0,'Cure revives nearby knocked-out Donald')

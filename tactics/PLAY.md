@@ -105,3 +105,5 @@ next sixteen-pixel vertical segment. The original value digit marks the
 vertical destination. A confirms for one movement point; B cancels without
 dropping. Outside a preview, B retains the normal drop action. These are
 single-segment previews, not combined walking/climbing routes.
+
+Selecting Cure names its intended party member in the HUD before play. It chooses the nearby member missing the most HP, including knocked-out friends; height and range still constrain healing.

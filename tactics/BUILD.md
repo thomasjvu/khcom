@@ -439,3 +439,12 @@ inspection but blocks A without changing height, and the last descending
 marker matches the native floor. Cancellation, exact costs, attached suspend,
 drop and later party switching still pass. This does not add a guaranteed
 horizontal landing preview for the native climb-over animation.
+
+
+Cure recipient preview: the HUD and actual heal now share `NativeCureTarget`,
+retaining the existing range, height, missing-health and character-bonus rules.
+The selected Cure names Sora, Donald or Goofy before A. The expanded party
+replay passes all 30 checks in `cure-target-evidence/party.txt`, including
+pre-play target checks for injured Donald and nearby knocked-out Donald,
+matching heals, card costs, independent budgets, Guard, dual-slot corruption
+recovery and friend knockout. `cure-target.png` captures the actual native HUD.

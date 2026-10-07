@@ -132,6 +132,8 @@ static FldPos sClimbPreviewPos;
 static void NativePreviewDraw(void);
 static void NativePreviewInput(u16 pressed);
 static u16 NativeRouteWalk(void);
+static u8 NativeCureTarget(void);
+u16 gNativeCureTarget;
 
 static Task* sEnemyTasks[6];
 u16 gNativeEnemyHp[6];
@@ -592,7 +594,12 @@ static void NativeHud(void) {
     line[18] += hp;
     NativeLabel(0, 0, line);
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
+    gNativeCureTarget = NativeCureTarget();
     NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? "GUARDIAN CHARGING" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
+        !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
+        NativeLabel(0, 8, gNativeCureTarget == 0 ? "CURE SORA A PLAY" :
+            gNativeCureTarget == 1 ? "CURE DONALD A PLAY" : "CURE GOOFY A PLAY");
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
@@ -1072,7 +1079,7 @@ static void NativeFire(void) {
     if (target) NativeDamageEnemy(target, 6 + sPlayedValue + (gNativeParty == 1 ? 3 : 0));
 }
 
-static void NativeCure(void) {
+static u8 NativeCureTarget(void) {
     u8 i, target = gNativeParty;
     u16 missing = 0, amount;
     for (i = 0; i < 3; i++) {
@@ -1082,6 +1089,10 @@ static void NativeCure(void) {
         amount = gNativePartyHealth.maxHp[i] - gNativePartyHealth.hp[i];
         if (amount > missing) {missing = amount;target = i;}
     }
+    return target;
+}
+static void NativeCure(void) {
+    u8 target = NativeCureTarget();
     FieldPartyHeal(&gNativePartyHealth, target, 8 + sPlayedValue + (gNativeParty == 1 ? 8 : 0));
     gGameState.hp = gNativePartyHealth.hp[gNativeParty];
 }
