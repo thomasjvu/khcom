@@ -18,6 +18,8 @@ local previousRoom=0
 local previousWorld=0
 local victoryFrame=nil
 local completedRuns=0
+local retryFrame=nil
+local retrySeed=nil
 local optionalRoute={0,1,2,3,4,9,8,1,2,3,4,5,10,11,10,5,6,7}
 local routeStep=1
 local roomVisitMasks={0,0,0}
@@ -246,6 +248,21 @@ local function replayFrame()
  if done or f<180 or (suspendStage==2 and f<nextFrame) then return end
  local room=emu:read8(gMapFloorState+6)
  local world=emu:read16(gNativeFloor)
+ if retryFrame then
+  if f<retryFrame then emu:setKeys(4);return end
+  emu:setKeys(0)
+  if world==0 and emu:read16(gNativeResult)==0 and emu:read32(gCurrentMode)==sNativeMode and
+     (emu:read32(gCurrentModeUpdate)&0xfffffffe)==NativeUpdate then
+   local seed=emu:read32(gNativeSeed)
+   if seed~=((retrySeed+0x9e3779b9)&0xffffffff) or emu:read8(gNativeRoster)~=7 then
+    finish(false,'retry did not advance seed and reset the recruited roster');return
+   end
+   out:write('RETRY VERIFIED frame='..f..' seed='..seed..'\n');out:flush()
+   retryFrame=nil;retrySeed=nil;nextFrame=f+120;return
+  end
+  if f>retryFrame+180 then finish(false,'native retry did not initialize the next run');return end
+  return
+ end
  if composedSelection and emu:read16(gNativeBusy)==3 then composedSelection.walking=true end
  if collectChests and emu:read16(gNativeChests)~=observedChests then
   observedChests=emu:read16(gNativeChests)
@@ -284,6 +301,7 @@ local function replayFrame()
    completedRuns=completedRuns+1
    out:write('RUN COMPLETE '..completedRuns..' frame='..f..'\n');out:flush()
    if completedRuns<(goalRuns or 1) then
+    retryFrame=f+12;retrySeed=emu:read32(gNativeSeed)
     emu:setKeys(4)
     victoryFrame=nil;victoryHealth=nil;cloudRecruited=false;cloudDeployed=false
     previousWorld=0;previousRoom=-1;suspendStage=0
