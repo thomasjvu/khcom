@@ -114,10 +114,12 @@ health, remaining movement/actions and Guard. Only ending a turn renews budgets.
 Open doors belong to the generated run. Sword swings beside them keep the room intact; walk through the doorway to travel.
 
 While attached to native stairs, hold L and press Up or Down to preview the
-next sixteen-pixel vertical segment. The original value digit marks the
-vertical destination. A confirms for one movement point; B cancels without
-dropping. Outside a preview, B retains the normal drop action. These are
-single-segment previews, not combined walking/climbing routes.
+next sixteen-pixel vertical segment. Further Up/Down presses move the selected
+height, allowing a route of up to three segments within the remaining movement
+budget. Original value digits show the total cost; reachable diamonds mark the
+affordable heights. A confirms and the original controller animates each
+segment; B cancels without dropping. Outside a preview, B retains the normal
+drop action. Climb routes still use a separate preview from walking routes.
 
 Selecting Cure names its intended party member in the HUD before play. It chooses the nearby member missing the most HP, including knocked-out friends; height and range still constrain healing.
 
@@ -224,10 +226,12 @@ Guard Armor enemy-card artwork, rather than Goofy's summon card. Format-8/9
 saves migrate with default health/budgets for previously unrecorded benched
 heroes and preserve saved deployed party state.
 
-Attached stair previews outline both affordable vertical steps. Up/Down selects
-a step; A commits it for one movement point; B cancels the preview. With no
-movement left, no affordable direction outlines appear. The final descent
-marker shows the supporting floor when it is closer than a full segment.
+Attached stair previews outline affordable vertical destinations. Up/Down moves
+the selected height; A commits the displayed movement cost; B cancels the
+preview. With no movement left, no reachable outlines appear. The final descent
+marker includes the supporting floor and original controller's landing offset.
+The HUD shows OUT OF REACH for an unaffordable or blocked destination, with
+ROUTE X instead of a misleading zero cost. Selecting the origin spends nothing.
 
 On the ground, R + D-pad faces the active character in any of eight directions
 without moving or spending movement/action points. It preserves the selected

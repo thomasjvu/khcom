@@ -134,11 +134,41 @@ checks use controller input; the final six use explicit frozen/progress fixtures
 to verify timeout and movement refunds. Earlier slow preview attempts and
 stopped full runs remain preserved.
 
-A fresh input-only three-world Cloud replay on this exact native ROM recruits
+A fresh input-only three-world Cloud replay on the walking-integration ROM
+at `22c01c96f` recruits
 and deploys Cloud, suspends at 16701, and verifies reset restoration at 17031.
 Victory occurs at 94943 with Sora HP80; stable terminal PASS is 95063
 (15 kills, 654 movement commands), recorded in
 `resource-planner-cached-cloud-full-run-evidence`. This is one seed and does
 not cover every optional branch or chest. Walking and attached-stair previews
-remain separate: native climb/jump links and combined height-route animation
-execution are still unfinished. The packaged 0.19 BPS predates these changes.
+remain separate: combined standing-surface walk/climb/jump links and route
+animation execution are still unfinished. The packaged 0.19 BPS predates these changes.
+
+Current source connects attached-stair links to the resource-state planner.
+Up/Down can select several vertical segments, with reachable heights and total
+movement cost. The original controller advances through each segment and
+completes floor/top boundary transitions; unstarted segments are refunded if
+the controller ends the route early. Descent predicts the native landing
+offset, and party/enemy occupancy blocks vertical routes. HUD labels distinguish
+an unavailable route from a zero-cost origin.
+
+The exact current ROM passes 25 multi-segment climb/descent/save/reset checks,
+32 single-step regression checks, 15 party/enemy occupancy checks and 14
+top-platform landing/cost checks in
+`multi-climb-polished-evidence`, `climb-polished-regression-evidence` and
+`climb-occupancy-evidence` and `climb-top-boundary-evidence`. Stair approach/actor placements are explicit
+fixtures; movement, route confirmation and execution use native input. The
+multi-segment scenario also verifies exact attached-height reset restoration,
+three-level floor landing position, costs and party switching after descent.
+Screenshots were visually inspected. Earlier failed attempts are preserved,
+including a fixture requesting a taller stair than this generated room has
+and a real controller boundary issue fixed by holding the final direction
+until landing. Full walking/climbing/jumping route composition and physical
+generation guarantees remain unfinished.
+
+A fresh input-only Cloud recruitment/deployment replay on this climb-route ROM
+suspends at 14442, verifies reset at 14772, and completes all three worlds.
+Victory is 92563 with Sora HP75; stable PASS is 92683 (15 kills, 649 movement
+commands), recorded in `multi-climb-cloud-full-run-evidence`. This one-seed
+route does not cover every optional room or chest, and it does not establish
+physical generation guarantees across seeds.

@@ -87,8 +87,17 @@ interactions. Do not replace field actors with icons or flatten elevations.
    33 route/refund checks pass; a fresh Cloud recruitment/deployment and
    suspend/reset three-world replay reaches stable PASS at 95063 (HP80,
    15 kills, 654 movement commands). Cached geometry keeps unchanged previews
-   responsive, while A forces full revalidation. Mixed climb/jump links still
-   need native surface discovery and original-controller animation execution.
+   responsive, while A forces full revalidation. Attached-stair climb links now
+   use the resource planner: 25 multi-segment climb/descent/save/reset checks,
+   32 single-step checks, 15 vertical occupancy checks and 14 top-platform
+   landing/cost checks pass. Up/Down selects
+   several heights; original animation executes the route and completes native
+   floor/top transitions. Floor markers include the actual landing offset.
+   Combined standing-surface walk/climb/jump links still need native surface
+   discovery and route animation execution.
+   The exact climb-route ROM also completes a fresh input-only Cloud
+   recruitment/deployment and suspend/reset replay: victory 92563 HP75,
+   stable PASS 92683, 15 kills and 649 movement commands. This is one seed.
    The input-only traversal driver
    now has `--all-rooms`: visit 0–1–2–3–4–9–8–1–2–3–4–5–10–11–10–5–6–7
    in each world, and require all twelve room bits before terminal PASS.

@@ -37,6 +37,11 @@ Physical room reachability guarantees, complete climb/jump navigation,
 additional recruits and content/polish remain unfinished.
 Development patch notes: [0.19 navigation](tactics/NAVIGATION-0.19.md). Native stairs use one movement point per sixteen-pixel
 climb segment, with attached-state suspend.
+Current source extends attached-stair previews to several vertical segments,
+with reachable heights, total movement cost and sequenced original-controller
+climb/descent animations. Party/enemy occupancy blocks these routes; floor
+markers predict the original landing offset. The packaged 0.19 patch predates
+this extension. Walking, climbing and jumping are not yet one combined route.
 Door travel preserves the selected member, every party budget and active Guard;
 backtracking cannot refill turn resources. One B press commits a native full-height
 jump; moving jumps have a world-space travel budget and safely hand off to stairs.
