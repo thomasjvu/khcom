@@ -64,7 +64,10 @@ not balanced companion survival or a Cloud-led combat strategy.
 - Verify more party compositions, companion survival and character-led combat.
 - Integrate height traversal into reachable movement previews and verify physical
   procedural-room connectivity across seeds and optional branches.
-- Improve character loadouts, reward availability feedback and tactical guidance.
+- Improve character loadouts and tactical guidance. Capped power and owned
+  sleights have readable warnings; seven native checks verify rejection preserves
+  the pending reward and an available choice applies once. Screenshots and log:
+  `build/tactics-us/reward-availability-evidence`.
 - Add further recruitable characters after checking original assets. Aerith's
   field sprites (`gEarF00`, `gEarB00`, `gEarF01`, `gEarB01`, `gEarisPalette`)
   and portrait card (`gCardNpcEx06`) exist in the decomp. No Tifa assets have
