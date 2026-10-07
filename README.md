@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The packaged **0.18 party-roguelike development build** runs in the original 2.5D engine with full
+The packaged **0.19 navigation development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -30,14 +30,12 @@ either companion. Every second unique room clear grants a personal upgrade.
 Original cards support explicit Fire/Cure targets,
 matching-type sleights and three-card chest reward choices. Palette budgets
 keep party, card artwork and value digits visible beside generated scenery.
-The exact 0.18 ROM completes a fresh-SRAM input-only Cloud recruitment,
-deployment and suspend/reset replay through all three worlds. World exits rest
-the recruited roster, including benched heroes. Two consecutive runs using native retry
-complete different seeds, with Cloud recruitment/deployment and suspend/reset
-in each. Broader optional paths, chests and hardware remain unverified.
+The exact 0.19 ROM completes a fresh-SRAM input-only replay through all twelve
+rooms per world, nine chest opens, Cloud recruitment/deployment and suspend/reset. World exits rest
+the recruited roster, including benched heroes. Broader current-ROM seeds and hardware remain unverified.
 Physical room reachability guarantees, complete climb/jump navigation,
 additional recruits and content/polish remain unfinished.
-Development patch notes: [0.18 party roguelike](tactics/PARTY-ROGUELIKE-0.18.md). Native stairs use one movement point per sixteen-pixel
+Development patch notes: [0.19 navigation](tactics/NAVIGATION-0.19.md). Native stairs use one movement point per sixteen-pixel
 climb segment, with attached-state suspend.
 Door travel preserves the selected member, every party budget and active Guard;
 backtracking cannot refill turn resources. One B press commits a native full-height
@@ -153,8 +151,8 @@ built ELF. Its 28 checks pass, including resource allocation, all-party damage,
 range/depth/height boundaries, enrage, Guard, charged suspend/resume, native Fire
 defeat and room-exit cleanup. Fixtures write setup state and are not full-run
 proof. Evidence: `build/tactics-us/marluxia-verified-evidence/boss.txt`.
-The local 0.18 development patch includes this encounter and the verified
-Cloud-route full run.
+The local 0.19 development patch includes this encounter and the verified
+all-room/chest full run.
 
 Current source also supports recruiting Cloud in an optional original-sprite
 battle and deploying him in either companion slot through the round-start card
@@ -162,4 +160,4 @@ screen. Character health, turn resources and upgrades follow identities across
 swaps and suspend saves. Sixteen native deployment checks pass. A fresh input-only starter-party run
 completes all three worlds with suspend/reset and full roster verification
 (PASS at frame 108486). A second fresh input-only run fights, recruits and deploys Cloud, verifies
-suspend/reset, and finishes all three worlds (PASS at frame 92877). The packaged 0.18 development patch includes this work. See `tactics/PARTY-ROGUELIKE.md` for remaining scope.
+suspend/reset, and finishes all three worlds (PASS at frame 92877). The packaged 0.19 development patch includes this work. See `tactics/PARTY-ROGUELIKE.md` for remaining scope.
