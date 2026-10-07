@@ -107,6 +107,8 @@ resume (`cloud-bench-facing-evidence`). The older sixteen-check fixture had
 Donald deployed again and did not prove its claimed bench-specific behavior.
 Recorded format-10 saves migrate with default facing and byte-exact format-11
 re-encoding; a recorded format-9 save still decodes. Format-8 support is retained
-in the decoder. A full Cloud-route regression is pending in
-`hero-facing-cloud-full-run-evidence`. The packaged 0.19 BPS uses format 10 and
+in the decoder. A full Cloud-route regression passes in
+`hero-facing-cloud-full-run-evidence`: format-11 suspend/reset compares the
+complete 33-byte roster, and stable three-world PASS occurs at 88532
+(15 kills, 730 movement commands). The packaged 0.19 BPS uses format 10 and
 predates this direction-persistence change.
