@@ -1546,24 +1546,29 @@ static int NativeRouteClear(FldPos pos) {
     if (IsFldPosBlocked(&pos) || GetFldPosGround(&pos) != pos.ground) return 0;
     return 1;
 }
+static int NativeRouteActorHits(const FldPos* other, const FldPos* pos, const FldPos* origin) {
+    int from[3], to[3];
+    static const int half[3] = {12 << 8, 6 << 8, 16 << 8};
+    to[0] = pos->x - other->x;
+    to[1] = pos->y + pos->z - other->y - other->z;
+    to[2] = pos->z - other->z;
+    if (!origin) return FieldRouteSegmentBox(to, to, half);
+    from[0] = origin->x - other->x;
+    from[1] = origin->y + origin->z - other->y - other->z;
+    from[2] = origin->z - other->z;
+    /* Room entry places party members together. Permit leaving an existing
+     * overlap, but the separate destination check still requires a free tile. */
+    if (NativeAbs(from[0]) < half[0] && NativeAbs(from[1]) < half[1] && NativeAbs(from[2]) < half[2]) return 0;
+    return FieldRouteSegmentBox(from, to, half);
+}
 static int NativeRouteActorsClear(const FldPos* pos, const FldPos* origin) {
     MapEnmWork* other;
     u8 i;
     for (i = 0; i < 3; i++) if (gNativePartyHealth.hp[i] && (!sRoutePlayer || i != gNativeParty) &&
-        NativeAbs(pos->x - sPartyPos[i].x) < (12 << 8) &&
-        NativeAbs(pos->y + pos->z - sPartyPos[i].y - sPartyPos[i].z) < (6 << 8) &&
-        NativeAbs(pos->z - sPartyPos[i].z) < (16 << 8) &&
-        (!origin || NativeAbs(origin->x - sPartyPos[i].x) >= (12 << 8) ||
-         NativeAbs(origin->y + origin->z - sPartyPos[i].y - sPartyPos[i].z) >= (6 << 8) ||
-         NativeAbs(origin->z - sPartyPos[i].z) >= (16 << 8))) return 0;
+        NativeRouteActorHits(&sPartyPos[i], pos, origin)) return 0;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && sEnemyTasks[i] != sRouteActor) {
         other = sEnemyTasks[i]->work;
-        if (NativeAbs(pos->x - other->obj.fieldPosition.x) < (12 << 8) &&
-            NativeAbs(pos->y + pos->z - other->obj.fieldPosition.y - other->obj.fieldPosition.z) < (6 << 8) &&
-            NativeAbs(pos->z - other->obj.fieldPosition.z) < (16 << 8) &&
-            (!origin || NativeAbs(origin->x - other->obj.fieldPosition.x) >= (12 << 8) ||
-             NativeAbs(origin->y + origin->z - other->obj.fieldPosition.y - other->obj.fieldPosition.z) >= (6 << 8) ||
-             NativeAbs(origin->z - other->obj.fieldPosition.z) >= (16 << 8))) return 0;
+        if (NativeRouteActorHits(&other->obj.fieldPosition, pos, origin)) return 0;
     }
     return 1;
 }
@@ -1573,13 +1578,17 @@ static int NativeRouteEdge(int from, int to, void* context) {
     (void)context;
     if (!sRouteValid[to] ||
         NativeAbs(sRoutePos[to].z - sRoutePos[from].z) > (sRoutePlayer ? 0 : (16 << 8))) return 0;
+    if (!NativeRouteActorsClear(&sRoutePos[to], &sRoutePos[from])) return 0;
     /* Sweep quarter segments, including diagonal edges. The native actor's
      * front/back footprint must fit all along the projected movement. */
     for (sample = 1; sample < 4; sample++) {
         probe = sRoutePos[from];
         probe.x += (sRoutePos[to].x - probe.x) * sample / 4;
         probe.y += (sRoutePos[to].y + sRoutePos[to].z - probe.y - probe.z) * sample / 4;
-        if (!NativeRouteClear(probe) || !NativeRouteActorsClear(&probe, &sRoutePos[from])) return 0;
+        probe.z += (sRoutePos[to].z - probe.z) * sample / 4;
+        probe.ground += (sRoutePos[to].ground - probe.ground) * sample / 4;
+        probe.y -= probe.z - sRoutePos[from].z;
+        if (!NativeRouteClear(probe)) return 0;
     }
     if (!NativeRouteActorsClear(&sRoutePos[to], NULL)) return 0;
     return 1;

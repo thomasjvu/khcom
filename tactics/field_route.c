@@ -1,5 +1,29 @@
 #include "field_route.h"
 static int Abs(int value) {return value < 0 ? -value : value;}
+int FieldRouteSegmentBox(const int from[3],const int to[3],const int half[3]) {
+    int axis,delta,low,high,enter,leave,denom;
+    int enterN=0,enterD=1,leaveN=1,leaveD=1;
+    if(!from||!to||!half)return 0;
+    for(axis=0;axis<3;axis++) {
+        if(half[axis]<=0||half[axis]>32767)return 0;
+        low=from[axis]<to[axis]?from[axis]:to[axis];
+        high=from[axis]>to[axis]?from[axis]:to[axis];
+        if(low>=half[axis]||high<=-half[axis])return 0;
+        delta=to[axis]-from[axis];
+        if(!delta)continue;
+        denom=Abs(delta);if(denom>32767)return 0;
+        enter=low < -half[axis] ? -half[axis]-low : 0;
+        leave=high > half[axis] ? half[axis]-low : denom;
+        if(delta<0) {
+            enter=high > half[axis] ? high-half[axis] : 0;
+            leave=low < -half[axis] ? high+half[axis] : denom;
+        }
+        if(enter*enterD>enterN*denom){enterN=enter;enterD=denom;}
+        if(leave*leaveD<leaveN*denom){leaveN=leave;leaveD=denom;}
+        if(enterN*leaveD>=leaveN*enterD)return 0;
+    }
+    return 1;
+}
 int FieldRouteStep(FieldRoute* route, int targetX, int targetY,
     FieldRouteEdge edge, void* context) {
     int head, tail, node, next, direction, x, y, score, best, bestScore;

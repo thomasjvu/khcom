@@ -16,4 +16,7 @@ int FieldRoutePath(FieldRoute* route, int targetX, int targetY,
 /* Reachable destinations within budget; 255 means unavailable. Origin is 0. */
 int FieldRouteReach(FieldRoute* route, int budget, FieldRouteEdge edge,
     void* context, unsigned char* cost);
+/* Segment against an open occupancy box. Coordinates are relative to the
+ * box center; edge deltas and half extents must fit signed 15-bit values. */
+int FieldRouteSegmentBox(const int from[3], const int to[3], const int half[3]);
 #endif
