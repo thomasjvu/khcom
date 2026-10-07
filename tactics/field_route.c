@@ -2,27 +2,29 @@
 static int Abs(int value) {return value < 0 ? -value : value;}
 int FieldTacticsSearch(FieldTacticsRoute* r,int nodes,int origin,int movement,
     int action,FieldTacticsLinks links,void* context) {
-    int i,best,count=0,index,to,move,act,kind,state,cost,result;
+    int i,best,count=0,index,to,move,act,kind,state,cost,result,level,node,spent;
     if(!r)return -1;
     r->nodes=0;
     if(!links||nodes<1||nodes>FIELD_TACTICS_NODES||origin<0||origin>=nodes||movement<0||movement>254||action<0||action>1)return -1;
     r->nodes=nodes;r->origin=origin;
     for(i=0;i<nodes*2;i++){r->move[i]=255;r->visited[i]=0;r->parent[i]=65535;r->kind[i]=0;}
     r->move[origin]=0;r->parent[origin]=origin;
-    for(;;) {
-        best=-1;
-        for(i=0;i<nodes*(action+1);i++)if(!r->visited[i]&&r->move[i]!=255&&
-            (best<0||r->move[i]<r->move[best]))best=i;
-        if(best<0)break;
+    /* Movement costs are small bounded integers. Visit each cost level once
+     * instead of finding the global minimum again for every destination.
+     * A zero-movement edge must spend the sole action, so its destination
+     * lies in the later action-spent half of this same level's scan. */
+    for(level=0;level<=movement;level++)for(best=0;best<nodes*(action+1);best++) {
+        if(r->move[best]!=level)continue;
         r->visited[best]=1;count++;
+        spent=best>=nodes;node=best-spent*nodes;
         for(index=0;index<=FIELD_TACTICS_NODES;index++) {
-            result=links(best%nodes,index,&to,&move,&act,&kind,context);
+            result=links(node,index,&to,&move,&act,&kind,context);
             if(!result)break;
             if(result!=1||to<0||to>=nodes||move<0||move>254||act<0||act>1||
                 move+act==0||kind<0||kind>FIELD_EDGE_JUMP){r->nodes=0;return -1;}
-            if(best/nodes+act>action)continue;
+            if(spent+act>action)continue;
             cost=r->move[best]+move;if(cost>movement)continue;
-            state=to+(best/nodes+act)*nodes;
+            state=to+(spent+act)*nodes;
             if(cost<r->move[state]) {
                 r->move[state]=cost;r->parent[state]=best;r->kind[state]=kind;
             }

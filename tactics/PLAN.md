@@ -82,6 +82,14 @@ interactions. Do not replace field actors with icons or flatten elevations.
    reachability for every generated room, then regenerate invalid rooms using
    a bounded retry policy. Current graph tests verify room connectivity, not
    complete physical navigation inside each room. The input-only traversal driver
+   now uses a native movement/action resource-state planner for walking previews
+   and execution. Eight overlay checks, nine occupancy/execution checks and
+   33 route/refund checks pass; a fresh Cloud recruitment/deployment and
+   suspend/reset three-world replay reaches stable PASS at 95063 (HP80,
+   15 kills, 654 movement commands). Cached geometry keeps unchanged previews
+   responsive, while A forces full revalidation. Mixed climb/jump links still
+   need native surface discovery and original-controller animation execution.
+   The input-only traversal driver
    now has `--all-rooms`: visit 0–1–2–3–4–9–8–1–2–3–4–5–10–11–10–5–6–7
    in each world, and require all twelve room bits before terminal PASS.
    The first Cloud/suspend replay hit its 180000-frame bound in Castle room 5

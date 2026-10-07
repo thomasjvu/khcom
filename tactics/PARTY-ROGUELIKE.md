@@ -120,6 +120,25 @@ for a later jump. Invalid geometry callbacks invalidate the result; path
 extraction is bounded. The native ROM builds and host sanitizer checks compare
 all resource-state costs against an independent relaxation solver on 1,000
 generated graphs, alongside explicit mixed walk/climb/jump cases.
-This core is not yet connected to native surface discovery, reachable markers
-or controller execution. In-game walking and attached-stair previews remain
-separate; combined height routes are still unfinished.
+Walking previews and controller execution now use this core with native
+collision/occupancy links. Only affordable routes are selectable. Geometry and
+budget changes invalidate the preview cache; A always revalidates geometry.
+Integer cost-level scans, lazy geometry links and boundary-node pruning avoid
+rebuilding expensive collision probes during unchanged cursor inspection.
+Eight overlay checks and nine crossing/execution checks pass in the
+`resource-planner-cached-reach-evidence` and
+`resource-planner-cached-crossing-evidence` directories. The route fixture now
+confirms assembly before movement and uses the new 16-bit path node layout;
+all 33 checks pass (`resource-planner-route-execution-evidence`). Its first 27
+checks use controller input; the final six use explicit frozen/progress fixtures
+to verify timeout and movement refunds. Earlier slow preview attempts and
+stopped full runs remain preserved.
+
+A fresh input-only three-world Cloud replay on this exact native ROM recruits
+and deploys Cloud, suspends at 16701, and verifies reset restoration at 17031.
+Victory occurs at 94943 with Sora HP80; stable terminal PASS is 95063
+(15 kills, 654 movement commands), recorded in
+`resource-planner-cached-cloud-full-run-evidence`. This is one seed and does
+not cover every optional branch or chest. Walking and attached-stair previews
+remain separate: native climb/jump links and combined height-route animation
+execution are still unfinished. The packaged 0.19 BPS predates these changes.

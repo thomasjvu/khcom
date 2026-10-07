@@ -173,7 +173,8 @@ static u16 sPlayedValue;
 u16 gNativePreview;
 s16 gNativeRouteCost;
 static s16 sCursorX, sCursorY;
-static u8 sPlayerPath[FIELD_ROUTE_CELLS];
+static u16 sPlayerPath[FIELD_ROUTE_CELLS];
+static u8 sPlayerEdge[FIELD_ROUTE_CELLS];
 static u8 sPathIndex, sPathLength;
 static s32 sPathStartX, sPathStartY;
 static u8 sRoutePlayer;
@@ -1522,6 +1523,11 @@ static void NativeDamageEnemy(Task* task, u16 damage) {
 static s32 NativeAbs(s32 n) {return n < 0 ? -n : n;}
 /* Keep the route workspace in reserved RAM, outside the small native stack. */
 static FieldRoute sEnemyRoute;
+static FieldTacticsRoute sPlayerRoute;
+static u8 sPlayerLinks[FIELD_ROUTE_CELLS];
+static u8 sPlayerLinksKnown[11];
+static u32 sPlayerGeometry;
+static u16 sPlayerMoveBudget,sPlayerActionBudget;
 static FldPos sRoutePos[FIELD_ROUTE_CELLS];
 static u8 sRouteValid[FIELD_ROUTE_CELLS];
 static Task* sRouteActor;
@@ -1607,6 +1613,69 @@ static int NativeRouteEdge(int from, int to, void* context) {
     if (!NativeRouteActorsClear(&sRoutePos[to], NULL)) return 0;
     return 1;
 }
+/* Native geometry owns each directed link. Keep the resource-aware planner
+ * authoritative for preview costs and the exact path consumed by the actor. */
+static int NativeTacticsLinks(int from, int index, int* to, int* movement,
+    int* action, int* kind, void* context) {
+    static const int offset[8] = {-1,1,-9,9,-10,-8,8,10};
+    static const int dx[8] = {-1,1,0,0,-1,1,-1,1};
+    static const int dy[8] = {0,0,-1,1,-1,-1,1,1};
+    int direction,count=0,x,y;
+    (void)context;
+    /* Walking links always cost one. Boundary nodes cannot add a reachable
+     * destination, so avoid expensive native collision probes there. */
+    if (sPlayerRoute.move[from]>=gNativeMoveLeft) return 0;
+    if (!(sPlayerLinksKnown[from/8] & (1 << (from%8)))) {
+        sPlayerLinksKnown[from/8]|=1<<(from%8);
+        sPlayerLinks[from]=0;
+        for (direction=0;direction<8;direction++) {
+            x=from%9+dx[direction];y=from/9+dy[direction];
+            if (x<0||x>=9||y<0||y>=9) continue;
+            if (NativeRouteEdge(from,x+y*9,NULL)) sPlayerLinks[from]|=1<<direction;
+        }
+    }
+    for (direction=0;direction<8;direction++) {
+        if (!(sPlayerLinks[from] & (1 << direction))) continue;
+        if (count++!=index) continue;
+        *to=from+offset[direction];*movement=1;*action=0;*kind=FIELD_EDGE_WALK;
+        return 1;
+    }
+    return 0;
+}
+static u32 NativeRouteFingerprint(void) {
+    u32 hash=2166136261u;
+    int i;
+    ListNode* node=((ListPool*)ColliderGetPool(6))->activeHead;
+    Collider* collider;
+    FldPos* pos;
+    /* Cache only while geometry and budgets stay unchanged. Confirmation
+     * always performs full collision validation, regardless of this hash. */
+#define ROUTE_HASH(value) hash=((hash<<5)|(hash>>27))^(u32)(value)
+    pos=&gFieldState->actor.fieldPosition;
+    ROUTE_HASH(pos->x);ROUTE_HASH(pos->y);ROUTE_HASH(pos->z);ROUTE_HASH(pos->ground);
+    ROUTE_HASH(gNativeParty);
+    for (i=0;i<3;i++) {
+        pos=&sPartyPos[i];
+        ROUTE_HASH(gNativePartyHealth.hp[i]);
+        ROUTE_HASH(pos->x);ROUTE_HASH(pos->y);ROUTE_HASH(pos->z);
+    }
+    for (i=0;i<6;i++) {
+        ROUTE_HASH(sEnemyTasks[i]);
+        if (sEnemyTasks[i]) {
+            pos=&((MapEnmWork*)sEnemyTasks[i]->work)->obj.fieldPosition;
+            ROUTE_HASH(pos->x);ROUTE_HASH(pos->y);ROUTE_HASH(pos->z);
+        }
+    }
+    while (node) {
+        collider=node->owner;
+        ROUTE_HASH(node->flags);
+        ROUTE_HASH(collider->x);ROUTE_HASH(collider->y);ROUTE_HASH(collider->z);
+        ROUTE_HASH(collider->radius);ROUTE_HASH(collider->height);
+        node=node->next;
+    }
+#undef ROUTE_HASH
+    return hash;
+}
 static void NativeBuildRoute(FldPos origin, Task* task) {
     FldPos* pos;
     MapCell* cell;
@@ -1643,6 +1712,9 @@ static int NativeEnemyRoute(Task* task, const FldPos* target) {
         (target->y + target->z - origin.y - origin.z) / 2048, NativeRouteEdge, NULL);
 }
 static void NativePreviewInput(u16 pressed) {
+    int i,action,cost,routeCost=-1,reachCount=0;
+    int opened=!gNativePreview;
+    u32 geometry;
     FldWork* player = ((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
     s32 lowerLimit;
     if (player->state == FLD_STATE_CLIMB) {
@@ -1688,19 +1760,29 @@ static void NativePreviewInput(u16 pressed) {
         sCursorX = sCursorY = 0;
     }
     if (pressed & (B_BUTTON | SELECT_BUTTON)) {gNativePreview = 0; return;}
-    /* Props can enable, move or break while their native animations run.
-     * Revalidate from the current actor before showing or committing a route. */
-    sRoutePlayer = 1;
-    sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
-    NativeBuildRoute(gFieldState->actor.fieldPosition, NULL);
     if ((pressed & DPAD_LEFT) && sCursorX > -4) sCursorX--;
     if ((pressed & DPAD_RIGHT) && sCursorX < 4) sCursorX++;
     if ((pressed & DPAD_UP) && sCursorY > -4) sCursorY--;
     if ((pressed & DPAD_DOWN) && sCursorY < 4) sCursorY++;
-    gNativeRouteCost = FieldRoutePath(&sEnemyRoute, sCursorX, sCursorY,
-        NativeRouteEdge, NULL, sPlayerPath);
-    gNativeReachCount = FieldRouteReach(&sEnemyRoute, gNativeMoveLeft,
-        NativeRouteEdge, NULL, gNativeReachCost);
+    sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
+    geometry=NativeRouteFingerprint();
+    if (opened || (pressed & A_BUTTON) || geometry!=sPlayerGeometry ||
+        sPlayerMoveBudget!=gNativeMoveLeft || sPlayerActionBudget!=gNativeActionLeft) {
+        sRoutePlayer = 1;
+        NativeBuildRoute(gFieldState->actor.fieldPosition, NULL);
+        for (i=0;i<11;i++) sPlayerLinksKnown[i]=0;
+        FieldTacticsSearch(&sPlayerRoute,FIELD_ROUTE_CELLS,40,gNativeMoveLeft,
+            gNativeActionLeft ? 1 : 0,NativeTacticsLinks,NULL);
+        sPlayerGeometry=geometry;sPlayerMoveBudget=gNativeMoveLeft;sPlayerActionBudget=gNativeActionLeft;
+        for (i=0;i<FIELD_ROUTE_CELLS;i++) {
+            gNativeReachCost[i]=sPlayerRoute.nodes && sPlayerRoute.move[i]<=gNativeMoveLeft ? sPlayerRoute.move[i] : 255;
+            if (gNativeReachCost[i]!=255 && gNativeReachCost[i]) reachCount++;
+        }
+        gNativeReachCount=reachCount;
+    }
+    if (FieldTacticsPath(&sPlayerRoute,(sCursorY+4)*9+sCursorX+4,
+        sPlayerPath,sPlayerEdge,FIELD_ROUTE_CELLS,&cost,&action)>=0) routeCost=cost;
+    gNativeRouteCost=routeCost;
     if ((pressed & A_BUTTON) && gNativeRouteCost > 0 && gNativeRouteCost <= gNativeMoveLeft) {
         sPathLength = gNativeRouteCost;
         sPathIndex = 0;

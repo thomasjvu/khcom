@@ -1,4 +1,5 @@
 local f=0
+local elapsed=0
 local out=io.open('@OUTPUT@/routes.txt','w')
 local directions={16,32,64,128,80,96,144,160}
 local chosen=nil
@@ -8,7 +9,9 @@ local back=nil
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 local function signed16(v) if v>=32768 then return v-65536 end return v end
 callbacks:add('frame',function()
- f=f+1
+ elapsed=elapsed+1;f=elapsed-80
+ if elapsed==180 then emu:setKeys(1) end
+ if elapsed==184 then emu:setKeys(0) end
  if f==170 then
   check(emu:read8(gNativePartyHealth)==80 and emu:read16(gGameState+0x32)==80,'fresh run starts Sora at full health')
  end
@@ -104,7 +107,7 @@ callbacks:add('frame',function()
  if f==1974 and back then emu:setKeys(back) end
  if f==1978 then emu:setKeys(0) end
  if f==2000 and back then
-  check(emu:read16(gNativeRouteCost)==2,'return preview exposes route beyond remaining budget')
+  check(emu:read16(gNativeRouteCost)==65535,'return preview marks destination outside remaining movement budget')
   emu:setKeys(1)
  end
  if f==2004 then emu:setKeys(0) end
@@ -120,7 +123,7 @@ callbacks:add('frame',function()
   local x=emu:read32(p+0x18);local y=emu:read32(p+0x1c)
   for i=0,3 do emu:write32(sRoutePos+41*16+i*4,emu:read32(p+0x18+i*4)) end
   emu:write32(sRoutePos+41*16,x+4096)
-  emu:write8(sPlayerPath,41);emu:write8(sPathIndex,0);emu:write8(sPathLength,1)
+  emu:write16(sPlayerPath,41);emu:write8(sPathIndex,0);emu:write8(sPathLength,1)
   emu:write32(sPathStartX,x);emu:write32(sPathStartY,y);emu:write16(sFrames,0)
   emu:write16(gNativeMoveLeft,0);emu:write16(gNativeBusy,3)
   emu:write32(p+0x70,emu:read32(p+0x70)|4096)
@@ -133,7 +136,7 @@ callbacks:add('frame',function()
   -- Explicit progress fixtures; freeze the actor after representing travel.
   local p=emu:read32(gFieldState)
   local x=emu:read32(p+0x18);local y=emu:read32(p+0x1c)
-  emu:write8(sPlayerPath,41);emu:write8(sPlayerPath+1,41)
+  emu:write16(sPlayerPath,41);emu:write16(sPlayerPath+2,41)
   emu:write8(sPathIndex,0);emu:write8(sPathLength,2)
   emu:write32(sPathStartX,x-(f==2210 and 1024 or 0))
   emu:write32(sPathStartY,y);emu:write16(sFrames,0)
