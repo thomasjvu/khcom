@@ -74,6 +74,13 @@ and verifies suspend/reset in both runs. Victories at frames 93487 and 230989
 end with Sora HP80; stable final PASS is 231109, with 1875 cumulative movement
 commands. Evidence: `two-seed-rest-cloud-evidence`.
 
+A fresh input-only full-route replay visits all twelve rooms in each world,
+opens nine chests, recruits/deploys Cloud and verifies suspend/reset. All room
+masks are 4095; victory at frame 252406 ends with Sora HP80, and terminal
+PASS is 252526 (32 kills, 2014 movement commands). Evidence:
+`all-rooms-facing-chests-evidence`. This is one-seed coverage, not a physical
+room-generation guarantee.
+
 ## Remaining scope
 
 - Verify more party compositions, companion survival and character-led combat.

@@ -89,7 +89,11 @@ interactions. Do not replace field actors with icons or flatten elevations.
    not a room impossibility finding. The longer bound is now 300000 frames.
    `--collect-chests` requires nine native chest opens as well as all room bits.
    Card selection has read-only mock checks; controller-only opening remains
-   pending in `all-rooms-facing-chests-evidence`. R+Dpad now faces the active
+   verified in `all-rooms-facing-chests-evidence`: all room masks are 4095,
+   nine chests open, Cloud is recruited/deployed, suspend/reset passes, and
+   three-world victory occurs at frame 252406 with Sora HP80; stable PASS
+   252526, 32 kills, 2014 movement commands. This covers one native seed and
+   does not establish bounded generation or combined height-route guarantees. R+Dpad now faces the active
    character without movement, budget use or card cycling; 32 input-only native
    checks pass across all eight directions for Sora. Donald and Goofy each pass
    33 checks including controller-only assembly selection and the same facing
