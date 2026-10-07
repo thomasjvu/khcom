@@ -15,3 +15,5 @@ header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 (out/'sleight-area.lua').write_text(header+Path('tests/tactics_sleight_area_smoke.lua').read_text().replace('@OUTPUT@',str(out)))
 
 (out/'recipes.lua').write_text(header+Path('tests/tactics_recipe_smoke.lua').read_text().replace('@OUTPUT@',str(out)))
+
+(out/'recipe-save.lua').write_text(header+Path('tests/tactics_recipe_save_smoke.lua').read_text().replace('@OUTPUT@',str(out)))

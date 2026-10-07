@@ -661,3 +661,12 @@ completed evidence folders were removed after recording SHA-256/size in each
 folder's `removed-rom-hashes.jsonl`. Logs/screenshots and current release
 artifacts were preserved. Historical evidence paths may therefore no longer
 contain a ROM copy; use the recorded hash when assessing their scope.
+
+Enhanced recipe suspend regression: the sleight generator also emits
+`recipe-save.lua`. `recipe-save-evidence/recipe-save.txt` passes nine checks:
+matching Key/six-value stock survives native suspend/reset with exact piles
+and action budget, reconstructs 32-damage preview, resolves once, exhausts
+the first card and clears stock. Card setup and post-reset enemy placement
+are explicit fixtures; stocking, save and attack use native input. Recipe
+identity is derived from the persisted deck, so no save-format change is
+required. This verifies enhanced recipe persistence, not full-run reset QA.
