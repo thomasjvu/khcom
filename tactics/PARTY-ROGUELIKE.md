@@ -83,4 +83,6 @@ advance the seed is in progress in `two-seed-rest-cloud-evidence`.
   and portrait card (`gCardNpcEx06`) exist in the decomp. No Tifa assets have
   been located; neither character is currently recruitable.
 - Broaden encounter/content coverage and package a verified current BPS patch.
-  The existing 0.16 patch predates party assembly and recruitment.
+  The local 0.18 development BPS includes party assembly, recruitment and
+  world recovery, with byte-exact apply verification and an exact-ROM successful
+  Cloud-route replay. Full release readiness remains unproven.
