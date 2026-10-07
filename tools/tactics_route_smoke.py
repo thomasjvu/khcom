@@ -1,4 +1,4 @@
-"""Generate an input-only native route preview/commit replay for mGBA."""
+"""Generate native route input checks followed by explicit timeout fixtures."""
 import argparse
 import subprocess
 from pathlib import Path

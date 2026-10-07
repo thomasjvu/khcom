@@ -128,6 +128,24 @@ callbacks:add('frame',function()
  if f==2190 then
   check(emu:read16(gNativeBusy)==0,'frozen route times out and releases command gate')
   check(emu:read16(gNativeMoveLeft)==1,'route that never starts refunds its first movement point')
+ end
+ if f==2210 or f==2350 then
+  -- Explicit progress fixtures; freeze the actor after representing travel.
+  local p=emu:read32(gFieldState)
+  local x=emu:read32(p+0x18);local y=emu:read32(p+0x1c)
+  emu:write8(sPlayerPath,41);emu:write8(sPlayerPath+1,41)
+  emu:write8(sPathIndex,0);emu:write8(sPathLength,2)
+  emu:write32(sPathStartX,x-(f==2210 and 1024 or 0))
+  emu:write32(sPathStartY,y);emu:write16(sFrames,0)
+  emu:write16(gNativeMoveLeft,0);emu:write16(gNativeBusy,3)
+ end
+ if f==2330 then
+  check(emu:read16(gNativeBusy)==0,'partially travelled route releases command gate')
+  check(emu:read16(gNativeMoveLeft)==1,'partial travel costs one point and refunds the unstarted segment')
+ end
+ if f==2470 then
+  check(emu:read16(gNativeBusy)==0,'unstarted two-segment route releases command gate')
+  check(emu:read16(gNativeMoveLeft)==2,'unstarted two-segment route refunds both movement points')
   local p=emu:read32(gFieldState);emu:write32(p+0x70,emu:read32(p+0x70)&~4096)
   out:close()
  end

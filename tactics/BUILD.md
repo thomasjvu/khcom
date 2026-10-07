@@ -686,3 +686,10 @@ route checks plus an explicit frozen one-segment execution fixture verifying
 timeout releases the gate and refunds the point. The appended fixture writes
 route/controller state and is not input-only proof. Partial-progress timeout
 and dynamic-prop obstruction scenarios remain unverified. ROM builds.
+
+The extended `route-progress-refund-evidence/routes.txt` passes 33 checks.
+Explicit frozen two-segment fixtures verify that four pixels of prior travel
+costs the current point while refunding the later segment, and zero prior
+travel refunds both points. These fixtures represent prior travel by setting
+the recorded segment origin; they do not demonstrate a naturally occurring
+dynamic obstruction. Dynamic-prop obstruction remains unverified.
