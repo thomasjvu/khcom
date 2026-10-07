@@ -93,6 +93,17 @@ interactions. Do not replace field actors with icons or flatten elevations.
    landing/cost checks pass. Up/Down selects
    several heights; original animation executes the route and completes native
    floor/top transitions. Floor markers include the actual landing offset.
+   Attached stairs now also compose descent and walking onto a 7-by-7 landing
+   grid within the existing workspace. R toggles height/floor selection; original
+   controllers execute the paid route with actual-landing revalidation. The
+   exact ROM passes 113 focused checks (27 composed route/toggle/save/party
+   checks plus 86 stair regressions). A fresh input-only replay explicitly visits
+   a generated staircase, verifies the composed route at frame 1308, recruits
+   and deploys Cloud, saves at 15015 and verifies reset at 15345, then wins all
+   three worlds at 106696 with HP80; stable PASS 106816, 16 kills, 745 movement
+   commands. Three earlier victorious replays failed the strict composition
+   coverage requirement because their navigation never visited attached stairs;
+   those failures remain preserved. This proof covers one seed.
    Combined standing-surface walk/climb/jump links still need native surface
    discovery and route animation execution.
    The exact climb-route ROM also completes a fresh input-only Cloud

@@ -24,6 +24,9 @@ local roomVisitMasks={0,0,0}
 local observedChests=0
 local chestDebugFrame=0
 local victoryHealth=nil
+local composedRoutes=0
+local composedSelection=nil
+local composedApproach=nil
 local function signed(v) if v>=2147483648 then return v-4294967296 end return v end
 local function pos()
  local p=emu:read32(gFieldState)
@@ -118,6 +121,27 @@ local function stairGoal(tx,ty,tz)
  end
  if best then return best.x,best.y,z,best.key end
  return tx,ty,tz,false
+end
+local function composedStairApproach()
+ if composedApproach then return composedApproach end
+ local x,y,z=pos();local room=emu:read32(gMapRoomState)
+ local cols=emu:read16(room+4);local rows=emu:read16(room+6)
+ local cells=emu:read32(sMapCells)
+ for cy=1,rows-2 do for cx=1,cols-2 do
+  local a=cells+(cy*cols+cx)*32
+  local lower=signed(emu:read32(a+12));local upper=signed(emu:read32(a+8))
+  if emu:read8(a+2)==4 and (emu:read16(a)&32)~=0 and lower<0x100000 and lower-upper>=16384 then
+   local sx=(cx*32+16)*256;local sy=(cy*16+14)*256
+   local score=math.abs(sx-x)+2*math.abs(sy-y)+math.abs(lower-z)
+   if not composedApproach or score<composedApproach.score then
+    composedApproach={x=sx,y=sy,z=lower,score=score}
+   end
+  end
+ end end
+ if composedApproach then
+  out:write('COMPOSED APPROACH '..composedApproach.x..','..composedApproach.y..','..composedApproach.z..'\n');out:flush()
+ end
+ return composedApproach
 end
 local function encounterGoal()
  local room=emu:read8(gMapFloorState+6)
@@ -222,6 +246,7 @@ local function replayFrame()
  if done or f<180 or (suspendStage==2 and f<nextFrame) then return end
  local room=emu:read8(gMapFloorState+6)
  local world=emu:read16(gNativeFloor)
+ if composedSelection and emu:read16(gNativeBusy)==3 then composedSelection.walking=true end
  if collectChests and emu:read16(gNativeChests)~=observedChests then
   observedChests=emu:read16(gNativeChests)
   out:write('CHESTS '..observedChests..' frame='..f..'\n');out:flush()
@@ -251,7 +276,11 @@ local function replayFrame()
     valid=valid and roomVisitMasks[1]==4095 and roomVisitMasks[2]==4095 and roomVisitMasks[3]==4095
    end
    if collectChests then valid=valid and emu:read16(gNativeChests)==9 end
-   if not valid then finish(false,'terminal state or required recruitment changed');return end
+   if composedDescent then
+    out:write('COMPOSED ROUTES '..composedRoutes..'\n');out:flush()
+    valid=valid and composedRoutes>0
+   end
+   if not valid then finish(false,'terminal state or required coverage/recruitment missing');return end
    completedRuns=completedRuns+1
    out:write('RUN COMPLETE '..completedRuns..' frame='..f..'\n');out:flush()
    if completedRuns<(goalRuns or 1) then
@@ -260,6 +289,7 @@ local function replayFrame()
     previousWorld=0;previousRoom=-1;suspendStage=0
     routeStep=1;roomVisitMasks={0,0,0}
     observedChests=0
+    composedRoutes=0;composedSelection=nil;composedApproach=nil
     terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+120
    else
     finish(true,'completed '..completedRuns..' three-world runs; terminal floor and Sora HP remain stable for 120 frames')
@@ -278,6 +308,7 @@ local function replayFrame()
   if allRooms and room==optionalRoute[routeStep+1] then routeStep=routeStep+1 end
   out:write('ROOM '..room..' frames='..f..' hp='..emu:read8(gNativePartyHealth)..','..emu:read8(gNativePartyHealth+1)..','..emu:read8(gNativePartyHealth+2)..'\n');out:flush()
   previousRoom=room;terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+60
+  composedSelection=nil;composedApproach=nil
  end
  if emu:read16(gNativeResult)~=0 then finish(false,'run ended before traversal goal');return end
  if f>goalFrames then finish(false,'bounded explorer did not reach '..(goalWorlds>0 and ('world '..goalWorlds) or ('room '..goalRoom)));return end
@@ -355,11 +386,29 @@ local function replayFrame()
  if endingTurn or returningToSora then
   emu:setKeys(turnKey());best=nil;index=1;phase='release';nextFrame=f+4;return
  end
+ if composedSelection and phase=='compose_arrival' then
+  local x,y,z=pos();local selected=composedSelection
+  local reached=math.abs(x-selected.x)<=512 and math.abs(y-selected.y)<=512 and z==selected.z
+  if selected.walking and reached and emu:read16(gNativeMoveLeft)==selected.move-selected.cost and
+     emu:read16(gNativeActionLeft)==selected.action then
+   composedRoutes=composedRoutes+1
+   out:write('COMPOSED DESCENT verified frame='..f..' count='..composedRoutes..' cost='..selected.cost..' position='..x..','..y..','..z..'\n');out:flush()
+   emu:screenshot('@OUTPUT@/composed-descent-arrival.png')
+  else
+   out:write('COMPOSED DESCENT stopped before verified arrival frame='..f..'\n');out:flush()
+  end
+  composedSelection=nil;phase='release';nextFrame=f+4;return
+ end
  if emu:read16(gNativeMoveLeft)==0 and emu:read16(gNativePreview)==0 then
   requestTurn();return
  end
  local dx,dy,dz=door()
  if not dx then finish(false,'forward door missing');return end
+ local approach=nil
+ if composedDescent and composedRoutes==0 and world==0 and room==0 then
+  approach=composedStairApproach()
+  if approach then dx,dy,dz=approach.x,approach.y,approach.z end
+ end
  local ex,ey,ez=encounterGoal()
  local chest=false
  if collectChests and not ex then
@@ -374,11 +423,61 @@ local function replayFrame()
   end
  end
  if emu:read16(gNativeClimbing)~=0 then
+  if phase=='compose_open' then
+   emu:setKeys(256);phase='compose_floor';nextFrame=f+4;return
+  elseif phase=='compose_floor' then
+   phase='compose_choose';nextFrame=f+12;return
+  elseif phase=='compose_choose' then
+   local landing=emu:read8(gNativeReachCost+24);local choice=nil
+   local x,y,z=pos()
+   out:write('COMPOSED INSPECT frame='..f..' preview='..emu:read16(gNativePreview)..' landing='..landing..' reachable='..emu:read16(gNativeReachCount)..' floorvalid='..emu:read8(sRouteValid+31)..' climbmask='..emu:read16(gNativeClimbReachMask)..' move='..emu:read16(gNativeMoveLeft)..' position='..x..','..y..','..z..' ground='..signed(emu:read32(emu:read32(gFieldState)+0x24))..'\n');out:flush()
+   emu:screenshot('@OUTPUT@/composed-descent-inspect.png')
+   if emu:read16(gNativePreview)==3 and landing~=255 then
+    local candidates={{16,25},{32,23},{64,17},{128,31},{80,18},{96,16},{144,32},{160,30}}
+    for _,candidate in ipairs(candidates) do
+     local cost=emu:read8(gNativeReachCost+candidate[2])
+     if cost>landing and cost<=emu:read16(gNativeMoveLeft) then
+      local address=sRoutePos+(candidate[2]+7)*16
+      local x=signed(emu:read32(address));local z=signed(emu:read32(address+8));local y=signed(emu:read32(address+4))+z
+      local score=math.abs(x-dx)+2*math.abs(y-dy)+math.abs(z-dz)+(visits[cell(x,y,z)] or 0)*16384
+      if not choice or score<choice.score then choice={dir=candidate[1],x=x,y=y,z=z,cost=cost,score=score,move=emu:read16(gNativeMoveLeft),action=emu:read16(gNativeActionLeft)} end
+     end
+    end
+   end
+   if not choice then emu:setKeys(2);phase='compose_fallback';nextFrame=f+4;return end
+   composedSelection=choice;emu:setKeys(choice.dir);phase='compose_target';nextFrame=f+4;return
+  elseif phase=='compose_target' then
+   phase='compose_confirm';nextFrame=f+8;return
+  elseif phase=='compose_confirm' then
+   if composedSelection and emu:read16(gNativeRouteCost)==composedSelection.cost and
+      emu:read8(sPlayerEdge)==1 and emu:read8(sPlayerEdge+composedSelection.cost-1)==0 then
+    emu:setKeys(1);commands=commands+1;phase='compose_arrival';nextFrame=f+4;return
+   end
+   composedSelection=nil;emu:setKeys(2);phase='compose_fallback';nextFrame=f+4;return
+  elseif phase=='compose_fallback' then
+   emu:setKeys(128);commands=commands+1;phase='release';nextFrame=f+4;return
+  end
   -- Original stairs ascend with Up; each command is budgeted by the ROM.
-  local _,_,z=pos();emu:setKeys(dz>z and 128 or 64);commands=commands+1;phase='release';nextFrame=f+4;return
+  local _,_,z=pos()
+  -- Exercise one composed route deliberately, then resume normal traversal.
+  -- Descend toward the supporting floor when it is outside the current
+  -- walking budget; refreshing a turn still uses native Start input.
+  if composedDescent and composedRoutes==0 and emu:read16(gNativeMoveLeft)<2 then
+   requestTurn();return
+  end
+  if composedDescent and composedRoutes==0 and emu:read16(gNativeMoveLeft)>=2 then
+   out:write('COMPOSED START frame='..f..' move='..emu:read16(gNativeMoveLeft)..' height='..z..'\n');out:flush()
+   emu:setKeys(640);phase='compose_open';nextFrame=f+4;return
+  end
+  emu:setKeys(dz>z and 128 or 64);commands=commands+1;phase='release';nextFrame=f+4;return
  end
  if phase=='scan' and index==1 then
   local x,y,z=pos()
+  if approach and math.abs(x-dx)<2048 and math.abs(y-dy)<4096 and z==dz then
+   if emu:read16(gNativePreview)~=0 then emu:setKeys(2);phase='release';nextFrame=f+4;return end
+   if emu:read16(gNativeMoveLeft)<3 then requestTurn();return end
+   emu:setKeys(64);commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
+  end
   if chest and math.abs(x-dx)<2048 and math.abs(y-dy)<4096 and math.abs(z-dz)<2048 and
      (emu:read8(emu:read32(gFieldState)+0x2c)~=0 or (y>=dy-4096 and y<=dy+1024)) then
    if emu:read16(gNativePreview)~=0 then
@@ -405,7 +504,7 @@ local function replayFrame()
   end
  end
  local x0,y0,z0=pos()
- if not ex and phase=='scan' and math.abs(x0-dx)<8192 and math.abs(y0-dy)<4096 and math.abs(z0-dz)<2048 then
+ if not ex and not approach and phase=='scan' and math.abs(x0-dx)<8192 and math.abs(y0-dy)<4096 and math.abs(z0-dz)<2048 then
   emu:setKeys((dx<x0 and 32 or 16)+(dy<y0 and 64 or 128));commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
  end
  local stair

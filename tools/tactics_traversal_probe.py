@@ -19,6 +19,7 @@ p.add_argument('--all-rooms',action='store_true',help='visit all twelve rooms pe
 p.add_argument('--collect-chests',action='store_true',help='reach and strike every reward chest through native input')
 p.add_argument('--frames', type=int, default=36000)
 p.add_argument('--recruit-cloud',action='store_true',help='fight optional Cloud, recruit and deploy him before continuing')
+p.add_argument('--composed-descent',action='store_true',help='use and require a verified descent-to-walking route during each full run')
 p.add_argument('--suspend-room', type=int, choices=range(1,7), help='save and reset once in this Traverse Town room')
 a = p.parse_args()
 if not 180 <= a.frames <= (300000 if a.all_rooms else 120000)*a.runs:
@@ -28,6 +29,7 @@ if a.all_rooms and a.worlds!=3:
 if a.collect_chests and not a.all_rooms:p.error('--collect-chests requires --all-rooms')
 if a.runs>1 and a.worlds!=3:
     p.error('--runs requires --worlds 3')
+if a.composed_descent and a.worlds!=3:p.error('--composed-descent requires --worlds 3')
 names = {}
 for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).splitlines():
     words = line.split()
@@ -35,11 +37,11 @@ for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).spli
         names[words[2]] = int(words[0], 16)
 keys = ('gCurrentMode', 'gCurrentModeUpdate', 'gPendingMode', 'sNativeMode', 'NativeUpdate', 'gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
         'gTaskDescMapDoor', 'gTaskDescMapGmk01', 'gNativeChests', 'gNativeBusy', 'gNativeEnemyFrames', 'gNativeParty', 'gNativeGuard', 'gNativeThreats', 'sPartyAction', 'gNativePreview',
-        'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing', 'gNativeCureTarget',
+        'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing', 'gNativeCureTarget','gNativeReachCost','gNativeReachCount','gNativeClimbReachMask','sRouteValid','sPlayerEdge',
         'sRoutePos', 'sCursorX', 'sCursorY', 'gMapRoomState', 'sMapCells', 'sMapPlatforms', 'gCellMasks', 'sEnemyTasks', 'gNativeDeck', 'gNativePartyHealth', 'gNativeKills', 'gNativeResult', 'gNativeReward', 'sColliderPoolObstacle', 'gNativeFloor', 'gNativeSaveNotice', 'gNativeProgressReward', 'sProgressHero', 'sProgressKind', 'sAssemblyChoice', 'gNativeRoster', 'gNativeAssembly', 'sPartyPos', 'gNativeEnemyHp', 'gNativeEnemyCharge')
 out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
-header = f'local collectChests={str(a.collect_chests).lower()}\nlocal allRooms={str(a.all_rooms).lower()}\nlocal goalRuns={a.runs}\nlocal recruitCloud={str(a.recruit_cloud).lower()}\nlocal suspendRoom={a.suspend_room or 0}\nlocal goalRoom={a.rooms}\nlocal goalFrames={a.frames}\nlocal goalWorlds={a.worlds or 0}\n' + ''.join(f'local {key}=0x{names[key]:08x}\n' for key in keys)
+header = f'local composedDescent={str(a.composed_descent).lower()}\nlocal collectChests={str(a.collect_chests).lower()}\nlocal allRooms={str(a.all_rooms).lower()}\nlocal goalRuns={a.runs}\nlocal recruitCloud={str(a.recruit_cloud).lower()}\nlocal suspendRoom={a.suspend_room or 0}\nlocal goalRoom={a.rooms}\nlocal goalFrames={a.frames}\nlocal goalWorlds={a.worlds or 0}\n' + ''.join(f'local {key}=0x{names[key]:08x}\n' for key in keys)
 script = header + Path(
     'tests/tactics_traversal_probe.lua').read_text().replace('-- @GEOMETRY@', Path('tests/tactics_traversal_geometry.lua').read_text()).replace('-- @REGIONS@', Path('tests/tactics_traversal_regions.lua').read_text()).replace('@OUTPUT@', str(out))
 
@@ -65,5 +67,6 @@ if 'emu:write' in script or 'emu.write' in script:
     'input_only': True,
     'suspend_room': a.suspend_room,
     'recruit_cloud': a.recruit_cloud,
+    'composed_descent_required':a.composed_descent,
     'result': 'not yet observed; inspect traversal.txt',
 }, indent=2) + '\n')

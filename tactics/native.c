@@ -1263,7 +1263,7 @@ static void NativeHud(void) {
     NativeLabel(0, 0, line);
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
     gNativeCureTarget = NativeCureTarget();
-    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "OUT OF REACH B CANCEL" : gNativeRouteCost == 0 ? "AT ORIGIN B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : gNativeJafarReady ? "JAFAR SPELL 96" : gNativeCloudReady ? "CLOUD CROSS SLASH 64" : gNativeMarlReady ? (gNativeEnemyHp[0] <= 28 ? "MARLUXIA RAGE SCYTHE" : "MARLUXIA SCYTHE") : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "OUT OF REACH B CANCEL" : gNativeRouteCost == 0 ? "AT ORIGIN B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 3 ? "A DESCEND MOVE B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : gNativeJafarReady ? "JAFAR SPELL 96" : gNativeCloudReady ? "CLOUD CROSS SLASH 64" : gNativeMarlReady ? (gNativeEnemyHp[0] <= 28 ? "MARLUXIA RAGE SCYTHE" : "MARLUXIA SCYTHE") : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, NativeHero(gNativeCureTarget) == FIELD_SORA ? "CURE SORA A PLAY" :
@@ -1310,6 +1310,8 @@ static void NativeHud(void) {
                 recipe == 3 ? "CURAGA A PLAY" : recipe == 4 ? "AEGIS A PLAY" : "A SLEIGHT L B CANCEL");
         }
     } else NativeLabel(0, 24, gNativeDeck.stocked ? stock : threat);
+    if (gNativePreview==2 || gNativePreview==3)
+        NativeLabel(0,24,gNativePreview==2 ? "R FLOOR CURSOR" : "R HEIGHT CURSOR");
     if (!gNativeReward && !gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && !gNativeActionLeft)
         NativeLabel(0, 8, "ACT SPENT START TURN");
@@ -1656,6 +1658,7 @@ static u32 NativeRouteFingerprint(void) {
     pos=&gFieldState->actor.fieldPosition;
     ROUTE_HASH(pos->x);ROUTE_HASH(pos->y);ROUTE_HASH(pos->z);ROUTE_HASH(pos->ground);
     ROUTE_HASH(gNativeParty);
+    ROUTE_HASH(gNativePreview);ROUTE_HASH(gFieldState->actor.angle);
     for (i=0;i<3;i++) {
         pos=&sPartyPos[i];
         ROUTE_HASH(gNativePartyHealth.hp[i]);
@@ -1716,9 +1719,29 @@ static int NativeEnemyRoute(Task* task, const FldPos* target) {
 static int NativeClimbLinks(int from,int index,int* to,int* movement,
     int* action,int* kind,void* context) {
     int direction,destination,count=0;
+    int x,y;
+    static const int dx[8]={-1,1,0,0,-1,1,-1,1};
+    static const int dy[8]={0,0,-1,1,-1,-1,1,1};
     FldPos landing;
     u8 angle=gFieldState->actor.angle+128;
     (void)context;
+    if (from>=7) {
+        if (sPlayerRoute.move[from]>=gNativeMoveLeft) return 0;
+        if (!(sPlayerLinksKnown[from/8] & (1<<(from%8)))) {
+            sPlayerLinksKnown[from/8]|=1<<(from%8);sPlayerLinks[from]=0;
+            for (direction=0;direction<8;direction++) {
+                x=(from-7)%7+dx[direction];y=(from-7)/7+dy[direction];
+                if (x<0||x>=7||y<0||y>=7) continue;
+                if (NativeRouteEdge(from,7+x+y*7,NULL)) sPlayerLinks[from]|=1<<direction;
+            }
+        }
+        for (direction=0;direction<8;direction++) if (sPlayerLinks[from] & (1<<direction)) {
+            if (count++!=index) continue;
+            *to=from+dx[direction]+dy[direction]*7;
+            *movement=1;*action=0;*kind=FIELD_EDGE_WALK;return 1;
+        }
+        return 0;
+    }
     for (direction=-1;direction<=1;direction+=2) {
         destination=from+direction;
         if (destination<0||destination>=7||!sRouteValid[destination]||
@@ -1731,57 +1754,105 @@ static int NativeClimbLinks(int from,int index,int* to,int* movement,
                 !NativeRouteClear(sRoutePos[destination])) continue;
         } else if (!NativeRouteActorsClear(&sRoutePos[destination],&sRoutePos[from])) continue;
         if (!NativeRouteActorsClear(&sRoutePos[destination],NULL)) continue;
+        /* The center of the landing grid aliases the final descent waypoint;
+         * no free synthetic link or duplicate movement charge is introduced. */
+        if (gNativePreview==3 && sRouteValid[destination]==2) {
+            if (!sRouteValid[31]) continue;
+            destination=31;
+        }
         if (count++!=index) continue;
         *to=destination;*movement=1;*action=0;*kind=FIELD_EDGE_CLIMB;
         return 1;
     }
     return 0;
 }
+static void NativeClimbFloor(FldPos origin,int connected) {
+    int i;
+    FldPos* pos;
+    for (i=7;i<56;i++) {
+        pos=&sRoutePos[i];*pos=origin;
+        pos->x+=((i-7)%7-3)*4096;pos->y+=((i-7)/7-3)*2048;
+        sRouteValid[i]=0;
+        if (!connected || pos->x<0 || pos->y+pos->z<0 ||
+            pos->x>=(gMapRoomState->cols<<13) || pos->y+pos->z>=(gMapRoomState->rows<<12)) continue;
+        if (GetFldPosGround(pos)==origin.z && NativeRouteClear(*pos)) sRouteValid[i]=1;
+    }
+    if (sRouteValid[31]) sRouteValid[31]=2;
+}
 static void NativePreviewInput(u16 pressed) {
-    int i,action,cost,length,routeCost=-1,reachCount=0;
+    int i,action,cost,length,floorNode,target,routeCost=-1,reachCount=0;
     int opened=!gNativePreview;
     u32 geometry;
     FldWork* player = ((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
     s32 lowerLimit,upperLimit;
     MapCell* stair;
     if (player->state == FLD_STATE_CLIMB) {
-        if (!gNativePreview) sCursorY=0;
-        gNativePreview = 2;
+        if (!gNativePreview) {sCursorX=sCursorY=0;gNativePreview=2;}
         if (pressed & (B_BUTTON | SELECT_BUTTON)) {gNativePreview = 0;return;}
+        if (pressed & R_BUTTON) {gNativePreview=gNativePreview==2 ? 3 : 2;sCursorX=sCursorY=0;opened=1;}
         if ((pressed & DPAD_UP) && sCursorY>-3) sCursorY--;
         if ((pressed & DPAD_DOWN) && sCursorY<3) sCursorY++;
-        sClimbPreviewDirection=sCursorY<0 ? DPAD_UP : sCursorY>0 ? DPAD_DOWN : 0;
-        lowerLimit = gFieldState->actor.fieldPosition.ground;
-        if ((player->collider.standFlags & COLLIDER_STAND_OVER_PLATFORM) &&
-            player->collider.platformZ < lowerLimit) lowerLimit = player->collider.platformZ;
-        stair=MapCellAtPos(player->targetX,player->targetY+gFieldState->actor.fieldPosition.ground);
-        upperLimit=stair && (stair->flags & MAP_CELL_FLAG_STAIRS) ? stair->upperZ : -0x100000;
-        sRoutePlayer=1;sRouteActor=NULL;sRouteObstacles=ColliderGetPool(6);
-        for (i=0;i<7;i++) {
-            sRoutePos[i]=gFieldState->actor.fieldPosition;
-            sRoutePos[i].z=((player->targetZ>>12)+i-3)*4096;
-            if (i>3 && sRoutePos[i].z>lowerLimit) sRoutePos[i].z=lowerLimit;
-            sRouteValid[i]=sRoutePos[i].z>=upperLimit &&
-                (i<=3 || (i==4 ? sRoutePos[i].z>gFieldState->actor.fieldPosition.z+48 :
-                    sRoutePos[i].z>sRoutePos[i-1].z+48));
-            if (sRouteValid[i] && i>3 && sRoutePos[i].z==lowerLimit) {
-                u8 angle=gFieldState->actor.angle+128;
-                sRouteValid[i]=2;sRoutePos[i].ground=lowerLimit;
-                sRoutePos[i].x+=SIN(angle)*10;sRoutePos[i].y-=COS(angle)*10;
-            }
-            if (sRouteValid[i] && i<3 && sRoutePos[i].z==upperLimit) sRouteValid[i]=3;
+        if (gNativePreview==3) {
+            if ((pressed & DPAD_LEFT) && sCursorX>-3) sCursorX--;
+            if ((pressed & DPAD_RIGHT) && sCursorX<3) sCursorX++;
         }
-        sRouteValid[3]=1;
-        sClimbPreviewPos=sRoutePos[sCursorY+3];
-        sClimbReachPos[0]=sRoutePos[2];sClimbReachPos[1]=sRoutePos[4];
-        gNativeClimbReachMask=0;gNativeRouteCost=-1;
-        if (FieldTacticsSearch(&sPlayerRoute,7,3,gNativeMoveLeft,0,NativeClimbLinks,NULL)>=0) {
-            for (i=0;i<7;i++) if (i!=3 && sPlayerRoute.move[i]!=255)
-                gNativeClimbReachMask|=1<<((NativeAbs(i-3)-1)*2+(i>3));
-            length=FieldTacticsPath(&sPlayerRoute,sCursorY+3,sPlayerPath,sPlayerEdge,
-                FIELD_ROUTE_CELLS,&cost,&action);
-            if (length>=0) gNativeRouteCost=cost;
-        } else length=-1;
+        sClimbPreviewDirection=gNativePreview==3 ? DPAD_DOWN : sCursorY<0 ? DPAD_UP : sCursorY>0 ? DPAD_DOWN : 0;
+        sPartyPos[gNativeParty]=gFieldState->actor.fieldPosition;
+        geometry=NativeRouteFingerprint();
+        if (opened || (pressed & A_BUTTON) || geometry!=sPlayerGeometry ||
+            sPlayerMoveBudget!=gNativeMoveLeft || sPlayerActionBudget!=gNativeActionLeft) {
+            lowerLimit = gFieldState->actor.fieldPosition.ground;
+            if ((player->collider.standFlags & COLLIDER_STAND_OVER_PLATFORM) &&
+                player->collider.platformZ < lowerLimit) lowerLimit = player->collider.platformZ;
+            stair=MapCellAtPos(player->targetX,player->targetY+gFieldState->actor.fieldPosition.ground);
+            upperLimit=stair && (stair->flags & MAP_CELL_FLAG_STAIRS) ? stair->upperZ : -0x100000;
+            sRoutePlayer=1;sRouteActor=NULL;sRouteObstacles=ColliderGetPool(6);
+            for (i=0;i<7;i++) {
+                sRoutePos[i]=gFieldState->actor.fieldPosition;
+                sRoutePos[i].z=((player->targetZ>>12)+i-3)*4096;
+                if (i>3 && sRoutePos[i].z>lowerLimit) sRoutePos[i].z=lowerLimit;
+                sRouteValid[i]=sRoutePos[i].z>=upperLimit &&
+                    (i<=3 || (i==4 ? sRoutePos[i].z>gFieldState->actor.fieldPosition.z+48 :
+                        sRoutePos[i].z>sRoutePos[i-1].z+48));
+                if (sRouteValid[i] && i>3 && sRoutePos[i].z==lowerLimit) {
+                    u8 angle=gFieldState->actor.angle+128;
+                    sRouteValid[i]=2;sRoutePos[i].ground=lowerLimit;
+                    sRoutePos[i].x+=SIN(angle)*10;sRoutePos[i].y-=COS(angle)*10;
+                }
+                if (sRouteValid[i] && i<3 && sRoutePos[i].z==upperLimit) sRouteValid[i]=3;
+            }
+            sRouteValid[3]=1;floorNode=-1;
+            for (i=4;i<7;i++) if (sRouteValid[i]==2) {floorNode=i;break;}
+            if (gNativePreview==3) {
+                if (floorNode>=0) NativeClimbFloor(sRoutePos[floorNode],1);
+                else {
+                    FldPos floor=gFieldState->actor.fieldPosition;
+                    u8 angle=gFieldState->actor.angle+128;
+                    floor.z=floor.ground=lowerLimit;
+                    floor.x+=SIN(angle)*10;floor.y-=COS(angle)*10;
+                    NativeClimbFloor(floor,0);
+                }
+            }
+            sClimbReachPos[0]=sRoutePos[2];sClimbReachPos[1]=sRoutePos[4];
+            for (i=0;i<11;i++) sPlayerLinksKnown[i]=0;
+            gNativeClimbReachMask=0;
+            if (FieldTacticsSearch(&sPlayerRoute,gNativePreview==3 ? 56 : 7,3,gNativeMoveLeft,0,NativeClimbLinks,NULL)>=0) {
+                for (i=0;i<7;i++) if (i!=3 &&
+                    sPlayerRoute.move[gNativePreview==3 && i==floorNode ? 31 : i]!=255)
+                    gNativeClimbReachMask|=1<<((NativeAbs(i-3)-1)*2+(i>3));
+            }
+            for (i=0;i<FIELD_ROUTE_CELLS;i++) {
+                gNativeReachCost[i]=gNativePreview==3 && sPlayerRoute.nodes && i<49 ? sPlayerRoute.move[i+7] : 255;
+                if (gNativeReachCost[i]!=255 && gNativeReachCost[i]) reachCount++;
+            }
+            gNativeReachCount=reachCount;
+            sPlayerGeometry=geometry;sPlayerMoveBudget=gNativeMoveLeft;sPlayerActionBudget=gNativeActionLeft;
+        }
+        target=gNativePreview==3 ? 7+(sCursorY+3)*7+sCursorX+3 : sCursorY+3;
+        sClimbPreviewPos=sRoutePos[target];
+        length=FieldTacticsPath(&sPlayerRoute,target,sPlayerPath,sPlayerEdge,
+            FIELD_ROUTE_CELLS,&cost,&action);
+        gNativeRouteCost=length>=0 ? cost : -1;
         if ((pressed & A_BUTTON) && gNativeRouteCost>0 && gNativeRouteCost<=gNativeMoveLeft) {
             gNativeMoveLeft-=gNativeRouteCost;
             gNativeDirection = sClimbPreviewDirection;
@@ -1793,6 +1864,7 @@ static void NativePreviewInput(u16 pressed) {
         }
         return;
     }
+    if (gNativePreview>1) {gNativePreview=0;opened=1;}
     if (!gNativePreview) {
         gNativePreview = 1;
         sCursorX = sCursorY = 0;
@@ -1872,6 +1944,22 @@ static u16 NativeRouteWalk(void) {
 }
 static u16 NativeRouteClimb(FldWork* player) {
     FldPos* actor=&gFieldState->actor.fieldPosition;
+    if (player->state==FLD_STATE_GROUND && sPathIndex+1<sPathLength &&
+        sPlayerEdge[sPathIndex]==FIELD_EDGE_CLIMB && sPlayerEdge[sPathIndex+1]==FIELD_EDGE_WALK) {
+        /* Continue the same paid route after the original controller lands.
+         * Validate the next edge from its actual landing, never teleport to
+         * a predicted waypoint or renew the member's movement budget. */
+        sRoutePos[sPlayerPath[sPathIndex]]=*actor;
+        sRoutePlayer=1;sRouteActor=NULL;sRouteObstacles=ColliderGetPool(6);
+        if (!NativeRouteEdge(sPlayerPath[sPathIndex],sPlayerPath[sPathIndex+1],NULL)) {
+            gNativeMoveLeft+=sPathLength-sPathIndex-1;
+            gNativeBusy=0;gNativeDirection=0;gFieldState->actor.speed=0;
+            return 0;
+        }
+        sPathIndex++;sPathStartX=actor->x;sPathStartY=actor->y;
+        sFrames=0;gNativeBusy=3;gNativeDirection=0;gFieldState->actor.speed=0;
+        return 0;
+    }
     if (player->state==FLD_STATE_GROUND || sFrames>=180) {
         /* Native climb-over/landing can end a route before its remaining
          * vertical waypoints. Only the segment already started is charged. */
@@ -1901,13 +1989,28 @@ static void NativePreviewDraw(void) {
     s16 x, y;
     FldPos* pos;
     if (!gNativePreview || !sValueTiles || !sValuePalette) return;
-    if (gNativePreview == 2) {
+    if (gNativePreview == 2 || gNativePreview == 3) {
         if (sReachTiles) for (i = 0; i < 7; i++) if (i!=3 &&
             (gNativeClimbReachMask & (1 << ((NativeAbs(i-3)-1)*2+(i>3))))) {
             x = (sRoutePos[i].x - gFieldState->x) >> 8;
             y = (sRoutePos[i].y + sRoutePos[i].z - gFieldState->y) >> 8;
             DrawSprite(x - 12, y - 7, gCardValueDigitFrames[0], sReachTiles,
                 sValuePalette, NULL, 0x800, 0);
+        }
+        if (gNativePreview==3) {
+            if (sReachTiles) for (i=7;i<56;i++) if (gNativeReachCost[i-7]!=255) {
+                pos=&sRoutePos[i];
+                x=(pos->x-gFieldState->x)>>8;y=(pos->y+pos->z-gFieldState->y)>>8;
+                DrawSprite(x-12,y-7,gCardValueDigitFrames[0],sReachTiles,sValuePalette,NULL,0x800,0);
+            }
+            count=gNativeRouteCost>0 && gNativeRouteCost<=gNativeMoveLeft ? gNativeRouteCost : 0;
+            for (i=0;i<(count ? count : 1);i++) {
+                node=count ? sPlayerPath[i] : 7+(sCursorY+3)*7+sCursorX+3;
+                pos=&sRoutePos[node];
+                x=(pos->x-gFieldState->x)>>8;y=(pos->y+pos->z-gFieldState->y)>>8;
+                DrawSprite(x,y,gCardValueDigitFrames[count ? i+1 : 0],sValueTiles,sValuePalette,NULL,0,0);
+            }
+            return;
         }
         x = (sClimbPreviewPos.x - gFieldState->x) >> 8;
         y = (sClimbPreviewPos.y + sClimbPreviewPos.z - gFieldState->y) >> 8;
