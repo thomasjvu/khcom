@@ -101,7 +101,7 @@ local function combatInput()
   end
  end
  if not near or emu:read16(gNativeActionLeft)==0 then return nil end
- local hand={};local wanted=nil
+ local hand={};local wanted=nil;local healing=false
  for i=0,emu:read8(gNativeDeck+72)-1 do
   if emu:read8(gNativeDeck+48+i)==1 then
    local kind=emu:read8(gNativeDeck+i);hand[#hand+1]=kind
@@ -109,7 +109,11 @@ local function combatInput()
   end
  end
  if emu:read8(gNativePartyHealth)<60 then
-  for i,kind in ipairs(hand) do if kind==2 then wanted=i-1;break end end
+  for i,kind in ipairs(hand) do if kind==2 then wanted=i-1;healing=true;break end end
+ end
+ local threat=emu:read16(gNativeThreats)
+ if not healing and threat>0 and emu:read8(gNativePartyHealth)<=threat+16 then
+  for i,kind in ipairs(hand) do if kind==3 then wanted=i-1;break end end
  end
  if #hand==0 then return 768 end
  if not wanted then
@@ -117,6 +121,8 @@ local function combatInput()
   wanted=0
  end
  if emu:read8(gNativeDeck+73)~=wanted then return 256 end
+ if emu:read8(gNativePartyHealth)<60 and hand[wanted+1]==2 and
+    emu:read16(gNativeCureTarget)~=0 then return 258 end
  return 1
 end
 local endingTurn=false

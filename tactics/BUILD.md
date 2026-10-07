@@ -756,3 +756,22 @@ Position/HP boundary setup is explicit; the Fire command is native input.
 Host tests cover phase thresholds and range/damage values. Full-run victory,
 break VFX, additional attack patterns and the other canonical bosses remain
 unverified or unfinished.
+
+The input-only traversal driver now explicitly cycles Cure to Sora when its
+policy requests recovery for his HP below 60. Previously it selected Cure but
+accepted the game's most-injured default recipient, often healing another
+member. When Cure is unavailable and Sora HP is within 16 of projected incoming
+damage, it prefers a Guard card over Fire. Both changes use native controls;
+the ROM/rules are unchanged by this driver work. Read-only mock tests cover
+recipient cycling, selected-card/action gates, Cure priority, defensive Guard
+and healthy Fire preference, alongside the existing Goofy turn policy tests.
+
+Two full input-only traces on ROM SHA-256
+`f618c99d66af5ba1bd227dd0a5912c0d9c6a994dbc594b9237bb6a168fc1bbe4`
+remain failures: `explicit-sora-cure-full-run-evidence` (Cure targeting only)
+ended in Castle Oblivion room 7 at frame 73,903, with 17 kills/509 commands;
+`defensive-sora-full-run-evidence` (Cure plus defensive Guard) ended in Castle
+Oblivion room 0 at frame 59,050, with 11 kills/518 commands. Earlier arrival in
+the second trace is not proof of better combat performance. Both metadata files
+record their terminal log result. The latest source still lacks a verified
+complete-run victory; party deployment/recovery and card-use policy need work.

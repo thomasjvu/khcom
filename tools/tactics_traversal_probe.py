@@ -25,7 +25,7 @@ for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).spli
         names[words[2]] = int(words[0], 16)
 keys = ('gCurrentMode', 'gCurrentModeUpdate', 'gPendingMode', 'sNativeMode', 'NativeUpdate', 'gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
         'gTaskDescMapDoor', 'gNativeBusy', 'gNativeEnemyFrames', 'gNativeParty', 'gNativeGuard', 'gNativeThreats', 'sPartyAction', 'gNativePreview',
-        'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing',
+        'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing', 'gNativeCureTarget',
         'sRoutePos', 'sCursorX', 'sCursorY', 'gMapRoomState', 'sMapCells', 'sMapPlatforms', 'gCellMasks', 'sEnemyTasks', 'gNativeDeck', 'gNativePartyHealth', 'gNativeKills', 'gNativeResult', 'gNativeReward', 'sColliderPoolObstacle', 'gNativeFloor')
 out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
