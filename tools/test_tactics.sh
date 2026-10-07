@@ -20,3 +20,6 @@ build/tactics/field_party_test
 cc -std=c89 -pedantic -Wall -Wextra -Werror -fsanitize=address,undefined \
   -I tactics tactics/field_route.c tests/tactics_field_route_test.c -o build/tactics/field_route_test
 build/tactics/field_route_test
+cc -std=c89 -pedantic -Wall -Wextra -Werror -fsanitize=address,undefined \
+  -I tactics tactics/field_enemy.c tests/tactics_field_enemy_test.c -o build/tactics/field_enemy_test
+build/tactics/field_enemy_test

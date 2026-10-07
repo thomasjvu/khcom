@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.6-navigation.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.6-navigation.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.7-encounters.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.7-encounters.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -164,3 +164,18 @@ the party replay passes 28 checks, and world-transition scenarios pass 13.
 Screenshots confirm the buffered HUD remains readable in Agrabah and Castle
 Oblivion. The upload runs in the mode VBlank callback before audio mixing;
 a late callback defers its upload instead of writing during visible scanout.
+
+Encounter build: `tools/tactics_boss_smoke.py ELF OUTPUT` generates `boss.lua`.
+The 16-check mGBA fixture verifies the Large Body guardian’s health, charge
+warning, no windup damage, area evasion, Guard mitigation, charge persistence
+through reset and defeat through a real Fire card. This is an elite guardian
+using original Large Body art, not Darkside or another canonical boss.
+The seeded enemy policy is tested across 3,000 seed/world combinations. Save
+format 7 stores all seven native field identities and the guardian charge bit;
+serializer tests cover higher kinds, charged round trips and invalid phases.
+
+The 0.7 build also passes the 28-check party replay, 27-check input-only walk
+replay and 13 world scenario fixtures. Local evidence is under
+`build/tactics-us/guardian-evidence`, `encounter-party-evidence`,
+`encounter-route-evidence` and `encounter-world-evidence`. These fixtures
+remain narrower than an input-only complete run.

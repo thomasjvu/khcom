@@ -7,6 +7,7 @@
  * native 8.8 values exactly while bounding all twelve room snapshots. */
 typedef struct FieldEncounter {
     short pos[4];
+    /* kind: native definition in bits 0..2; bit 3 is guardian windup. */
     unsigned char hp, kind;
 } FieldEncounter;
 typedef struct FieldSaveState {

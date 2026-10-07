@@ -25,6 +25,13 @@ int main(void) {
         b[i]^=1;
     }
     b[0]=0;assert(FieldSaveSelect(&loaded,&gen,a,b)==0&&loaded.hp==64);
+    s.encounters[0][0].kind=10;
+    s.encounters[9][0].kind=6;
+    assert(FieldSaveEncode(&s,1,b)&&FieldSaveDecode(&loaded,&gen,b));
+    assert(loaded.encounters[0][0].kind==10&&loaded.encounters[9][0].kind==6);
+    s.encounters[0][0].kind=9;assert(!FieldSaveEncode(&s,1,b));
+    s.encounters[0][0].kind=7;assert(!FieldSaveEncode(&s,1,b));
+    s.encounters[0][0].kind=2;
     s.roomEnemies[0]=2;assert(!FieldSaveEncode(&s,1,b));
     s.roomEnemies[0]=1;s.hp=0;assert(!FieldSaveEncode(&s,1,b));
     puts("field save: all-byte corruption, fallback, generation wrap, exact state passed");

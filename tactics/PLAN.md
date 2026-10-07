@@ -22,7 +22,9 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Original Sora and field enemy animation, collision, camera and climbing tasks.
 - Selectable Sora/Donald/Goofy with individual movement/action budgets and original sprites.
 - Individual HP, friend knockouts, selection skipping and Cure/chest revival.
-- HUD damage estimates using enemy range/height/guard rules, emulator checked.
+- HUD and projected original-digit damage estimates using enemy range/height/guard rules, emulator checked.
+- Seeded world-specific enemy groups with ranged Red Nocturnes, Darkballs and Black Fungus.
+- Large Body exit guardian with a charge/area-strike cycle, evasion, Guard interaction and saved windup state.
 - Enemy damage and positions persist across all visited rooms and reboot.
 - Original Donald casting and Goofy guard animation resources.
 - Discrete enemy decisions, health, value checks, height-limited attacks and stronger exits.
@@ -48,7 +50,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
    reachability for every generated room, then regenerate invalid rooms using
    a bounded retry policy. Current graph tests verify room connectivity, not
    complete physical navigation inside each room.
-2. **Authoritative field combat.** Extend the bounded enemy route search with world-specific behavior and swept actor collision checks. Add telegraphed targets, occupancy rules and richer enemy behaviors.
+2. **Authoritative field combat.** Extend the bounded enemy route search with swept actor collision checks and additional world-specific behaviors. Extend current damage and charge warnings into full area/range overlays.
    Independent party HP and partial encounter persistence are implemented. Keep animations
    running during input wait without advancing authoritative actions.
 3. **Port the tested card systems.** Extend the native deck with target selection and richer named sleight recipes.
@@ -56,7 +58,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
    Remove assumptions about an 8x6 board. Add projected target/range previews
    and a GBA-sized card HUD using original resources.
 4. **Roguelike content.** Add room roles, enemy groups, authored tactical motifs,
-   reward choices, world-specific hazards, map-card modifiers and field bosses.
+   reward choices, world-specific hazards, map-card modifiers and canonical field bosses. The current Large Body guardian is an elite encounter with a charged attack cycle.
    Isolate run-generation RNG from combat and presentation RNG. Test optional
    paths, persistent opened chests, enemy clears and backtracking.
 5. **Suspend saves and complete-run QA.** Extend the implemented native dual-slot save as new systems arrive.

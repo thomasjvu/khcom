@@ -55,7 +55,15 @@ check with weaker melee damage. Values below an enemy's threshold are broken.
 Walk through doors to explore twelve generated rooms per world, including side
 branches. Strike chests with a Kingdom Key card to open them: each restores
 12 HP to every party member and adds one seeded card, up to a 24-card deck. Chest flags and room enemy
-counts persist. Clear the tougher room-7 encounter and leave through its far
+counts persist. World groups mix Shadow, ranged Red Nocturne, Darkball and
+Black Fungus. Room 7 includes a Large Body guardian with 40/48/56 HP. Within
+96 pixels it spends a decision charging, then on its next decision strikes
+all party members within a 64-pixel Manhattan radius and 24 pixels of height.
+Move out during the warning or play Guard. Incoming damage uses original
+value digits above threatened characters as well as the NEXT footer. The
+warning is based on current positions; it updates as the party moves.
+
+Clear the room-7 encounter and leave through its far
 door to advance from Traverse Town to Agrabah and Castle Oblivion.
 
 Suspend records exact party positions/budgets, enemies and their HP/positions,
@@ -63,9 +71,10 @@ the shared deck, individual HP, every visited room encounter and seed in
 two checksummed 1,024-byte SRAM slots. Partially damaged enemies keep their
 health and positions when you backtrack. A damaged
 latest slot falls back to the older valid slot. Defeat/run clear invalidates
-suspends. Save files from earlier flat-board or field prototypes are incompatible.
+suspends. This build uses save format 7 to preserve enemy identity and charged attacks;
+format 6 and earlier saves are incompatible.
 
 This is still a development build. Physical room reachability guarantees, climb/jump routes and
-projected attack intent previews, reward choices, distinct boss sprites/AI, complete
+full area/range overlays, reward choices, canonical bosses, complete
 input-only run testing and hardware validation remain unfinished. Native room
 creation currently resets party positions/budgets to the entry door.

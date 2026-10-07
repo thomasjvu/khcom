@@ -31,6 +31,7 @@
 #include "field_save.h"
 #include "field_party.h"
 #include "field_route.h"
+#include "field_enemy.h"
 #include "display.h"
 #include "malloc.h"
 #include "gba/macro.h"
@@ -128,6 +129,8 @@ static u16 NativeRouteWalk(void);
 
 static Task* sEnemyTasks[6];
 u16 gNativeEnemyHp[6];
+u8 gNativeEnemyKind[6];
+u8 gNativeEnemyCharge[6];
 u16 gNativeBreaks;
 u16 gNativeTurn;
 static ObjPalette* sCardPalettes[4];
@@ -367,7 +370,7 @@ static void NativeCaptureEncounter(void) {
         record = &sSuspend.encounters[room][n++];
         for (j = 0; j < 4; j++) record->pos[j] = ((s32*)&enemy->obj.fieldPosition)[j] >> 8;
         record->hp = gNativeEnemyHp[i];
-        record->kind = enemy->def == gMapEnmDefs[1];
+        record->kind = gNativeEnemyKind[i] | (gNativeEnemyCharge[i] << 3);
     }
     sSuspend.roomCached[room] = 1;
 }
@@ -468,6 +471,18 @@ static void NativePreviewThreats(void) {
     for (j = 0; j < 3; j++) gNativeThreats[j] = 0;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i]) {
         work = sEnemyTasks[i]->work;
+        if (gNativeEnemyKind[i] == 2) {
+            if (gNativeEnemyCharge[i]) for (j = 0; j < 3; j++) {
+                if (!gNativePartyHealth.hp[j]) continue;
+                pos = j == gNativeParty ? gFieldState->actor.fieldPosition : sPartyPos[j];
+                distance = NativeAbs(work->obj.fieldPosition.x - pos.x) +
+                    NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - pos.y - pos.z);
+                dz = NativeAbs(work->obj.fieldPosition.z - pos.z);
+                if (distance <= (64 << 8) && dz <= (24 << 8))
+                    gNativeThreats[j] += gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : FieldEnemyDamage(2, gNativeFloor);
+            }
+            continue;
+        }
         best = 0x7fffffff; target = 0;
         for (j = 0; j < 3; j++) {
             if (!gNativePartyHealth.hp[j]) continue;
@@ -478,8 +493,25 @@ static void NativePreviewThreats(void) {
         }
         pos = target == gNativeParty ? gFieldState->actor.fieldPosition : sPartyPos[target];
         dz = NativeAbs(work->obj.fieldPosition.z - pos.z);
-        if (best <= (40 << 8) && dz <= (16 << 8))
-            gNativeThreats[target] += gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : 4 + gNativeFloor;
+        if (best <= (FieldEnemyRange(gNativeEnemyKind[i]) << 8) && dz <= (FieldEnemyHeight(gNativeEnemyKind[i]) << 8))
+            gNativeThreats[target] += gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : FieldEnemyDamage(gNativeEnemyKind[i], gNativeFloor);
+    }
+}
+static void NativeIntentDraw(void) {
+    u8 i;
+    u16 damage;
+    s16 x, y;
+    FldPos* pos;
+    if (!sValueTiles || !sValuePalette || gNativeEnemyFrames) return;
+    for (i = 0; i < 3; i++) if (gNativePartyHealth.hp[i] && gNativeThreats[i]) {
+        damage = gNativeThreats[i] > 99 ? 99 : gNativeThreats[i];
+        pos = &sPartyPos[i];
+        x = (pos->x - gFieldState->x) >> 8;
+        y = ((pos->y + pos->z - gFieldState->y) >> 8) - 28;
+        if (damage >= 10) DrawSprite(x - 6, y, gCardValueDigitFrames[damage / 10],
+            sValueTiles, sValuePalette, NULL, 0, 0);
+        DrawSprite(x + 2, y, gCardValueDigitFrames[damage % 10],
+            sValueTiles, sValuePalette, NULL, 0, 0);
     }
 }
 static void NativeHud(void) {
@@ -489,6 +521,7 @@ static void NativeHud(void) {
     char threat[] = "NEXT S00 D00 G00";
     char stock[] = "STOCK 0 A SLEIGHT";
     u16 hp = gGameState.hp;
+    u8 charging = 0;
     int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
     static const char* const names[4] = {"KEYBLADE A PLAY", "FIRE A PLAY", "CURE A PLAY", "GUARD A PLAY"};
     u16 i;
@@ -514,7 +547,8 @@ static void NativeHud(void) {
     while (hp >= 10) { line[17]++; hp -= 10; }
     line[18] += hp;
     NativeLabel(0, 0, line);
-    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : charging ? "GUARDIAN CHARGING" : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
@@ -531,7 +565,6 @@ static void NativeHud(void) {
     }
     NativeLabel(0, 32, gNativeSaveNotice ?
         (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") : health);
-    NativePreviewThreats();
     for (i = 0; i < 3; i++) {
         threat[6 + i * 4] = '0' + gNativeThreats[i] / 10;
         threat[7 + i * 4] = '0' + gNativeThreats[i] % 10;
@@ -569,13 +602,17 @@ static void NativeInit(s32 arg) {
     gNativeRoomVisits++;
     /* Spawn once from the room seed, never from idle frame timing. */
     SeedRandom(room->seed ^ 0x454e4d);
-    for (i = 0; i < 6; i++) {sEnemyTasks[i] = NULL; gNativeEnemyHp[i] = 0;}
+    for (i = 0; i < 6; i++) {sEnemyTasks[i] = NULL; gNativeEnemyHp[i] = 0;gNativeEnemyCharge[i] = 0;}
     for (i = 0; i < saved->enemiesLeft && i < 6; i++) {
         kind = sSuspend.roomCached[gMapFloorState.room] ?
-            sSuspend.encounters[gMapFloorState.room][i].kind : i & 1;
+            sSuspend.encounters[gMapFloorState.room][i].kind & 7 :
+            FieldEnemyKind(room->seed, gNativeFloor, gMapFloorState.room, i);
+        gNativeEnemyKind[i] = kind;
+        gNativeEnemyCharge[i] = sSuspend.roomCached[gMapFloorState.room] ?
+            sSuspend.encounters[gMapFloorState.room][i].kind >> 3 : 0;
         MapEnmSetupArgs(&enemy, gMapEnmDefs[kind]);
         sEnemyTasks[i] = TaskCreate(&gFieldState->tasks4, gMapEnmDefs[kind]->desc, &enemy);
-        gNativeEnemyHp[i] = gMapFloorState.room == 7 && i == 0 ? 24 + gNativeFloor * 8 : 6 + gNativeFloor * 2;
+        gNativeEnemyHp[i] = FieldEnemyHp(kind, gNativeFloor);
     }
     gNativeMoveLeft = 3;
     gNativeActionLeft = 1;
@@ -802,9 +839,25 @@ static void NativeEnemyTurn(void) {
             if (distance < best) {best = distance; closest = j;}
         }
         dz = NativeAbs(work->obj.fieldPosition.z - sPartyPos[closest].z);
-        if (best <= (40 << 8) && dz <= (16 << 8)) {
+        if (gNativeEnemyKind[i] == 2 && gNativeEnemyCharge[i]) {
+            for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j]) {
+                distance = NativeAbs(work->obj.fieldPosition.x - sPartyPos[j].x) +
+                    NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - sPartyPos[j].y - sPartyPos[j].z);
+                if (distance <= (64 << 8) && NativeAbs(work->obj.fieldPosition.z - sPartyPos[j].z) <= (24 << 8))
+                    if (FieldPartyDamage(&gNativePartyHealth, j, gNativeGuard == 2 ? 0 :
+                        gNativeGuard ? 1 : FieldEnemyDamage(2, gNativeFloor))) gNativeResult = 1;
+            }
+            gNativeEnemyCharge[i] = 0;
+            continue;
+        }
+        if (gNativeEnemyKind[i] == 2 && best <= (96 << 8) && dz <= (32 << 8)) {
+            gNativeEnemyCharge[i] = 1;
+            continue;
+        }
+        if (gNativeEnemyKind[i] != 2 && best <= (FieldEnemyRange(gNativeEnemyKind[i]) << 8) &&
+            dz <= (FieldEnemyHeight(gNativeEnemyKind[i]) << 8)) {
             if (FieldPartyDamage(&gNativePartyHealth, closest,
-                gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : 4 + gNativeFloor))
+                gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : FieldEnemyDamage(gNativeEnemyKind[i], gNativeFloor)))
                 gNativeResult = 1;
         } else {
             step = NativeEnemyRoute(sEnemyTasks[i], &sPartyPos[closest]);
@@ -1099,7 +1152,9 @@ static void NativeUpdate(void) {
         gMapRoomState->flags &= ~ROOM_FLAG_HIDE_PLAYER;
     }
     gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
+    NativePreviewThreats();
     NativePartyDraw();
+    NativeIntentDraw();
     NativePreviewDraw();
     NativeHud();
     if (gNativeBusy) sFrames++;

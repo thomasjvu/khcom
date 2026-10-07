@@ -23,7 +23,7 @@ static int Valid(const FieldSaveState* s) {
         n=0;
         for(i=0;i<FIELD_SAVE_ENEMIES;i++) {
             const FieldEncounter* e=&s->encounters[k][i];
-            if(e->hp>64||e->kind>1)return 0;
+            if(e->hp>64||(e->kind&7)>6||e->kind>15||((e->kind&8)&&(e->kind&7)!=2))return 0;
             if(e->hp)n++;
             for(j=0;j<4;j++)if(e->pos[j]<-4096||e->pos[j]>4096)return 0;
         }
@@ -86,13 +86,13 @@ static int Unpack(FieldSaveState* s,const unsigned char* p) {
 int FieldSaveEncode(const FieldSaveState* s,unsigned int gen,unsigned char* out) {
     int i,n;if(!Valid(s))return 0;
     for(i=0;i<FIELD_SAVE_SIZE;i++)out[i]=0;
-    out[0]='K';out[1]='T';out[2]='F';out[3]='S';out[4]=6;
+    out[0]='K';out[1]='T';out[2]='F';out[3]='S';out[4]=7;
     Put(out+8,gen);n=Pack(s,out+16);out[6]=n&255;out[7]=n>>8;
     Put(out+FIELD_SAVE_SIZE-4,Crc(out));return 1;
 }
 int FieldSaveDecode(FieldSaveState* s,unsigned int* gen,const unsigned char* data) {
     FieldSaveState candidate;int n;
-    if(data[0]!='K'||data[1]!='T'||data[2]!='F'||data[3]!='S'||data[4]!=6||data[5]||Get(data+FIELD_SAVE_SIZE-4)!=Crc(data))return 0;
+    if(data[0]!='K'||data[1]!='T'||data[2]!='F'||data[3]!='S'||data[4]!=7||data[5]||Get(data+FIELD_SAVE_SIZE-4)!=Crc(data))return 0;
     n=Unpack(&candidate,data+16);
     if(n!=(data[6]|data[7]<<8)||!Valid(&candidate))return 0;
     *s=candidate;*gen=Get(data+8);return 1;
