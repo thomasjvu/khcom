@@ -34,8 +34,11 @@ Round setup shows original character cards. L/R selects a deployed slot;
 Up/Down changes an unlocked companion; A/Start confirms. Sora remains required.
 Companion swaps preserve each character's health and spent turn resources.
 Summon cards appear in setup and recruitment; combat Guard uses the original
-Guard Armor enemy card. Walking previews show reachable terrain tiles. Climb
-and jump connections still need integration into the reachable overlay.
+Guard Armor enemy card. Walking previews show reachable terrain tiles. Attached stair previews show both affordable vertical directions and clamp
+the final descent to the supporting floor. Thirty-two native fixture checks
+pass, including exhausted movement, cancellation and attached suspend/resume;
+markers are visually verified in `climb-reach-visible-evidence`. Routes combining
+walking, climbing and jumping still need integration into the reachable overlay.
 
 Traverse Town's optional room-9 Cloud challenge offers his recruitment card or
 a personal power/sleight upgrade. Every second unique room clear and world boss

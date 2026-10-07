@@ -7,7 +7,9 @@ local function field() return emu:read32(gFieldState) end
 local function player() return emu:read32(emu:read32(emu:read32(field()+0x94))+4) end
 callbacks:add('frame',function()
  f=f+1
- if f==180 then
+ if f==180 then emu:setKeys(1) end
+ if f==184 then emu:setKeys(0) end
+ if f==210 then
   local r=emu:read32(gMapRoomState);local cols=emu:read16(r+4);local rows=emu:read16(r+6)
   local cells=emu:read32(sMapCells);local found=false
   for y=1,rows-2 do for x=1,cols-2 do
@@ -46,6 +48,8 @@ callbacks:add('frame',function()
  if f==410 then
   check(emu:read16(gNativePreview)==2 and emu:read16(gNativeRouteCost)==1,'attached Up opens a one-point vertical preview')
   check(emu:read16(gNativeMoveLeft)==2,'preview does not spend movement')
+  check(emu:read16(gNativeClimbReachMask)==3,'both affordable vertical directions are marked reachable')
+  check(emu:read32(sClimbReachPos+8)==emu:read32(sClimbPreviewPos+8),'up reachable marker matches selected native segment')
   emu:screenshot('@OUTPUT@/preview.png');emu:setKeys(2)
  end
  if f==414 then emu:setKeys(0) end
@@ -70,6 +74,7 @@ callbacks:add('frame',function()
  if f==614 then emu:setKeys(0) end
  if f==630 then
   check(emu:read16(gNativePreview)==2,'exhausted party member can inspect a stair preview')
+  check(emu:read16(gNativeClimbReachMask)==0,'exhausted movement shows no affordable vertical markers')
   emu:setKeys(1)
  end
  if f==634 then emu:setKeys(0) end
@@ -100,6 +105,7 @@ callbacks:add('frame',function()
  if f==995 then
   check(emu:read16(gNativePreview)==2 and emu:read16(gNativeRouteCost)==1,'Down previews the final segment to the native floor')
   check(emu:read32(sClimbPreviewPos+8)==startZ,'descending marker matches the supporting floor')
+  check(emu:read32(sClimbReachPos+24)==startZ,'reachable descent marker clamps to the supporting floor')
   emu:screenshot('@OUTPUT@/descending-preview.png');emu:setKeys(2)
  end
  if f==999 then emu:setKeys(0) end

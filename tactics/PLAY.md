@@ -221,3 +221,8 @@ Summon cards appear in setup and recruitment. Combat Guard now uses the original
 Guard Armor enemy-card artwork, rather than Goofy's summon card. Format-8/9
 saves migrate with default health/budgets for previously unrecorded benched
 heroes and preserve saved deployed party state.
+
+Attached stair previews outline both affordable vertical steps. Up/Down selects
+a step; A commits it for one movement point; B cancels the preview. With no
+movement left, no affordable direction outlines appear. The final descent
+marker shows the supporting floor when it is closer than a full segment.

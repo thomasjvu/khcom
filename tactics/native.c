@@ -178,6 +178,8 @@ static s32 sPathStartX, sPathStartY;
 static u8 sRoutePlayer;
 static u16 sClimbPreviewDirection;
 static FldPos sClimbPreviewPos;
+static FldPos sClimbReachPos[2];
+u16 gNativeClimbReachMask;
 static void NativePreviewDraw(void);
 static void NativePreviewInput(u16 pressed);
 static u16 NativeRouteWalk(void);
@@ -1398,6 +1400,7 @@ static void NativeInit(s32 arg) {
     sFrames = 0;
     sAttack = 0;
     gNativePreview = 0;
+    gNativeClimbReachMask = 0;
     sPathLength = 0;
     sAssemblyResume = sResume;
     NativePartyInit();
@@ -1635,6 +1638,14 @@ static void NativePreviewInput(u16 pressed) {
          * the final sixteen-pixel segment. Show that actual vertical limit. */
         if (sClimbPreviewDirection == DPAD_DOWN && sClimbPreviewPos.z > lowerLimit)
             sClimbPreviewPos.z = lowerLimit;
+        sClimbReachPos[0] = gFieldState->actor.fieldPosition;
+        sClimbReachPos[0].z = ((player->targetZ >> 12) - 1) << 12;
+        sClimbReachPos[1] = gFieldState->actor.fieldPosition;
+        sClimbReachPos[1].z = ((player->targetZ >> 12) + 1) << 12;
+        if (sClimbReachPos[1].z > lowerLimit) sClimbReachPos[1].z = lowerLimit;
+        gNativeClimbReachMask = gNativeMoveLeft ? 1 : 0;
+        if (gNativeMoveLeft && sClimbReachPos[1].z > gFieldState->actor.fieldPosition.z + 48)
+            gNativeClimbReachMask |= 2;
         gNativeRouteCost = sClimbPreviewDirection ? 1 : -1;
         if (sClimbPreviewDirection == DPAD_DOWN &&
             sClimbPreviewPos.z <= gFieldState->actor.fieldPosition.z + 48)
@@ -1722,6 +1733,12 @@ static void NativePreviewDraw(void) {
     FldPos* pos;
     if (!gNativePreview || !sValueTiles || !sValuePalette) return;
     if (gNativePreview == 2) {
+        if (sReachTiles) for (i = 0; i < 2; i++) if (gNativeClimbReachMask & (1 << i)) {
+            x = (sClimbReachPos[i].x - gFieldState->x) >> 8;
+            y = (sClimbReachPos[i].y + sClimbReachPos[i].z - gFieldState->y) >> 8;
+            DrawSprite(x - 12, y - 7, gCardValueDigitFrames[0], sReachTiles,
+                sValuePalette, NULL, 0x800, 0);
+        }
         x = (sClimbPreviewPos.x - gFieldState->x) >> 8;
         y = (sClimbPreviewPos.y + sClimbPreviewPos.z - gFieldState->y) >> 8;
         DrawSprite(x, y, gCardValueDigitFrames[1], sValueTiles,
