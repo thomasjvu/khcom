@@ -193,3 +193,11 @@ terrain within the selected hero's remaining movement. The cursor and numbered
 route use the same collision, occupancy and cost rules. Spent movement removes
 these outlines. This local walking overlay covers the current surface; stair
 and jump connections still use their separate controls and previews.
+
+Traverse Town's optional room 9 now has a solo 40-HP Cloud challenge. His warned
+sword sweep spans 64 horizontal pixels, 16 projected depth and 24 height. It
+deals 12 damage, rising to 16 at 20 HP or below. Defeat offers a normal power/
+sleight reward or Cloud's original summon card. At the reward, Up from POWER
+selects recruitment; A unlocks Cloud in the saved roster. Choosing regular loot
+leaves him locked. This unlock does not yet make Cloud deployable: character-slot
+mapping and the recruited party-selection UI still require implementation.

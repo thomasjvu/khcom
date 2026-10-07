@@ -7,6 +7,7 @@ int main(void) {
     unsigned int roles[3] = {0,0,0};
     for (seed=0;seed<1000;seed++) for(floor=0;floor<3;floor++) {
         assert(FieldEnemyKind(seed,floor,7,0)==2);
+        if(floor==0)assert(FieldEnemyKind(seed,floor,9,0)==2);
         for(slot=0;slot<6;slot++) {
             kind=FieldEnemyKind(seed,floor,3,slot);
             assert(kind>=0&&kind<=6&&kind!=2);

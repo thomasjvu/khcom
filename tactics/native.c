@@ -25,6 +25,7 @@
 #include "sprites_sora.h"
 #include "sprites_room.h"
 #include "sprites_hum.h"
+#include "sprites_cloud.h"
 #include "task_descriptors.h"
 #include "battle_actor.h"
 #include "sprite_palettes.h"
@@ -123,6 +124,9 @@ static void NativePartyPose(u8 member) {
 }
 u16 gNativeProgressReward;
 static u16 sProgressHero, sProgressKind;
+static const CardDef* sRecruitCard;
+static void* sRecruitTiles;
+static ObjPalette* sRecruitPalette;
 u16 gNativeAssembly;
 static u16 sAssemblyChoice, sAssemblyResume;
 static const CardDef* sAssemblyDonald;
@@ -249,6 +253,68 @@ static void NativeMarlInit(void) {
     AnimStart(&sMarlAnim, 0, ANIM_FLAG_LOOP);
     sMarlTaskDesc = *sEnemyTasks[0]->desc;sMarlTaskDesc.draw = NativeMarlDraw;
     sEnemyTasks[0]->desc = &sMarlTaskDesc;gNativeMarlReady = 1;
+}
+static TaskDesc sCloudTaskDesc;
+static AnimState sCloudAnim;
+static void* sCloudTiles;
+static ObjPalette* sCloudPalette;
+static u16 sCloudImpact;
+u16 gNativeCloudReady, gNativeCloudPose;
+static const AnimDef sCloudDefs[3] = {
+ {gCroudBt00Frames,gCroudBt00Anims,gCroudBt00Tiles,0},
+ {gCroudBt03Frames,gCroudBt03Anims,gCroudBt03Tiles,0},
+ {gCroud01Frames,gCroud01Anims,gCroud01Tiles,2}
+};
+static void NativeCloudDraw(void* arg) {
+    MapEnmWork* work = arg;
+    u8 pose = gNativeEnemyCharge[0] ? 1 : sCloudImpact ? 2 : 0;
+    s16 x = (work->obj.fieldPosition.x - gFieldState->x) >> 8;
+    s16 y = (work->obj.fieldPosition.y + work->obj.fieldPosition.z - gFieldState->y) >> 8;
+    u16 priority = -0x1004 - (work->obj.fieldPosition.y >> 8) * 4;
+    if (pose != gNativeCloudPose) {
+        AnimChangeWithDef(sCloudDefs, &sCloudAnim, pose, pose == 2 ? 0 : ANIM_FLAG_LOOP, sCloudTiles);
+        gNativeCloudPose = pose;
+    }
+    if (sCloudImpact) sCloudImpact--;
+    DrawSprite(x, y, AnimUpdate(&sCloudAnim), sCloudTiles, sCloudPalette, NULL,
+        0x800 | (work->obj.fieldPosition.x < gFieldState->actor.fieldPosition.x ? SPRITE_FLAG_HFLIP : 0), priority);
+    work->obj.shadowZ = work->obj.fieldPosition.ground;
+    work->obj.shadowPriority = priority + 1;
+    TaskPoolDraw(&work->tasks);
+}
+static void NativeCloudInit(void) {
+    MapEnmWork* work;
+    AnimHeader* anim;
+    u16 size = 0, bytes, frame;
+    u8 pose;
+    gNativeCloudReady = gNativeCloudPose = sCloudImpact = 0;
+    sCloudTiles = NULL;sCloudPalette = NULL;
+    if (gNativeFloor != 0 || gMapFloorState.room != 9 || !sEnemyTasks[0] || gNativeEnemyKind[0] != 2) return;
+    work = sEnemyTasks[0]->work;
+    ReleaseObjTiles(work->tiles);work->tiles = NULL;
+    ReleaseObjPalette(work->palette);work->palette = NULL;
+    for (pose = 0; pose < 3; pose++) {
+        anim = ((AnimHeader**)sCloudDefs[pose].anims)[sCloudDefs[pose].animId];
+        for (frame = 0; frame < anim->frameCount; frame++) {
+            bytes = GetSpriteTileBytes(((void**)sCloudDefs[pose].gfxTable)[anim->frames[frame].gfxIndex]);
+            if (bytes > size) size = bytes;
+        }
+    }
+    sCloudTiles = AllocObjTiles(size, gCroudBt00Tiles);
+    sCloudPalette = LoadObjPalette(gCroudPalette, 32);
+    if (!sCloudTiles || !sCloudPalette) {
+        if (sCloudTiles) ReleaseObjTiles(sCloudTiles);
+        if (sCloudPalette) ReleaseObjPalette(sCloudPalette);
+        sCloudTiles = NULL;sCloudPalette = NULL;
+        work->tiles = AllocObjTiles(work->def->tileCount * 32, NULL);
+        work->palette = LoadObjPalette(work->def->palette, 32);
+        return;
+    }
+    work->palette = LoadObjPalette(gCroudPalette, 32);
+    AnimInit(&sCloudAnim, gCroudBt00Anims, gCroudBt00Frames);
+    AnimStart(&sCloudAnim, 0, ANIM_FLAG_LOOP);
+    sCloudTaskDesc = *sEnemyTasks[0]->desc;sCloudTaskDesc.draw = NativeCloudDraw;
+    sEnemyTasks[0]->desc = &sCloudTaskDesc;gNativeCloudReady = 1;
 }
 static TaskDesc sJafarTaskDesc;
 static void* sJafarTiles[2];
@@ -425,6 +491,17 @@ static int NativeMarlHits(u8 slot, const FldPos* pos) {
     return dx >= -(96 << 8) && dx <= (96 << 8) && dy >= -(16 << 8) && dy <= (16 << 8) &&
         dz >= -(24 << 8) && dz <= (24 << 8);
 }
+static u16 NativeCloudDamage(u8 slot) {
+    return gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : gNativeEnemyHp[slot] <= 20 ? 16 : 12;
+}
+static int NativeCloudHits(u8 slot, const FldPos* pos) {
+    FldPos* enemy = &((MapEnmWork*)sEnemyTasks[slot]->work)->obj.fieldPosition;
+    s32 dx = enemy->x - pos->x;
+    s32 dy = enemy->y + enemy->z - pos->y - pos->z;
+    s32 dz = enemy->z - pos->z;
+    return dx >= -(64 << 8) && dx <= (64 << 8) && dy >= -(16 << 8) && dy <= (16 << 8) &&
+        dz >= -(24 << 8) && dz <= (24 << 8);
+}
 static int NativeBlastRange(u8 slot) {
     return sEnemyTasks[slot]->desc == &sArmorTaskDesc ? FieldArmorRange(gNativeEnemyHp[slot]) :
         FieldEnemyBlastRange(gNativeFloor, gMapFloorState.room);
@@ -513,6 +590,38 @@ static void NativePartySelect(void) {
     gNativeMoveLeft = sPartyMove[gNativeParty];
     gNativeActionLeft = sPartyAction[gNativeParty];
 }
+static int NativeRecruitEligible(void) {
+    return gNativeFloor == 0 && gMapFloorState.room == 9 &&
+        gNativeRoster.phase == FIELD_REWARD && gNativeRoster.reward == FIELD_REWARD_BOSS &&
+        !(gNativeRoster.unlocked & (1 << FIELD_CLOUD));
+}
+static void NativeRecruitFree(void) {
+    if (sRecruitTiles) ReleaseObjTiles(sRecruitTiles);
+    if (sRecruitPalette) ReleaseObjPalette(sRecruitPalette);
+    sRecruitTiles = NULL;sRecruitPalette = NULL;sRecruitCard = NULL;
+}
+static void NativeRecruitInit(void) {
+    u16 i;
+    if (!NativeRecruitEligible() || sRecruitCard) return;
+    if (sCardTiles[1]) ReleaseObjTiles(sCardTiles[1]);
+    if (sCardPalettes[1]) ReleaseObjPalette(sCardPalettes[1]);
+    sCardTiles[1] = NULL;sCardPalettes[1] = NULL;
+    for (i = 0; i < 950; i++) if (gCardDefs[i].kind == CARD_KIND_CLOUD && gCardDefs[i].value == 5) {
+        sRecruitCard = &gCardDefs[i];break;
+    }
+    if (sRecruitCard) {
+        sRecruitTiles = LoadObjTiles(sRecruitCard->tiles2, 0x200);
+        sRecruitPalette = LoadObjPalette(sRecruitCard->palette2, 32);
+    }
+}
+static void NativeRecruitFinish(void) {
+    if (!sRecruitCard && !sRecruitTiles && !sRecruitPalette) return;
+    NativeRecruitFree();
+    if (sCards[1]) {
+        sCardTiles[1] = LoadObjTiles(sCards[1]->tiles2, 0x200);
+        sCardPalettes[1] = LoadObjPalette(sCards[1]->palette2, 32);
+    }
+}
 static void NativeAssemblyFree(void) {
     if (sAssemblyTiles) ReleaseObjTiles(sAssemblyTiles);
     if (sAssemblyPalette) ReleaseObjPalette(sAssemblyPalette);
@@ -552,6 +661,8 @@ static void NativeAssemblyDraw(void) {
     const CardDef* card;
     void* tiles;
     ObjPalette* palette;
+    if (gNativeProgressReward && sProgressKind == 4 && sRecruitCard && sRecruitTiles && sRecruitPalette)
+        DrawSprite(120, 72, sRecruitCard->gfx2, sRecruitTiles, sRecruitPalette, NULL, 0, 1);
     if (!gNativeAssembly) return;
     for (i = 0; i < 3; i++) {
         card = i == 1 ? sAssemblyDonald : sCards[i == 0 ? 0 : 3];
@@ -650,8 +761,12 @@ static void NativePartyDraw(void) {
 static void NativePartyFree(void) {
     u8 i;
     NativeAssemblyFree();
+    NativeRecruitFree();
     if (sReachTiles) ReleaseObjTiles(sReachTiles);
     sReachTiles = NULL;gNativeReachCount = 0;
+    if (sCloudTiles) ReleaseObjTiles(sCloudTiles);
+    if (sCloudPalette) ReleaseObjPalette(sCloudPalette);
+    gNativeCloudReady = 0;
     if (sMarlTiles) ReleaseObjTiles(sMarlTiles);
     if (sMarlPalette) ReleaseObjPalette(sMarlPalette);
     gNativeMarlReady = 0;
@@ -941,6 +1056,14 @@ static void NativePreviewThreats(void) {
     for (j = 0; j < 3; j++) gNativeThreats[j] = 0;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i]) {
         work = sEnemyTasks[i]->work;
+        if (sEnemyTasks[i]->desc == &sCloudTaskDesc) {
+            if (gNativeEnemyCharge[i]) for (j = 0; j < 3; j++) {
+                if (!gNativePartyHealth.hp[j]) continue;
+                pos = j == gNativeParty ? gFieldState->actor.fieldPosition : sPartyPos[j];
+                if (NativeCloudHits(i, &pos)) gNativeThreats[j] += NativeCloudDamage(i);
+            }
+            continue;
+        }
         if (sEnemyTasks[i]->desc == &sMarlTaskDesc) {
             if (gNativeEnemyCharge[i]) for (j = 0; j < 3; j++) {
                 if (!gNativePartyHealth.hp[j]) continue;
@@ -1028,7 +1151,7 @@ static void NativeHud(void) {
     NativeLabel(0, 0, line);
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
     gNativeCureTarget = NativeCureTarget();
-    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : gNativeJafarReady ? "JAFAR SPELL 96" : gNativeMarlReady ? (gNativeEnemyHp[0] <= 28 ? "MARLUXIA RAGE SCYTHE" : "MARLUXIA SCYTHE") : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
+    NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "BLOCKED B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : gNativeJafarReady ? "JAFAR SPELL 96" : gNativeCloudReady ? "CLOUD CROSS SLASH 64" : gNativeMarlReady ? (gNativeEnemyHp[0] <= 28 ? "MARLUXIA RAGE SCYTHE" : "MARLUXIA SCYTHE") : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, gNativeCureTarget == 0 ? "CURE SORA A PLAY" :
@@ -1094,6 +1217,11 @@ static void NativeHud(void) {
             sProgressKind == 2 ? "FIRE SLEIGHT PLUS 4" : "CURE SLEIGHT PLUS 4");
         NativeLabel(0, 32, sProgressHero == 0 ? "SORA UP DOWN CHOOSE" :
             sProgressHero == 1 ? "DONALD UP DOWN CHOOSE" : "GOOFY UP DOWN CHOOSE");
+    }
+    if (gNativeProgressReward && sProgressKind == 4 && NativeRecruitEligible()) {
+        NativeLabel(0, 8, "CLOUD RECRUIT A");
+        NativeLabel(0, 24, "UNLOCK CLOUD CARD");
+        NativeLabel(0, 32, "POWER OR RECRUIT");
     }
     sHudPending = 1;
 }
@@ -1171,6 +1299,7 @@ static void NativeInit(s32 arg) {
     NativeArmorInit();
     NativeJafarInit();
     NativeMarlInit();
+    NativeCloudInit();
     if (sCarryTurn) {
         for (i = 0; i < 3; i++) {
             sPartyMove[i] = sCarryMove[i];
@@ -1231,6 +1360,7 @@ static void NativeInit(s32 arg) {
     gNativeProgressReward = gNativeRoster.phase == FIELD_REWARD;
     sProgressHero = sProgressKind = 0;
     NativeAssemblyInit();
+    NativeRecruitInit();
     sHudPending = 0;
     sHudTiles = EwramAlloc(161 * 32);
     sHudScreen = EwramAlloc(2048);
@@ -1523,6 +1653,13 @@ static void NativeEnemyTurn(void) {
         work = sEnemyTasks[i]->work;
         closest = NativeEnemyTarget(i, &best, &dz);
         if (gNativeEnemyKind[i] == 2 && gNativeEnemyCharge[i]) {
+            if (sEnemyTasks[i]->desc == &sCloudTaskDesc) {
+                sCloudImpact = 24;
+                for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j] && NativeCloudHits(i, &sPartyPos[j]))
+                    if (FieldPartyDamage(&gNativePartyHealth, j, NativeCloudDamage(i))) gNativeResult = 1;
+                gNativeEnemyCharge[i] = 0;
+                continue;
+            }
             if (sEnemyTasks[i]->desc == &sMarlTaskDesc) {
                 sMarlImpact = 24;
                 for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j] && NativeMarlHits(i, &sPartyPos[j]))
@@ -1591,13 +1728,13 @@ static void NativeEnemies(void) {
         }
         if (!(work->flags & 0x8000)) {
             work->flags |= 0x8000;
-            if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc && task->desc != &sMarlTaskDesc) MapEnmSetAnim(work, 1, 1);
+            if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc && task->desc != &sMarlTaskDesc && task->desc != &sCloudTaskDesc) MapEnmSetAnim(work, 1, 1);
             ColliderSetDisabled(&work->collider, 0);
         }
         if (sAttack && !(work->flags & 0x2000) && MapEnmCheckAttacked(work)) {
             work->flags |= 0x2000;
             NativeDamageEnemy(task, sPlayedValue ? 5 + sPlayedValue / 2 : 3);
-        } else if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc && task->desc != &sMarlTaskDesc) {
+        } else if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc && task->desc != &sMarlTaskDesc && task->desc != &sCloudTaskDesc) {
             MapEnmUpdateAnim(work);
         }
         node = next;
@@ -1882,12 +2019,17 @@ static void NativeUpdate(void) {
         return;
     }
     if (gNativeProgressReward) {
+        u16 options = NativeRecruitEligible() ? 5 : 4;
+        NativeRecruitInit();
         if (pressed & (L_BUTTON | DPAD_LEFT)) sProgressHero = (sProgressHero + 2) % 3;
         else if (pressed & (R_BUTTON | DPAD_RIGHT)) sProgressHero = (sProgressHero + 1) % 3;
-        if (pressed & DPAD_UP) sProgressKind = (sProgressKind + 3) % 4;
-        else if (pressed & DPAD_DOWN) sProgressKind = (sProgressKind + 1) % 4;
+        if (pressed & DPAD_UP) sProgressKind = (sProgressKind + options - 1) % options;
+        else if (pressed & DPAD_DOWN) sProgressKind = (sProgressKind + 1) % options;
         if ((pressed & A_BUTTON) && !gNativeBusy && !gNativeEnemyFrames &&
-            FieldRosterUpgrade(&gNativeRoster, sProgressHero, sProgressKind)) gNativeProgressReward = 0;
+            (sProgressKind == 4 ? FieldRosterRecruit(&gNativeRoster, FIELD_CLOUD) :
+                FieldRosterUpgrade(&gNativeRoster, sProgressHero, sProgressKind))) {
+            gNativeProgressReward = 0;NativeRecruitFinish();
+        }
         else if ((raw & (START_BUTTON | SELECT_BUTTON)) == (START_BUTTON | SELECT_BUTTON) &&
             (pressed & (START_BUTTON | SELECT_BUTTON)) && !gNativeBusy && !gNativeEnemyFrames) NativeWriteSuspend();
         pressed = 0;
@@ -2132,7 +2274,8 @@ static void NativeUpdate(void) {
     gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
     if (!gNativeResult && !gNativeAssembly && gNativeRoster.phase == FIELD_BATTLE &&
         GetMapFloorRoom(gMapFloorState.room)->enemiesLeft == 0)
-        gNativeProgressReward = FieldRosterClear(&gNativeRoster, gMapFloorState.room == 7) != FIELD_REWARD_NONE;
+        gNativeProgressReward = FieldRosterClear(&gNativeRoster, gMapFloorState.room == 7 || (gNativeFloor == 0 && gMapFloorState.room == 9)) != FIELD_REWARD_NONE;
+    if (gNativeProgressReward) NativeRecruitInit();
     NativePreviewThreats();
     NativePartyDraw();
     NativeAssemblyDraw();

@@ -7,7 +7,7 @@ int FieldEnemyBlastRange(int floor, int room) {
 }
 int FieldEnemyKind(unsigned int seed, int floor, int room, int slot) {
     static const unsigned char groups[3][4] = {{0,0,1,3},{1,3,0,1},{0,3,6,1}};
-    if (room == 7 && slot == 0) return 2;
+    if ((room == 7 || (floor == 0 && room == 9)) && slot == 0) return 2;
     if (floor < 0 || floor > 2 || slot < 0) return 0;
     /* The entry room remains a predictable introduction to field combat. */
     if (room == 0 && floor == 0) return slot & 1;

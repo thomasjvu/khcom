@@ -55,3 +55,9 @@ Encounter-clear reward UI is connected for every second new clear and all
 world bosses. Per-hero attack power and matching-sleight enhancements apply in
 combat; pending/confirmed rewards and clear masks persist. Recruitable boss
 cards remain to be connected. Fourteen native reward checks pass.
+
+Cloud's optional Traverse Town room-9 challenge and recruit/power reward choice
+are connected using original battle sprites and summon-card art. Both loot
+paths pass fifteen native checks and persist. Next: connect Cloud to deployed
+slot identity, animation, health, movesets and party assembly; keep summon cards
+in recruitment/setup and replace the current Goofy art used for combat Guard.

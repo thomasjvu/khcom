@@ -920,3 +920,19 @@ reward and hit the 120,001-frame bound (6 kills, 285 moves). Its reward branch
 repeated held A without a release phase, so a rejected early press did not
 produce another edge. The driver now inserts a release frame between reward
 choices; a corrected full-run replay is required.
+
+Corrected progression/overlay input-only full run (98d2835de) passes at
+102,377: 14 kills, 856 movement commands, Sora HP 80, stable for 120 victory
+frames. Evidence: `reach-progression-suspend-full-run-evidence/traversal.txt`.
+It includes a verified mid-run suspend/reset and predates Cloud's optional
+encounter. The earlier held-confirm reward replay failure is retained.
+
+Cloud challenge/recruitment: fifteen explicit native checks pass in each of
+`cloud-recruit-evidence/cloud.txt` and `cloud-power-choice-evidence/cloud.txt`.
+The fixtures verify original battle art, solo HP, charged sword sweep,
+range/height boundaries, charged suspend, native Fire defeat, original summon
+card resources, recruit or power choice, reboot persistence and exit cleanup.
+Generator: `tools/tactics_cloud_recruit_smoke.py`, with `--power` for alternative
+loot. Setup and enemy HP/positions are fixtures, not input-only optional-route
+proof. Original art is visible in `cloud.png` and `recruit.png`.
+Cloud's roster unlock is connected; playable deployment is still unfinished.
