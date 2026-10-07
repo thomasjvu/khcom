@@ -20,9 +20,9 @@ int main(void) {
     /* A wall requires the first step to go around, rather than get stuck. */
     board.blocked[41] = 1;
     step = FieldRouteStep(&route, 3, 0, Edge, &board);
-    assert(step == 31 || step == 49);
-    assert(FieldRoutePath(&route, 3, 0, Edge, &board, path) == 5);
-    assert(path[4] == 43);
+    assert(step == 32 || step == 50);
+    assert(FieldRoutePath(&route, 3, 0, Edge, &board, path) == 3);
+    assert(path[2] == 43);
     /* An impassable ledge spanning the board cannot be crossed. */
     for (i = 0; i < 81; i++) {board.blocked[i] = 0; if (i % 9 > 4) board.height[i] = 3;}
     assert(FieldRouteStep(&route, 3, 0, Edge, &board) == -1);
@@ -30,8 +30,15 @@ int main(void) {
     /* A low stair is traversable. */
     for (i = 0; i < 81; i++) if (i % 9 > 4) board.height[i] = 1;
     assert(FieldRouteStep(&route, 3, 0, Edge, &board) == 41);
+    /* Projected diagonals cost one segment and retain their exact destination. */
+    assert(FieldRoutePath(&route, 3, 3, Edge, &board, path) == 3);
+    assert(path[0] == 50 && path[2] == 70);
+    /* Search must not wrap diagonally across a row boundary. */
+    assert(FieldRoutePath(&route, -4, -4, Edge, &board, path) == 4);
+    assert(path[0] == 30 && path[3] == 0);
     /* No reachable improvement: stay in place, never return an invalid node. */
     board.blocked[39] = board.blocked[41] = board.blocked[31] = board.blocked[49] = 1;
+    board.blocked[30] = board.blocked[32] = board.blocked[48] = board.blocked[50] = 1;
     assert(FieldRouteStep(&route, 1000, -1000, Edge, &board) == -1);
     assert(FieldRouteStep(&route, 0, 0, Edge, &board) == -1);
     puts("field route: detours, height limits, stairs and enclosed actors passed");

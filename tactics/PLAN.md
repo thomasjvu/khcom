@@ -29,6 +29,7 @@ interactions. Do not replace field actors with icons or flatten elevations.
 - Enemy damage and positions persist across all visited rooms and reboot.
 - Original Donald casting and Goofy guard animation resources.
 - Discrete enemy decisions, health, value checks, height-limited attacks and stronger exits.
+- Eight-direction local routes with one-point projected diagonals, native diagonal execution and quarter-segment geometry sampling.
 - Player walk cursor projected with original value digits; exact route costs, budget rejection and native controller execution, tested with input-only mGBA replay.
 - HUD renders original font glyphs in RAM and uploads during VBlank.
 - Bounded 9×9 enemy route search with native floor/collision sampling, midpoint checks, height limits and occupied destination checks.

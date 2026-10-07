@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.9-turns.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.9-turns.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.10-diagonals.bps
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.10-diagonals.bps build/release/kh_tactics_field.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -218,3 +218,12 @@ projected position `(74873,62597,0)`, forward door `(12288,91648,12288)`, in
 native 8.8 units. Local flat previews plus greedy stair selection are therefore
 insufficient for the main chain. Global platform planning and jump edges remain
 required; do not count this replay as a complete-run pass.
+
+Diagonal navigation: `tools/tactics_diagonal_smoke.py ELF OUTPUT` generates
+`diagonals.lua`. All 18 input-only checks pass: four diagonal cursor directions,
+cancellation, budget preservation, one-point diagonal cost, native arrival and
+unchanged combat action. The 27-check walking replay and 28-check party replay
+also pass with eight-direction search and quarter-segment geometry checks.
+The traversal driver now uses a wider read-only floor search, low-ledge
+endpoints and native card input against nearby enemies. Its room-one stall
+persists; these changes do not establish room-wide physical reachability.

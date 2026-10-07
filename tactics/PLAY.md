@@ -33,7 +33,9 @@ later enemies can retarget if an earlier attack knocks out a member.
 
 Walking previews show movement costs using the original card-value digits on
 native field surfaces. A route charges one point per 16-pixel horizontal or
-8-pixel vertical segment. Routes beyond the remaining budget cannot be
+8-pixel vertical segment, or one combined 16-by-8-pixel diagonal. Diagonal
+segments use native diagonal movement and check the floor footprint at quarter
+intervals. Routes beyond the remaining budget cannot be
 confirmed. The original player controller walks each segment; it stops if
 collision prevents progress and refunds segments that never started. Preview
 walking stays on the current floor level and avoids occupied destinations.

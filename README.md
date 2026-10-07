@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The current **0.9 native turn-persistence development build** runs in the original 2.5D engine with full
+The current **0.10 native diagonal-navigation development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -16,7 +16,8 @@ with draw/discard/reload, melee, Fire, Cure, Guard and character bonuses.
 Versioned suspend saves preserve native field state and recover from a damaged
 latest slot. Party members have individual HP, knockouts and revival; partial encounter
 damage and enemy positions persist across backtracking and reboot. This remains a development build;
-player walk previews now project onto the field and execute through native collision.
+player walk previews project onto the field and execute through native collision,
+including one-point projected diagonals with intermediate geometry checks.
 World-specific groups include Shadow, Red Nocturne, Darkball and Black Fungus.
 A Large Body exit guardian telegraphs its charged area attack before resolving
 it, with damage projected above threatened party members. Physical room

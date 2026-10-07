@@ -752,16 +752,18 @@ static int NativeRouteClear(FldPos pos) {
 static int NativeRouteEdge(int from, int to, void* context) {
     FldPos probe;
     MapEnmWork* other;
-    u8 i;
+    u8 i, sample;
     (void)context;
     if (!sRouteValid[to] ||
         NativeAbs(sRoutePos[to].z - sRoutePos[from].z) > (sRoutePlayer ? 0 : (16 << 8))) return 0;
-    /* Check the middle as well as the destination: thin walls and holes
-     * must not disappear between route samples. */
-    probe = sRoutePos[from];
-    probe.x = (probe.x + sRoutePos[to].x) / 2;
-    probe.y = (probe.y + probe.z + sRoutePos[to].y + sRoutePos[to].z) / 2 - probe.z;
-    if (!NativeRouteClear(probe)) return 0;
+    /* Sweep quarter segments, including diagonal edges. The native actor's
+     * front/back footprint must fit all along the projected movement. */
+    for (sample = 1; sample < 4; sample++) {
+        probe = sRoutePos[from];
+        probe.x += (sRoutePos[to].x - probe.x) * sample / 4;
+        probe.y += (sRoutePos[to].y + sRoutePos[to].z - probe.y - probe.z) * sample / 4;
+        if (!NativeRouteClear(probe)) return 0;
+    }
     for (i = 0; i < 3; i++) if (gNativePartyHealth.hp[i] && (!sRoutePlayer || i != gNativeParty) &&
         NativeAbs(sRoutePos[to].x - sPartyPos[i].x) < (12 << 8) &&
         NativeAbs(sRoutePos[to].y + sRoutePos[to].z - sPartyPos[i].y - sPartyPos[i].z) < (6 << 8) &&
@@ -856,6 +858,10 @@ static u16 NativeRouteWalk(void) {
         gFieldState->actor.speed = 0;
         return 0;
     }
+    /* A projected diagonal is sixteen pixels across and eight deep.
+     * Follow its swept line instead of cutting an L around the waypoint. */
+    if (NativeAbs(dx) > 512 && NativeAbs(dy) > 512)
+        return (dx < 0 ? DPAD_LEFT : DPAD_RIGHT) | (dy < 0 ? DPAD_UP : DPAD_DOWN);
     if (NativeAbs(dx) > NativeAbs(dy)) return dx < 0 ? DPAD_LEFT : DPAD_RIGHT;
     return dy < 0 ? DPAD_UP : DPAD_DOWN;
 }

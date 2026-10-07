@@ -4,8 +4,9 @@ local f=0
 local nextFrame=180
 local phase='scan'
 local index=1
-local dirs={16,32,64,128}
+local dirs={16,32,64,128,80,96,144,160}
 local best=nil
+local planned=nil
 local visits={}
 local commands=0
 local done=false
@@ -38,6 +39,7 @@ local function door()
   n=emu:read32(n+8)
  end
 end
+-- @GEOMETRY@
 local function stairGoal(tx,ty,tz)
  local x,y,z=pos()
  if math.abs(z-tz)<2048 then return tx,ty,tz,false end
@@ -50,38 +52,75 @@ local function stairGoal(tx,ty,tz)
    local a=cells+(cy*cols+cx)*32
    local flags=emu:read16(a);local kind=emu:read8(a+2)
    local upper=signed(emu:read32(a+8));local lower=signed(emu:read32(a+12))
-   if (flags&32)~=0 and (kind==4 or kind==6) and math.abs(lower-z)<2048 and math.abs(upper-tz)<math.abs(z-tz) then
+   if (kind==4 or kind==6) and math.abs(lower-z)<2048 and math.abs(upper-tz)<math.abs(z-tz) then
     local sx=(cx*32+16)*256;local sy=(cy*16+14)*256
     local score=math.abs(sx-x)+2*math.abs(sy-y)+math.abs(upper-tz)
-    if not best or score<best.score then best={x=sx,y=sy,score=score,key=64} end
+    if not best or score<best.score then best={x=sx,y=sy,score=score,key=(flags&32)~=0 and 64 or (kind==6 and 82 or 98)} end
    end
-   if (flags&32)~=0 and (kind==3 or kind==5) and math.abs(upper-z)<2048 and math.abs(lower-tz)<math.abs(z-tz) then
+   if (kind==3 or kind==5) and math.abs(upper-z)<2048 and math.abs(lower-tz)<math.abs(z-tz) then
     local sx=(cx*32+16)*256;local sy=(cy*16+2)*256
     local score=math.abs(sx-x)+2*math.abs(sy-y)+math.abs(lower-tz)
-    if not best or score<best.score then best={x=sx,y=sy,score=score,key=128} end
+    if not best or score<best.score then best={x=sx,y=sy,score=score,key=(flags&32)~=0 and 128 or (kind==5 and 160 or 144)} end
    end
   end
  end
  if best then return best.x,best.y,z,best.key end
  return tx,ty,tz,false
 end
+local function combatInput()
+ local x,y,z=pos();local near=false
+ for i=0,5 do
+  local t=emu:read32(sEnemyTasks+i*4)
+  if t~=0 then
+   local w=emu:read32(t+4);local ez=signed(emu:read32(w+16))
+   local ex=signed(emu:read32(w+8));local ey=signed(emu:read32(w+12))+ez
+   if math.abs(ex-x)+math.abs(ey-y)<32768 and math.abs(ez-z)<=6144 then near=true end
+  end
+ end
+ if not near or emu:read16(gNativeActionLeft)==0 then return nil end
+ local hand={};local wanted=nil
+ for i=0,emu:read8(gNativeDeck+72)-1 do
+  if emu:read8(gNativeDeck+48+i)==1 then
+   local kind=emu:read8(gNativeDeck+i);hand[#hand+1]=kind
+   if kind==1 and not wanted then wanted=#hand-1 end
+  end
+ end
+ if emu:read8(gNativePartyHealth)<60 then
+  for i,kind in ipairs(hand) do if kind==2 then wanted=i-1;break end end
+ end
+ if #hand==0 then return 768 end
+ if not wanted then
+  -- Cycle remaining cards into discard so native draw can expose more Fire.
+  wanted=0
+ end
+ if emu:read8(gNativeDeck+73)~=wanted then return 256 end
+ return 1
+end
 local function finish(ok,why)
  emu:setKeys(0)
  local x,y,z=pos()
+ local r=emu:read32(gMapRoomState);local cols=emu:read16(r+4);local rows=emu:read16(r+6);local cells=emu:read32(sMapCells)
+ for cy=0,math.min(rows,64)-1 do for cx=0,math.min(cols,32)-1 do
+  local a=cells+(cy*cols+cx)*32
+  if (emu:read16(a)&32)~=0 or (emu:read8(a+2)>=3 and emu:read8(a+2)<=6 and signed(emu:read32(a+8))~=-1048576 and signed(emu:read32(a+12))~=1048576) then out:write('EDGE '..cx..' '..cy..' '..emu:read8(a+2)..' '..signed(emu:read32(a+8))..' '..signed(emu:read32(a+12))..'\n') end
+ end end
+ local platforms=emu:read32(sMapPlatforms)
+ for i=0,11 do local p=platforms+i*24;out:write('PLATFORM '..i..' '..emu:read16(p)..' '..emu:read16(p+2)..' '..signed(emu:read32(p+4))..' '..emu:read8(p+8)..' '..emu:read16(p+10)..' '..emu:read16(p+12)..' '..emu:read8(p+14)..' '..signed(emu:read32(p+16))..' '..signed(emu:read32(p+20))..'\n') end
  local dx,dy,dz=door();out:write('DOOR '..tostring(dx)..','..tostring(dy)..','..tostring(dz)..'\n')
- out:write((ok and 'PASS ' or 'FAIL ')..why..' frames='..f..' commands='..commands..' position='..x..','..y..','..z..'\n')
+ out:write((ok and 'PASS ' or 'FAIL ')..why..' frames='..f..' kills='..emu:read16(gNativeKills)..' commands='..commands..' position='..x..','..y..','..z..'\n')
  out:flush();out:close();done=true
  emu:screenshot('@OUTPUT@/final.png')
 end
 callbacks:add('frame',function()
  f=f+1
- if done then return end
+ if done or f<180 then return end
  local room=emu:read8(gMapFloorState+6)
  if room>=goalRoom then finish(true,'walked from native spawn to room '..room);return end
  if room~=previousRoom then
   out:write('ROOM '..room..' frames='..f..'\n');out:flush()
   previousRoom=room;best=nil;visits={};index=1;phase='release';nextFrame=f+60
  end
+ if emu:read16(gNativeResult)~=0 then finish(false,'run ended before traversal goal');return end
  if f>12000 then finish(false,'bounded explorer did not reach room '..goalRoom);return end
  if f<nextFrame then return end
  emu:setKeys(0)
@@ -96,6 +135,10 @@ callbacks:add('frame',function()
   -- Original stairs ascend with Up; each command is budgeted by the ROM.
   local _,_,z=pos();emu:setKeys(dz>z and 128 or 64);commands=commands+1;phase='release';nextFrame=f+4;return
  end
+ if phase=='scan' and index==1 then
+  local key=combatInput()
+  if key then emu:setKeys(key);phase='release';nextFrame=f+4;return end
+ end
  local x0,y0,z0=pos()
  if phase=='scan' and math.abs(x0-dx)<8192 and math.abs(y0-dy)<4096 and math.abs(z0-dz)<2048 then
   emu:setKeys((dx<x0 and 32 or 16)+(dy<y0 and 64 or 128));commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
@@ -103,10 +146,12 @@ callbacks:add('frame',function()
  local stair
  dx,dy,dz,stair=stairGoal(dx,dy,dz)
  local px,py=pos()
- if phase=='scan' and stair and math.abs(px-dx)<2048 and math.abs(py-dy)<4096 then
+ if phase=='scan' and stair and math.abs(px-dx)<(stair~=64 and stair~=128 and 4096 or 2048) and math.abs(py-dy)<(stair~=64 and stair~=128 and 4096 or 4096) then
+  if (stair&2)~=0 and emu:read16(gNativeActionLeft)==0 then emu:setKeys(8);phase='release';nextFrame=f+4;return end
   emu:setKeys(stair);commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
  end
  if phase=='scan' then
+  if index==1 then planned=walkingDirection(dx,dy) end
   emu:setKeys(512+dirs[index]);phase='inspect';nextFrame=f+4;return
  end
  if phase=='inspect' then
@@ -118,13 +163,14 @@ callbacks:add('frame',function()
    local px=signed(emu:read32(a));local z=signed(emu:read32(a+8))
    local py=signed(emu:read32(a+4))+z
    local score=math.abs(px-dx)+2*math.abs(py-dy)+math.abs(z-dz)+(visits[cell(px,py,z)] or 0)*16384
+   if planned==dirs[index] then score=score-10000000 end
    if not best or score<best.score then best={dir=dirs[index],score=score,key=cell(px,py,z)} end
   end
   emu:setKeys(2);phase='cancel';nextFrame=f+4;return
  end
  if phase=='cancel' then
   index=index+1
-  if index<=4 then phase='scan';nextFrame=f+4;return end
+  if index<=#dirs then phase='scan';nextFrame=f+4;return end
   index=1
   if best then emu:setKeys(512+best.dir);phase='commit';nextFrame=f+4
   else
