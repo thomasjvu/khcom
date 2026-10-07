@@ -851,3 +851,18 @@ are in `build/release/WORLD-BOSSES-0.16.md`. BPS unit tests pass all four cases.
 The package uses save format 8 and remains a development build; it does not
 certify the open content, navigation, other-seed, legacy-save or hardware work.
 Old release artifacts and historical evidence are preserved separately.
+
+
+Castle Marluxia full-run verification (source c08e1c13b):
+`marluxia-full-run-evidence/traversal.txt` completes all three worlds through
+controller input from fresh SRAM. Victory is followed by 120 stable terminal
+frames; final PASS at frame 95,731 records 15 kills and 797 movement commands.
+The ROM hash and driver hashes are recorded in `replay-metadata.json`.
+This verifies the default-seed main route with the new solo Castle boss;
+optional branches, other seeds and physical hardware remain open.
+
+`tools/tactics_traversal_probe.py --suspend-room 2` now supports a controller-only
+save/reset checkpoint in Traverse Town. The driver releases save keys, resets,
+waits for native boot and compares party HP, budgets, Guard, world/room and deck
+before continuing. This mode is prepared for integration testing; generation
+and the existing combat/party policy tests pass, but its full replay is pending.

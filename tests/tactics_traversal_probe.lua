@@ -10,6 +10,8 @@ local planned=nil
 local visits={}
 local commands=0
 local done=false
+local suspendStage=0
+local suspendSnapshot=nil
 local previousRoom=0
 local previousWorld=0
 local victoryFrame=nil
@@ -176,7 +178,7 @@ local function finish(ok,why)
 end
 local function replayFrame()
  f=f+1
- if done or f<180 then return end
+ if done or f<180 or (suspendStage==2 and f<nextFrame) then return end
  local room=emu:read8(gMapFloorState+6)
  local world=emu:read16(gNativeFloor)
  if emu:read32(gCurrentMode)~=sNativeMode or (emu:read32(gCurrentModeUpdate)&0xfffffffe)~=NativeUpdate then
@@ -209,6 +211,32 @@ local function replayFrame()
  if f<nextFrame then return end
  emu:setKeys(0)
  if emu:read16(gNativeBusy)~=0 then nextFrame=f+8;return end
+ if suspendStage==2 and (world~=0 or room~=suspendRoom) then finish(false,'resume changed world or room');return end
+ if suspendRoom and suspendRoom>0 and suspendStage<3 and world==0 and room==suspendRoom then
+  if suspendStage==0 and phase=='scan' and emu:read16(gNativePreview)==0 and
+     emu:read16(gNativeEnemyFrames)==0 and emu:read16(gNativeClimbing)==0 and emu:read16(gNativeReward)==0 then
+   suspendSnapshot={}
+   for i=0,2 do suspendSnapshot[i+1]=emu:read8(gNativePartyHealth+i) end
+   suspendSnapshot.move=emu:read16(gNativeMoveLeft)
+   suspendSnapshot.action=emu:read16(gNativeActionLeft)
+   suspendSnapshot.guard=emu:read16(gNativeGuard)
+   suspendSnapshot.deck={}
+   for i=0,72 do suspendSnapshot.deck[i]=emu:read8(gNativeDeck+i) end
+   emu:setKeys(12);suspendStage=1;nextFrame=f+4;return
+  elseif suspendStage==1 then
+   if emu:read16(gNativeSaveNotice)~=1 then finish(false,'input-only suspend failed');return end
+   out:write('SUSPEND frame='..f..' room='..room..'\n');out:flush()
+   emu:reset();suspendStage=2;nextFrame=f+330;return
+  elseif suspendStage==2 then
+   local matches=emu:read16(gNativeMoveLeft)==suspendSnapshot.move and
+    emu:read16(gNativeActionLeft)==suspendSnapshot.action and emu:read16(gNativeGuard)==suspendSnapshot.guard
+   for i=0,2 do matches=matches and emu:read8(gNativePartyHealth+i)==suspendSnapshot[i+1] end
+   for i=0,72 do matches=matches and emu:read8(gNativeDeck+i)==suspendSnapshot.deck[i] end
+   if not matches then finish(false,'resume changed party HP budgets Guard or deck');return end
+   out:write('RESUME verified frame='..f..' room='..room..'\n');out:flush()
+   suspendStage=3;terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+8;return
+  end
+ end
  if phase=='release' then phase='scan';nextFrame=f+8;return end
  if emu:read16(gNativeReward)~=0 then
   out:write('REWARD confirm frame='..f..'\n');out:flush()
