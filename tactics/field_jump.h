@@ -13,4 +13,10 @@ void FieldJumpMotionStep(FieldJumpMotion* motion, int sine, int cosine,
  * Stair/ledge attachment must be handled by the caller instead. */
 void FieldJumpMotionWall(FieldJumpMotion* motion, int previousX, int previousY,
                          int ground);
+typedef struct FieldJumpPoint { int x, y, z, ground; } FieldJumpPoint;
+typedef int (*FieldJumpGround)(FieldJumpPoint* point, void* context);
+typedef int (*FieldJumpBlocked)(FieldJumpPoint* point, void* context);
+/* Match FldSoraCheckBlocked's front/back footprint and ground update. */
+int FieldJumpTerrainCheck(FieldJumpPoint* point, FieldJumpGround ground,
+                           FieldJumpBlocked blocked, void* context);
 #endif

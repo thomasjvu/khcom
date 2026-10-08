@@ -38,3 +38,16 @@ void FieldJumpMotionWall(FieldJumpMotion* m, int previousX, int previousY,
     /* Falling well above the floor probes a ledge without speed damping. */
     if (m->phase!=2 || ground-m->z<=4095) m->speed=230*m->speed >> 8;
 }
+
+int FieldJumpTerrainCheck(FieldJumpPoint* point, FieldJumpGround ground,
+                           FieldJumpBlocked blocked, void* context) {
+    FieldJumpPoint up, down;
+    int lo, hi;
+    up=*point; down=*point; up.y-=1536; down.y+=1536;
+    lo=ground(&up,context); hi=ground(&down,context);
+    if (lo>up.ground) up.ground=lo;
+    if (hi>down.ground) down.ground=hi;
+    if (blocked(&up,context) || blocked(&down,context)) return 1;
+    point->ground=hi>lo ? lo : hi;
+    return 0;
+}
