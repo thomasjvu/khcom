@@ -32,3 +32,23 @@ Rally deployment and exact saved upgrades/health/budgets/facing. A recorded
 format11 prop-top save also migrates through the current host reader into
 format12 with Rally initialized. Current whole-campaign and combat-specific
 Rally/menu verification still need to be completed.
+
+Skills now separates card selection from target confirmation. Left/Right or
+L/R chooses the card; A opens the target screen. Up/Down cycles eligible Cure
+or ranged targets. A confirms, while B returns without spending. The target
+screen shows the selected hero and capped healing, or the ranged damage preview.
+Ranged actions with no eligible target remain uncommitted. In card selection,
+Up stocks the selected card and Down clears the stock. Three stocked cards
+open a sleight confirmation with the existing map recovery/damage previews.
+Attack routes stocked hands to Skills rather than unexpectedly executing a
+sleight. Existing shortcut controls remain available.
+
+The focused native target fixture uses explicit injured-party/card and enemy
+placement/HP states, followed by controller-only menu operations. It passes
+23 checks covering Rally's18-point single Cure, cancel safety, empty ranged
+target rejection, selected-enemy Fire damage, three-card stocking and Rally
+Curaga healing/caps. The14 input-only deployment/menu/save checks also pass on
+the same ROM. The campaign verifier now snapshots all39 meaningful bytes of
+the five-hero roster and expects the starter unlock mask23 on retry; its held
+retry/reset policy test passes. Current whole-campaign evidence is tracked
+separately and is not implied by these focused checks.

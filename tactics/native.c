@@ -1370,9 +1370,31 @@ static void NativeHud(void) {
         static const char* const commands[6] = {"MOVE", "ATTACK", "SKILLS", "PARTY", "END TURN", "SUSPEND"};
         gWin0V = 64;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
-        NativeLabel(0, 0, gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A USE" : "COMMANDS  UP DOWN A  B BACK");
-        if (gNativeMenu == 2) {
+        NativeLabel(0, 0, gNativeMenu == 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  UP DOWN A  B BACK");
+        if (gNativeMenu == 3) {
+            char amount[] = "RECOVER 00";
+            NativeLabel(0, 16, card < 0 ? "NO CARD" : names[gNativeDeck.kind[card]]);
+            if (gNativeDeck.stocked == 3 && FieldDeckSleightPreview(&gNativeDeck, &sleightKind, &sleightValue)) {
+                NativeLabel(0, 16, sleightKind == FIELD_CARD_CURE ? "PARTY CURE SLEIGHT" : sleightKind == FIELD_CARD_GUARD ? "PARTY GUARD SLEIGHT" : "AREA ATTACK SLEIGHT");
+                NativeLabel(0, 24, "PREVIEW VALUES ON MAP");
+                NativeLabel(0, 32, "A USE THREE STOCKED CARDS");
+            } else if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE) {
+                u8 hero = NativeHero(gNativeCureTarget);
+                NativeLabel(0, 24, hero == FIELD_SORA ? "TARGET SORA" : hero == FIELD_DONALD ? "TARGET DONALD" :
+                    hero == FIELD_GOOFY ? "TARGET GOOFY" : hero == FIELD_RALLY ? "TARGET RALLY" : "TARGET CLOUD");
+                amount[8] += gNativeCureHeal / 10;amount[9] += gNativeCureHeal % 10;
+                NativeLabel(0, 32, amount);
+            } else if (card >= 0 && (gNativeDeck.kind[card] == FIELD_CARD_FIRE ||
+                (gNativeDeck.kind[card] == FIELD_CARD_KEY && (NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD)))) {
+                char damage[] = "DAMAGE 00";
+                NativeLabel(0, 24, gNativeFireTarget < 0 ? "NO ELIGIBLE TARGET" : "SELECTED ENEMY ON MAP");
+                damage[7] += gNativeFireDamage / 10;damage[8] += gNativeFireDamage % 10;
+                NativeLabel(0, 32, damage);
+            } else NativeLabel(0, 24, "CONFIRM SELECTED ACTION");
+            NativeLabel(0, 48, gNativeActionLeft ? "B BACK WITHOUT SPENDING" : "ACTION ALREADY SPENT");
+        } else if (gNativeMenu == 2) {
             NativeLabel(0, 16, card < 0 ? "NO CARDS  L R RELOAD" : names[gNativeDeck.kind[card]]);
+            NativeLabel(0, 24, gNativeDeck.stocked == 3 ? "THREE STOCKED  A SLEIGHT" : "UP STOCK  DOWN CLEAR");
             NativeLabel(0, 32, "B BACK  L R CARD");
         } else for (i = 0; i < 6; i++) {
             NativeLabel(0, (i + 1) * 8, i == gNativeMenuChoice ? "X" : " ");
@@ -2558,24 +2580,44 @@ static void NativeUpdate(void) {
             gNativeMenu = gNativeMenu ? 0 : 1;
             pressed = 0;
         } else if (gNativeMenu) {
-            if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 2 ? 1 : 0;pressed = 0;}
+            if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 3 ? 2 : gNativeMenu == 2 ? 1 : 0;pressed = 0;}
+            else if (gNativeMenu == 3) {
+                int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
+                int ranged = gNativeDeck.stocked != 3 && card >= 0 && (gNativeDeck.kind[card] == FIELD_CARD_FIRE ||
+                    (gNativeDeck.kind[card] == FIELD_CARD_KEY &&
+                     (NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD)));
+                if ((pressed & (DPAD_UP | DPAD_DOWN)) && card >= 0 && gNativeDeck.stocked != 3) {
+                    if (gNativeDeck.kind[card] == FIELD_CARD_CURE) NativeCycleCureTarget();
+                    else if (ranged) NativeCycleFireTarget();
+                }
+                if ((pressed & A_BUTTON) && (card >= 0 || gNativeDeck.stocked == 3) && gNativeActionLeft &&
+                    (!ranged || gNativeFireTarget >= 0)) {gNativeMenu = 0;raw = pressed = A_BUTTON;}
+                else pressed = 0;
+            }
             else if (gNativeMenu == 2) {
+                if (pressed & DPAD_UP) FieldDeckStock(&gNativeDeck);
+                if (pressed & DPAD_DOWN) FieldDeckCancelStock(&gNativeDeck);
                 if (pressed & (DPAD_LEFT | L_BUTTON)) FieldDeckCycle(&gNativeDeck, -1);
                 if (pressed & (DPAD_RIGHT | R_BUTTON)) FieldDeckCycle(&gNativeDeck, 1);
-                if (pressed & A_BUTTON) {gNativeMenu = 0;raw = pressed = A_BUTTON;}
-                else pressed = 0;
+                if ((pressed & A_BUTTON) && (FieldDeckHand(&gNativeDeck, gNativeDeck.selected) >= 0 || gNativeDeck.stocked == 3) &&
+                    gNativeActionLeft) gNativeMenu = 3;
+                pressed = 0;
             } else if (pressed & A_BUTTON) {
                 u16 command = gNativeMenuChoice;
                 gNativeMenu = 0;
                 if (command == 0) {NativePreviewInput(0);pressed = 0;}
                 else if (command == 1) {
                     u8 n;
+                    if (gNativeDeck.stocked) {gNativeMenu = 2;pressed = 0;}
+                    else {
+
                     for (n = 0; n < 5; n++) {
                         int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
                         if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY) break;
                         FieldDeckCycle(&gNativeDeck, 1);
                     }
                     raw = pressed = n < 5 ? A_BUTTON : 0;
+                    }
                 } else if (command == 2) {gNativeMenu = 2;pressed = 0;}
                 else if (command == 3) {NativePartySelect();pressed = 0;}
                 else if (command == 4) raw = pressed = START_BUTTON;

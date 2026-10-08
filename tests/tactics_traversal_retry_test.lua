@@ -10,6 +10,7 @@ local names={'gMapFloorState','gNativeFloor','gNativeResult','gCurrentMode','gCu
 for i,name in ipairs(names) do env[name]=i*256 end
 local seed=0xfffffff0
 local nextSeed=(seed+0x9e3779b9)&0xffffffff
+env.initialRosterMask=23;env.rosterBytes=39
 env.sNativeMode=0x9000;env.NativeUpdate=0xa000
 local policy=assert(load(source..[[
 local failure=nil
@@ -27,7 +28,7 @@ local function terminal()
 end
 local function restarted()
  memory[env.gNativeFloor]=0;memory[env.gNativeResult]=0
- memory[env.gNativeSeed]=nextSeed;memory[env.gNativeRoster]=7
+ memory[env.gNativeSeed]=nextSeed;memory[env.gNativeRoster]=23
 end
 terminal();policy.arm(seed)
 for _=1,11 do policy.tick();assert(keys==4,'hold Select until its release frame') end

@@ -381,3 +381,18 @@ as do fuller targeting menus and a current whole-campaign replay. Earlier
 `tactics/RALLY-COMMANDS.md`. The proposed read-only prop-top replay model failed
 its native decision check despite passing a mock; that edit was reverted and
 failed metadata retained. No claim is made that second-seed navigation is fixed.
+
+### Native Skills target and sleight confirmation
+
+The Skills menu now separates browsing from confirmation, with eligible
+Cure/ranged target cycling, predicted capped recovery/damage, resource-safe
+cancellation and no-target ranged rejection. Up stocks cards and Down clears
+stock from the selection menu; a full stock opens a distinct sleight screen.
+Attack sends stocked hands to Skills instead of silently triggering a recipe.
+`menu-target-sleight-evidence` passes23 native fixture checks (explicit health,
+card and enemy placement/HP setup; menu and action resolution by input).
+`target-menu-rally-regression-evidence` passes14 input-only deployment/menu/
+preview/save/reset checks on the same ROM. Native build limits pass with no
+new reserved RAM. Campaign replay snapshots now cover all39 meaningful roster
+bytes and starter mask23, and the real retry-policy mock passes. Whole-campaign
+verification is running separately; broad polish and content remain unfinished.
