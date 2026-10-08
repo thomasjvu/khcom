@@ -543,3 +543,21 @@ coverage. Exact ROM hashes and logs are preserved in
 `build/tactics-us/ledge-command-{climb,drop}-fixed-evidence/metadata.json`.
 No reserved RAM or save-format change. The broader all-room replay runs on
 the earlier8f5584ea8 ROM and does not validate this newer menu/drop change.
+
+### Ledge-aware all-room campaign result
+
+The immutable8f5584ea8 ROM with eb48edce3 traversal logic reached Castle
+room8 but failed the unchanged300000-frame bound at300001:29 kills,2658
+commands and8 chests. Traverse Town and Agrabah were completed with their
+optional branches. Cloud was recruited26108/deployed38360; suspend occurred
+19709; composed descent verified1476. Castle room9 took245474..297240, then
+exited successfully; the final room8 only had2761 frames before timeout.
+The actor was grounded idle, busy0, height20480. This contradicts a permanent
+room9 hang and does not establish that room8 is inaccessible.
+
+`ledge-aware-all-rooms-evidence` preserves ROM/replay hashes, terminal log,
+screenshot and navigation snapshot. Offline same-height analysis cannot reach
+the height0 door from height20480; it excludes jumps/stairs and is diagnostic
+only. No all-room success is claimed, and this earlier ROM does not validate
+the subsequent Climb/Drop menu. Next coverage is a current-ROM main-route
+regression, while optional-branch route efficiency remains unfinished.
