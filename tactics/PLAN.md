@@ -1258,3 +1258,15 @@ execution is necessary. This proves a route exists, not why campaign stalled.
 Fallback jumps and region transitions now wait for native sample/update
 acknowledgement. All12 replay policy regressions pass; equivalent acknowledged
 jump fixture retains independent logs. No complete second-seed claim.
+
+
+Rally original assembly card (2026-10-08): generated identity-preserving
+emerald/gold square portrait using approved starterv2 reference; source and
+provenance retained. New importer emits32x32/512byte OBJ,16-entry palette
+and centered sprite. Native assembly loads it in the existing borrowed
+combat-card bank, draws alongside original character cards, and frees it
+through existing cycle/deploy/exit paths. No state or save format expansion.
+Native20 Rally menu/deployment/suspend/reset checks PASS and setup capture
+visually inspected; original30-frame golden verifier PASS. Existing complete
+0.32 campaigns retain their exact hashes and do not prove this newer ROM.
+Two-seed job14103 remains live on its immutable pre-card ROM.

@@ -42,6 +42,7 @@
 #include "display.h"
 #include "ui_font.h"
 #include "character-assets/rally/rally_data.h"
+#include "character-assets/rally/rally_card_data.h"
 #include "malloc.h"
 #include "gba/macro.h"
 
@@ -721,11 +722,17 @@ static void NativeAssemblyCards(void) {
     NativeAssemblyFree();
     sAssemblyDonald = NativeHeroCard(NativeHero(1));
     sAssemblyOther = NativeHeroCard(NativeHero(2));
-    if (sAssemblyDonald) {
+    if (NativeHero(1) == FIELD_RALLY) {
+        sAssemblyTiles = LoadObjTiles(sRallyCardTiles, sizeof(sRallyCardTiles));
+        sAssemblyPalette = LoadObjPalette(sRallyCardPalette, sizeof(sRallyCardPalette));
+    } else if (sAssemblyDonald) {
         sAssemblyTiles = LoadObjTiles(sAssemblyDonald->tiles2, 0x200);
         sAssemblyPalette = LoadObjPalette(sAssemblyDonald->palette2, 32);
     }
-    if (sAssemblyOther) {
+    if (NativeHero(2) == FIELD_RALLY) {
+        sAssemblyOtherTiles = LoadObjTiles(sRallyCardTiles, sizeof(sRallyCardTiles));
+        sAssemblyOtherPalette = LoadObjPalette(sRallyCardPalette, sizeof(sRallyCardPalette));
+    } else if (sAssemblyOther) {
         sAssemblyOtherTiles = LoadObjTiles(sAssemblyOther->tiles2, 0x200);
         sAssemblyOtherPalette = LoadObjPalette(sAssemblyOther->palette2, 32);
     }
@@ -785,10 +792,9 @@ static void NativeAssemblyDraw(void) {
         card = i == 1 ? sAssemblyDonald : i == 2 ? sAssemblyOther : sCards[0];
         tiles = i == 1 ? sAssemblyTiles : i == 2 ? sAssemblyOtherTiles : sCardTiles[0];
         palette = i == 1 ? sAssemblyPalette : i == 2 ? sAssemblyOtherPalette : sCardPalettes[0];
-        if (i && NativeHero(i) == FIELD_RALLY)
-            DrawSprite(68 + i * 52, i == sAssemblyChoice ? 111 : 124,
-                (void*)sRallyFrames[0], sFriends[i - 1].tiles,
-                sFriends[i - 1].palette, NULL, 0, 1);
+        if (i && NativeHero(i) == FIELD_RALLY && tiles && palette)
+            DrawSprite(68 + i * 52, i == sAssemblyChoice ? 84 : 97,
+                (void*)sRallyCardGfx, tiles, palette, NULL, 0, 1);
         if (card && tiles && palette) DrawSprite(68 + i * 52, i == sAssemblyChoice ? 84 : 97,
             card->gfx2, tiles, palette, NULL, 0, 1);
     }

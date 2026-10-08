@@ -13,7 +13,7 @@ Historical entries in PLAN.md describe earlier versions; current evidence wins.
 | Controllable Sora/Donald/Goofy | Separate budgets/HP; menu and native party checks; Donald magic/Cure and Goofy spin/Guard | Current-ROM review of all moves and attached poses |
 | Fight/recruit Cloud; party assembly only at round start | Actual fresh-run fight/recruit/deploy; recruit and alternative-power fixtures; original character cards in setup | Wider recruit/reward balance |
 | Optional Aerith/Tifa suggestion | Aerith event-character/portrait declarations exist; no Tifa references found in src/include/assets | Inspect actual Aerith resources and feasibility; neither recruit is implemented |
-| Original Rally | Five-hero roster; menu/save/reset, walking/actions/air native tests and golden asset checks | Dedicated card, hurt/climb/casting art and visual integration |
+| Original Rally | Five-hero roster; menu/save/reset, walking/actions/air native tests and golden asset checks | Original card implemented and native setup inspected; hurt/climb/casting art and further visual integration |
 | Selectable Move/Attack/Skills/Party/End Turn | Compact single-stroke font, 18+16 idle and 56+16 contextual windows; rendered native UI checks | Visual usability review of all submenus |
 | Turn order visible | Available party members then enemy phase; freely ordered party actions; forecast before ending | Review enemy-phase strip and all depleted/KO combinations |
 | Movement tiles, heights, chests, doors | Native projected previews, costs, cancel, collision execution, composed descent; all-room nine chest campaign | Wider seeds and combined ledge/jump route discovery |

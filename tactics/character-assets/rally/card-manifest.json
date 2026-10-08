@@ -1,0 +1,11 @@
+{
+  "source": "tactics/character-assets/rally/card-source-v1.png",
+  "source_sha256": "58c9f9854914694dd2209558ef64d6d2dad2c4a51ed57953d99b5f611b8b0025",
+  "native_size": [
+    32,
+    32
+  ],
+  "tiles_bytes": 512,
+  "palette_entries": 16,
+  "role": "Assembly only; never an in-battle summon action."
+}
