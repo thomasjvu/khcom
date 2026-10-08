@@ -811,3 +811,20 @@ A new120000-frame current main-route run with this diagnostic is live in
 `compact-runtime-main-evidence`, requiring Cloud, exact save/resume and
 composed descent. This adds information needed for a faithful fixture; it
 does not fix or claim campaign success. Other-chat assets remain untouched.
+
+### Save failure contradicts transition-only diagnosis
+
+Current compact-runtime main replay FAILED21194 at room4 suspend; request
+21190 had flags81 (no freeze/create/auto-walk/exit bits), grounded busy0.
+The transition-only explanation is contradicted. Snapshot captured valid
+looking party/deck state but omitted save notice and pending encode state,
+so ignored input versus encoding/verification rejection remains unresolved.
+Failure retained in `compact-runtime-main-evidence`.
+
+Snapshots now include save notice and a read-only pending FieldSaveState dump
+whose byte length is derived from the exact ELF sSuspend symbol size. Native
+room0-to1 passes979; JSON parses and1136-byte dump size verified in
+`save-state-dump-evidence`. No validator/rules changes made. A fresh current
+main campaign is live in `save-validator-current-main-evidence`, retaining
+Cloud, room4 exact save/resume, composed descent and120000-frame bound.
+Its pending-state dump will allow host validation if save failure repeats.
