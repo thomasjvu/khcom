@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.39-jump-preview-dev.bps --version 0.39-development
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.39-jump-preview-dev.bps build/release/kh_tactics_jump_preview_039.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.40-phase-ui-dev.bps --version 0.40-development
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.40-phase-ui-dev.bps build/release/kh_tactics_phase_ui_040.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application

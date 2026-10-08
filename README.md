@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The packaged **0.39 Jump Preview development build** runs in the original 2.5D engine with full
+The packaged **0.40 Phase UI development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -32,13 +32,8 @@ either companion. Every second unique room clear grants a personal upgrade.
 Original cards support explicit Fire/Cure targets,
 matching-type sleights and three-card chest reward choices. Palette budgets
 keep party, card artwork and value digits visible beside generated scenery.
-The packaged 0.39 ROM passes 79 scoped native checks and three complete
-fresh-SRAM campaigns, with native retry, Cloud recruitment/deployment,
-suspend/reset and composed descents in each run. The frontend exits0 and
-ROM/driver/log hashes are verified. The three-seed all-room/chest sweep failed in second-run Agrabah room11;
-that navigation investigation remains open. Prior 0.38's 540 scoped checks and all-room campaign belong to that
-version. These tests cover recorded seeds and routes.
-See [0.39 patch notes](tactics/JUMP-PREVIEW-0.39.md) and
+The packaged 0.40 ROM passes223 scoped native checks covering command/party UI, companion combat/healing/saves, one original jump pad and all three bosses. Its BPS application matches the build byte for byte. The live three-seed all-room sweep has completed its first36-room/nine-chest campaign with Cloud recruitment/deployment, suspend/reset and composed descent; the other two runs remain unverified. This is a development patch, with final gameplay/content/release audit still open.
+See [0.40 patch notes](tactics/PHASE-UI-0.40.md) and
 [release audit](tactics/RELEASE-AUDIT.md) for evidence and remaining work.
 
 The normal HUD occupies 18 pixels at the top and 16 at the bottom. Commands

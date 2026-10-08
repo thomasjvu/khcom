@@ -1741,3 +1741,9 @@ Current phase-strip ROM Party17 native input checks pass: detailed selector phas
 ### Current companion movesets and healing suspend verified
 
 Exact current phase-strip ROM passes52 companion checks: Donald healing/revival/specialty/owned Cure enhancement/capped forecasts/card depletion/native suspend/reset17; Donald ranged Key and Goofy spin/Guard menus/execution/held poses plus Sora Guard comparison26; Cloud native setup/card/sword action animation/damage/recovery9. Explicit initial card/HP/upgrade/target-position fixtures and Cloud unlock disclosed; actual setup/stocking/menus/attacks/save/reset use native input. Frontends39850/38124/67157 exited0; ROM/driver/log hashes match. These scoped Cloud checks do not prove natural recruitment (the full campaign must). Current native scoped total128. Full sweep87441 observed advancing139260; complete campaign proof pending.
+
+### Packaged0.40 development and first current all-room victory
+
+Current phase-strip ROM passes95 focused boss checks40Guard Armor/25Jafar/30Marluxia, all frontends exited0/exact hashes verified. Original boss resources, card artwork, windup/impact/hand-loss/rage poses, range/height boundary exclusion, Guard mitigation, native damage, suspend/reset and room-exit resource restoration covered; boss screenshots inspected. Scoped current total223. Removed64 hash-identical completed ROM copies (2GiB) with manifest, kept live and canonical historical builds; redirected prior cleanup canonical paths when needed.
+
+0.40 development BPS98,597B applies byte-identically to supported US base. Manifest/patch notes/build instructions updated. Current all-room/chest sweep87441 records validated first stable victory301053 (masks4095each/ninechests, Cloud recruit/deploy, suspend/reset, composed descent) then verified retryseed2658846982. Frontend still live; aggregate3seed result pending, not promoted to final release.
