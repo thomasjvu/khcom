@@ -572,3 +572,20 @@ fixture checks pass for target cycling, cancellation, confirmed healing/ranged
 damage, costs and Rally Curaga. The rendered Skills screen was inspected.
 Exact ROM/driver hashes are in `skills-detail-target-evidence/metadata.json`.
 The running full campaign uses preceding b5b66489f, not this presentation change.
+
+### Climb/Drop campaign coverage failure
+
+The b5b66489f native build reached victory95748 with Sora80HP and stayed
+stable120 frames, recruited Cloud13711/deployed15252, and verified composed
+descent1348. The replay correctly FAILED95868 because requested suspend
+room3 was bypassed by the Cloud branch: suspend coverage0. This is not a
+complete passing campaign test. Exact evidence is retained in
+`ledge-menu-current-main-evidence`; rerun on latest Skills build requests
+visited Traverse Town room4 without expanding the120000-frame bound.
+
+The probe generator now rejects requested suspend rooms2/3 when Cloud
+branch routing bypasses them, unless all-room traversal is enabled. Verified
+that the invalid room3 configuration exits2 before ELF/output access; the
+valid room4 configuration generated and launched normally. Coverage checks
+at victory remain mandatory. This prevents silently scheduling an impossible
+save-coverage requirement; it does not weaken the campaign verifier.

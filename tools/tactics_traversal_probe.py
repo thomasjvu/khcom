@@ -30,6 +30,8 @@ if a.collect_chests and not a.all_rooms:p.error('--collect-chests requires --all
 if a.runs>1 and a.worlds!=3:
     p.error('--runs requires --worlds 3')
 if a.composed_descent and a.worlds!=3:p.error('--composed-descent requires --worlds 3')
+if a.recruit_cloud and not a.all_rooms and a.suspend_room in (2,3):
+    p.error('Cloud branch bypasses suspend rooms 2 and 3; choose room 1, 4, 5 or 6, or use --all-rooms')
 names = {}
 for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).splitlines():
     words = line.split()
