@@ -462,6 +462,7 @@ local function replayFrame()
    out:write('SUSPEND REQUEST frame='..f..' flags='..string.format('%x',emu:read32(emu:read32(gFieldState)+0x70))..' room='..room..'\n');out:flush()
    emu:setKeys(12);suspendStage=1;nextFrame=f+4;return
   elseif suspendStage==1 then
+   navigationSnapshot('save-attempt.json')
    if emu:read16(gNativeSaveNotice)~=1 then finish(false,'input-only suspend failed');return end
    out:write('SUSPEND frame='..f..' room='..room..'\n');out:flush()
    emu:reset();suspendStage=2;nextFrame=f+330;return

@@ -843,3 +843,22 @@ known native SRAM also passes, uninitialized zero dump rejects as expected.
 `native-save-layout-evidence` captures the actual native dump and4307-frame
 room6 traversal. Current campaign save request22764/suspend22768 succeeded;
 full terminal campaign result remains pending separately.
+
+### Save-attempt timing and encounter-packing hypothesis audit
+
+The save-validator current main run FAILED120001 in Agrabah room7,13 kills/
+858 attempts, position78078,92971,16384; save/resume had passed earlier.
+Its terminal sSuspend dump fails host validation with cached-count mismatches,
+but NativeCaptureEncounter mutates that buffer after saves and world changes.
+Thus this later dump does not contradict the earlier successful saved payload.
+Ordinary native kills also clear sEnemyTasks before capture, so the proposed
+dead-task packing explanation is unproven. No speculative encoder/capture
+change is made. Failure/log/runtime evidence preserved.
+
+Replay now captures `save-attempt.json` and its exact native-state bytes at
+suspendStage1, immediately after save input and before reset/subsequent room
+mutation, on both successful and failed requests. Retry policy passes;
+`exact-save-attempt-main-evidence` is a fresh current-ROM main-route run with
+Cloud, room4 save/exact resume and composed descent under120000 frames. It
+is live. This timing correction makes future validator findings attributable
+to the actual attempt; campaign and broader traversal remain unfinished.
