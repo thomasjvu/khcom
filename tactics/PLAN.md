@@ -1391,3 +1391,8 @@ only. Fresh-ROM sessions73601 (two runs,360003 emulator frames) and92992
 Cloud fight/recruit/deploy, composed descent and exact suspend/reset. Their
 results remain pending in compact-commands-two-runs-evidence and
 compact-commands-all-rooms-evidence. Host suite completed successfully.
+
+0.35 replay checkpoint: first fresh campaign victory129297 HP76, stable120
+frames, RUN COMPLETE129417; native retry verified129429 seed2658846982.
+Both sessions73601/92992 were polled and remain live. Second run and all-room
+result are still pending; this checkpoint does not prove both goals complete.
