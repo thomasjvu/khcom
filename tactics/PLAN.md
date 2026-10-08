@@ -1038,3 +1038,11 @@ to advance after the whole update, including encoding/writing/verifying.
 Only then snapshot and judge its final notice. The360-frame acknowledgement
 bound remains. No codec rules are relaxed or save failures hidden. The
 interrupted replay and its in-flight/later SRAM evidence remain preserved.
+
+Fresh native-save-ack-all-rooms-evidence (native6b005110e, replayc967d25dc)
+passes save request23334/completed suspend23342/exact reset resume23672.
+Captured notice1 and completed CRC verify that the verdict follows encoding;
+captured SRAM passes production host encode/decode. The eight-video-frame
+native completion wait explains why the earlier fixed four-frame check was
+premature at this checkpoint. This full all-room/chest run remains live
+under300000 frames; main-route0.27 proof and wider failures remain distinct.
