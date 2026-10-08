@@ -324,6 +324,11 @@ local function replayFrame()
   end
   if f-victoryFrame>=120 then
    local valid=world==3 and emu:read8(gNativePartyHealth)==victoryHealth and (not recruitCloud or (cloudRecruited and cloudDeployed))
+   -- A requested suspend must actually run; branch routing can skip its room.
+   if suspendRoom and suspendRoom>0 then
+    out:write('SUSPEND COVERAGE '..suspendStage..'\n');out:flush()
+    valid=valid and suspendStage==3
+   end
    if allRooms then
     out:write('ROOM MASKS '..roomVisitMasks[1]..','..roomVisitMasks[2]..','..roomVisitMasks[3]..'\n');out:flush()
     valid=valid and roomVisitMasks[1]==4095 and roomVisitMasks[2]==4095 and roomVisitMasks[3]==4095
