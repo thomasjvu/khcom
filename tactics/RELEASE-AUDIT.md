@@ -52,3 +52,5 @@ at the top plus the 16-pixel bottom strip; phase order remains visible in the
 menu. This is a development build, with two-run and all-room completion on its exact
 ROM. The previously pending 0.34 recovery-policy all-room replay failed by
 native party defeat at134022. Full polish/release scope remains open.
+
+Group finishing-Fire replay now considers the weakest eligible foe among multiple enemies, cycles native targets when needed, and only attacks when the actual native damage forecast confirms a kill. No native game rules or HP changed. Policy regression checks pass. Fresh current-ROM all-room run PASS253238; terminal process exit0 and ROM/driver/log hashes verified. Driver requires all36 room visits, nine chests, Cloud recruitment/deployment, exact suspend/reset and composed descent. Evidence: build/tactics-us/charge-warning-group-finisher-all-rooms-evidence. Earlier failed attempts remain retained. Final polish remains open.

@@ -68,5 +68,9 @@ assert(combat()==256,'exact 128 pixel Fire boundary is excluded')
 memory[12288+8]=4096;memory[12288+16]=8192
 assert(combat()==256,'out of height Fire falls back to Cure')
 memory[12288+16]=0;memory[env.sEnemyTasks+4]=8192;memory[env.gNativeEnemyHp+2]=12
-assert(combat()==256,'multiple enemies retain healing priority')
-print('finishing Fire policy: native forecast, last enemy, range, height and break gates passed')
+assert(combat()==1,'confirmed finishing hit remains valid within an enemy group')
+memory[env.gNativeEnemyHp+2]=20;memory[env.gNativeFireTarget]=1
+assert(combat()==258,'cycle native Fire target toward the weaker eligible enemy')
+memory[env.gNativeFireTarget]=0
+assert(combat()==1,'play only after the native preview confirms a finishing target')
+print('finishing Fire policy: native forecast, group targets, range, height and break gates passed')

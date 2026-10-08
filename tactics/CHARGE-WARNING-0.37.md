@@ -23,3 +23,5 @@ the final enemy only when native damage confirms the kill; native rules are
 unchanged. It also reached the same defeat; decision-time forecasts did not select a
 finishing card. More detailed reason diagnostics are pending. This remains a
 development patch, with final polish and current all-room verification open.
+
+Group finishing-Fire replay now considers the weakest eligible foe among multiple enemies, cycles native targets when needed, and only attacks when the actual native damage forecast confirms a kill. No native game rules or HP changed. Policy regression checks pass. Fresh current-ROM all-room run PASS253238; terminal process exit0 and ROM/driver/log hashes verified. Driver requires all36 room visits, nine chests, Cloud recruitment/deployment, exact suspend/reset and composed descent. Evidence: build/tactics-us/charge-warning-group-finisher-all-rooms-evidence. Earlier failed attempts remain retained. Final polish remains open.

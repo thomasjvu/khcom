@@ -1581,3 +1581,5 @@ Decision-reason replay30946 script FAIL137348. At135585 (HP50) and136589
 Sora is controlled. The lone-enemy terminal snapshot does not describe those
 earlier decisions. Next diagnosis must inspect live target choice and incoming
 damage before terminal cleanup, not assume a guaranteed last-enemy kill.
+
+Group finishing-Fire replay now considers the weakest eligible foe among multiple enemies, cycles native targets when needed, and only attacks when the actual native damage forecast confirms a kill. No native game rules or HP changed. Policy regression checks pass. Fresh current-ROM all-room run PASS253238; terminal process exit0 and ROM/driver/log hashes verified. Driver requires all36 room visits, nine chests, Cloud recruitment/deployment, exact suspend/reset and composed descent. Evidence: build/tactics-us/charge-warning-group-finisher-all-rooms-evidence. Earlier failed attempts remain retained. Final polish remains open.

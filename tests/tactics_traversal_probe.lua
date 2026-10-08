@@ -215,23 +215,23 @@ local function healingRecipient(x,y,z)
  end
  return target
 end
--- Prefer removing the last enemy when a native Fire card can finish it.
--- Match native raw-plane range, height, card-break threshold and Sora power.
+-- Prefer a confirmed finishing Fire, including against a member of a group.
+-- Choose a weak eligible target; actual native preview must confirm the kill.
 local function finishingFireSlot(x,y,z)
  if emu:read16(gNativeParty)~=0 then return nil,nil,nil,'companion' end
  local lone=nil
  for i=0,5 do
-  local task=emu:read32(sEnemyTasks+i*4)
-  if task~=0 and emu:read16(gNativeEnemyHp+i*2)>0 then
-   if lone then return nil,nil,nil,'multiple' end
-   lone={slot=i,work=emu:read32(task+4),hp=emu:read16(gNativeEnemyHp+i*2)}
+  local task=emu:read32(sEnemyTasks+i*4);local hp=emu:read16(gNativeEnemyHp+i*2)
+  if task~=0 and hp>0 then
+   local w=emu:read32(task+4);local ez=signed(emu:read32(w+16))
+   local distance=math.abs(signed(emu:read32(w+8))-x)+math.abs(signed(emu:read32(w+12))-(y-z))
+   if distance<32768 and math.abs(ez-z)<=6144 and
+      (not lone or hp<lone.hp or (hp==lone.hp and distance<lone.distance)) then
+    lone={slot=i,hp=hp,distance=distance}
+   end
   end
  end
- if not lone then return nil,nil,nil,'none' end
- local w=lone.work;local ez=signed(emu:read32(w+16))
- local distance=math.abs(signed(emu:read32(w+8))-x)+math.abs(signed(emu:read32(w+12))-(y-z))
- if distance>=32768 then return nil,nil,nil,'range' end
- if math.abs(ez-z)>6144 then return nil,nil,nil,'height' end
+ if not lone then return nil,nil,nil,'no eligible target' end
  local slot=0;local choice,value=nil,nil
  for i=0,emu:read8(gNativeDeck+72)-1 do
   if emu:read8(gNativeDeck+48+i)==1 then
@@ -262,7 +262,10 @@ local function combatInput()
  end
  if finishSlot then
   if emu:read8(gNativeDeck+73)~=finishSlot then return 256 end
-  if emu:read16(gNativeFireTarget)==finishTarget and emu:read16(gNativeFireDamage)>=finishHp then return 1 end
+  local target=emu:read16(gNativeFireTarget)
+  if target<6 and emu:read16(gNativeEnemyHp+target*2)>0 and
+     emu:read16(gNativeFireDamage)>=emu:read16(gNativeEnemyHp+target*2) then return 1 end
+  if target~=finishTarget then return 258 end
  end
  local healTarget=healingRecipient(x,y,z)
  for i=0,emu:read8(gNativeDeck+72)-1 do
