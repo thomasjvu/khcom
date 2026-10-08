@@ -112,7 +112,11 @@ IrqHandler_Return:
 intr_vector:
 	.word INTR_VECTOR
 agb_main:
+.ifdef TACTICS
+	.word TacticsNativeMain + 1
+.else
 	.word AgbMain + 1
+.endif
 intr_nest_mask:
 	.word INTR_FLAG_VCOUNT | INTR_FLAG_TIMER3 | INTR_FLAG_SERIAL | INTR_FLAG_GAMEPAK
 intr_table:

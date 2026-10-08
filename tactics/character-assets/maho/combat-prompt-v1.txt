@@ -1,0 +1,8 @@
+Create a new combat animation sprite sheet for MAHO, the exact adult black-haired maid character in the reference. Preserve her long straight black hair, bangs, white headband, black maid dress, white apron/bow, white stockings, black Mary Janes and pixel art proportions.
+Give her a slim magic wand with a small gold star tip, consistent throughout. Transparent background. Exactly 5 rows x 6 columns, uniform separated cells, whole sprites uncut, fixed foot baseline and scale. No labels.
+Row 1 six sequential front-right wand ATTACK poses: ready, pull back, raised windup, sharp forward wand thrust, follow-through, recovery.
+Row 2 same attack sequence from back-right view.
+Row 3 six sequential front-right MAGIC casting poses: ready holding wand, wand raised overhead, charging, fully extended forward casting, held release, recovery. Tiny cyan/gold tip spark only; don't obscure body.
+Row 4 same magic sequence from back-right view.
+Row 5 six ISOLATED magic effect sprites with no character: tiny cyan-gold spark, larger star charge, compact glowing cyan projectile, elongated traveling projectile, star-shaped impact burst, dissipating spark fragments. Effects use hard pixel clusters, not blurry glow. Each effect fits one separate cell.
+Match reference GBA-inspired dark outlines, limited colors and crisp pixel clusters enlarged nearest-neighbor. Distinct readable motion silhouettes; consistent weapon hand and wand. No ground shadows, text, watermarks, scenery, grid lines or red fringes. Actual transparency. This is a game animation asset sheet, not a poster.

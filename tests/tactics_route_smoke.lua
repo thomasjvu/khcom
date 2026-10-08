@@ -1,0 +1,155 @@
+local f=0
+local elapsed=0
+local out=io.open('@OUTPUT@/routes.txt','w')
+local directions={16,32,64,128,80,96,144,160}
+local chosen=nil
+local target=nil
+local multi=nil
+local back=nil
+local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
+local function signed16(v) if v>=32768 then return v-65536 end return v end
+callbacks:add('frame',function()
+ elapsed=elapsed+1;f=elapsed-80
+ if elapsed==180 then emu:setKeys(1) end
+ if elapsed==184 then emu:setKeys(0) end
+ if f==170 then
+  check(emu:read8(gNativePartyHealth)==80 and emu:read16(gGameState+0x32)==80,'fresh run starts Sora at full health')
+ end
+ if f>=180 and f<500 then
+  local slot=math.floor((f-180)/80)+1
+  local phase=(f-180)%80
+  if phase==0 then emu:setKeys(512+directions[slot]) end
+  if phase==4 then emu:setKeys(0) end
+  if phase==24 then
+   check(emu:read16(gNativePreview)==1,'L Dpad opens projected route cursor '..slot)
+   check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'preview preserves budgets '..slot)
+   if not chosen and emu:read16(gNativeRouteCost)==1 then chosen=directions[slot] end
+   emu:setKeys(2)
+  end
+  if phase==28 then emu:setKeys(0) end
+  if phase==50 then check(emu:read16(gNativePreview)==0,'B cancels route '..slot) end
+ end
+ if f==520 then
+  check(chosen~=nil,'starting native room has a reachable walking destination')
+  if chosen then emu:setKeys(512+chosen) end
+ end
+ if f==524 then emu:setKeys(0) end
+ if f==550 and chosen then
+  local x=signed16(emu:read16(sCursorX))
+  local y=signed16(emu:read16(sCursorY))
+  local address=sRoutePos+((y+4)*9+x+4)*16
+  target={emu:read32(address),emu:read32(address+4),emu:read32(address+8)}
+  emu:screenshot('@OUTPUT@/preview.png')
+  check(emu:read16(gNativeRouteCost)==1,'preview reports exact one-step route cost')
+  emu:setKeys(1)
+ end
+ if f==554 then emu:setKeys(0) end
+ if f==570 and chosen then
+  check(emu:read16(gNativeMoveLeft)==2,'A charges confirmed route once')
+  check(emu:read16(gNativeActionLeft)==1,'route preserves combat action')
+ end
+ if f==800 then
+  if chosen then
+   local p=emu:read32(gFieldState)
+   local dx=math.abs(emu:read32(p+0x18)-target[1])
+   local dy=math.abs(emu:read32(p+0x1c)+emu:read32(p+0x20)-target[2]-target[3])
+   check(emu:read16(gNativeBusy)==0,'native controller finishes route')
+   check(dx<=768 and dy<=768,'native actor reaches previewed destination')
+   check(emu:read16(gNativeMoveLeft)==2,'arrival does not double-charge movement')
+   emu:screenshot('@OUTPUT@/arrived.png')
+  end
+ end
+ if f==840 then emu:setKeys(8) end
+ if f==844 then emu:setKeys(0) end
+ if f>=960 and f<1600 then
+  local slot=math.floor((f-960)/80)+1
+  local phase=(f-960)%80
+  if phase==0 then emu:setKeys(512+directions[slot]) end
+  if phase==4 then emu:setKeys(0) end
+  if phase==12 then emu:setKeys(directions[slot]) end
+  if phase==16 then emu:setKeys(0) end
+  if phase==24 then
+   if not multi and emu:read16(gNativeRouteCost)==2 then multi=directions[slot] end
+   emu:setKeys(2)
+  end
+  if phase==28 then emu:setKeys(0) end
+ end
+ if f==1630 then
+  check(multi~=nil,'native room provides a two-segment route')
+  if multi then emu:setKeys(512+multi) end
+ end
+ if f==1634 then emu:setKeys(0) end
+ if f==1644 and multi then emu:setKeys(multi) end
+ if f==1648 then emu:setKeys(0) end
+ if f==1670 and multi then
+  local x=signed16(emu:read16(sCursorX))
+  local y=signed16(emu:read16(sCursorY))
+  local address=sRoutePos+((y+4)*9+x+4)*16
+  target={emu:read32(address),emu:read32(address+4),emu:read32(address+8)}
+  check(emu:read16(gNativeRouteCost)==2,'preview reports two-segment movement cost')
+  emu:screenshot('@OUTPUT@/two-step-preview.png');emu:setKeys(1)
+ end
+ if f==1674 then emu:setKeys(0) end
+ if f==1920 then
+  if multi then
+   local p=emu:read32(gFieldState)
+   local dx=math.abs(emu:read32(p+0x18)-target[1])
+   local dy=math.abs(emu:read32(p+0x1c)+emu:read32(p+0x20)-target[2]-target[3])
+   check(emu:read16(gNativeBusy)==0 and dx<=768 and dy<=768,'native controller follows both route segments')
+   check(emu:read16(gNativeMoveLeft)==1,'two-segment route costs two movement points')
+  end
+ end
+ if f==1960 and multi then
+  back=({[16]=32,[32]=16,[64]=128,[128]=64,[80]=160,[96]=144,[144]=96,[160]=80})[multi]
+  emu:setKeys(512+back)
+ end
+ if f==1964 then emu:setKeys(0) end
+ if f==1974 and back then emu:setKeys(back) end
+ if f==1978 then emu:setKeys(0) end
+ if f==2000 and back then
+  check(emu:read16(gNativeRouteCost)==65535,'return preview marks destination outside remaining movement budget')
+  emu:setKeys(1)
+ end
+ if f==2004 then emu:setKeys(0) end
+ if f==2030 and back then
+  check(emu:read16(gNativePreview)==1 and emu:read16(gNativeBusy)==0,'A rejects route exceeding movement budget')
+  check(emu:read16(gNativeMoveLeft)==1,'rejected route preserves remaining movement')
+  emu:setKeys(2)
+ end
+ if f==2034 then emu:setKeys(0) end
+ if f==2070 then
+  -- Explicit blocked-execution fixture: real native route controller times out.
+  local p=emu:read32(gFieldState)
+  local x=emu:read32(p+0x18);local y=emu:read32(p+0x1c)
+  for i=0,3 do emu:write32(sRoutePos+41*16+i*4,emu:read32(p+0x18+i*4)) end
+  emu:write32(sRoutePos+41*16,x+4096)
+  emu:write16(sPlayerPath,41);emu:write8(sPathIndex,0);emu:write8(sPathLength,1)
+  emu:write32(sPathStartX,x);emu:write32(sPathStartY,y);emu:write16(sFrames,0)
+  emu:write16(gNativeMoveLeft,0);emu:write16(gNativeBusy,3)
+  emu:write32(p+0x70,emu:read32(p+0x70)|4096)
+ end
+ if f==2190 then
+  check(emu:read16(gNativeBusy)==0,'frozen route times out and releases command gate')
+  check(emu:read16(gNativeMoveLeft)==1,'route that never starts refunds its first movement point')
+ end
+ if f==2210 or f==2350 then
+  -- Explicit progress fixtures; freeze the actor after representing travel.
+  local p=emu:read32(gFieldState)
+  local x=emu:read32(p+0x18);local y=emu:read32(p+0x1c)
+  emu:write16(sPlayerPath,41);emu:write16(sPlayerPath+2,41)
+  emu:write8(sPathIndex,0);emu:write8(sPathLength,2)
+  emu:write32(sPathStartX,x-(f==2210 and 1024 or 0))
+  emu:write32(sPathStartY,y);emu:write16(sFrames,0)
+  emu:write16(gNativeMoveLeft,0);emu:write16(gNativeBusy,3)
+ end
+ if f==2330 then
+  check(emu:read16(gNativeBusy)==0,'partially travelled route releases command gate')
+  check(emu:read16(gNativeMoveLeft)==1,'partial travel costs one point and refunds the unstarted segment')
+ end
+ if f==2470 then
+  check(emu:read16(gNativeBusy)==0,'unstarted two-segment route releases command gate')
+  check(emu:read16(gNativeMoveLeft)==2,'unstarted two-segment route refunds both movement points')
+  local p=emu:read32(gFieldState);emu:write32(p+0x70,emu:read32(p+0x70)&~4096)
+  out:close()
+ end
+end)

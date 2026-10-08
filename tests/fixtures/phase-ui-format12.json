@@ -1,0 +1,6 @@
+{
+  "source": "build/tactics-us/persistent-phase-donald-evidence/fresh.sav",
+  "source_rom_sha256": "a01f555dff42d1146ffa3e7ca044d3c06d4c6305450790342a67726a6eb11c33",
+  "description": "First two alternating 1024-byte slots of recorded native 0.40 suspend SRAM. No ROM assets.",
+  "fixture_sha256": "bcbdd5dc6474057290754102e6087eec157690c6895d3b3dc96072363fa03e6e"
+}

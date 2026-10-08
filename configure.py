@@ -85,7 +85,10 @@ parser.add_argument(
     default="arm-none-eabi-",
     help="binutils tool prefix (default: %(default)s)",
 )
+parser.add_argument("--tactics", action="store_true", help="build the US tactics roguelike instead of the matching game")
 args = parser.parse_args()
+if args.tactics and args.version != "us":
+    parser.error("the tactics build currently supports US only")
 
 legacy_assembler = Path("tools/legacy/bin/arm-elf-as")
 legacy_linker = Path("tools/legacy/bin/arm-elf-ld")
@@ -101,8 +104,11 @@ code, sha1 = VERSIONS[version]
 prefix = args.binutils_prefix
 raw_as_flags = software_fp_flags(f"{prefix}as")
 
-build_dir = f"build/{version}"
-name = f"com_{version}"
+build_dir = f"build/tactics-{version}" if args.tactics else f"build/{version}"
+name = "kh_tactics" if args.tactics else f"com_{version}"
+if args.tactics:
+    ROM_TITLE = "KH TACTICS"
+    code = "KTCE"
 elf = f"{build_dir}/{name}.elf"
 rom = f"{build_dir}/{name}.gba"
 verified = f"{build_dir}/verified.gba"
@@ -196,7 +202,7 @@ for line in units_file.read_text().splitlines():
         units.append((None, obj, None))
         continue
     if name in generated or name in text_objects:
-        src = Path(f"{build_dir}/gen") / name
+        src = Path(f"build/{version}/gen") / name
         obj = f"{build_dir}/gen/{src.stem}.o"
     elif name.endswith(".c"):
         src = sources.get(name, Path("src") / name)
@@ -261,7 +267,23 @@ if missing_assets:
     sys.exit(f"error: {len(missing_assets)} extracted asset files for {version} are missing (first: {first});"
              f" run python3 tools/extract_assets.py {version}")
 
+tactics_objects = []
+if args.tactics:
+    for source in ("tactics/worldgen.c", "tactics/field_deck.c", "tactics/field_party.c", "tactics/field_roster.c", "tactics/field_route.c", "tactics/field_jump.c", "tactics/field_enemy.c", "tactics/field_save.c", "tactics/native.c"):
+        obj = f"{build_dir}/tactics/{Path(source).stem}.o"
+        units.append((Path(source), obj, None))
+        tactics_objects.append(obj)
+        edges.append((obj, "tactics_cc", Path(source), sorted(str(p) for p in Path("tactics").rglob("*.h"))
+                      + ["tools/tactics_far_calls.py"]
+                      + (headers + generated_headers if source == "tactics/native.c" else []), None))
+if args.tactics:
+    obj = f"{build_dir}/tactics/far_calls.o"
+    units.append((Path("tactics/far_calls.s"), obj, None))
+    tactics_objects.append(obj)
+    edges.append((obj, "as", Path("tactics/far_calls.s"), [str(legacy_assembler)],
+                  {"as": "$legacy_as", "asflags": "$legacy_asflags"}))
 objs_linked = [obj for _src, obj, _flags in units]
+original_objects = [obj for obj in objs_linked if obj not in tactics_objects]
 Path(build_dir).mkdir(parents=True, exist_ok=True)
 with open(ldscript, "w") as f:
     f.write("ENTRY(_start);\n\n")
@@ -270,9 +292,24 @@ with open(ldscript, "w") as f:
     if symbols:
         f.write("\n")
     f.write("SECTIONS\n{\n    . = 0x8000000;\n\n    .text :\n    {\n")
-    for obj in objs_linked:
+    for obj in original_objects:
         f.write(f"        {obj}(.text);\n")
-    f.write("        *(.rodata);\n        *(.data);\n    }\n")
+    if args.tactics:
+        # Keep every original asset at its matching address, including absolute references.
+        for section in (".rodata", ".data"):
+            for obj in original_objects:
+                f.write(f"        {obj}({section});\n")
+        f.write("        . = ALIGN(4);\n        gTacticsRomStart = .;\n")
+        for obj in tactics_objects:
+            f.write(f"        {obj}(.text .rodata);\n")
+        f.write("        gTacticsInitDataStart = .;\n")
+        for obj in tactics_objects:
+            f.write(f"        {obj}(.data);\n")
+        f.write("        gTacticsInitDataEnd = .;\n")
+        f.write("    }\n    gTacticsRomLimit = ASSERT(SIZEOF(.text) <= 0x2000000, \"tactics exceeds GBA ROM capacity\");\n")
+        f.write('    gTacticsInitDataCheck = ASSERT(gTacticsInitDataEnd - gTacticsInitDataStart <= 0, "initialize tactics mutable globals at runtime");\n')
+    else:
+        f.write("        *(.rodata);\n        *(.data);\n    }\n")
     f.write("\n    .iwram 0x03000000 (NOLOAD) :\n    {\n")
     for obj, section in IWRAM_BEFORE_HEAP:
         f.write(f"        {build_dir}/{obj}({section});\n")
@@ -284,7 +321,17 @@ with open(ldscript, "w") as f:
         f.write(f"    {name} = {addr:#010x};\n")
     f.write("\n    .ewram 0x02000000 (NOLOAD) :\n    {\n")
     f.write(f"        gEwramHeapStart = .;\n        . += {EWRAM_HEAP_SIZE:#x};\n")
-    f.write("        *(.bss);\n        *(.ewram_common.*);\n    }\n")
+    if args.tactics:
+        for obj in original_objects:
+            f.write(f"        {obj}(.bss);\n")
+        f.write("        *(.ewram_common.*);\n    }\n")
+        f.write("    gTacticsOriginalRamLimit = ASSERT(. <= 0x0203e000, \"original RAM overlaps tactics\");\n")
+        f.write("    .tactics_ram 0x0203e000 (NOLOAD) : {\n")
+        for obj in tactics_objects:
+            f.write(f"        {obj}(.bss);\n")
+        f.write("    }\n    gTacticsRamLimit = ASSERT(. <= 0x02040000, \"tactics exceeds EWRAM\");\n")
+    else:
+        f.write("        *(.bss);\n        *(.ewram_common.*);\n    }\n")
     f.write("\n    /DISCARD/ : { *(*); }\n}\n")
 
 out = Path("build.ninja")
@@ -304,8 +351,8 @@ with out.open("w") as f:
         "asflags",
         f"{raw_as_flags} -I . -I include",
     )
-    n.variable("asdefines", f"--defsym VERSION_{version.upper()}=1")
-    n.variable("cppflags", f"-nostdinc -undef {include_flags} -I {build_dir}/gen -I tools/agbcc/include -DVERSION_{version.upper()}")
+    n.variable("asdefines", f"--defsym VERSION_{version.upper()}=1" + (" --defsym TACTICS=1" if args.tactics else ""))
+    n.variable("cppflags", f"-nostdinc -undef {include_flags} -I tactics -I {build_dir}/gen -I build/{version}/gen -I tools/agbcc/include -DVERSION_{version.upper()}")
     n.variable("cflags", "-mthumb-interwork -fno-common -O2 -fprologue-bugfix")
     n.variable("pyreport", report_python)
     n.newline()
@@ -321,6 +368,13 @@ with out.open("w") as f:
         description="CC $out",
     )
     n.rule(
+        "tactics_cc",
+        command="$cpp $cppflags -o $out.i $in && $agbcc $cflags -o $out.s $out.i"
+                " && python3 tools/tactics_far_calls.py $out.s"
+                " && $legacy_as $legacy_asflags -o $out $out.s",
+        description="TACTICS CC $out",
+    )
+    n.rule(
         "ld",
         command="$ld -T $ldscript -Map $map -o $out $in",
         description="LD $out",
@@ -332,8 +386,9 @@ with out.open("w") as f:
     )
     n.rule(
         "rom",
-        command=f'$objcopy -O binary --only-section=.text --pad-to=0x0A000000 --gap-fill=0xFF $in $out'
-                f' && python3 tools/gbafix.py $out "{ROM_TITLE}" {code} {ROM_MAKER_CODE}',
+        command=f'$objcopy -O binary --only-section=.text --pad-to=0x0A000000 --gap-fill=0xFF $in $out' +
+                (f' && python3 tools/tactics_native_hooks.py $in $out' if args.tactics else '')
+                + f' && python3 tools/gbafix.py $out "{ROM_TITLE}" {code} {ROM_MAKER_CODE}',
         description="ROM $out",
     )
     n.rule(
@@ -363,9 +418,9 @@ with out.open("w") as f:
     )
     n.rule(
         "check",
-        command=f"python3 -c \"import hashlib,sys; sys.exit(hashlib.sha1(open('{rom}','rb').read()).hexdigest() != '{sha1}')\""
-                f" && cp {rom} {verified}"
-                + " && touch $out",
+        command=(f"python3 tools/check_tactics_rom.py {rom}" if args.tactics else
+                 f"python3 -c \"import hashlib,sys; sys.exit(hashlib.sha1(open('{rom}','rb').read()).hexdigest() != '{sha1}')\"")
+                + f" && cp {rom} {verified} && touch $out",
         description=f"CHECK {rom}",
     )
     n.newline()
@@ -405,7 +460,7 @@ with out.open("w") as f:
         implicit=[ldscript, str(legacy_linker)],
         variables={"ldscript": ldscript, "map": mapfile},
     )
-    n.build(rom, "rom", elf, implicit=["tools/gbafix.py"])
+    n.build(rom, "rom", elf, implicit=["tools/gbafix.py"] + (["tools/tactics_native_hooks.py"] if args.tactics else []))
     n.build(f"{build_dir}/ok", "check", rom, implicit_outputs=[verified])
     n.newline()
 

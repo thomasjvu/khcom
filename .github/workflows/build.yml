@@ -8,8 +8,9 @@ on:
 jobs:
   build:
     if: >
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
+      github.repository == 'Pheenoh/khcom' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository)
 
     container:
       image: ghcr.io/pheenoh/khcom-build:main

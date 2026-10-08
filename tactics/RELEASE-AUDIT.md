@@ -1,0 +1,116 @@
+# Verified 0.41 release
+
+The Aladdin package applies byte-identically to ROM SHA256
+`1f52bcd88993a08ef318a9ba72ea19b7c410e181a113d8911e1a040597ca519d`.
+655 scoped native checks pass, including original-party movesets, all six heroes'
+sleights, Aladdin recruitment/recovery, whole-roster saves and actual format-12
+import/rewrite/reboot. Three consecutive input-only campaigns pass at frames
+314381, 656291 and 909264. Every campaign verifies all 36 rooms, nine chests,
+Cloud/Aladdin recruitment and deployment, native suspend/reset and composed
+descent, then stable terminal floor/health for 120 frames. Two native retries
+advance seeds. Actual frontend exit0 and exact ROM/driver/log hashes are verified.
+Strict C89 ASan/UBSan host suite and all 15 read-only replay policy tests pass.
+See [0.41 notes](ALADDIN-0.41.md) and the exact manifest under build/release.
+The final requirement, source, evidence, visual and packaging audit passes.
+
+## Requested behavior: current 0.41 evidence
+
+| Requirement | Current proof | Remaining gate |
+| --- | --- | --- |
+| Fork, native GBA hack and usable patch | Fork/draft PR1; reproducible native target; 99,644-byte BPS applies byte-identically | PASS: verified patch and current instructions |
+| Original 2.5D world and procedural biome maps | Native renderer/collision/height; original scene/sprite/card screenshots; all 36 rooms in three complete current campaigns | PASS: three complete current campaigns |
+| Controllable Sora/Donald/Goofy with distinct movesets | Independent HP/budgets; Donald magic/healing/revival17; Goofy spin/Guard26; Party menus17; six-hero recipes72 | PASS: current source and exact-build checks audited |
+| Fight/recruit Cloud and broader boss reward choices | Natural Cloud fight/recruit/deploy; two Cloud choices38; Jafar recruit/power64; natural Aladdin recruit/deploy | PASS: three complete current campaigns |
+| Rally integrated from custom assets | Native card/roster; current cast/hurt/climb12 and eight-direction commands19; native menus/save | PASS: current native captures inspected |
+| Typical tactical menus and unobtrusive UI | Single-stroke font; 18+16 idle, 40+16 Commands, 56+16 details; Party17, End Turn8+13, eight-direction commands37 | PASS: current native captures inspected |
+| Visible party/enemy phase order | Actual rendered spare-row checks during Party/Attack/End Turn; exhausted/KO filtering in native source | PASS: current source and exact-build checks audited |
+| Movement tiles, ledges, heights, doors and chests | Projected costs/cancel/occupancy/stairs/descent113; route/refunds33; original pad landing9; three current all-room/nine-chest campaigns | PASS: three complete current campaigns |
+| Original cards, stock/sleights/reload and personal rewards | Six-hero area recipes72; reload11; personal reward14 and capped/owned choices7 | PASS: current source and exact-build checks audited |
+| Varied encounters and original bosses | Seeded role/height host checks; current Guard Armor40, Jafar64, Marluxia30, Cloud38; three complete campaigns | PASS: three complete current campaigns |
+| Suspend and compatibility | Whole six-hero alternating/corrupt-slot checks12; actual format-12 native import/rewrite/reboot7; Aladdin save14; campaign suspend/reset | PASS: three campaigns and two native retries verified |
+| Complete-run emulator verification | Current input-only all 36 rooms/nine chests/both recruits/suspend/descent PASS314381/656291/909264, actual frontend exit0 | PASS: three complete current campaigns |
+
+Aerith/Tifa were optional suggestions. Aerith resources exist; no Tifa resources
+were found. Neither is implemented. Cloud and Aladdin provide verified recruitable
+allies beyond the starting party. Physical cartridge testing is optional. Focused
+fixtures do not establish universal physical reachability for every possible seed.
+
+The entries below describe predecessor builds and must retain their version scope.
+
+# Current release audit
+
+Current packaged0.40 development phase-strip ROM SHA256 `a01f555dff42d1146ffa3e7ca044d3c06d4c6305450790342a67726a6eb11c33` passes516 scoped native checks: Sora/Rally confirmation aiming37, End Turn13, one original jump-pad confirmation9, Party selector17, Donald healing/revival/save17, Goofy spin/Guard26, Cloud sword9, Guard Armor40, Jafar25, Marluxia30, five-hero area recipes60, Rally states12, personal reward14 and save fallback12. Ready-party/enemy order now remains visible in the spare row of detailed menus with no panel-height increase. Exact VRAM/window/landing checks, process exit0 and hashes verified. The101 earlier checks below remain predecessor-scoped. The predecessor all-room sweep exited0 with a driver snapshot IO error141782; zero complete runs were verified. The filesystem reason was not captured, and this does not establish a gameplay pass/failure. BPS98,597 bytes applies byte-identically. Current-ROM sweep87441 passes all three all-room/nine-chest campaigns892349; frontend exits0 with matching ROM/driver/log hashes and native recruitment, save/reset, composed descent and retry coverage. Final gameplay, content and release verification are incomplete.
+
+Previous unpackaged native ROM SHA256 `ae159d5bbfc1519a77e2d3679a65638d498add95f16bba9e3caa70f4cc409e8a`. Exact-ROM focused checks pass101: Sora/Rally eight-direction command aiming35, consecutive sword damage/card break12, ready-party/enemy phase strip6 and contextual End Turn12, three original jump pads24 and ordinary Move/Jump12. Actual rendered VRAM/window bounds and input-driven confirmation/cancel verified; setup fixtures disclosed. Frontends exit0 with matching ROM/driver/log hashes. That ROM’s three-seed all-room/chest sweep stopped at a diagnostic IO error141782, frontend exit0; complete gameplay coverage remains unproven. All three pad landings and ordinary jump landings match native execution exactly on this current ROM; forecasting preserves budgets and spent actions block confirmation.
+
+The predecessor sword-hit-gate ROM completed two all-room campaigns300977/639960, then failed900001 on third-seed Castle room5. Source enum diagnosis: state6 is CLIMB. Corrected explorer reaches the connected stair endpoint and original room6 exit in a disclosed isolated saved-position fixture PASS6632. This driver fix does not establish a complete third campaign. Final visual/content/recruit/balance audit and current release packaging remain open.
+
+Current packaged0.39 ROM SHA256 `35953e2f0493cfd1e6e1c14bef9cda3d10c1e7974210c569ca6f0ca955349572`. It passes79 exact-ROM scoped native checks (12 stair forecasts,7 ledge forecasts,60 five-hero area recipes) and three native campaigns PASS379750, frontend exit0. BPS application matches the build byte for byte. The three-seed all-room/chest sweep failed900001 in second-run Agrabah room11; universal navigation and final visual/content polish remain unproven. See [0.39 notes](JUMP-PREVIEW-0.39.md). Earlier evidence below is version-scoped.
+
+Previous packaged0.38 ROM SHA256 `2d438556ac07c2e9340f6c9591d6435413bc42e5174ed0321e3dc8fe1688c7af`.
+It passes540 scoped native checks:95 menu/party/recipes,114 bosses/Cloud,
+113 height previews,58 rewards/deployment,52 companion combat,56 party/SRAM
+and52 Rally actions/states/directions. Three-run PASS379646, frontend exit0.
+Initial aggregate180000-frame
+attempt failed180001 and is retained. Current-ROM all36/nine-chest campaign PASS253238, frontend exit0. Skills-strip predecessor passes all36/nine chests253238;
+that result is version-scoped. Final gameplay/visual audit remains open.
+
+Previous packaged0.37 adds compact
+charged-attack warnings, SHA256
+`f92bc47131331b1eb168b5b668b6e14c7ebbe8edc6c3457bb1c97c8b8b1e6a2d`. It passes304 scoped native checks (58 UI,114 boss/Cloud,44 party,12 SRAM,
+14 Rally action,12 Rally state and50 card-recipe fixtures). Three-run
+PASS434168 (process exited0). Fresh all-room/nine-chest run PASS253238
+(process exited0) with group finishing-target policy. Earlier native defeats
+137348 and their diagnostics remain preserved.
+
+Earlier packaged0.36 ROM, SHA256
+`27acd304ee14ab79fd4e1892d0cb5bb807b2adde0dd093245d2c8876c7b29950`.
+It passes342 scoped native checks (40 UI,17 Donald healing,26 Goofy
+moves/menus/Guard,89 boss,57 reward and113 height-preview fixtures). All-room/nine-chest campaign passes295578 on this exact ROM; revised three-run
+campaign passes448492, with required native descent/reset/recruitment each.
+Earlier policy failure444879 remains preserved.
+Historical packaged0.37 (warning hash above); finishing-Fire
+all-room replay92308 also failed137348. Decision-time diagnostic50504
+repeated the failure; reason diagnostic30946 also failed137348. Earlier0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
+passes51 scoped checks, two campaigns327681 and all36/nine chests295578.
+Earlier0.34 two runs PASS288347 and its all-room defeats130336/134022 remain
+version-scoped. Earlier0.33 all-room PASS281892 is likewise historical.
+This audit concerns the requested complete game. Historical entries in PLAN.md
+describe earlier versions; current evidence wins.
+
+## 0.35 compact Commands development pass
+
+Current native ROM `1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f` has 51 passing scoped native checks (26 input-only
+UI/save, 19 disclosed companion combat fixtures, six rendered turn-strip fixtures). Commands occupies 40 pixels
+at the top plus the 16-pixel bottom strip; phase order remains visible in the
+menu. This is a development build, with two-run and all-room completion on its exact
+ROM. The previously pending 0.34 recovery-policy all-room replay failed by
+native party defeat at134022. Full polish/release scope remains open.
+
+Group finishing-Fire replay now considers the weakest eligible foe among multiple enemies, cycles native targets when needed, and only attacks when the actual native damage forecast confirms a kill. No native game rules or HP changed. Policy regression checks pass. Fresh current-ROM all-room run PASS253238; terminal process exit0 and ROM/driver/log hashes verified. Driver requires all36 room visits, nine chests, Cloud recruitment/deployment, exact suspend/reset and composed descent. Evidence: build/tactics-us/charge-warning-group-finisher-all-rooms-evidence. Earlier failed attempts remain retained. Final polish remains open.
+
+Current0.37 exact-ROM recipe verification: 50 native checks PASS (14 mixed-stock/save/reload/cancel,11 multi-target range/height,16 Curaga/Triple Key,9 recipe suspend/reset). Explicit initial card/HP/enemy-position fixtures; stocking/save/play use native inputs. Each process exited0 and ROM/driver/log hashes verified. Complete evidence: build/tactics-us/charge-warning-recipes-complete-evidence. Initial800-frame mixed-stock run was incomplete before final880-frame cancel check and remains preserved; complete1000-frame run passes14. Scoped native total now304. Other hero/recipe combinations and visual review remain open.
+
+Skills turn-strip polish: native source now keeps the available-party/controlled-marker/enemy-phase list visible in Skills, replacing a redundant control row. Footer includes A Next, B Back and one-action cost; no extra HUD height. Current ROM SHA256 59a8670fa43268e7cdd2e85895ec862192ba0e6f4c32827ebb5b200f643e00c7. Input-only native deployment/menu/save replay PASS29, process exit0 and hashes verified; skills screenshot inspected. Fresh all-room/chest/reset/recruit/descent campaign session73310 live. Prior0.37 304 checks and complete campaigns remain scoped to previous f92 hash; this source change is not yet fully campaign-verified.
+
+Skills-strip exact current ROM: additional native Party14, Reload11, Target23, Attack10 and Jump10 checks PASS68. Each bounded process exited0; exact ROM/driver/log hashes and expected counts verified. Party uses native input only; other fixtures disclose health/cards/enemy placements before native input execution. Together with input-only menu29, current scoped UI/menu total97. Party and Cure target native captures inspected; no center-field obstruction. Party movement-point label MP is ambiguous and remains a concrete wording fix. Full-route73310 remains live (last observed87322), not yet a current-build campaign pass.
+
+Party menu clarity: movement budget now explicitly reads MOVE instead of ambiguous MP, alongside HP and ACT. Same panel geometry and independent native budgets. Exact current ROM 2d438556ac07c2e9340f6c9591d6435413bc42e5174ed0321e3dc8fe1688c7af; input-only Party replay PASS16 with actual native VRAM labels for Sora, Rally and Goofy, native move/switch persistence, exit0 and hashes verified. Native party screenshot inspected for clipping. Previous Skills-strip all-room73310 remains live; its ROM predates this label edit and evidence remains version-scoped.
+
+0.38 Skills/Party UI development package: 96242-byte BPS apply verified byte-identical; exact current ROM 2d438556ac07c2e9340f6c9591d6435413bc42e5174ed0321e3dc8fe1688c7af. Current native checks PASS95 (Party16, menus29, recipes50), terminal processes/hashes verified. Earlier Skills-strip all-room73310 finalized PASS253238/exit0; this precedes MOVE label and stays version-scoped. Current three-run31013 remains live. Development package is not final polish proof.
+
+0.38 native boss/Cloud verification PASS114: Guard Armor40, Jafar25, Marluxia30, Cloud recruit19. Exact ROM/driver/log hashes and expected checks verified; all four bounded processes exit0. Disclosed initial encounter/health/position/charge fixtures, then native attack/Guard/phase/save/reset/reward input. Includes rendered charged-warning text, range/height, multipart phases, original actor/card allocation restoration. Current scoped total209; three-run31013 still pending.
+
+0.38 height previews PASS113: base32, multi25, actor occupancy15, top14, descent/walk27. Native generated-stair placement fixtures disclose position/blockers; preview/cancel/costs and original controller/save/reset execution checked. Exact ROM/driver/log hashes and exit0 verified. Scoped current total322. Initial three-run31013 script FAIL180001 because aggregate --frames was180000 rather than prior540000; not native defeat. Its frontend still live at last poll and failure retained. Corrected aggregate-limit replay59790 live, unchanged native ROM/requirements. CLI help now explicitly explains aggregate frames and validation wording.
+
+Current0.38 reward checks PASS40 (availability7, personal Donald power14, Cloud alternate-power19), exact hashes/exit0 verified. Cloud deployment18 fixture fails multiple assertions; retained without PASS claim, requires source/fixture diagnosis. Current proven scoped total362. Disk cleanup removes only identical current-ROM copies from completed PASS fixtures; metadata/scripts/saves/logs/screenshots and canonical build/release ROMs retained. Campaign59790 live.
+
+Cloud deployment fixture repaired for five heroes: preserve Rally unlock31, native cycle through Rally to Donald, restore Goofy through native assembly controls before recruiting/deploying Cloud; persisted Donald HP/action/facing offsets20/30/35. Complete restored-Goofy replay PASS18, exit0/hashes verified, current scoped total380. Original and intermediate failures retained. Native game rules unchanged; current three-run59790 remains live.
+
+Current0.38 companion checks PASS52: Donald healing/revival/bonus/save17, Goofy spin/Guard menus26, Cloud native sword/action/recovery9. Exact ROM/driver/log hashes verified, all processes exit0; explicit card/health/enemy fixtures disclosed. Current scoped total432. Three-run59790 remains live. Audit opening now distinguishes current build from historical campaign evidence.
+
+0.38 current-ROM three-run script PASS379646: victories130570/259594/379526 HP75/74/73, stable120 frames each; actual per-run recruitment/deployment, exact reset and composed descent required. ROM/driver/log hashes verified; frontend59790 still live, no exit claim. Fresh exact-ROM all36/nine-chest replay81924 live. Additional native party-state44 and alternating SRAM12 checks PASS56, bounded exit0/hashes verified; corrupt-newest fallback explicitly disclosed. Current scoped total488.
+
+Current0.38 Rally checks PASS52:14 input-only action/air,12 disclosed native hurt/cast/climb,26 input-only directional facing. Hashes/counts/exit0 verified; encoded30-frame/six-state fixed-feet/palette asset checks pass using system python3 (venv lacks Pillow). Scoped current total540. Three-run59790 frontend exit0 confirmed; metadata finalized PASS379646. Exact current-ROM all36/nine-chest81924 remains live.
+
+Current0.38 all-room81924 PASS253238 and terminal exit0 confirmed. Exact ROM/driver/log hashes verified; all36/nine chests, actual Cloud/redeploy, exact suspend/reset and composed descent required by input-only driver. Current540 scoped checks and three-runPASS379646 remain verified. Next concrete gameplay gap: Jump menu explicitly says NO LANDING PREVIEW; moving jump spends one movement/action and uses original physics. Requested reachable overlay still lacks jump destination/connection prediction. Implement faithful prediction from native collision/velocity/controller limits, verify actual landings/obstructions/heights/cancel/costs; do not replace with guessed guaranteed tiles. Final goal remains active.

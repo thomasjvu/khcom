@@ -1,0 +1,13 @@
+name: Tactics rules
+on:
+  push:
+    paths: ['tactics/**', 'tests/tactics*', 'tests/test_tactics_*.py', 'tools/tactics*.py', 'tools/test_tactics.sh', '.github/workflows/tactics.yml']
+  pull_request:
+    paths: ['tactics/**', 'tests/tactics*', 'tests/test_tactics_*.py', 'tools/tactics*.py', 'tools/test_tactics.sh', '.github/workflows/tactics.yml']
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: sh tools/test_tactics.sh
+      - run: python3 -m unittest discover -s tests -p 'test_tactics_*.py'

@@ -1,0 +1,22 @@
+{
+  "name": "Rally",
+  "source": "tactics/character-assets/pink-ponytail/starter-sheet-v2.png",
+  "source_sha256": "8fb41e90ee10b8cc439d5cbe3dc8b10fc78d359b8a2ce60e0bc6d36b280875b8",
+  "actions_source": "tactics/character-assets/rally/action-source-v1.png",
+  "actions_sha256": "82256c50c76298cee121e1f9513cce17d294b9cd3179ec775fdbeaa7779cf0dc",
+  "frames": 30,
+  "cell": [
+    32,
+    64
+  ],
+  "foot_anchor": [
+    16,
+    56
+  ],
+  "palette_entries": 16,
+  "tiles_bytes": 30720,
+  "limitations": [
+    "Opposite-facing draft rows are inconsistent; front/back pair is mirrored for right-facing animation.",
+    "Right-facing action and walking banks mirror the authored front/back pair; separate hurt/climb art remains needed."
+  ]
+}

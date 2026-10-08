@@ -1,0 +1,76 @@
+#include "field_jump.h"
+static int magnitude(int value) { return value < 0 ? -value : value; }
+void FieldJumpMotionInit(FieldJumpMotion* m, int x, int y, int z,
+                         int originX, int originY, int speed) {
+    m->x=x; m->y=y; m->z=z; m->originX=originX; m->originY=originY;
+    m->speed=speed; m->velocity=0; m->timer=0; m->phase=0;
+    m->padActive=0; m->padX=m->padY=m->padTargetZ=0;
+}
+void FieldJumpPadInit(FieldJumpMotion* m, int padX, int padY, int targetZ) {
+    m->padActive=1; m->padX=padX; m->padY=padY; m->padTargetZ=targetZ;
+}
+void FieldJumpMotionStep(FieldJumpMotion* m, int sine, int cosine,
+                         int moving, int ground) {
+    if (m->phase==3) return;
+    /* Native tactical controller stops speed before the original update. */
+    if (m->phase!=4 && magnitude(m->x-m->originX)+2*magnitude(m->y-m->originY)>=8192)
+        { m->speed=0; moving=0; }
+    if (m->phase==0) {
+        if (!m->timer) m->speed >>= 1;
+        m->x += sine*m->speed >> 8;
+        m->y += -cosine*m->speed >> 8;
+        if (m->timer>3) {
+            if (m->padActive) { m->phase=4; m->timer=0; }
+            else {
+                m->phase=1; m->velocity=-1331; m->speed <<= 1; m->timer=0;
+                m->z += m->velocity; m->velocity += 66;
+            }
+        } else m->timer++;
+    } else if (m->phase==4) {
+        /* Original launcher pulls toward its collider center, then advances
+         * in the pad's direction before handing back to ordinary falling. */
+        if (!m->timer) { m->velocity=-2048; m->speed=0; }
+        if (m->velocity>-768) {
+            m->speed=384;
+            m->x += sine*m->speed >> 8;
+            m->y += -cosine*m->speed >> 8;
+        } else {
+            m->x += (m->padX-m->x) >> 3;
+            m->y += (m->padY-m->y) >> 3;
+        }
+        m->velocity=(m->padTargetZ-(m->z+3840)) >> 3;
+        m->z+=m->velocity; m->velocity+=66;
+        if (m->velocity>=0) { m->phase=2; m->timer=0; }
+        else m->timer++;
+    } else {
+        if (moving) { m->speed+=17; if (m->speed>512) m->speed=512; }
+        else { m->speed-=38; if (m->speed<0) m->speed=0; }
+        m->x += sine*m->speed >> 8;
+        m->y += -cosine*m->speed >> 8;
+        m->z += m->velocity; m->velocity+=66;
+        if (m->phase==1 && m->velocity>0) m->phase=2;
+        else if (m->phase==2 && m->z>ground) {
+            m->z=ground; m->velocity=0; m->phase=3;
+        }
+    }
+}
+
+void FieldJumpMotionWall(FieldJumpMotion* m, int previousX, int previousY,
+                         int ground) {
+    m->x=previousX; m->y=previousY;
+    /* Falling well above the floor probes a ledge without speed damping. */
+    if (m->phase!=2 || ground-m->z<=4095) m->speed=230*m->speed >> 8;
+}
+
+int FieldJumpTerrainCheck(FieldJumpPoint* point, FieldJumpGround ground,
+                           FieldJumpBlocked blocked, void* context) {
+    FieldJumpPoint up, down;
+    int lo, hi;
+    up=*point; down=*point; up.y-=1536; down.y+=1536;
+    lo=ground(&up,context); hi=ground(&down,context);
+    if (lo>up.ground) up.ground=lo;
+    if (hi>down.ground) down.ground=hi;
+    if (blocked(&up,context) || blocked(&down,context)) return 1;
+    point->ground=hi>lo ? lo : hi;
+    return 0;
+}
