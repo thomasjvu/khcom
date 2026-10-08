@@ -32,9 +32,12 @@ either companion. Every second unique room clear grants a personal upgrade.
 Original cards support explicit Fire/Cure targets,
 matching-type sleights and three-card chest reward choices. Palette budgets
 keep party, card artwork and value digits visible beside generated scenery.
-The earlier 0.19 ROM completes a fresh-SRAM input-only replay through all twelve
-rooms per world, nine chest opens, Cloud recruitment/deployment and suspend/reset. World exits rest
-the recruited roster, including benched heroes. Broader current-ROM seeds and hardware remain unverified.
+The current 0.32 ROM completes separate fresh-SRAM input-only main-route and
+all-room campaigns: all twelve rooms per world, nine chest opens, Cloud
+recruitment/deployment, height-route execution and exact suspend/reset. World
+exits rest the recruited roster, including benched heroes. Broader seeds remain
+under test. See [native validation](tactics/HEADLESS-VALIDATION.md) for exact
+ROM hashes, coverage and retained failures.
 Physical room reachability guarantees, complete climb/jump navigation,
 additional recruits and content/polish remain unfinished.
 Development patch notes: [0.20 climb routes](tactics/CLIMB-ROUTES-0.20.md). Native stairs use one movement point per sixteen-pixel

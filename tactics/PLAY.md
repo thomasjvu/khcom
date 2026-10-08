@@ -33,13 +33,22 @@ bonuses (4 means the matching recipe has its personal enhancement). The footer
 explains the highlighted character's role. A confirms the party and begins with
 that hero selected. Summon cards assemble the party during setup.
 
+The normal HUD occupies 18 pixels at the top and 16 at the bottom of the
+160-pixel screen. Its turn strip lists available living party members, marks
+the controlled hero with X, then shows ENEMIES. Party actions can be taken
+in any order; enemies act together after End Turn. Exhausted heroes leave
+the ready list. During enemy resolution, ENEMIES comes first. Commands and
+rewards open a 56-pixel contextual panel; B backs out before confirmation.
+
 Each member has three movement points and one action per turn. A jump consumes
 an action and a directional jump also consumes movement. Holding a direction
 commits one command; release and press again for the next. A completely blocked
 step refunds its movement point. Sora has 80 HP, Donald 56 and Goofy 72. Sora
 falling ends the run. Knocked-out friends are skipped by selection until
-Cure, a chest, or the rest after a world boss revives them. The footer shows all three health pools and a NEXT damage estimate for
-each member before ending the turn. This estimate uses current positions;
+Cure, a chest, or the rest after a world boss revives them. Open Commands →
+End Turn to inspect all three health pools, remaining movement/actions and
+expected incoming damage before confirming. HIT is expected damage. This
+estimate uses current positions;
 later enemies can retarget if an earlier attack knocks out a member.
 
 Walking previews show movement costs using the original card-value digits on
@@ -110,7 +119,7 @@ counts persist. World groups mix Shadow, ranged Red Nocturne, Darkball and
 Black Fungus. Regular cohorts use two enemy palettes per room, with room seeds varying the pair. Optional props use a limited palette budget so party, card art and value digits can remain visible. Traverse Town room 7 has a solo Guard Armor with 40 HP, rendered
 using its original seven animated sprite components. A charged slam raises its hands and crouches; impact lowers the hands before returning to idle. Its warned slam reaches
 80 pixels for 10 damage. At 26 HP the far hand breaks, reducing reach to 64 pixels and damage to 8. At 13 HP both hands are gone, leaving a 48-pixel body strike for 6 damage. The warning names the current attack and reach. These are custom tactics phases. Agrabah now has a solo sorcerer Jafar with 48 HP, using his original field and lamp artwork. He charges a single-target spell reaching 96 projected pixels and 32 pixels of height for 10 damage; equally reachable targets prefer Sora, then Donald, then Goofy. Moving out of reach or playing Guard defends against it. This is a custom tactics form, rather than a port of the original giant Genie battle. Castle Oblivion has solo humanoid Marluxia with 56 HP, using original battle idle, windup and scythe attack animations. Within 112 projected pixels and 32 pixels of height he spends a decision charging. His next decision sweeps all living members within 96 horizontal pixels, 16 pixels of projected depth and 24 pixels of height. The sweep deals 10 damage, increasing to 14 at 28 HP or less. Move out during the warning or play Guard. Incoming damage uses original
-value digits above threatened characters as well as the NEXT footer. The
+value digits above threatened characters and the End Turn confirmation. The
 warning is based on current positions; it updates as the party moves.
 
 Clear the room-7 encounter and leave through its far
