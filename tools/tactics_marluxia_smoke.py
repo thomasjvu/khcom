@@ -11,7 +11,7 @@ for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitl
     parts=line.split()
     if len(parts)==3:names[parts[2]]=int(parts[0],16)
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
-keys=('gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
+keys=('gNativeAssembly','gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
  'gNativeMarlReady','gNativeMarlPose','sMarlTiles','sMarlPalette',
  'gNativeEnemyHp','gNativeEnemyCharge','gNativeThreats','gNativePartyHealth',
  'sEnemyTasks','sPartyPos','gNativeSaveNotice','gNativeGuard','gNativeDeck',

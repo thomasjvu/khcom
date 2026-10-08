@@ -1,4 +1,5 @@
 local f=0
+local assemblyHeld=false
 local out=io.open('@OUTPUT@/boss.txt','w')
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 local function transition(room)
@@ -22,6 +23,9 @@ local function cards()
 end
 callbacks:add('frame',function()
  f=f+1
+ -- These encounter fixtures still deploy every room through native input.
+ if emu:read16(gNativeAssembly)~=0 then emu:setKeys(1);assemblyHeld=true
+ elseif assemblyHeld then emu:setKeys(0);assemblyHeld=false end
  if f==180 then transition(7) end
  if f==320 then
   -- Forced floor advancement is fixture setup, not complete-run proof.
@@ -77,7 +81,10 @@ callbacks:add('frame',function()
   emu:write16(gNativeEnemyHp,1);emu:write8(gNativeDeck+73,1);place(64,0,0);emu:setKeys(1)
  end
  if f==1734 then emu:setKeys(0) end
- if f==1820 then check(emu:read16(gNativeEnemyHp)==0 and emu:read32(sEnemyTasks)==0,'native Fire defeats Jafar and releases field task');transition(0) end
+ if f==1820 then check(emu:read16(gNativeEnemyHp)==0 and emu:read32(sEnemyTasks)==0,'native Fire defeats Jafar and releases field task') end
+ if f==1850 then emu:setKeys(1)end
+ if f==1854 then emu:setKeys(0)end
+ if f==1880 then transition(0)end
  if f==1970 then
   out:write('EXIT ready '..emu:read16(gNativeJafarReady)..' room '..emu:read8(gMapFloorState+6)..'\n')
   for i=0,3 do out:write('CARD '..i..' '..emu:read32(sCardTiles+i*4)..' '..emu:read32(sCardPalettes+i*4)..'\n') end

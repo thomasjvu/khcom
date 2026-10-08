@@ -2,9 +2,10 @@
 
 Current source ROM adds column navigation, SHA256
 `27acd304ee14ab79fd4e1892d0cb5bb807b2adde0dd093245d2c8876c7b29950`.
-It passes83 scoped native checks (40 UI,17 Donald healing and26 Goofy
-moves/menus/Guard fixtures). All-room/nine-chest campaign passes295578 on this exact ROM; three-run
-campaign has completed two seeds and is still live on the third.
+It passes172 scoped native checks (40 UI,17 Donald healing,26 Goofy
+moves/menus/Guard and89 boss fixtures). All-room/nine-chest campaign passes295578 on this exact ROM; three-run
+campaign ended FAIL444879: third stable victory missed required composed
+descent; first two seeds completed.
 Latest packaged0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
 passes51 scoped checks, two campaigns327681 and all36/nine chests295578.
 Earlier0.34 two runs PASS288347 and its all-room defeats130336/134022 remain
@@ -25,7 +26,7 @@ describe earlier versions; current evidence wins.
 | Turn order visible | Available party members then enemy phase; freely ordered party actions; forecast before ending | Six native VRAM checks cover ready, exhausted, KO, fully exhausted and enemy phases; wider combinations remain |
 | Movement tiles, heights, chests, doors | Native projected previews, costs, cancel, collision execution, composed descent; all-room nine chest campaign | Wider seeds and combined ledge/jump route discovery |
 | Card combat and sleights | Original artwork, draw/discard/reload, three-card sleights, targeted Fire/Cure/Guard; host/native tests | Current-ROM review of each character/recipe combination |
-| Bosses and roguelike rewards | TT Guard Armor, Agrabah Jafar, Castle Marluxia; completed campaigns; personal power/sleight rewards, Cloud summon-or-power choice | Balance and reward variety; additional recruit bosses |
+| Bosses and roguelike rewards | TT Guard Armor, Agrabah Jafar, Castle Marluxia; completed campaigns; personal power/sleight rewards, Cloud summon-or-power choice | Current boss mechanics/resource/pose fixtures89 pass; visual review, balance and reward variety remain |
 | Suspend saves | Current native alternating slots/reset/corrupt-newest fallback12 checks, exact saves in both complete campaigns | Multi-seed replay with reset/retry |
 | Verified complete runs | 0.34 two-seed PASS288347; 0.33 all36/nine chests PASS281892 | 0.35 two runs PASS327681 and all36/nine chests PASS295578; final broader polish audit remains |
 

@@ -1443,3 +1443,21 @@ PASS295578. All three room masks4095, nine chests, Sora80 HP stable120,
 Cloud fight/recruit/deploy, exact suspend/reset and composed descent. ROM/
 driver/log hashes verified. Session81749 remains live after two completed
 seeds, now running the third; three-run completion is not yet proven.
+
+## Current native boss review
+
+Exact command-column ROM boss fixtures pass89 checks: Guard Armor37,
+Jafar24, Marluxia28. Deployment now happens by native A input in every room.
+Old fixtures stopped in assembly and failed; intermediate failures retained.
+Guard Armor waits bounded180 video callbacks for the original break spark to
+expire while authoritative enemy decisions remain frozen. Jafar/Marluxia
+confirm native boss power rewards before testing resource release on exit.
+Marluxia floor setup no longer pre-clears Agrabah's boss before entering it,
+which previously triggered an unconfirmed reward and blocked advancement.
+Native game code unchanged. Exact hashes/logs recorded. Total scoped checks172.
+
+Three-run session81749 exited0 but script FAIL444879: third seed1018315455
+reached victory444759 HP80 stable120, actual Cloud recruit/deploy and exact
+suspend/reset stage3, but composed descent count0. First two complete129417/
+327681. No three-run completion is claimed; missing route execution needs
+replay investigation. All-room PASS295578 on the same ROM remains valid.

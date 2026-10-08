@@ -1,5 +1,7 @@
 local f=0
+local assemblyHeld=false
 local breakTurn=0
+local effectWait=0
 local out=io.open('@OUTPUT@/boss.txt','w')
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 local function place(distance,height)
@@ -25,6 +27,9 @@ local function place(distance,height)
 end
 callbacks:add('frame',function()
  f=f+1
+ -- These encounter fixtures still deploy every room through native input.
+ if emu:read16(gNativeAssembly)~=0 then emu:setKeys(1);assemblyHeld=true
+ elseif assemblyHeld then emu:setKeys(0);assemblyHeld=false end
  if f==180 then
   local ready=emu:read32(sValueTiles)~=0 and emu:read32(sValuePalette)~=0
   for i=0,3 do ready=ready and emu:read32(sCardTiles+i*4)~=0 and emu:read32(sCardPalettes+i*4)~=0 end
@@ -107,6 +112,9 @@ callbacks:add('frame',function()
  if f==1150 then
   check(emu:read16(gNativeBossBreaks)==1 and emu:read16(gNativeBossEffects)==1,'native Fire breaking armor starts original spark effect')
   emu:screenshot('@OUTPUT@/armor-break-spark.png')
+ end
+ if f==1180 and emu:read16(gNativeBossEffects)~=0 and effectWait<180 then
+  effectWait=effectWait+1;f=f-1;return
  end
  if f==1180 then
   check(emu:read16(gNativeBossEffects)==0,'original break spark expires while enemy AI remains frozen')
