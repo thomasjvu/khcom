@@ -1542,3 +1542,20 @@ position61618,131108,36864; Cloud13/Donald5 HP; one enemy12 HP at projected
 finishing the enemy. Preserve this failure; investigate lethal-card selection
 and navigation rather than treating it as a successful campaign or altering
 health. Three-run session84597 is still live.
+
+## Current warning-ROM complete campaigns and finishing decision
+
+Three-run session84597 exited0 and PASS434168 on exact warning ROM: stable
+victories129518/311898/434168 HP76/76/80; native retries129530 and311910.
+Per-run actual Cloud recruit/deploy, exact suspend/reset and composed descent
+verified; ROM/driver/log hashes finalized. Packaged0.37 development patch
+applies byte-identically, manifest and CHARGE-WARNING-0.37.md record scope.
+
+Replay now selects the lowest-value legal Fire that finishes the last enemy,
+matching raw-plane range<128px, height<=24px, native floor card-break threshold
+and Sora power. Actual native target/damage must confirm before playing.
+It only overrides healing/Guard when the remaining enemy can be removed.
+Read-only tests cover lethal prediction, native confirmation, range, height,
+breaks and multiple enemies; all15 policy files pass. Fresh all-room session
+92308 is pending; prior native defeat137348 remains retained. No game health,
+damage, save or movement rules changed by this driver policy.

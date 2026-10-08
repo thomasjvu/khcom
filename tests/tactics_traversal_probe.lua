@@ -214,6 +214,33 @@ local function healingRecipient(x,y,z)
  end
  return target
 end
+-- Prefer removing the last enemy when a native Fire card can finish it.
+-- Match native raw-plane range, height, card-break threshold and Sora power.
+local function finishingFireSlot(x,y,z)
+ if emu:read16(gNativeParty)~=0 then return nil end
+ local lone=nil
+ for i=0,5 do
+  local task=emu:read32(sEnemyTasks+i*4)
+  if task~=0 and emu:read16(gNativeEnemyHp+i*2)>0 then
+   if lone then return nil end
+   lone={slot=i,work=emu:read32(task+4),hp=emu:read16(gNativeEnemyHp+i*2)}
+  end
+ end
+ if not lone then return nil end
+ local w=lone.work;local ez=signed(emu:read32(w+16))
+ local distance=math.abs(signed(emu:read32(w+8))-x)+math.abs(signed(emu:read32(w+12))-(y-z))
+ if distance>=32768 or math.abs(ez-z)>6144 then return nil end
+ local slot=0;local choice,value=nil,nil
+ for i=0,emu:read8(gNativeDeck+72)-1 do
+  if emu:read8(gNativeDeck+48+i)==1 then
+   local v=emu:read8(gNativeDeck+24+i)
+   if emu:read8(gNativeDeck+i)==1 and (v==0 or v>=3+emu:read16(gNativeFloor)) and
+      6+v+emu:read8(gNativeRoster+4)>=lone.hp and (not value or v<value) then choice,value=slot,v end
+   slot=slot+1
+  end
+ end
+ return choice,lone.slot,lone.hp
+end
 local function combatInput()
  local x,y,z=pos();local near=false
  for i=0,5 do
@@ -226,6 +253,11 @@ local function combatInput()
  end
  if emu:read16(gNativeActionLeft)==0 then return nil end
  local hand={};local wanted=nil;local healing=false
+ local finishSlot,finishTarget,finishHp=finishingFireSlot(x,y,z)
+ if finishSlot then
+  if emu:read8(gNativeDeck+73)~=finishSlot then return 256 end
+  if emu:read16(gNativeFireTarget)==finishTarget and emu:read16(gNativeFireDamage)>=finishHp then return 1 end
+ end
  local healTarget=healingRecipient(x,y,z)
  for i=0,emu:read8(gNativeDeck+72)-1 do
   if emu:read8(gNativeDeck+48+i)==1 then
