@@ -406,3 +406,21 @@ byte-exact round-trip verified, with37 focused native checks (23 targeting/
 sleight fixtures plus14 input-only Rally/menu/save checks). Manifest preserves
 exact ROM/patch/driver/log hashes and the failed full-run scope. Release notes:
 `tactics/TARGET-MENU-0.25.md`. Full goal remains unfinished.
+
+### Command availability build campaign audit
+
+Native source b9e04eab1 shows command explanations and availability without
+mutating the hand. A fresh-SRAM input-only three-world replay with Cloud,
+required suspend and composed descent retains its 120000-frame bound. It
+recruits Cloud at15050, deploys at17529, saves at17543 and verifies exact resume
+at17873. Traverse Town completes at34429 and Agrabah at81033. Castle room5
+is entered at107734, room6 at113757 and boss room7 at117243. The replay ends
+FAIL120001 in room7 (14kills,846movement commands), before victory. This is
+stronger current-build campaign coverage but still incomplete, not a release
+gate pass. The immutable local ROM, generated input-only driver, log, collision
+snapshot and exact hashes are in `command-status-full-run-evidence`. The prior
+0.25 room5 timeout remains separate evidence. An offline same-height analysis
+of that prior snapshot approaches within10.72px but does not meet its strict
+goal tolerance; it excludes jumps/actors/native execution and cannot establish
+that the room is blocked. Full campaign completion and wider seeds/branches/
+chests remain required.
