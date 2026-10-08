@@ -2,7 +2,7 @@
 
 Current development ROM is 0.35, SHA256
 `1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f`.
-It passes 45 scoped native checks. Two fresh campaign replays are running;
+It passes 51 scoped native checks. Two fresh campaign replays are running;
 completion on this exact build is not yet verified. The 0.34 two-run result
 PASS288347 remains scoped to its own hash; both 0.34 all-room policies ended
 in native defeat (130336 and134022). Earlier 0.33 all-room coverage is scoped
@@ -20,7 +20,7 @@ describe earlier versions; current evidence wins.
 | Optional Aerith/Tifa suggestion | Aerith gEarF00/F01/B00/B01 idle/walk and gEarisPalette confirmed; no Tifa resources found | Inspect actual Aerith resources and feasibility; neither recruit is implemented |
 | Original Rally | Five-hero roster; menu/save/reset, walking/actions/air native tests and golden asset checks | Card and six hurt/climb/cast poses implemented and native captures inspected; further visual review |
 | Selectable Move/Attack/Skills/Party/End Turn | Compact single-stroke font, 18+16 idle, 40+16 Commands and 56+16 detailed windows; rendered native UI checks | Visual usability review of all submenus |
-| Turn order visible | Available party members then enemy phase; freely ordered party actions; forecast before ending | Review enemy-phase strip and all depleted/KO combinations |
+| Turn order visible | Available party members then enemy phase; freely ordered party actions; forecast before ending | Six native VRAM checks cover ready, exhausted, KO, fully exhausted and enemy phases; wider combinations remain |
 | Movement tiles, heights, chests, doors | Native projected previews, costs, cancel, collision execution, composed descent; all-room nine chest campaign | Wider seeds and combined ledge/jump route discovery |
 | Card combat and sleights | Original artwork, draw/discard/reload, three-card sleights, targeted Fire/Cure/Guard; host/native tests | Current-ROM review of each character/recipe combination |
 | Bosses and roguelike rewards | TT Guard Armor, Agrabah Jafar, Castle Marluxia; completed campaigns; personal power/sleight rewards, Cloud summon-or-power choice | Balance and reward variety; additional recruit bosses |
@@ -36,8 +36,8 @@ is optional validation, not a user-imposed completion requirement.
 
 ## 0.35 compact Commands development pass
 
-Current native ROM `1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f` has 45 passing scoped native checks (26 input-only
-UI/save, 19 disclosed companion combat fixtures). Commands occupies 40 pixels
+Current native ROM `1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f` has 51 passing scoped native checks (26 input-only
+UI/save, 19 disclosed companion combat fixtures, six rendered turn-strip fixtures). Commands occupies 40 pixels
 at the top plus the 16-pixel bottom strip; phase order remains visible in the
 menu. This is a development build, without a full campaign replay on its exact
 ROM. The previously pending 0.34 recovery-policy all-room replay failed by

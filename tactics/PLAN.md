@@ -1396,3 +1396,9 @@ compact-commands-all-rooms-evidence. Host suite completed successfully.
 frames, RUN COMPLETE129417; native retry verified129429 seed2658846982.
 Both sessions73601/92992 were polled and remain live. Second run and all-room
 result are still pending; this checkpoint does not prove both goals complete.
+
+0.35 turn-strip native verification: six disclosed budget/HP/phase fixtures
+pass against actual VRAM glyph pixels. Covers controlled ready hero, narrow
+idle windows, exhausted controlled hero, KO Donald, no remaining party budgets
+and enemy-first phase with living next party. Screenshot inspected. Total
+scoped native checks51; no new ROM changes or campaign restart.

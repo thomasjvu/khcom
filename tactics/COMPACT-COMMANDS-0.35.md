@@ -13,7 +13,8 @@ when End Turn is confirmed. Spent/KO members leave the ready strip.
 
 Donald, Goofy and Cloud action animations play once; idle and walking loop.
 26 input-only native assembly/menu/preview/save/reset checks and19 disclosed
-combat-fixture checks pass. Host rules/save/deck/party/roster suites,3000 world
+combat-fixture checks pass. Six additional disclosed budget/KO/phase fixtures
+verify native rendered turn-strip pixels, for51 scoped native checks. Host rules/save/deck/party/roster suites,3000 world
 graphs,1000 route-resource graph oracles and Rally asset encoding pass.
 Graph coverage is not universal native physical reachability evidence.
 
