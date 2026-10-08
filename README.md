@@ -35,8 +35,8 @@ keep party, card artwork and value digits visible beside generated scenery.
 The packaged 0.38 ROM passes 540 scoped native checks and three complete
 fresh-SRAM runs with native retry, Cloud recruitment/deployment, exact
 suspend/reset, and composed descent-to-walking routes. The emulator exits
-successfully after the three-run replay. A separate all-room/nine-chest replay
-on the exact 0.38 ROM is still running. These tests cover their recorded seeds
+successfully after the three-run replay. A separate exact-ROM all36-room/nine-chest replay passes253238 with successful
+emulator exit. These tests cover their recorded seeds
 and routes; they do not prove physical reachability for every generated seed.
 See [0.38 patch notes](tactics/SKILLS-PARTY-UI-0.38.md) and
 [release audit](tactics/RELEASE-AUDIT.md) for current evidence and remaining work.

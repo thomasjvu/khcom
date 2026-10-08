@@ -5,8 +5,7 @@ It passes540 scoped native checks:95 menu/party/recipes,114 bosses/Cloud,
 113 height previews,58 rewards/deployment,52 companion combat,56 party/SRAM
 and52 Rally actions/states/directions. Three-run PASS379646, frontend exit0.
 Initial aggregate180000-frame
-attempt failed180001 and is retained. Current-ROM all-room completion is
-not yet verified. Skills-strip predecessor passes all36/nine chests253238;
+attempt failed180001 and is retained. Current-ROM all36/nine-chest campaign PASS253238, frontend exit0. Skills-strip predecessor passes all36/nine chests253238;
 that result is version-scoped. Final gameplay/visual audit remains open.
 
 Previous packaged0.37 adds compact
@@ -47,7 +46,7 @@ describe earlier versions; current evidence wins.
 | Card combat and sleights | Original artwork, draw/discard/reload, three-card sleights, targeted Fire/Cure/Guard; host/native tests | Current-ROM review of each character/recipe combination |
 | Bosses and roguelike rewards | TT Guard Armor, Agrabah Jafar, Castle Marluxia; completed campaigns; personal power/sleight rewards, Cloud summon-or-power choice | Current boss mechanics/resource/pose fixtures89 pass; visual review, balance and reward variety remain |
 | Suspend saves | Current native alternating slots/reset/corrupt-newest fallback12 checks, exact saves in both complete campaigns | Multi-seed replay with reset/retry |
-| Verified complete runs | Current0.37 three-run PASS434168 and all36/nine-chest PASS253238, exact ROM hashes and terminal processes checked | Final broader polish audit remains |
+| Verified complete runs | Current0.38 three-run PASS379646 and all36/nine-chest PASS253238, exact ROM hashes and terminal processes checked | Final broader polish audit remains |
 
 Next priority: review remaining native combat
 and menus across heroes and worlds. Rally's original card and six extra states
@@ -89,3 +88,5 @@ Current0.38 companion checks PASS52: Donald healing/revival/bonus/save17, Goofy 
 0.38 current-ROM three-run script PASS379646: victories130570/259594/379526 HP75/74/73, stable120 frames each; actual per-run recruitment/deployment, exact reset and composed descent required. ROM/driver/log hashes verified; frontend59790 still live, no exit claim. Fresh exact-ROM all36/nine-chest replay81924 live. Additional native party-state44 and alternating SRAM12 checks PASS56, bounded exit0/hashes verified; corrupt-newest fallback explicitly disclosed. Current scoped total488.
 
 Current0.38 Rally checks PASS52:14 input-only action/air,12 disclosed native hurt/cast/climb,26 input-only directional facing. Hashes/counts/exit0 verified; encoded30-frame/six-state fixed-feet/palette asset checks pass using system python3 (venv lacks Pillow). Scoped current total540. Three-run59790 frontend exit0 confirmed; metadata finalized PASS379646. Exact current-ROM all36/nine-chest81924 remains live.
+
+Current0.38 all-room81924 PASS253238 and terminal exit0 confirmed. Exact ROM/driver/log hashes verified; all36/nine chests, actual Cloud/redeploy, exact suspend/reset and composed descent required by input-only driver. Current540 scoped checks and three-runPASS379646 remain verified. Next concrete gameplay gap: Jump menu explicitly says NO LANDING PREVIEW; moving jump spends one movement/action and uses original physics. Requested reachable overlay still lacks jump destination/connection prediction. Implement faithful prediction from native collision/velocity/controller limits, verify actual landings/obstructions/heights/cancel/costs; do not replace with guessed guaranteed tiles. Final goal remains active.
