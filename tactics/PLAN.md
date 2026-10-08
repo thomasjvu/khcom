@@ -969,3 +969,9 @@ pass on that exact ROM. `.tactics_ram` is8140 bytes. Manifest preserves
 ROM/patch/driver/log hashes and fixture scopes; notes in
 COMPACT-HUD-0.27.md. All-room/chest native-ack-all-rooms-evidence is live
 separately under300000 frames. Broader goal remains incomplete.
+
+Two consecutive native-retry campaigns are also live in
+native-ack-two-run-evidence, under a shared240000-frame total bound. The
+first seed starts from fresh SRAM; the second must use the game's Select
+retry and seed advancement, with renewed Cloud/save/descent requirements.
+No independent per-run timeout is implied. Both wider jobs remain pending.
