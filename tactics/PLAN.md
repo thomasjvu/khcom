@@ -355,3 +355,29 @@ or forced exits occur. This is one-seed coverage, not all rooms/chests or a
 repair of the second-seed navigator. The 47099-byte 0.23 BPS applies byte-exactly
 against the verified US base; hashes and evidence are in its local manifest.
 Release notes: `tactics/PROP-SUPPORT-0.23.md`. Full goal remains unfinished.
+
+### Rally and command-panel integration
+
+Native source e2e4e5cf4 adds Rally from the approved pink-haired artwork as a
+fifth persistent roster identity, deployable into either companion slot. Her
+converted native sprites/palette,64HP and four-point Cure/sleight recovery
+bonus are integrated. Format12 persists all five heroes; formats8–11 retain
+legacy four-hero payload decoding and initialize Rally. A recorded format11
+pillar suspend migrates successfully through the sanitizer-enabled host probe.
+
+R+Select opens Move/Attack/Skills/Party/End Turn/Suspend commands, with D-pad
+selection, A confirmation and B back. Move opens native reachable previews;
+Skills browses hand cards. Single-stroke5x7 text replaces bold debug glyphs.
+Fourteen input-only native deployment/menu/preview/no-cost/save/reset checks
+pass on the exact packaged ROM. Host tests cover Rally deployment and saved
+upgrades/health/budgets/facing. Build/header/capacity checks pass; reserved
+EWRAM8140/8192. The69869-byte local0.24 development BPS applies byte-exactly;
+the local manifest records ROM/patch/driver/log hashes.
+
+This is unfinished integration. Dedicated Rally action/air poses, directional
+refinement, portrait/card/recruit encounter and richer moveset remain open,
+as do fuller targeting menus and a current whole-campaign replay. Earlier
+0.23 campaign coverage does not prove this newer ROM. Details and controls:
+`tactics/RALLY-COMMANDS.md`. The proposed read-only prop-top replay model failed
+its native decision check despite passing a mock; that edit was reverted and
+failed metadata retained. No claim is made that second-seed navigation is fixed.
