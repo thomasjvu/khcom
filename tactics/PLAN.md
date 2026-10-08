@@ -295,3 +295,16 @@ now avoids duplicate pre-reset assertions after its frame offset. It remains
 a failing regression, not a green release check. Next inspect the original
 room-entry/camera/player collision update ordering and saved support identity
 before implementing a verified fix. Full polished suspend behavior is unproven.
+
+Prop-top resume tracing further narrows the failure. At frame650 the saved
+x33797/y83968/z0/ground8192 is loaded exactly; by frame660 z396 and native
+state FALL are observed, then x27647/z2376 at670 and floor8192 by690. The
+original pillar reconstructs at x36864/y167936/z8192/radius8192/height8192,
+so this failure is not caused by a different regenerated prop position.
+`pillar-resume-prop-position-evidence` records this read-only trace and identity.
+Trace entries before field initialization read invalid pointers and are not
+used as evidence; add explicit native-mode readiness before interpreting them.
+A one-time collision refresh and a 32-update bounded contact-refresh experiment
+both fail. Native edits were reverted, and failed exact-ROM logs retained.
+Next inspect player/prop collider flags and support contacts during the first
+live field updates rather than assuming a contact refresh repairs the handoff.

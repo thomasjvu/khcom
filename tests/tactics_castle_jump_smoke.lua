@@ -8,7 +8,16 @@ local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flu
 callbacks:add('frame',function()
  f=f+1
  local actual=f
- if testResume and resetDone and actual<900 then return end
+ if testResume and resetDone and actual<900 then
+  if actual%10==0 then
+   local p=emu:read32(gFieldState)
+   if p~=0 then
+    local t=emu:read32(emu:read32(p+0x94));local w=t~=0 and emu:read32(t+4) or 0
+    out:write('RESUME TRACE frame='..actual..' x='..emu:read32(p+0x18)..' y='..emu:read32(p+0x1c)..' z='..emu:read32(p+0x20)..' ground='..emu:read32(p+0x24)..' state='..(w~=0 and emu:read32(w+0x94) or -1)..'\n');out:flush()
+   end
+  end
+  return
+ end
  if testResume and resetDone then f=actual-360 end
  if f==180 then
   node=emu:read32(sColliderPoolObstacle+8)
@@ -92,6 +101,7 @@ callbacks:add('frame',function()
    node=emu:read32(node+8)
   end
   check(collider~=nil,'reset reconstructs original pillar collider')
+  if collider then out:write('RESTORED PROP x='..emu:read32(collider+4)..' y='..emu:read32(collider+8)..' z='..emu:read32(collider+12)..' radius='..emu:read32(collider+16)..' height='..emu:read32(collider+20)..'\n');out:flush() end
   emu:screenshot('@OUTPUT@/resumed-top.png')
  end
  if (not testResume or resetDone) and (f==560 or f==620) then emu:setKeys(32) end
