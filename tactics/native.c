@@ -1248,6 +1248,7 @@ static void NativeIntentDraw(void) {
 }
 static void NativeHud(void) {
     char line[] = "MOVE 3 ACT 1 HP 000";
+    char turns[31];
     char location[] = "FLOOR 1 ROOM 00";
     char health[] = "S00 D00 G00";
     char threat[] = "NEXT S00 D00 G00";
@@ -1260,6 +1261,8 @@ static void NativeHud(void) {
     int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
     static const char* const names[4] = {"KEYBLADE A PLAY", "FIRE A PLAY", "CURE A PLAY", "GUARD A PLAY"};
     u16 i;
+    int turnLength, j;
+    const char* turnName;
     /* Keep completed tiles immutable until VBlank consumes them. Clearing
      * pending at the next draw can otherwise starve uploads indefinitely. */
     if (!sHudTiles || !sHudScreen || sHudPending) return;
@@ -1562,8 +1565,29 @@ static void NativeHud(void) {
         NativeLabel(0, 0, line);
         NativeLabel(168, 0, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" :
             NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : "CLOUD");
-        NativeLabel(0, 8, gNativeSaveNotice ? (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") :
-            gNativeEnemyFrames ? "ENEMIES THEN PARTY" : gNativeBusy ? "MOVING  PARTY THEN ENEMIES" : "PARTY THEN ENEMIES  SELECT");
+        /* Party actions are freely ordered. Show eligible members together,
+         * followed by the enemy phase, rather than implying initiative. */
+        turnLength = 0;
+        if (gNativeEnemyFrames) {
+            turnName = "ENEMIES THEN ";
+            while (*turnName) turns[turnLength++] = *turnName++;
+        }
+        for (i = 0; i < 3; i++) {
+            if (!gNativePartyHealth.hp[i]) continue;
+            if (!gNativeEnemyFrames && !(i == gNativeParty ?
+                gNativeMoveLeft || gNativeActionLeft : sPartyMove[i] || sPartyAction[i])) continue;
+            if (!gNativeEnemyFrames && i == gNativeParty) turns[turnLength++] = 'X';
+            turnName = NativeHero(i) == FIELD_SORA ? "SOR" : NativeHero(i) == FIELD_DONALD ? "DON" :
+                NativeHero(i) == FIELD_GOOFY ? "GOO" : NativeHero(i) == FIELD_RALLY ? "RAL" : "CLO";
+            for (j = 0; j < 3; j++) turns[turnLength++] = turnName[j];
+            turns[turnLength++] = ' ';
+        }
+        if (!gNativeEnemyFrames) {
+            turnName = turnLength ? "THEN ENEMIES" : "END TURN FOR ENEMIES";
+            while (*turnName) turns[turnLength++] = *turnName++;
+        }
+        turns[turnLength] = 0;
+        NativeLabel(0, 8, gNativeSaveNotice ? (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") : turns);
     }
     sHudPending = 1;
 }

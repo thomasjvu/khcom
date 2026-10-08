@@ -880,3 +880,27 @@ rejections812/1240/1388 and reaches room6 at2535,18 attempts, versus earlier
 Exact evidence in `rejected-preview-native-evidence`; no memory writes after
 boot, gameplay changes or larger bounds. Full live-state recovery remains
 unverified; current campaign uses preceding driver and continues separately.
+
+
+### Compact ready-party turn strip
+
+The normal field HUD keeps its18px top and16px bottom windows. Its second
+row now names the eligible deployed heroes using SOR/DON/GOO/CLO/RAL,
+with X marking the controlled hero, followed by THEN ENEMIES. KO members
+and members with neither movement nor action remaining are omitted. During
+native enemy resolution the row reads ENEMIES THEN followed by surviving
+party members whose budgets refresh next. This is a selectable party phase,
+not a fixed individual initiative order. Save notices temporarily replace
+this row. No persistent RAM, gameplay or save format changed.
+
+Native build/header/capacity checks pass. compact-ready-party-evidence has
+14 input-only native party/movement checks passing on this exact ROM;
+selected.png visually confirms the ready strip and exposed original world.
+
+Earlier exact-save-attempt-main-evidence ended FAIL120001 in Castle room7,
+16 kills/860 attempts. Its captured room4 save succeeded and production
+encode/decode passed. Rejected-preview-full-main-evidence ended FAIL120001
+in Agrabah room3,10 kills/907 attempts; save/exact resume passed. Cancellation
+improves the isolated cleared fixture but does not establish full campaign
+recovery. Both terminal logs and snapshots are retained. Neither is a full
+campaign success; procedural traversal validation remains unfinished.
