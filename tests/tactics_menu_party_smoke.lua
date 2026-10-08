@@ -38,6 +38,7 @@ callbacks:add('frame',function()
  if f==184 or (f>=244 and f<=964 and f%40==4) then emu:setKeys(0) end
  if f==440 then
   check(emu:read16(gNativeMenu)==8,'Party opens deployed hero selector')
+  check(hudText(1,0,'XSOR RAL GOO THEN ENEMIES'),'phase order remains visible inside Party selector')
   check(hudText(2,9,'HP80 MOVE3 ACT1') and hudText(3,9,'HP64 MOVE3 ACT1'),'Party explicitly labels movement for leader and Rally')
   check(hudText(4,9,'HP72 MOVE3 ACT1'),'Party explicitly labels Goofy movement without clipping')
   check(emu:read16(gNativeParty)==0 and emu:read16(gNativeMoveLeft)==3,'opening Party preserves active Sora and movement')

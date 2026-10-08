@@ -1,5 +1,10 @@
 -- Input-only bounded exploration. No RAM writes, teleporting, or forced exits.
-local out=io.open('@OUTPUT@/traversal.txt','w')
+local function diagnosticFile(path,mode)
+ local file,reason=io.open(path,mode)
+ if not file then error('diagnostic file open failed: '..path..': '..tostring(reason)) end
+ return file
+end
+local out=diagnosticFile('@OUTPUT@/traversal.txt','w')
 local f=0
 -- @INPUT@
 local nextFrame=180
@@ -362,7 +367,7 @@ local function requestTurn()
 end
 -- Read-only structured collision evidence for investigating failed navigation.
 navigationSnapshot=function(name)
- local file=io.open('@OUTPUT@/'..(name or 'navigation-snapshot.json'),'w')
+ local file=diagnosticFile('@OUTPUT@/'..(name or 'navigation-snapshot.json'),'w')
  local r=emu:read32(gMapRoomState);local cols=emu:read16(r+4);local rows=emu:read16(r+6)
  local x,y,z=pos();local dx,dy,dz=door();local cells=emu:read32(sMapCells)
  file:write(string.format('{"seed":%u,"floor":%u,"room":%u,"cols":%u,"rows":%u,"position":[%d,%d,%d],"goal":[%d,%d,%d],"cells":[',emu:read32(gNativeSeed),emu:read16(gNativeFloor),emu:read8(gMapFloorState+6),cols,rows,x,y,z,dx or 0,dy or 0,dz or 0))
@@ -429,14 +434,14 @@ navigationSnapshot=function(name)
   file:write(']}')
  end
  file:write('],"fire_target_raw":'..emu:read16(gNativeFireTarget)..',"fire_damage":'..emu:read16(gNativeFireDamage)..',"cure_target":'..emu:read16(gNativeCureTarget)..',"cure_heal":'..emu:read16(gNativeCureHeal)..',"save_notice":'..emu:read16(gNativeSaveNotice)..'}}\n');file:close()
- local raw=io.open('@OUTPUT@/'..(name or 'navigation-snapshot.json')..'.save-state.bin','wb')
+ local raw=diagnosticFile('@OUTPUT@/'..(name or 'navigation-snapshot.json')..'.save-state.bin','wb')
  for i=0,suspendBytes-1 do raw:write(string.char(emu:read8(sSuspend+i))) end
  raw:close()
  if name=='save-attempt.json' then
-  local encoded=io.open('@OUTPUT@/save-encoded.bin','wb')
+  local encoded=diagnosticFile('@OUTPUT@/save-encoded.bin','wb')
   for i=0,1023 do encoded:write(string.char(emu:read8(sSaveBytes+i))) end
   encoded:close()
-  local sram=io.open('@OUTPUT@/save-sram.bin','wb')
+  local sram=diagnosticFile('@OUTPUT@/save-sram.bin','wb')
   for i=0,32767 do sram:write(string.char(emu:read8(0x0e000000+i))) end
   sram:close()
  end
