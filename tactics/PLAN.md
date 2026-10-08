@@ -1053,3 +1053,23 @@ save/exact resume remains PASS; all-room victory remains unproven. The
 door-corner and save-observation fixes do not imply combat survival or fix
 the separate second-seed Castle entrance stall. No replay is still live
 from this batch; terminal logs/snapshots are preserved for next fixes.
+
+Party UI development build0.29 (2026-10-07): ordinary movement retains
+the compact18-pixel top window and16-pixel footer, including the eligible
+party followed by enemy phase strip. Setup alone uses56 pixels at the top,
+listing all three deployed heroes HP/movement/action/power, selected-slot
+marker, reserve HP, and selected owned-sleight bonuses. Original companion
+cards and approved Rally sprite move down to remain visible; role text
+uses the small footer. No persistent RAM added (8140/8192).
+
+NativeHud previously published26 before later choosing18, so an emulator
+frame/VBlank could observe the provisional larger window during a native
+update. Select the final size before building labels. A diagnostic confirmed
+RAM18 during movement after this change; attempts to read write-only WIN0V
+were invalid and are retained only as diagnostic failures. Final exact-ROM
+input-only regression passes14/14 checks; rendered setup/Rally/menu/save
+regression passes20/20. Host suite and native ROM header/capacity pass.
+ROM SHA2568449f2fca08897350200e1f35babf4c4d1eaffc807f4d9334ff913c028d4c4b0.
+Development0.29 BPS applies byte-identically to this ROM. Earlier provisional
+0.28 artifact is not the current build. These focused UI checks do not
+establish all-room or consecutive-run victory on the changed ROM.

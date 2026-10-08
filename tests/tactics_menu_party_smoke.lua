@@ -27,6 +27,7 @@ callbacks:add('frame',function()
  if f==640 then check(emu:read16(gNativeParty)==2 and emu:read16(gNativeMenu)==0,'confirm takes control of chosen Goofy') end
  if f==650 then
   check(emu:read16(gNativeBusy)~=0,'Goofy movement is in native progress')
+  -- NativeHud must retain the compact window throughout label construction.
   check(emu:read16(gWin0V)==18,'normal movement retains compact two-row HUD')
   emu:screenshot('@OUTPUT@/compact-moving.png')
  end

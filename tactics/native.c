@@ -786,10 +786,10 @@ static void NativeAssemblyDraw(void) {
         tiles = i == 1 ? sAssemblyTiles : i == 2 ? sAssemblyOtherTiles : sCardTiles[0];
         palette = i == 1 ? sAssemblyPalette : i == 2 ? sAssemblyOtherPalette : sCardPalettes[0];
         if (i && NativeHero(i) == FIELD_RALLY)
-            DrawSprite(68 + i * 52, i == sAssemblyChoice ? 92 : 105,
+            DrawSprite(68 + i * 52, i == sAssemblyChoice ? 111 : 124,
                 (void*)sRallyFrames[0], sFriends[i - 1].tiles,
                 sFriends[i - 1].palette, NULL, 0, 1);
-        if (card && tiles && palette) DrawSprite(68 + i * 52, i == sAssemblyChoice ? 65 : 78,
+        if (card && tiles && palette) DrawSprite(68 + i * 52, i == sAssemblyChoice ? 84 : 97,
             card->gfx2, tiles, palette, NULL, 0, 1);
     }
 }
@@ -1123,9 +1123,9 @@ static volatile u8 sHudPending;
 extern void (*gModeVBlankCallback)();
 static void (*sPreviousVBlank)();
 static void NativeLabel(u8 x, u8 y, const char* text) {
-    int tile = (y / 8) * 32 + x / 8 + 1;
+    int tile = (gNativeAssembly && y == 144 ? 6 : y / 8) * 32 + x / 8 + 1;
     int column = x / 8;
-    int row = (gNativeMenu || gNativeProgressReward) ? y / 8 : y == 24 ? 19 : y == 32 ? 18 : y / 8;
+    int row = (gNativeMenu || gNativeProgressReward || gNativeAssembly) ? y / 8 : y == 24 ? 19 : y == 32 ? 18 : y / 8;
     int glyph, i;
     u32 pixels;
     int pixel;
@@ -1277,8 +1277,12 @@ static void NativeHud(void) {
      * full color. Outside these two windows the field has no blend effect. */
     gDispCnt |= 0x6000;
     gWin0H = gWin1H = 240;
-    gWin0V = 26;
-    gWin1V = (128 << 8) | 160;
+    /* VBlank can occur while labels are being built. Never publish a
+     * provisional large window during ordinary movement. */
+    gWin0V = gNativeMenu || gNativeProgressReward ? 64 : gNativeAssembly ? 56 :
+        !gNativeReward && !gNativePreview && !gNativeResult &&
+        !gNativeClimbing && gNativeBusy != 2 ? 18 : 26;
+    gWin1V = ((gNativeAssembly || gWin0V == 18 ? 144 : 128) << 8) | 160;
     gWinIn = 0x3f3f;
     gWinOut = 0x1e;
     gBldCnt = 0x00ee;
@@ -1350,20 +1354,54 @@ static void NativeHud(void) {
         NativeLabel(0, 24, "PARTY HEAL 12");
     }
     if (gNativeAssembly) {
-        NativeLabel(0, 8, "ROUND SETUP L R A");
-        NativeLabel(0, 24, "UP DOWN CHANGE PARTY");
-        {
-            char bonuses[] = "POWER 0 KEY 0 FIR 0 CUR 0";
-            u8 hero=NativeHero(sAssemblyChoice);
-            bonuses[6]+=(char)gNativeRoster.power[hero];
-            bonuses[12]+=(gNativeRoster.sleights[hero]&1) ? 4 : 0;
-            bonuses[18]+=(gNativeRoster.sleights[hero]&2) ? 4 : 0;
-            bonuses[24]+=(gNativeRoster.sleights[hero]&4) ? 4 : 0;
-            NativeLabel(0,16,bonuses);
-            NativeLabel(0,32,hero==FIELD_SORA ? "SORA KEYBLADE CLOSE RANGE" :
-                hero==FIELD_DONALD ? "DONALD MAGIC CURE BONUS" :
-                hero==FIELD_GOOFY ? "GOOFY SPIN SHIELD GUARD" : hero==FIELD_RALLY ? "RALLY MELEE CURE PLUS 4" : "CLOUD SWORD TARGET RANGE 64");
+        static const char* const heroes[5] = {"SORA", "DONALD", "GOOFY", "CLOUD", "RALLY"};
+        static const char* const shortNames[5] = {"SOR", "DON", "GOO", "CLO", "RAL"};
+        char reserves[31] = "RESERVE HP ";
+        char bonuses[] = "KEY 0 FIR 0 CUR 0";
+        u8 hero = NativeHero(sAssemblyChoice);
+        int length = 11, k, deployed;
+        gWin0V = 56;
+        gWin1V = (144 << 8) | 160;
+        for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
+        NativeLabel(0, 0, gNativePartyHealth.hp[sAssemblyChoice] ? "PARTY SETUP A DEPLOY" : "KO CHOOSE ANOTHER HERO");
+        for (i = 0; i < 3; i++) {
+            char stats[] = "HP00 M0 A0 P0";
+            u8 member = NativeHero(i);
+            stats[2] += gNativePartyHealth.hp[i] / 10;
+            stats[3] += gNativePartyHealth.hp[i] % 10;
+            stats[6] += i == gNativeParty ? gNativeMoveLeft : sPartyMove[i];
+            stats[9] += i == gNativeParty ? gNativeActionLeft : sPartyAction[i];
+            stats[12] += gNativeRoster.power[member];
+            NativeLabel(0, (i + 1) * 8, i == sAssemblyChoice ? "X" : " ");
+            NativeLabel(8, (i + 1) * 8, heroes[member]);
+            NativeLabel(72, (i + 1) * 8, stats);
+            if (!gNativePartyHealth.hp[i]) NativeLabel(184, (i + 1) * 8, "KO");
         }
+        NativeLabel(0, 32, sAssemblyChoice ? "L R SLOT UP DOWN HERO" : "SORA FIXED L R SLOT");
+        for (k = 1; k < FIELD_HEROES; k++) {
+            if (!(gNativeRoster.unlocked & (1 << k))) continue;
+            deployed = 0;
+            for (i = 0; i < 3; i++) if (NativeHero(i) == k) deployed = 1;
+            if (deployed) continue;
+            if (length > 11) reserves[length++] = ' ';
+            for (i = 0; i < 3; i++) reserves[length++] = shortNames[k][i];
+            reserves[length++] = '0' + gNativeRoster.heroHp[k] / 10;
+            reserves[length++] = '0' + gNativeRoster.heroHp[k] % 10;
+        }
+        if (length == 11) {
+            reserves[length++] = 'N'; reserves[length++] = 'O';
+            reserves[length++] = 'N'; reserves[length++] = 'E';
+        }
+        reserves[length] = 0;
+        NativeLabel(0, 40, reserves);
+        bonuses[4] += (gNativeRoster.sleights[hero] & 1) ? 4 : 0;
+        bonuses[10] += (gNativeRoster.sleights[hero] & 2) ? 4 : 0;
+        bonuses[16] += (gNativeRoster.sleights[hero] & 4) ? 4 : 0;
+        NativeLabel(0, 48, bonuses);
+        NativeLabel(0, 144, hero == FIELD_SORA ? "KEYBLADE CLOSE RANGE" :
+            hero == FIELD_DONALD ? "MAGIC CURE PLUS 8" :
+            hero == FIELD_GOOFY ? "SPIN PARTY GUARD" :
+            hero == FIELD_RALLY ? "MELEE CURE PLUS 4" : "SWORD TARGET RANGE 64");
     }
     if (gNativeProgressReward) {
         NativeLabel(0, 8, "CLEAR REWARD L R A");
@@ -1378,7 +1416,6 @@ static void NativeHud(void) {
             (gNativeRoster.sleights[NativeHero(sProgressHero)] & (1 << (sProgressKind - 1))))
             NativeLabel(0, 8, "OWNED CHOOSE ANOTHER");
     }
-    if (gNativeAssembly && !gNativePartyHealth.hp[sAssemblyChoice]) NativeLabel(0, 8, "KO CHOOSE OTHER HERO");
     if (gNativeProgressReward && sProgressKind == 4 && NativeRecruitEligible()) {
         NativeLabel(0, 8, "CLOUD RECRUIT A");
         NativeLabel(0, 24, "UNLOCK CLOUD CARD");
