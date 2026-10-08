@@ -1673,3 +1673,7 @@ Cloud area fixture passes12, completing60 scoped area checks across all5 heroes.
 ### Version0.39 development package
 
 Three-run attachment-preview campaign PASS379750 verified after frontend89724 exit0; three victories,2 native retries,3 Cloud deployments,3 suspend requests and3 verified composed descents, exact ROM/driver/log hashes. Version0.39 BPS98,240B applies byte-identically to current ROM; manifest records79 exact-ROM scoped native checks. Native all-room3seed frontend70148 remains live and is not promoted as passed. README/build/current audit updated with version scope. Final release is still unproven.
+
+### Multi-seed all-room stationary-turn diagnostic
+
+Live all-room3seed frontend70148 completed first run then stopped moving in second-run Agrabah room11 at64930,50810,0 after frame458536, repeatedly ending turns with party73/64/56 and threat0. Process still live to900003; no restart or pass claimed. Replay driver now records read-only runtime/terrain/prop snapshots after8 consecutive turns at unchanged world/room/position, including budgets/menu/phase log. Short native room0-to1 smoke PASS2453, frontend exit0; it proves driver loading/traversal, not execution of the stationary snapshot branch. Existing live driver remains unchanged and will capture terminal failure snapshot at bound.

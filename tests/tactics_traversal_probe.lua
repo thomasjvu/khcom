@@ -4,6 +4,9 @@ local f=0
 -- @INPUT@
 local nextFrame=180
 local phase='scan'
+local navigationSnapshot
+local turnOrigin=nil
+local stationaryTurns=0
 local index=1
 local dirs={16,32,64,128,80,96,144,160}
 local best=nil
@@ -344,10 +347,18 @@ local function turnKey()
  endingTurn=false;returningToSora=true;return 8
 end
 local function requestTurn()
+ local x,y,z=pos()
+ local origin=emu:read16(gNativeFloor)..':'..emu:read8(gMapFloorState+6)..':'..x..':'..y..':'..z
+ stationaryTurns=origin==turnOrigin and stationaryTurns+1 or 1
+ turnOrigin=origin
+ if stationaryTurns>=8 and stationaryTurns%8==0 then
+  out:write('STATIONARY TURNS frame='..f..' count='..stationaryTurns..' origin='..origin..' move='..emu:read16(gNativeMoveLeft)..' action='..emu:read16(gNativeActionLeft)..' menu='..emu:read16(gNativeMenu)..' phase='..phase..'\n');out:flush()
+  navigationSnapshot('navigation-stationary-turns.json')
+ end
  endingTurn=true;best=nil;index=1;pressNative(turnKey());phase='release';nextFrame=f+4
 end
 -- Read-only structured collision evidence for investigating failed navigation.
-local function navigationSnapshot(name)
+navigationSnapshot=function(name)
  local file=io.open('@OUTPUT@/'..(name or 'navigation-snapshot.json'),'w')
  local r=emu:read32(gMapRoomState);local cols=emu:read16(r+4);local rows=emu:read16(r+6)
  local x,y,z=pos();local dx,dy,dz=door();local cells=emu:read32(sMapCells)
