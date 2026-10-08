@@ -766,7 +766,7 @@ local function replayFrame()
    if emu:read16(gNativeMoveLeft)<3 then requestTurn();return end
    emu:setKeys(64);commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
   end
-  if chest and math.abs(x-dx)<2048 and math.abs(y-dy)<4096 and math.abs(z-dz)<2048 and
+  if chest and math.abs(x-dx)<4096 and math.abs(y-dy)<4096 and math.abs(z-dz)<2048 and
      (emu:read8(emu:read32(gFieldState)+0x2c)~=0 or (y>=dy-4096 and y<=dy+1024)) then
    if emu:read16(gNativePreview)~=0 then
     emu:setKeys(2);phase='release';nextFrame=f+4;return
