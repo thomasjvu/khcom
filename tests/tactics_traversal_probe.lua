@@ -265,7 +265,7 @@ local function turnKey()
  endingTurn=false;returningToSora=true;return 8
 end
 local function requestTurn()
- endingTurn=true;best=nil;index=1;emu:setKeys(turnKey());phase='release';nextFrame=f+4
+ endingTurn=true;best=nil;index=1;pressNative(turnKey());phase='release';nextFrame=f+4
 end
 -- Read-only structured collision evidence for investigating failed navigation.
 local function navigationSnapshot(name)
@@ -542,11 +542,11 @@ local function replayFrame()
  if phase=='progress_release' then phase='scan';nextFrame=f+4;return end
  if gNativeProgressReward and emu:read16(gNativeProgressReward)~=0 then
   if recruitCloud and world==0 and room==9 and not cloudRecruited then
-   emu:setKeys(emu:read16(sProgressKind)==4 and 1 or 64)
+   pressNative(emu:read16(sProgressKind)==4 and 1 or 64)
    phase='progress_release';nextFrame=f+4;return
   end
   local hero=emu:read8(gNativeRoster+1+emu:read16(sProgressHero))
-  emu:setKeys(emu:read8(gNativeRoster+4+hero)>=8 and 256 or 1)
+  pressNative(emu:read8(gNativeRoster+4+hero)>=8 and 256 or 1)
   phase='progress_release';nextFrame=f+4;return
  end
  if phase=='assembly_release' then phase='scan';nextFrame=f+4;return end
@@ -579,10 +579,10 @@ local function replayFrame()
  if phase=='release' then phase='scan';nextFrame=f+8;return end
  if emu:read16(gNativeReward)~=0 then
   out:write('REWARD confirm frame='..f..'\n');out:flush()
-  emu:setKeys(1);phase='release';nextFrame=f+4;return
+  pressNative(1);phase='release';nextFrame=f+4;return
  end
  if endingTurn or returningToSora then
-  emu:setKeys(turnKey());best=nil;index=1;phase='release';nextFrame=f+4;return
+  pressNative(turnKey());best=nil;index=1;phase='release';nextFrame=f+4;return
  end
  if composedSelection and phase=='compose_arrival' then
   local x,y,z=pos();local selected=composedSelection
@@ -687,10 +687,10 @@ local function replayFrame()
     out:write('CHEST INPUT frame='..f..' position='..x..','..y..','..z..' goal='..dx..','..dy..','..dz..' key='..key..' angle='..emu:read8(emu:read32(gFieldState)+0x2c)..'\n');out:flush()
     emu:screenshot('@OUTPUT@/chest-approach.png');chestDebugFrame=f
    end
-   emu:setKeys(key);phase='release';nextFrame=f+4;return
+   pressNative(key);phase='release';nextFrame=f+4;return
   end
   local key=combatInput()
-  if key then emu:setKeys(key);phase='release';nextFrame=f+4;return end
+  if key then pressNative(key);phase='release';nextFrame=f+4;return end
   if (visits[cell(x,y,z)] or 0)>=3 and emu:read16(gNativeActionLeft)==0 then
    requestTurn();return
   end

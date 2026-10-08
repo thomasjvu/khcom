@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The packaged **0.20 climb-route development build** runs in the original 2.5D engine with full
+The packaged **0.32 compact-menu development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -10,7 +10,7 @@ reward rooms; the prototype progresses through Traverse Town, Agrabah and
 Castle Oblivion. Movement and attacks have turn budgets, and enemies act when
 you end your turn. Combat stays in the field.
 
-Sora, Donald and Goofy are selectable party members with separate action and
+Sora, Donald, Goofy, recruited Cloud and original character Rally are selectable party members with separate action and
 movement budgets. A shared card deck uses original card artwork and values,
 with draw/discard/reload, melee, Fire, Cure, Guard and character bonuses.
 Versioned suspend saves preserve native field state and recover from a damaged
@@ -24,6 +24,8 @@ Traverse Town has original multipart Guard Armor art, warned slams, hand-loss
 phases and break effects. Agrabah has a custom sorcerer Jafar encounter using
 original field/lamp sprites and a charged single-target spell. Castle Oblivion
 has original humanoid Marluxia battle art, a charged scythe sweep and enrage.
+The compact field HUD shows available party members and the following enemy phase.
+Commands and rewards open contextual menus; End Turn previews incoming damage.
 Round-start party assembly uses original character cards; an optional Cloud
 challenge offers recruitment or a personal upgrade, and Cloud can replace
 either companion. Every second unique room clear grants a personal upgrade.

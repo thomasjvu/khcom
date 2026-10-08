@@ -1187,3 +1187,27 @@ raised that display; screenshot shows original opened chest, Sora/Donald/
 Goofy, card artwork and compact phase strip. No game keys or memory writes
 were introduced, and no restart was performed. Continue this handle for
 terminal coverage; slow/quiet presentation is not completion or blockage.
+
+
+Headless validation and replay input completion (2026-10-08): built the
+optional official mGBA core pinned to cef7dde504af189e47f6074365f2d77e8177ad06.
+Frontend-only changes provide pixels, automatic SRAM loading and a clean
+video-frame bound. Current 0.32 native forecast12, Rally-menu20 and SRAM12
+checks pass; forecast/setup/menu/resume images match desktop captures pixel
+for pixel. Main-route campaign reached Castle room7 at116471 but failed
+its120000 frame bound, so no complete current-ROM campaign claim. Separate
+all-room job82835 remains live; observed Agrabah room10 at130251, five
+chests, native suspend/reset and earlier optional Traverse rooms. Old GUI
+job73273 is preserved. Full instructions: HEADLESS-VALIDATION.md.
+
+Combat, chest opening, chest/progression reward confirmation and party-turn
+inputs now use the same bounded native sampling/update acknowledgement as
+movement and saves. A timed four-video-frame press was insufficient while
+native route processing occupied multiple frames. All12 traversal policy
+regressions pass. Independent current-ROM main-route job54345 with this
+new driver is live; suspend committed8798. The running all-room script is
+immutable and retains its older driver, preserving independent evidence.
+README now identifies the actual 0.32 package and compact phase/menu UI.
+This is progress toward the full goal, not completion; complete current
+campaigns, wider seeds, remaining Rally assets and final content polish
+are still required.
