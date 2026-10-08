@@ -33,4 +33,7 @@ memory[env.gNativeDeck]=2;memory[env.gNativeCureTarget]=0
 assert(combat()==256,'available Cure has priority over defensive Guard')
 memory[env.gNativeDeck]=1;memory[env.gNativePartyHealth]=80;memory[env.gNativeDeck+73]=0
 assert(combat()==1,'healthy Sora retains Fire preference')
+memory[env.sEnemyTasks]=0;memory[env.gNativePartyHealth]=40;memory[env.gNativeDeck]=2;memory[env.gNativeCureTarget]=0
+assert(combat()==1,'heal injured Sora even between distant encounters')
+memory[env.gNativeDeck]=1;assert(combat()==nil,'do not waste offensive cards without nearby enemies')
 print('Combat replay policy: explicit Sora Cure, defensive Guard, and action/card gates passed')

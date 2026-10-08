@@ -191,7 +191,7 @@ local function combatInput()
    if math.abs(ex-x)+math.abs(ey-y)<32768 and math.abs(ez-z)<=6144 then near=true end
   end
  end
- if not near or emu:read16(gNativeActionLeft)==0 then return nil end
+ if emu:read16(gNativeActionLeft)==0 then return nil end
  local hand={};local wanted=nil;local healing=false
  for i=0,emu:read8(gNativeDeck+72)-1 do
   if emu:read8(gNativeDeck+48+i)==1 then
@@ -202,6 +202,7 @@ local function combatInput()
  if emu:read8(gNativePartyHealth)<60 then
   for i,kind in ipairs(hand) do if kind==2 then wanted=i-1;healing=true;break end end
  end
+ if not near and not healing then return nil end
  local threat=emu:read16(gNativeThreats)
  if not healing and threat>0 and emu:read8(gNativePartyHealth)<=threat+16 then
   for i,kind in ipairs(hand) do if kind==3 then wanted=i-1;break end end
@@ -216,6 +217,26 @@ local function combatInput()
     emu:read16(gNativeCureTarget)~=0 then return 258 end
  return 1
 end
+-- Roster HP belongs to hero identity, including reserves. Replace KO
+-- companions only at native assembly; never manufacture health or revive.
+local function reserveReplacement()
+ local unlocked=emu:read8(gNativeRoster)
+ for slot=1,2 do
+  if emu:read8(gNativePartyHealth+slot)==0 then
+   local bestHero,bestHp=nil,0
+   for hero=1,4 do
+    local deployed=false
+    for i=0,2 do if emu:read8(gNativeRoster+1+i)==hero then deployed=true end end
+    local hp=emu:read8(gNativeRoster+19+hero)
+    if (unlocked&(1<<hero))~=0 and not deployed and hp>bestHp then
+     bestHero,bestHp=hero,hp
+    end
+   end
+   if bestHero then return slot,bestHero end
+  end
+ end
+end
+local assemblyReplacement=nil
 local endingTurn=false
 local returningToSora=false
 local function turnKey()
@@ -429,7 +450,7 @@ local function replayFrame()
    if completedRuns<(goalRuns or 1) then
     retryFrame=f+12;retrySeed=emu:read32(gNativeSeed)
     emu:setKeys(4)
-    victoryFrame=nil;victoryHealth=nil;cloudRecruited=false;cloudDeployed=false
+    victoryFrame=nil;victoryHealth=nil;cloudRecruited=false;cloudDeployed=false;assemblyReplacement=nil
     previousWorld=0;previousRoom=-1;suspendStage=0
     routeStep=1;roomVisitMasks={0,0,0}
     observedChests=0
@@ -530,16 +551,30 @@ local function replayFrame()
  end
  if phase=='assembly_release' then phase='scan';nextFrame=f+4;return end
  if gNativeAssembly and emu:read16(gNativeAssembly)~=0 then
-  if recruitCloud and cloudRecruited and emu:read8(gNativeRoster+2)~=3 then
+  if recruitCloud and cloudRecruited and not cloudDeployed and emu:read8(gNativeRoster+2)~=3 then
    local slot=emu:read16(sAssemblyChoice)
-   -- Select Donald's slot, then cycle down directly to unlocked Cloud.
-   emu:setKeys(slot==1 and 128 or 256)
+   -- Select Donald's slot, then cycle to unlocked Cloud.
+   pressNative(slot==1 and 128 or 256)
    phase='assembly_release';nextFrame=f+4;return
   end
-  if recruitCloud and cloudRecruited and emu:read16(sAssemblyChoice)~=0 then
-   emu:setKeys(512);phase='assembly_release';nextFrame=f+4;return
+  if assemblyReplacement and emu:read8(gNativeRoster+1+assemblyReplacement.slot)==assemblyReplacement.hero then
+   assemblyReplacement=nil
   end
-  emu:setKeys(8);phase='release';nextFrame=f+4;return
+  if not assemblyReplacement then
+   local slot,hero=reserveReplacement()
+   if slot then assemblyReplacement={slot=slot,hero=hero} end
+  end
+  if assemblyReplacement then
+   local replaceSlot,replaceHero=assemblyReplacement.slot,assemblyReplacement.hero
+   local slot=emu:read16(sAssemblyChoice)
+   out:write('RESERVE SETUP frame='..f..' slot='..replaceSlot..' hero='..replaceHero..' hp='..emu:read8(gNativeRoster+19+replaceHero)..'\n');out:flush()
+   pressNative(slot==replaceSlot and 128 or 256)
+   phase='assembly_release';nextFrame=f+4;return
+  end
+  if emu:read16(sAssemblyChoice)~=0 then
+   pressNative(512);phase='assembly_release';nextFrame=f+4;return
+  end
+  pressNative(8);phase='release';nextFrame=f+4;return
  end
  if phase=='release' then phase='scan';nextFrame=f+8;return end
  if emu:read16(gNativeReward)~=0 then

@@ -1073,3 +1073,29 @@ ROM SHA2568449f2fca08897350200e1f35babf4c4d1eaffc807f4d9334ff913c028d4c4b0.
 Development0.29 BPS applies byte-identically to this ROM. Earlier provisional
 0.28 artifact is not the current build. These focused UI checks do not
 establish all-room or consecutive-run victory on the changed ROM.
+
+Complete-run verification follow-up (2026-10-07): the earlier all-room
+Agrabah defeat controller kept forcing Cloud into slot1 after he was KO,
+ignoring unlocked healthy reserves. Cloud is now required to deploy once;
+subsequent native assembly replaces KO companions with the healthiest
+unlocked nondeployed reserve. A pending replacement target survives native
+duplicate swaps while cycling. Native assembly presses now use the completed
+input acknowledgement barrier. Combat can Cure injured Sora outside nearby
+enemy range, while offensive cards still require nearby enemies. No game
+health/damage or production save rules changed.
+
+All12 replay-policy tests pass, including new reserve selection and expanded
+Cure gates. The old party policy mock expected obsolete Select-only switches;
+it now checks the real L Select input516. Native KO fixture test passes7/7
+on development0.29: original Donald/Goofy KO fixture, native Rally selection
+and deployment, unchanged reserve HP64 and no rejuvenation of knocked-out
+heroes. An initial fixture mistakenly cycled past Rally; corrected one-step
+fixture is the proof, both logs retained.
+
+Input-only reserve-recovery-all-rooms-evidence is live, session73273/PID62815
+when last inspected: native0.29 exactROM, all12 rooms/world, chest collection,
+Cloud recruitment/deployment, composed descent, and TTroom3 suspend/reset,
+300000 video-frame bound. Initial movement and Goofy Guard are observed.
+It has not reached a campaign verdict; preserve and poll this same live job
+before starting another. Source comment-only cleanup after generation does
+not change that driver's behavior; generated hash remains authoritative.

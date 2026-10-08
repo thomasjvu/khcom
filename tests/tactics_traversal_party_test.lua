@@ -8,12 +8,12 @@ memory[env.gFieldState]=4096;memory[4096+0x94]=8192;memory[8192]=12288;memory[12
 memory[env.gNativeDeck+72]=1;memory[env.gNativeDeck]=3;memory[env.gNativeDeck+48]=1
 memory[env.gNativeThreats]=10;memory[env.gNativePartyHealth+2]=72;memory[env.sPartyAction+4]=1;memory[env.gNativeActionLeft]=1
 local turn=assert(load(source..'\nreturn turnKey','party-policy','t',env))()
-assert(turn()==4,'select Donald while cycling to Goofy')
-memory[env.gNativeParty]=1;assert(turn()==4,'select Goofy')
+assert(turn()==516,'select Donald while cycling to Goofy')
+memory[env.gNativeParty]=1;assert(turn()==516,'select Goofy')
 memory[env.gNativeParty]=2;assert(turn()==1,'play an available Guard in hand slot zero')
 memory[env.gNativeGuard]=2;assert(turn()==8,'end turn after Goofy guard commits')
 memory[env.gNativeEnemyFrames]=24;assert(turn()==0,'wait for the actual enemy phase')
-memory[env.gNativeEnemyFrames]=0;assert(turn()==4,'cycle back to Sora after enemy phase')
+memory[env.gNativeEnemyFrames]=0;assert(turn()==516,'cycle back to Sora after enemy phase')
 memory[env.gNativeParty]=0;assert(turn()==0,'resume Sora navigation')
 memory[env.gNativeGuard]=0;memory[env.gNativePartyHealth+2]=0;assert(turn()==8,'skip unavailable Goofy')
 -- Consume the return-to-Sora state before considering a new turn.
