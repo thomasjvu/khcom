@@ -773,7 +773,10 @@ local function replayFrame()
    out:write('COMPOSED START frame='..f..' move='..emu:read16(gNativeMoveLeft)..' height='..z..'\n');out:flush()
    emu:setKeys(640);phase='compose_open';nextFrame=f+4;return
   end
-  emu:setKeys(dz>z and 128 or 64);commands=commands+1;phase='release';nextFrame=f+4;return
+  -- Finish the stair at a connected endpoint. Comparing to the current
+  -- band reverses direction forever when the goal is on another terrace.
+  local bottom=signed(emu:read32(emu:read32(gFieldState)+0x24))
+  emu:setKeys(dz>=bottom and 128 or 64);commands=commands+1;phase='release';nextFrame=f+4;return
  end
  if phase=='scan' and index==1 then
   local x,y,z=pos()

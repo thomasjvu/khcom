@@ -17,12 +17,12 @@ p.add_argument('--worlds', type=int, choices=range(1, 4))
 p.add_argument('--runs',type=int,choices=range(1,4),default=1,help='complete consecutive runs using native Select retry to advance the seed')
 p.add_argument('--all-rooms',action='store_true',help='visit all twelve rooms per world, including both optional branches and backtracking')
 p.add_argument('--collect-chests',action='store_true',help='reach and strike every reward chest through native input')
-p.add_argument('--frames', type=int, default=36000, help='aggregate video-frame limit across all runs; three full runs may use 540000')
+p.add_argument('--frames', type=int, default=36000, help='aggregate video-frame limit across all runs; three full all-room runs may use 1200000')
 p.add_argument('--recruit-cloud',action='store_true',help='fight optional Cloud, recruit and deploy him before continuing')
 p.add_argument('--composed-descent',action='store_true',help='use and require a verified descent-to-walking route during each full run')
 p.add_argument('--suspend-room', type=int, choices=range(1,7), help='save and reset once in this Traverse Town room')
 a = p.parse_args()
-if not 180 <= a.frames <= (300000 if a.all_rooms else 180000)*a.runs:
+if not 180 <= a.frames <= (400000 if a.all_rooms else 180000)*a.runs:
     p.error('--frames must be between 180 and the per-run ceiling multiplied by --runs')
 if a.all_rooms and a.worlds!=3:
     p.error('--all-rooms requires --worlds 3')
