@@ -827,3 +827,24 @@ TacFar_GetFldPosClimbDir:
  bx r3
 .balign 4
 1: .word GetFldPosClimbDir + 1
+
+.balign 4
+.global TacFar_Sqrt8
+.thumb_func
+TacFar_Sqrt8:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word Sqrt8 + 1
+
+.balign 4
+.global TacFar_GetAngle
+.thumb_func
+TacFar_GetAngle:
+ push {r3}
+ ldr r3, 1f
+ mov ip, r3
+ pop {r3}
+ bx ip
+.balign 4
+1: .word GetAngle + 1

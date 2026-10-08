@@ -1297,8 +1297,45 @@ static int NativeJumpBlocked(FieldJumpPoint* point, void* context) {
     (void)context;
     return IsFldPosBlocked((FldPos*)point);
 }
+typedef struct NativeJumpContact {
+    int ground, pushX, pushY, colliding, standing;
+} NativeJumpContact;
+static void NativeJumpContacts(const FieldJumpPoint* point, NativeJumpContact* result) {
+    FldWork* player=((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
+    ListNode* node=((ListPool*)ColliderGetPool(6))->activeTail;
+    Collider* other;
+    int radius, dx, dy, dz, penetration, angle;
+    result->ground=point->ground; result->pushX=result->pushY=0;
+    result->colliding=result->standing=0;
+    while (node) {
+        if (!(node->flags & LIST_NODE_FLAG_SKIP)) {
+            other=node->owner;
+            radius=player->collider.radius+other->radius;
+            dx=NativeAbs(point->x-other->x); dy=NativeAbs(point->y*2-other->y);
+            if (dx<radius && dy<radius) {
+                penetration=radius-Sqrt8(((dx*dx)>>8)+((dy*dy)>>8));
+                if (penetration>0) {
+                    dz=point->z-other->z;
+                    if (dz<player->collider.height && -dz<other->height) {
+                        angle=GetAngle(point->x,point->y*2,other->x,other->y);
+                        result->pushX=-(penetration*gSineTable[angle]>>8);
+                        result->pushY=-(penetration*-gSineTable[angle+64]>>8);
+                        result->colliding=1;
+                    } else if ((other->flags & COLLIDER_FLAG_IS_PLATFORM) &&
+                        other->z-other->height>=point->z) {
+                        result->standing=1;
+                        if (other->z-other->height<point->ground)
+                            result->ground=other->z-other->height;
+                    }
+                }
+            }
+        }
+        node=node->prev;
+    }
+}
 static void NativeJumpPredict(void) {
     FieldJumpMotion motion;
+    NativeJumpContact contact;
     FieldJumpPoint point;
     FldPos origin, attachment;
     FieldJumpPoint overLedge, underLedge;
@@ -1329,7 +1366,12 @@ static void NativeJumpPredict(void) {
     FieldJumpMotionInit(&motion,point.x,point.y,point.z,origin.x,origin.y,speed);
     for (frame=0;frame<160 && motion.phase!=3;frame++) {
         oldX=motion.x; oldY=motion.y;
-        FieldJumpMotionStep(&motion,sine,cosine,gNativeDirection!=0,point.ground);
+        NativeJumpContacts(&point,&contact);
+        FieldJumpMotionStep(&motion,sine,cosine,gNativeDirection!=0,contact.ground);
+        if (contact.colliding && !contact.standing) {
+            motion.speed=230*motion.speed >> 8;
+            motion.x+=contact.pushX; motion.y+=contact.pushY;
+        }
         point.x=motion.x; point.y=motion.y; point.z=motion.z;
         if (FieldJumpTerrainCheck(&point,NativeJumpGround,NativeJumpBlocked,NULL)) {
             point.x=oldX; point.y=oldY;
