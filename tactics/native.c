@@ -1377,14 +1377,22 @@ static void NativeHud(void) {
         NativeLabel(0, 32, "POWER OR RECRUIT");
     }
     if (!gNativeMenu && !gNativeAssembly && !gNativePreview && !gNativeProgressReward &&
-        !gNativeReward && !gNativeEnemyFrames && !gNativeResult && !gNativeSaveNotice)
+        !gNativeReward && !gNativeEnemyFrames && !gNativeResult && !gNativeBusy && !gNativeSaveNotice)
         NativeLabel(0, 32, "SELECT COMMANDS");
     if (gNativeMenu) {
         static const char* const commands[6] = {"MOVE", "ATTACK", "SKILLS", "PARTY", "END TURN", "SUSPEND"};
         gWin0V = 64;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         NativeLabel(0, 0, gNativeMenu >= 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  UP DOWN A  B BACK");
-        if (gNativeMenu == 8) {
+        if (gNativeMenu == 9) {
+            NativeLabel(0, 0, "LEDGE  UP DOWN A SELECT");
+            NativeLabel(0, 16, gNativeMenuChoice ? " " : "X");
+            NativeLabel(16, 16, "CLIMB UP");
+            NativeLabel(0, 24, gNativeMenuChoice ? "X" : " ");
+            NativeLabel(16, 24, "DROP DOWN");
+            NativeLabel(0, 40, "JUMP COST ALREADY PAID");
+            NativeLabel(0, 48, "A SELECT  B BACK");
+        } else if (gNativeMenu == 8) {
             NativeLabel(0, 0, "PARTY  UP DOWN A SELECT");
             for (i = 0; i < 3; i++) {
                 char status[] = "HP 00 MP0 ACT0";
@@ -1490,6 +1498,13 @@ static void NativeHud(void) {
         }
     }
     if (gNativePreview == 1 && !gNativeMenu) NativeLabel(0, 32, "R JUMP  B BACK");
+    if (!gNativeMenu && gNativeBusy == 2) {
+        FldWork* player = ((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
+        if (player->state == FLD_STATE_LEDGE_CATCH || player->state == FLD_STATE_LEDGE_HANG) {
+            NativeLabel(0, 8, "LEDGE  UP CLIMB  B DROP");
+            NativeLabel(0, 32, player->state == FLD_STATE_LEDGE_HANG ? "SELECT LEDGE COMMANDS" : "CATCHING LEDGE");
+        }
+    }
     sHudPending = 1;
 }
 static void NativeExit(void) {
@@ -2664,6 +2679,21 @@ static void NativeUpdate(void) {
          * opened chest before its reward has been granted. */
         pressed = 0;
     }
+    if (!gNativeResult && gNativeBusy == 2 && player->state == FLD_STATE_LEDGE_HANG) {
+        if (pressed & SELECT_BUTTON) {
+            gNativeMenu = gNativeMenu == 9 ? 0 : 9;gNativeMenuChoice = 0;
+            raw = pressed = 0;
+        } else if (gNativeMenu == 9) {
+            if (pressed & B_BUTTON) {gNativeMenu = 0;raw = pressed = 0;}
+            else if (pressed & A_BUTTON) {
+                raw = pressed = gNativeMenuChoice ? B_BUTTON : DPAD_UP;
+                gNativeMenu = 0;gNativeMenuChoice = 0;
+            } else {
+                if (pressed & (DPAD_UP | DPAD_DOWN)) gNativeMenuChoice ^= 1;
+                raw = pressed = 0;
+            }
+        }
+    }
     if (!gNativeProgressReward && !gNativeAssembly && !gNativeReward && !gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
         !(gFieldState->flags & (FIELD_FLAG_FREEZE_PLAYER | FIELD_FLAG_ROOM_CREATE))) {
         /* The command panel shares the authoritative native actions and
@@ -2928,6 +2958,11 @@ static void NativeUpdate(void) {
         if (player->state == FLD_STATE_LEDGE_CATCH || player->state == FLD_STATE_LEDGE_HANG) {
             held = raw & DPAD_ANY;
             edge = pressed & (B_BUTTON | DPAD_ANY);
+            /* Dropping abandons the jump's prior horizontal command, or
+             * the following fall can drive straight back into this ledge. */
+            if ((edge & (B_BUTTON | DPAD_DOWN)) ||
+                (gFieldState->actor.angle == 211 && (edge & DPAD_RIGHT)) ||
+                (gFieldState->actor.angle == 45 && (edge & DPAD_LEFT))) gNativeDirection = 0;
         }
     }
     FIELD_KEYS_HELD = held;

@@ -292,3 +292,6 @@ Commands → Party opens the deployed hero list. Up/Down highlights a hero,
 showing HP, remaining movement/action or KO. A switches directly to a living
 hero while grounded; B returns without switching. L+Select remains the quick
 cycle shortcut. Switching preserves each hero's spent resources.
+
+While hanging from a ledge, press Select for Climb/Drop. Up/Down selects,
+A confirms, and B closes the menu without dropping. The jump cost is already paid.

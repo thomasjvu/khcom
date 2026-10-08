@@ -526,3 +526,20 @@ remains recorded separately. Existing older ledge tests are unchanged.
 `ledge-replay-ready-evidence` preserves the exact ROM/driver/log scope. This
 proves one recorded ledge, not completion of the all-room campaign; broader
 coverage is being rerun separately without changing the300000-frame bound.
+
+### Ledge commands and native drop repair
+
+While hanging from a ledge, Select opens Climb/Drop. Up/Down selects, A
+confirms, and B closes the menu without dropping. Confirmation uses the
+original ledge physics and preserves the movement/action costs already paid
+for the jump. Direct Up/B field controls remain available with the menu closed.
+
+Dropping clears the previous jump direction, preventing continued horizontal
+input from pulling the falling hero back into the ledge. Two native fixtures
+pass all16 checks across Climb, Drop, browsing, cancellation, surface settlement
+and unchanged resource costs. These use an explicit recorded saved-room
+approach and input only after boot; they prove one ledge, not campaign-wide
+coverage. Exact ROM hashes and logs are preserved in
+`build/tactics-us/ledge-command-{climb,drop}-fixed-evidence/metadata.json`.
+No reserved RAM or save-format change. The broader all-room replay runs on
+the earlier8f5584ea8 ROM and does not validate this newer menu/drop change.

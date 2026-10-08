@@ -133,3 +133,20 @@ checks and10 Rally Attack regression checks pass on this presentation ROM.
 Confirmed spin hits both previewed enemies; cancel preserves card/action and
 enemy health. Screen inspected. Packaged0.26 campaign proof remains tied to
 its earlier ROM hash, separate from this presentation update.
+
+### Ledge commands and native drop repair
+
+While hanging from a ledge, Select opens Climb/Drop. Up/Down selects, A
+confirms, and B closes the menu without dropping. Confirmation uses the
+original ledge physics and preserves the movement/action costs already paid
+for the jump. Direct Up/B field controls remain available with the menu closed.
+
+Dropping clears the previous jump direction, preventing continued horizontal
+input from pulling the falling hero back into the ledge. Two native fixtures
+pass all16 checks across Climb, Drop, browsing, cancellation, surface settlement
+and unchanged resource costs. These use an explicit recorded saved-room
+approach and input only after boot; they prove one ledge, not campaign-wide
+coverage. Exact ROM hashes and logs are preserved in
+`build/tactics-us/ledge-command-{climb,drop}-fixed-evidence/metadata.json`.
+No reserved RAM or save-format change. The broader all-room replay runs on
+the earlier8f5584ea8 ROM and does not validate this newer menu/drop change.
