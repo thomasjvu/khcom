@@ -7,6 +7,7 @@ local phase='scan'
 local navigationSnapshot
 local turnOrigin=nil
 local stationaryTurns=0
+local diagnosticTurns=0
 local index=1
 local dirs={16,32,64,128,80,96,144,160}
 local best=nil
@@ -343,6 +344,8 @@ local function turnKey()
   if emu:read8(gNativeDeck+73)~=guard then return 256 end
   out:write('GOOFY GUARD frame='..f..' threat='..threat..'\n');out:flush();return 1
  end
+ diagnosticTurns=diagnosticTurns+1
+ if diagnosticTurns%16==0 then navigationSnapshot('navigation-periodic-turns.json') end
  out:write('TURN frame='..f..' hp='..emu:read8(gNativePartyHealth)..','..emu:read8(gNativePartyHealth+1)..','..emu:read8(gNativePartyHealth+2)..' threat='..threat..' guard='..emu:read16(gNativeGuard)..'\n');out:flush()
  endingTurn=false;returningToSora=true;return 8
 end

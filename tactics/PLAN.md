@@ -1689,3 +1689,7 @@ Aligned fixture reproduces native-room11 left/right movement oscillation, not a 
 ### Chest-facing command hint
 
 Sword confirmation now says FACE ENEMY OR CHEST inside the existing24px row, making native chest strikes visible to players without another persistent panel. Native build/link/header/capacity checks pass. PLAY facing persistence text corrected to current format12 and version-specific8–11 migration. This one-line native hint produces a new un-packaged build; live corrected all-room3seed frontend67315 continues using its frozen packaged0.39 ROM, so its eventual evidence remains version-scoped. No whole-game proof is inferred from this text edit.
+
+### Periodic turn snapshots and corrected sweep progress
+
+Replay diagnostics now snapshot every16 actually requested enemy phases, covering movement oscillation that exact-position counters miss. Known room11 narrow-approach fixture explicitly restored old8px policy in its driver: periodic snapshot executed and parsed, seed2658846982/floor1/room11, busy0/move0/action1; bounded reproduction endsFAIL6001 as expected, not a campaign pass. Evidence room11-periodic-turn-diagnostic-evidence with updated driver/log/snapshot hashes and exit0. Live corrected all-room sweep67315 temporarily spent many turns in first-seed room11 but subsequently progressed: all9chests, native victory298862, stable run complete298982, retry298994, then second-seed Agrabah entered389745. No terminal three-seed pass claimed yet.
