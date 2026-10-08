@@ -382,6 +382,19 @@ navigationSnapshot=function(name)
   end
   file:write(']}')
  end end
+ file:write('],"jump_pads":[')
+ local padNode=emu:read32(emu:read32(gFieldState)+0x80);local padCount=0
+ while padNode~=0 do
+  local task=emu:read32(padNode)
+  if emu:read32(task)==gTaskDescMapGmkJump then
+   local work=emu:read32(task+4)
+   file:write((padCount>0 and ',' or '')..'[')
+   for j=0,3 do file:write((j>0 and ',' or '')..signed(emu:read32(work+j*4))) end
+   file:write(','..emu:read32(work+0xc4)..','..emu:read8(work+0x10)..']')
+   padCount=padCount+1
+  end
+  padNode=emu:read32(padNode+8)
+ end
  file:write('],"props":[')
  local node=emu:read32(sColliderPoolObstacle+8);local count=0
  while node~=0 and count<128 do
@@ -809,7 +822,7 @@ local function replayFrame()
  local stair
  dx,dy,dz,stair=stairGoal(dx,dy,dz)
  local px,py=pos()
- if phase=='scan' and stair and math.abs(px-dx)<(stair~=64 and stair~=128 and 4096 or 2048) and math.abs(py-dy)<(stair~=64 and stair~=128 and 4096 or 4096) then
+ if phase=='scan' and stair and (stair~=2 or emu:read32(emu:read32(gMapRoomState)+0x1c)>0) and math.abs(px-dx)<(stair~=64 and stair~=128 and 4096 or 2048) and math.abs(py-dy)<(stair~=64 and stair~=128 and 4096 or 4096) then
   if (stair&2)~=0 and emu:read16(gNativeActionLeft)==0 then requestTurn();return end
   pressNative(stair);commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
  end

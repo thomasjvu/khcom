@@ -1,0 +1,40 @@
+/* Diagnostic only: reproduce the recorded second-seed Agrabah room10 height-navigation stall.
+ * This writes an explicit suspend fixture, not campaign-completion evidence. */
+#include <stdio.h>
+#include <string.h>
+#include "field_save.h"
+int main(int argc,char** argv) {
+    unsigned char bytes[32768];FieldSaveState state;unsigned int generation;
+    FILE* file;int i,j;
+    if(argc!=3)return 1;
+    file=fopen(argv[1],"rb");if(!file)return 2;
+    if(fread(bytes,1,sizeof(bytes),file)!=sizeof(bytes)){fclose(file);return 3;}fclose(file);
+    if(FieldSaveSelect(&state,&generation,bytes,bytes+FIELD_SAVE_SIZE)<0)return 4;
+    if(state.seed!=2658846982u)return 5;
+    state.floor=1;state.room=10;state.party=0;state.hp=68;state.guard=0;
+    state.climbing=0;state.climbTarget=0;state.climbAngle=0;
+    state.roster.phase=FIELD_BATTLE;state.roster.reward=0;state.roster.room=10;
+    state.roster.deployed[1]=FIELD_RALLY;state.roster.deployed[2]=FIELD_DONALD;
+    for(i=0;i<12;i++) {
+        state.roomFlags[i]=1; /* FLOOR_ROOM_FLAG_CREATED: preserve native open doors. */state.roomEnemies[i]=0;state.roomCached[i]=0;
+        memset(state.encounters[i],0,sizeof(state.encounters[i]));
+    }
+    state.roomCached[10]=1;state.roomFlags[11]|=0x10; /* recorded opened chest */
+    {
+        static const unsigned char deck[78]={0,1,2,3,0,1,2,3,0,1,2,3,3,1,3,0,2,0,2,3,0,1,2,3,5,6,7,8,0,5,6,7,8,9,5,6,9,8,5,7,8,7,8,9,5,6,7,8,1,2,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,1,0,0,0,0};
+        memcpy(&state.deck,deck,sizeof(state.deck));
+    }
+    state.chests=6;state.kills=27;state.roster.power[0]=7;
+    for(i=0;i<3;i++) {
+        state.partyPos[i][0]=i==0?50465:39936;state.partyPos[i][1]=i==0?78596:94720;
+        state.partyPos[i][2]=i==0?45056:61440;state.partyPos[i][3]=i==0?45056:61440;
+        state.move[i]=i==0?2:3;state.action[i]=i==0?0:1;state.partyHp[i]=i==0?68:i==1?64:56;
+        j=state.roster.deployed[i];state.roster.heroHp[j]=state.partyHp[i];
+        state.roster.heroMove[j]=state.move[i];state.roster.heroAction[j]=state.action[i];
+    }
+    memset(bytes,0xff,sizeof(bytes));
+    if(!FieldSaveEncode(&state,generation+1,bytes))return 6;
+    file=fopen(argv[2],"wb");if(!file)return 7;
+    if(fwrite(bytes,1,sizeof(bytes),file)!=sizeof(bytes)){fclose(file);return 8;}fclose(file);
+    return 0;
+}

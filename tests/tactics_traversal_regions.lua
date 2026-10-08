@@ -100,6 +100,22 @@ local function buildTerrainPlan()
    end
   end
  end end
+ -- Original launch pads supply the tall ascent connections omitted by
+ -- ordinary jump edges. The native collider/controller still owns launch.
+ local node=emu:read32(emu:read32(gFieldState)+0x80)
+ while node~=0 do
+  local task=emu:read32(node)
+  if emu:read32(task)==gTaskDescMapGmkJump then
+   local work=emu:read32(task+4)
+   local x=signed(emu:read32(work));local z=signed(emu:read32(work+8))
+   local y=signed(emu:read32(work+4))+z;local height=emu:read32(work+0xc4)
+   local lower=graph.region(x,y,z);local upper=graph.region(x,y-height,z-height)
+   if height>0 and lower and upper and lower~=upper then
+    graph.edges[#graph.edges+1]={from=lower,to=upper,x=x,y=y,z=z,key=2}
+   end
+  end
+  node=emu:read32(node+8)
+ end
  return graph
 end
 local function terrainGoal(tx,ty,tz)

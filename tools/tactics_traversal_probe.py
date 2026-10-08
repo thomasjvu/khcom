@@ -42,7 +42,7 @@ raw=[int(w[0],16) for line in subprocess.check_output(['arm-none-eabi-nm',a.elf]
 if len(raw)!=1:p.error('unique tactics raw-input symbol required')
 names['sRawKeys']=raw[0]
 keys = ('gFrameCounter','sRawKeys','gCurrentMode', 'gCurrentModeUpdate', 'gPendingMode', 'sNativeMode', 'NativeUpdate', 'gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
-        'gTaskDescMapDoor', 'gTaskDescMapGmk01', 'gNativeChests', 'gNativeBusy', 'gNativeMenu', 'gNativeMenuChoice', 'gNativeEnemyFrames', 'gNativeParty', 'gNativeGuard', 'gNativeThreats', 'sPartyAction', 'gNativePreview',
+        'gTaskDescMapDoor', 'gTaskDescMapGmk01', 'gTaskDescMapGmkJump', 'gNativeChests', 'gNativeBusy', 'gNativeMenu', 'gNativeMenuChoice', 'gNativeEnemyFrames', 'gNativeParty', 'gNativeGuard', 'gNativeThreats', 'sPartyAction', 'gNativePreview',
         'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing', 'gNativeCureTarget','gNativeCureHeal','gNativeFireTarget','gNativeFireDamage','gNativeReachCost','gNativeReachCount','gNativeClimbReachMask','sRouteValid','sPlayerEdge',
         'sRoutePos', 'sCursorX', 'sCursorY', 'gMapRoomState', 'sMapCells', 'sMapPlatforms', 'gCellMasks', 'sEnemyTasks', 'gNativeDeck', 'gNativePartyHealth', 'gNativeKills', 'gNativeResult', 'gNativeReward', 'sColliderPoolObstacle', 'gNativeFloor', 'gNativeSeed', 'gNativeSaveNotice', 'gNativeProgressReward', 'sProgressHero', 'sProgressKind', 'sAssemblyChoice', 'gNativeRoster', 'gNativeAssembly', 'sSuspend', 'sSaveBytes', 'sPartyPos', 'gNativeEnemyHp', 'gNativeEnemyCharge')
 out = Path(a.output).resolve()
