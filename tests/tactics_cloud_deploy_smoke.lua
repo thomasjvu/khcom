@@ -18,17 +18,25 @@ callbacks:add('frame',function()
  if f==214 then emu:setKeys(0) end
  if f==240 then emu:setKeys(64) end
  if f==244 then emu:setKeys(0) end
- if f==270 then
+ if f==250 then emu:setKeys(64) end
+ if f==254 then emu:setKeys(0) end
+ if f==260 then emu:setKeys(512) end
+ if f==264 then emu:setKeys(0) end
+ if f==300 then emu:setKeys(128) end
+ if f==304 then emu:setKeys(0) end
+ if f==340 then emu:setKeys(256) end
+ if f==344 then emu:setKeys(0) end
+ if f==390 then
   check(emu:read8(gNativeRoster+3)~=3,'locked Cloud cannot deploy')
   -- Explicit recruitment/health fixture; assembly itself uses controller input.
-  emu:write8(gNativeRoster,15);emu:write8(gNativeRoster+7,2)
+  emu:write8(gNativeRoster,31);emu:write8(gNativeRoster+7,2)
   emu:write8(gNativePartyHealth+2,51);emu:write16(sPartyAction+4,0)
   emu:write8(sPartyAngle+2,128)
  end
  -- Slot 2 currently Donald after swapping with the only other unlocked hero.
- if f==300 then emu:setKeys(128) end
- if f==304 then emu:setKeys(0) end
- if f==360 then
+ if f==420 or f==450 then emu:setKeys(128) end
+ if f==424 or f==454 then emu:setKeys(0) end
+ if f==480 then
   check(emu:read8(gNativeRoster+3)==3,'unlocked Cloud enters selected companion slot')
   check(emu:read8(gNativeRoster+2)==2,'Donald is actually benched while Goofy remains deployed')
   check(emu:read8(gNativePartyHealth+2)==72 and emu:read8(gNativePartyHealth+5)==72,'Cloud uses his own health cap')
@@ -36,30 +44,30 @@ callbacks:add('frame',function()
   check(emu:read32(sAssemblyOtherTiles)~=0 and emu:read32(sAssemblyOtherPalette)~=0,'Cloud summon card appears during assembly')
   emu:screenshot('@OUTPUT@/cloud-party-setup.png');emu:setKeys(1)
  end
- if f==364 then emu:setKeys(0) end
- if f==400 then
+ if f==484 then emu:setKeys(0) end
+ if f==520 then
   check(emu:read16(gNativeParty)==2 and emu:read16(gNativeAssembly)==0,'confirmation gives direct control of Cloud')
   place(32)
  end
- if f==430 then
+ if f==550 then
   check(emu:read16(gNativeFireDamage)==19,'Cloud sword and personal power preview nineteen damage')
   emu:setKeys(1)
  end
- if f==434 then emu:setKeys(0) end
- if f==490 then
+ if f==554 then emu:setKeys(0) end
+ if f==610 then
   check(emu:read16(gNativeEnemyHp)==11 and emu:read16(gNativeEnemyHp+2)==30,'Cloud sword resolves one previewed target')
   check(emu:read16(gNativeActionLeft)==0,'Cloud attack spends Cloud action')
   emu:setKeys(12)
  end
- if f==494 then emu:setKeys(0) end
- if f==550 then check(emu:read16(gNativeSaveNotice)==1,'deployed Cloud suspends');emu:reset() end
- if f==880 then
+ if f==614 then emu:setKeys(0) end
+ if f==670 then check(emu:read16(gNativeSaveNotice)==1,'deployed Cloud suspends');emu:reset() end
+ if f==1000 then
   check(emu:read8(gNativeRoster+3)==3 and emu:read16(gNativeParty)==2,'resume preserves Cloud deployment and control')
   check(emu:read8(gNativePartyHealth+2)==72 and emu:read8(gNativePartyHealth+5)==72,'resume preserves Cloud health and cap')
   check(emu:read8(gNativeRoster+7)==2 and emu:read16(gNativeAssembly)==0,'resume preserves hero upgrade and active battle')
-  check(emu:read8(gNativeRoster+18)==51,'benching Donald preserves his injured health')
-  check(emu:read8(gNativeRoster+26)==0,'benching Donald preserves his spent action')
-  check(emu:read8(gNativeRoster+30)==128,'benched Donald facing survives reboot')
+  check(emu:read8(gNativeRoster+20)==51,'benching Donald preserves his injured health')
+  check(emu:read8(gNativeRoster+30)==0,'benching Donald preserves his spent action')
+  check(emu:read8(gNativeRoster+35)==128,'benched Donald facing survives reboot')
   check(emu:read32(sFriends+56)~=0 and emu:read32(sCardTiles+12)~=0,'resume reconstructs party and combat Guard artwork')
   emu:screenshot('@OUTPUT@/cloud-controlled.png');out:close()
  end
