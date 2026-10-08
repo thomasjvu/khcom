@@ -10,7 +10,8 @@ ready-party/enemy strip stays visible. Header26/footer16 leave118/160 pixels
 unobscured; clearing the charge restores the18-pixel header. Windup names
 cover Guardian, all armor phases, Jafar, Cloud and Marluxia normal/rage.
 
-172 scoped native checks pass:58 UI and114 boss/Cloud checks, including
+254 scoped native checks pass:58 UI,114 boss/Cloud,44 party,12 SRAM,14
+input-only Rally action and12 Rally states, including
 actual rendered VRAM warnings, budgets, resource lifetime and suspend/reset.
 Three input-only campaigns PASS434168: stable victories129518 HP76,311898
 HP76 and434168 HP80. Each requires actual Cloud recruit/deploy, exact suspend/
@@ -19,5 +20,6 @@ reset and composed descent. Emulator exited0; ROM/driver/log hashes verified.
 All-room replay ended in Sora defeat137348 in Agrabah optional room10. The
 failure is preserved. Revised driver prefers a legal finishing Fire against
 the final enemy only when native damage confirms the kill; native rules are
-unchanged. Its full all-room/nine-chest replay is pending. This remains a
+unchanged. It also reached the same defeat; decision-time forecasts did not select a
+finishing card. More detailed reason diagnostics are pending. This remains a
 development patch, with final polish and current all-room verification open.

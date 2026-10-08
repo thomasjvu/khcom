@@ -51,6 +51,7 @@ local victoryHealth=nil
 local composedRoutes=0
 local composedSelection=nil
 local composedApproach=nil
+local combatDebugFrame=0
 local function signed(v) if v>=2147483648 then return v-4294967296 end return v end
 local function pos()
  local p=emu:read32(gFieldState)
@@ -217,19 +218,20 @@ end
 -- Prefer removing the last enemy when a native Fire card can finish it.
 -- Match native raw-plane range, height, card-break threshold and Sora power.
 local function finishingFireSlot(x,y,z)
- if emu:read16(gNativeParty)~=0 then return nil end
+ if emu:read16(gNativeParty)~=0 then return nil,nil,nil,'companion' end
  local lone=nil
  for i=0,5 do
   local task=emu:read32(sEnemyTasks+i*4)
   if task~=0 and emu:read16(gNativeEnemyHp+i*2)>0 then
-   if lone then return nil end
+   if lone then return nil,nil,nil,'multiple' end
    lone={slot=i,work=emu:read32(task+4),hp=emu:read16(gNativeEnemyHp+i*2)}
   end
  end
- if not lone then return nil end
+ if not lone then return nil,nil,nil,'none' end
  local w=lone.work;local ez=signed(emu:read32(w+16))
  local distance=math.abs(signed(emu:read32(w+8))-x)+math.abs(signed(emu:read32(w+12))-(y-z))
- if distance>=32768 or math.abs(ez-z)>6144 then return nil end
+ if distance>=32768 then return nil,nil,nil,'range' end
+ if math.abs(ez-z)>6144 then return nil,nil,nil,'height' end
  local slot=0;local choice,value=nil,nil
  for i=0,emu:read8(gNativeDeck+72)-1 do
   if emu:read8(gNativeDeck+48+i)==1 then
@@ -239,7 +241,7 @@ local function finishingFireSlot(x,y,z)
    slot=slot+1
   end
  end
- return choice,lone.slot,lone.hp
+ return choice,lone.slot,lone.hp,choice and 'eligible' or 'card' 
 end
 local function combatInput()
  local x,y,z=pos();local near=false
@@ -253,7 +255,11 @@ local function combatInput()
  end
  if emu:read16(gNativeActionLeft)==0 then return nil end
  local hand={};local wanted=nil;local healing=false
- local finishSlot,finishTarget,finishHp=finishingFireSlot(x,y,z)
+ local finishSlot,finishTarget,finishHp,finishReason=finishingFireSlot(x,y,z)
+ if near and f-combatDebugFrame>=1000 then
+  combatDebugFrame=f
+  out:write('COMBAT FORECAST frame='..f..' hp='..emu:read8(gNativePartyHealth)..' selected='..emu:read8(gNativeDeck+73)..' finish='..tostring(finishSlot)..' reason='..tostring(finishReason)..' party='..emu:read16(gNativeParty)..' enemy='..tostring(finishTarget)..' enemyhp='..tostring(finishHp)..' target='..emu:read16(gNativeFireTarget)..' damage='..emu:read16(gNativeFireDamage)..' cure='..emu:read16(gNativeCureHeal)..'\n');out:flush()
+ end
  if finishSlot then
   if emu:read8(gNativeDeck+73)~=finishSlot then return 256 end
   if emu:read16(gNativeFireTarget)==finishTarget and emu:read16(gNativeFireDamage)>=finishHp then return 1 end

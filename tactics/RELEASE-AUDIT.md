@@ -1,7 +1,8 @@
 # Current release audit
 
 Current source adds compact charged-attack warnings, SHA256
-`f92bc47131331b1eb168b5b668b6e14c7ebbe8edc6c3457bb1c97c8b8b1e6a2d`. It passes172 scoped native checks (58 UI and114 boss/Cloud). Three-run
+`f92bc47131331b1eb168b5b668b6e14c7ebbe8edc6c3457bb1c97c8b8b1e6a2d`. It passes254 scoped native checks (58 UI,114 boss/Cloud,44 party,12 SRAM,
+14 Rally action and12 Rally state fixtures). Three-run
 PASS434168 (process exited0); all-room script ended in native defeat137348 in
 Agrabah room10. Its terminal diagnostic is preserved for investigation.
 
@@ -12,7 +13,8 @@ moves/menus/Guard,89 boss,57 reward and113 height-preview fixtures). All-room/ni
 campaign passes448492, with required native descent/reset/recruitment each.
 Earlier policy failure444879 remains preserved.
 Latest packaged build is0.37 (current warning hash above); finishing-Fire
-all-room replay92308 pending. Earlier0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
+all-room replay92308 also failed137348. Decision-time diagnostic50504
+repeated the failure; reason diagnostic30946 is live. Earlier0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
 passes51 scoped checks, two campaigns327681 and all36/nine chests295578.
 Earlier0.34 two runs PASS288347 and its all-room defeats130336/134022 remain
 version-scoped. Earlier0.33 all-room PASS281892 is likewise historical.

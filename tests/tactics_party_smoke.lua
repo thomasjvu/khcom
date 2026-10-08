@@ -1,5 +1,6 @@
 local f=0
 local reviveHp=0
+local previewWait=0
 local cureX=0
 local cureZ=0
 local out=io.open('@OUTPUT@/party.txt','w')
@@ -7,6 +8,8 @@ local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flu
 local function hp() return emu:read16(gGameState+0x32) end
 callbacks:add('frame',function()
  f=f+1
+ if f==140 then emu:setKeys(1)end
+ if f==144 then emu:setKeys(0)end
  if f==180 then emu:setKeys(516) end
  if f==184 then emu:setKeys(0) end
  if f==210 then check(emu:read16(gNativeParty)==1,'Select controls Donald');emu:setKeys(64) end
@@ -92,6 +95,9 @@ callbacks:add('frame',function()
     slot=slot+1
    end
   end
+ end
+ if f==922 and emu:read16(gNativeCureTarget)~=1 and previewWait<120 then
+  previewWait=previewWait+1;f=f-1;return
  end
  if f==922 then check(emu:read16(gNativeCureTarget)==1,'Cure preview identifies nearby knocked-out Donald');emu:setKeys(258) end
  if f==926 or f==934 or f==942 or f==950 then emu:setKeys(0) end

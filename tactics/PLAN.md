@@ -1559,3 +1559,19 @@ Read-only tests cover lethal prediction, native confirmation, range, height,
 breaks and multiple enemies; all15 policy files pass. Fresh all-room session
 92308 is pending; prior native defeat137348 remains retained. No game health,
 damage, save or movement rules changed by this driver policy.
+
+## Current party/SRAM/Rally review and remaining all-room failure
+
+82 current native checks pass: party44 (native deployment added and bounded
+preview-update wait), SRAM12 including damaged-newest fallback, Rally input-
+only action14 and complete state fixture12. The first party attempt had one
+preview assertion before a native update; later revival already passed. It is
+retained. Rally750-frame attempt covered only casting; complete1100-frame run
+includes actual damage/climb. Counts/hashes finalized; current scoped total254.
+
+Finishing-Fire all-room92308 ended in identical native defeat137348 and exited0.
+Decision-time diagnostic50504 also failed137348. Forecast logs show no eligible
+finishing choice near the last turns. Recorded terminal state in a read-only
+memory mock predicts hand slot1, enemy2, HP12; this is model diagnosis only,
+not native proof. New diagnostic logs explicit selection-rejection reason and
+controlled party, session30946 live. Preserve failures; do not claim resolution.
