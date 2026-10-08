@@ -241,7 +241,7 @@ local function finishingFireSlot(x,y,z)
    slot=slot+1
   end
  end
- return choice,lone.slot,lone.hp,choice and 'eligible' or 'card' 
+ return choice,lone.slot,lone.hp,choice and 'eligible' or 'card'
 end
 local function combatInput()
  local x,y,z=pos();local near=false
