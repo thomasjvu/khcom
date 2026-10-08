@@ -360,7 +360,7 @@ local function navigationSnapshot(name)
   end
   file:write(']}')
  end
- file:write('],"save_notice":'..emu:read16(gNativeSaveNotice)..'}}\n');file:close()
+ file:write('],"fire_target_raw":'..emu:read16(gNativeFireTarget)..',"fire_damage":'..emu:read16(gNativeFireDamage)..',"cure_target":'..emu:read16(gNativeCureTarget)..',"cure_heal":'..emu:read16(gNativeCureHeal)..',"save_notice":'..emu:read16(gNativeSaveNotice)..'}}\n');file:close()
  local raw=io.open('@OUTPUT@/'..(name or 'navigation-snapshot.json')..'.save-state.bin','wb')
  for i=0,suspendBytes-1 do raw:write(string.char(emu:read8(sSuspend+i))) end
  raw:close()
