@@ -953,3 +953,19 @@ is in room3-native-ack-evidence; fixture generator is host-only and replay
 does not write game memory after boot. Input/rejection/preferred/ledge/retry
 policy tests pass. Fresh native-ack-full-main-evidence is still live; full
 campaign, all-room/multiple-seed traversal and broader polish remain open.
+
+### Current compact-HUD campaign and development deliverable
+
+native-ack-full-main-evidence now passes97531 on exact native6b005110e:
+Cloud9383/deployed10733, composed descent1214, suspend10747/exact resume11077,
+worlds34034/72343, victory97411 Sora80 stable120 frames,14 kills699 attempts.
+Fresh SRAM, no RAM writes, unchanged120000 frame bound; one main-route seed.
+
+Packaged0.27 compact-HUD development BPS is77466 bytes and applies to the
+supported US base byte-for-byte. Exact native ROM SHA256 is
+7a82ead569c34249c12655470e5c64c4c17ac9667ec8d8032aae852cd0e36098.
+Current14 party/movement and12 save/reset/corrupt-newest fallback checks
+pass on that exact ROM. `.tactics_ram` is8140 bytes. Manifest preserves
+ROM/patch/driver/log hashes and fixture scopes; notes in
+COMPACT-HUD-0.27.md. All-room/chest native-ack-all-rooms-evidence is live
+separately under300000 frames. Broader goal remains incomplete.
