@@ -2,8 +2,8 @@
 
 Current development ROM is 0.35, SHA256
 `1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f`.
-It passes 51 scoped native checks. Two fresh campaign replays are running;
-completion on this exact build is not yet verified. The 0.34 two-run result
+It passes 51 scoped native checks. Two consecutive exact-ROM campaigns pass327681; the independent all-room/
+nine-chest replay passes295578. Both native processes exited0. The 0.34 two-run result
 PASS288347 remains scoped to its own hash; both 0.34 all-room policies ended
 in native defeat (130336 and134022). Earlier 0.33 all-room coverage is scoped
 to hash64bb02ac04b1e662fc839bbd5c4c3479a626f856cd02f28e752658364c661505.
@@ -25,10 +25,9 @@ describe earlier versions; current evidence wins.
 | Card combat and sleights | Original artwork, draw/discard/reload, three-card sleights, targeted Fire/Cure/Guard; host/native tests | Current-ROM review of each character/recipe combination |
 | Bosses and roguelike rewards | TT Guard Armor, Agrabah Jafar, Castle Marluxia; completed campaigns; personal power/sleight rewards, Cloud summon-or-power choice | Balance and reward variety; additional recruit bosses |
 | Suspend saves | Current native alternating slots/reset/corrupt-newest fallback12 checks, exact saves in both complete campaigns | Multi-seed replay with reset/retry |
-| Verified complete runs | 0.34 two-seed PASS288347; 0.33 all36/nine chests PASS281892 | Exact 0.35 two-run and all-room replays pending; prior defeats retained |
+| Verified complete runs | 0.34 two-seed PASS288347; 0.33 all36/nine chests PASS281892 | 0.35 two runs PASS327681 and all36/nine chests PASS295578; final broader polish audit remains |
 
-Next priority: verify the exact 0.35 complete campaigns, investigate any
-reproduced navigation or combat failure, and review remaining native combat
+Next priority: review remaining native combat
 and menus across heroes and worlds. Rally's original card and six extra states
 are implemented. Explicit fixture checks and host graph checks are not fresh
 full-run or universal physical reachability proof. Physical cartridge testing
@@ -39,6 +38,6 @@ is optional validation, not a user-imposed completion requirement.
 Current native ROM `1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f` has 51 passing scoped native checks (26 input-only
 UI/save, 19 disclosed companion combat fixtures, six rendered turn-strip fixtures). Commands occupies 40 pixels
 at the top plus the 16-pixel bottom strip; phase order remains visible in the
-menu. This is a development build, without a full campaign replay on its exact
+menu. This is a development build, with two-run and all-room completion on its exact
 ROM. The previously pending 0.34 recovery-policy all-room replay failed by
 native party defeat at134022. Full polish/release scope remains open.

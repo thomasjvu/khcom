@@ -18,7 +18,14 @@ verify native rendered turn-strip pixels, for51 scoped native checks. Host rules
 graphs,1000 route-resource graph oracles and Rally asset encoding pass.
 Graph coverage is not universal native physical reachability evidence.
 
-Exact-ROM two-run and all-room/nine-chest replays are pending. Earlier0.34
-complete-run evidence does not prove this build's completion. Both0.34
-all-room policies ended in native defeat. This remains a development patch;
-full campaign verification and final game polish remain unfinished.
+Exact-ROM replay results: two consecutive runs PASS327681, first stable
+victory129417 with Sora76 HP, native retry129429 seed2658846982, second
+stable victory327681 with Sora63 HP. Both require actual Cloud recruitment/
+deployment, exact suspend/reset and composed descent. The independent
+all-room/nine-chest run passes295578: room masks4095 each, nine chests,
+Sora80 HP stable120 frames,38 kills,1894 movement commands. Both emulator
+processes exited0, and ROM/driver/log hashes are recorded in their evidence
+metadata. These are finite route/seed proofs, not universal reachability.
+
+This remains a development patch; final combat, content, balance and visual
+review remain open in RELEASE-AUDIT.md. Earlier failed campaigns are retained.

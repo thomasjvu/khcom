@@ -1402,3 +1402,15 @@ pass against actual VRAM glyph pixels. Covers controlled ready hero, narrow
 idle windows, exhausted controlled hero, KO Donald, no remaining party budgets
 and enemy-first phase with living next party. Screenshot inspected. Total
 scoped native checks51; no new ROM changes or campaign restart.
+
+## Exact 0.35 complete campaign results
+
+Two-run session73601 exited0 and script PASS327681: first victory129297
+HP76 stable120 to129417; native retry129429 seed2658846982; second victory
+327561 HP63 stable120 to327681. Per-run Cloud recruit/deploy, exact suspend/
+reset and composed descent requirements checked. Independent all-room session
+92992 exited0, PASS295578: victory295458 HP80 stable120, room masks4095 each,
+nine chests,38 kills,1894 moves; same Cloud/reset/descent requirements. Native
+final capture inspected. ROM1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
+and generated driver/log hashes verified; metadata/manifests finalized. These
+prove their finite native campaigns and do not close the full polish audit.
