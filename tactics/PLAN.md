@@ -618,3 +618,21 @@ Donald/Goofy combat/menu checks pass including both guard states, cancellation
 and card/action costs. Both Guard screens visually inspected. Exact current
 fixture hashes are in `guard-menu-effect-evidence/fixture-metadata.json`.
 This changes presentation only, with no reserved RAM/save/combat change.
+
+### Unresolved walking-goal refinement
+
+The read-only replay walking search retains its16px horizontal/8px depth
+lattice for resolved goals. If remaining weighted distance exceeds8px, it
+tries an8px/4px lattice under the same8192-node cap and keeps that answer only
+when it approaches the goal more closely. Every move still uses native route
+preview/confirmation, with no emulated-memory writes or enlarged campaign
+bound. A search fixture proves the coarse grid misses a narrow gap that the
+finer grid reaches, and checks unchanged open/blocked routes. Preferred,
+ledge and retry policy tests pass. This is planner-policy evidence, not native
+proof that the Castle branch is fixed: predicted directions still use native
+movement distances, so rejection remains possible.
+
+`refined-walk-all-room-evidence` is a fresh-SRAM all-room/chest campaign on
+1ac88e86c native ROM with the refined driver, Cloud recruitment, save room4
+and composed descent required, unchanged300000-frame limit. It is running;
+no all-room success is claimed before terminal coverage checks.

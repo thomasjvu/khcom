@@ -1,3 +1,29 @@
+-- Return a direction and remaining distance; native previews retain authority.
+local function walkingSearch(ox,oy,tx,ty,clear,stride)
+ local queue={{x=0,y=0,first=nil}}
+ local seen={['0:0']=true}
+ local head=1;local nearest=nil;local nearestScore=math.abs(ox-tx)+2*math.abs(oy-ty)
+ local steps={{1,0,16},{-1,0,32},{0,-1,64},{0,1,128},{-1,-1,96},{1,-1,80},{-1,1,160},{1,1,144}}
+ while head<=#queue and head<=8192 do
+  local n=queue[head];head=head+1
+  local x=ox+n.x*stride;local y=oy+n.y*(stride/2)
+  local score=math.abs(x-tx)+2*math.abs(y-ty)
+  if n.first and score<nearestScore then nearestScore=score;nearest=n.first end
+  if nearestScore<=2048 then break end
+  for _,step in ipairs(steps) do
+   local nx=n.x+step[1];local ny=n.y+step[2]
+   local key=nx..':'..ny
+   if not seen[key] then
+    local ex=ox+nx*stride;local ey=oy+ny*(stride/2)
+    if clear(ex,ey) and clear((x+ex)/2,(y+ey)/2) then
+     seen[key]=true
+     queue[#queue+1]={x=nx,y=ny,first=n.first or step[3]}
+    end
+   end
+  end
+ end
+ return nearest,nearestScore
+end
 -- Read-only model of original FieldGroundAt/IsFldPosBlocked for the replay.
 -- The native route controller still checks and executes every chosen move.
 local function walkingDirection(tx,ty)
@@ -38,27 +64,12 @@ local function walkingDirection(tx,ty)
   end
   return sample(x,y) and sample(x,y-1536) and sample(x,y+1536)
  end
- local queue={{x=0,y=0,first=nil}}
- local seen={['0:0']=true}
- local head=1;local nearest=nil;local nearestScore=math.abs(ox-tx)+2*math.abs(oy-ty)
- local steps={{1,0,16},{-1,0,32},{0,-1,64},{0,1,128},{-1,-1,96},{1,-1,80},{-1,1,160},{1,1,144}}
- while head<=#queue and head<=8192 do
-  local n=queue[head];head=head+1
-  local x=ox+n.x*4096;local y=oy+n.y*2048
-  local score=math.abs(x-tx)+2*math.abs(y-ty)
-  if n.first and score<nearestScore then nearestScore=score;nearest=n.first end
-  if nearestScore<=2048 then break end
-  for _,step in ipairs(steps) do
-   local nx=n.x+step[1];local ny=n.y+step[2]
-   local key=nx..':'..ny
-   if not seen[key] then
-    local ex=ox+nx*4096;local ey=oy+ny*2048
-    if clear(ex,ey) and clear((x+ex)/2,(y+ey)/2) then
-     seen[key]=true
-     queue[#queue+1]={x=nx,y=ny,first=n.first or step[3]}
-    end
-   end
-  end
+ local direction,distance=walkingSearch(ox,oy,tx,ty,clear,4096)
+ -- A coarse lattice can miss a narrow passage. Refine only unresolved goals,
+ -- and retain the coarse answer unless the finer route gets closer.
+ if distance>2048 then
+  local refined,remaining=walkingSearch(ox,oy,tx,ty,clear,2048)
+  if refined and remaining<distance then direction=refined end
  end
- return nearest
+ return direction
 end
