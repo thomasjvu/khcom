@@ -763,3 +763,18 @@ earlier chest count and its failed assertion is retained separately.
 hashes. This rules out basic geometry/facing failure at that cleared approach,
 but does not explain intermittent replay/live-enemy delays. No controller
 change is justified by this result. Two-run campaign remains live separately.
+
+### Settled native route diagnostics
+
+Replay now records original/actual settled positions and movement/action
+budgets after each preview-confirm attempt, once native busy processing
+finishes. Existing STEP records are attempts, not proof of displacement.
+The read-only diagnostic adds no input or frame-budget change. Preferred,
+ledge and retry policy checks pass. Fresh input-only room0-to1 test passes
+1081 and emits settled records; several attempts retain exact position and
+resources, confirming why attempted-command counts cannot establish movement.
+Exact evidence in `settled-route-diagnostic-evidence`; this short test proves
+logging/traversal only. The live two-run replay still uses its earlier driver
+and repeats Agrabah room5 position76060,86995,8192. A terminal snapshot or
+focused route reproduction is needed before changing physics/planning.
+No arbitrary lock-on suppression is introduced.

@@ -7,6 +7,7 @@ local index=1
 local dirs={16,32,64,128,80,96,144,160}
 local best=nil
 local planned=nil
+local pendingMove=nil
 local visits={}
 local commands=0
 local done=false
@@ -403,6 +404,13 @@ local function replayFrame()
  if f<nextFrame then return end
  emu:setKeys(0)
  if busyInput() then return end
+ if pendingMove then
+  local x,y,z=pos()
+  out:write('MOVE SETTLED frame='..f..' origin='..pendingMove.x..','..pendingMove.y..','..pendingMove.z..
+   ' actual='..x..','..y..','..z..' move='..pendingMove.move..' TO '..emu:read16(gNativeMoveLeft)..
+   ' action='..pendingMove.action..' TO '..emu:read16(gNativeActionLeft)..'\n');out:flush()
+  pendingMove=nil
+ end
  if suspendStage==2 and (world~=0 or room~=suspendRoom) then finish(false,'resume changed world or room');return end
  if suspendRoom and suspendRoom>0 and suspendStage<3 and world==0 and room==suspendRoom then
   if suspendStage==0 and phase=='scan' and (emu:read32(emu:read32(gFieldState)+0x70)&0xc1010)==0 and
@@ -645,6 +653,8 @@ local function replayFrame()
  end
  if phase=='commit' then phase='confirm';nextFrame=f+4;return end
  if phase=='confirm' then
+  local x,y,z=pos()
+  pendingMove={x=x,y=y,z=z,move=emu:read16(gNativeMoveLeft),action=emu:read16(gNativeActionLeft)}
   emu:setKeys(1);commands=commands+1
   local x,y,z=pos();local k=best.key;visits[k]=(visits[k] or 0)+1
   out:write('STEP '..commands..' '..x..' '..y..' '..z..'\n');out:flush()
