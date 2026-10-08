@@ -1,7 +1,14 @@
 # Current release audit
 
-Current source also adds the Skills turn strip; see latest entry below for its
-exact hash, PASS29 and pending campaign. Previous packaged0.37 adds compact
+Current packaged0.38 ROM SHA256 `2d438556ac07c2e9340f6c9591d6435413bc42e5174ed0321e3dc8fe1688c7af`.
+It passes432 scoped native checks:95 menu/party/recipes,114 bosses/Cloud,
+113 height previews,58 rewards/deployment and52 companion combat.
+Corrected three-run replay59790 is live; initial aggregate180000-frame
+attempt failed180001 and is retained. Current-ROM all-room completion is
+not yet verified. Skills-strip predecessor passes all36/nine chests253238;
+that result is version-scoped. Final gameplay/visual audit remains open.
+
+Previous packaged0.37 adds compact
 charged-attack warnings, SHA256
 `f92bc47131331b1eb168b5b668b6e14c7ebbe8edc6c3457bb1c97c8b8b1e6a2d`. It passes304 scoped native checks (58 UI,114 boss/Cloud,44 party,12 SRAM,
 14 Rally action,12 Rally state and50 card-recipe fixtures). Three-run
@@ -15,7 +22,7 @@ It passes342 scoped native checks (40 UI,17 Donald healing,26 Goofy
 moves/menus/Guard,89 boss,57 reward and113 height-preview fixtures). All-room/nine-chest campaign passes295578 on this exact ROM; revised three-run
 campaign passes448492, with required native descent/reset/recruitment each.
 Earlier policy failure444879 remains preserved.
-Latest packaged build is0.37 (current warning hash above); finishing-Fire
+Historical packaged0.37 (warning hash above); finishing-Fire
 all-room replay92308 also failed137348. Decision-time diagnostic50504
 repeated the failure; reason diagnostic30946 also failed137348. Earlier0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
 passes51 scoped checks, two campaigns327681 and all36/nine chests295578.
@@ -75,3 +82,5 @@ Party menu clarity: movement budget now explicitly reads MOVE instead of ambiguo
 Current0.38 reward checks PASS40 (availability7, personal Donald power14, Cloud alternate-power19), exact hashes/exit0 verified. Cloud deployment18 fixture fails multiple assertions; retained without PASS claim, requires source/fixture diagnosis. Current proven scoped total362. Disk cleanup removes only identical current-ROM copies from completed PASS fixtures; metadata/scripts/saves/logs/screenshots and canonical build/release ROMs retained. Campaign59790 live.
 
 Cloud deployment fixture repaired for five heroes: preserve Rally unlock31, native cycle through Rally to Donald, restore Goofy through native assembly controls before recruiting/deploying Cloud; persisted Donald HP/action/facing offsets20/30/35. Complete restored-Goofy replay PASS18, exit0/hashes verified, current scoped total380. Original and intermediate failures retained. Native game rules unchanged; current three-run59790 remains live.
+
+Current0.38 companion checks PASS52: Donald healing/revival/bonus/save17, Goofy spin/Guard menus26, Cloud native sword/action/recovery9. Exact ROM/driver/log hashes verified, all processes exit0; explicit card/health/enemy fixtures disclosed. Current scoped total432. Three-run59790 remains live. Audit opening now distinguishes current build from historical campaign evidence.
