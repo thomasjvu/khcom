@@ -738,3 +738,14 @@ not enforce independent120000 per-run caps. No multi-seed success claimed
 until both complete and terminal coverage passes. Read-only investigation
 of chest-facing stalls suggests lock-on interactions may matter, but no
 controller change is made without a focused native reproduction.
+
+### Native tactical facing verification
+
+A fresh-SRAM input-only fixture confirms all eight R+Dpad turn-in-place
+directions persist after release, with unchanged exact position, movement3,
+action1 and busy0. All9 checks pass on4dec13bdf. Exact ROM/driver/log evidence
+in `facing-eight-direction-evidence`. This establishes the basic facing
+control works at spawn; it does not cover the recorded chest approach or
+prove lock-on caused those delays. No speculative controller change made.
+The current two-run compact-HUD campaign remains live and is still in its
+first run; no terminal/multiple-seed success claimed.
