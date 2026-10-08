@@ -706,3 +706,15 @@ in `reward-list-evidence`. Updated five-hero fixture and exact current ROM
 evidence in `compact-hud-reward-evidence` pass. No reserved RAM/save/game
 rules change. Build/header/capacity pass. Wider all-room run is still on
 85dd43827, separate from this HUD.
+
+### Compact HUD during walking
+
+Normal walking and native route movement retain the two-row HUD instead of
+flashing expanded shortcut/threat text. Moving status still shows PARTY THEN
+ENEMIES; targeting, jump/ledge and modal states retain relevant controls.
+All14 input-only native party tests pass including actual Goofy movement in
+progress with gWin0V18, independent Sora/Goofy/Rally budgets, cancellation
+and switching. The moving screenshot was inspected with original scene,
+actors and cards visible. Exact evidence in `compact-walk-party-evidence`;
+build/header/capacity pass. No gameplay/persistent RAM/save change.
+All-room campaign remains live on85dd43827, outside this newer UI evidence.

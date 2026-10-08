@@ -25,6 +25,11 @@ callbacks:add('frame',function()
  if f==520 then check(emu:read16(gNativeMenu)==1 and emu:read16(gNativeMenuChoice)==3,'cancel returns to Party command') end
  if f==600 then check(emu:read16(gNativeMenuChoice)==2,'selector reaches Goofy directly from Sora') end
  if f==640 then check(emu:read16(gNativeParty)==2 and emu:read16(gNativeMenu)==0,'confirm takes control of chosen Goofy') end
+ if f==650 then
+  check(emu:read16(gNativeBusy)~=0,'Goofy movement is in native progress')
+  check(emu:read16(gWin0V)==18,'normal movement retains compact two-row HUD')
+  emu:screenshot('@OUTPUT@/compact-moving.png')
+ end
  if f==680 then check(emu:read16(gNativeMoveLeft)==2 and emu:read16(gNativeActionLeft)==1,'Goofy movement spends only his movement') end
  if f==840 then check(emu:read16(gNativeParty)==0 and emu:read16(gNativeMoveLeft)==3,'selecting Sora restores his untouched budget') end
  if f==1000 then

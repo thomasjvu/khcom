@@ -1555,7 +1555,7 @@ static void NativeHud(void) {
         }
     }
     if (!gNativeMenu && !gNativeAssembly && !gNativeProgressReward && !gNativeReward &&
-        !gNativePreview && !gNativeResult && !gNativeClimbing && !gNativeBusy) {
+        !gNativePreview && !gNativeResult && !gNativeClimbing && gNativeBusy != 2) {
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         gWin0V = 18;
         gWin1V = (144 << 8) | 160;
@@ -1563,7 +1563,7 @@ static void NativeHud(void) {
         NativeLabel(168, 0, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" :
             NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : "CLOUD");
         NativeLabel(0, 8, gNativeSaveNotice ? (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") :
-            gNativeEnemyFrames ? "ENEMIES THEN PARTY" : "PARTY THEN ENEMIES  SELECT");
+            gNativeEnemyFrames ? "ENEMIES THEN PARTY" : gNativeBusy ? "MOVING  PARTY THEN ENEMIES" : "PARTY THEN ENEMIES  SELECT");
     }
     sHudPending = 1;
 }
