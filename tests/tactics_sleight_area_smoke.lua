@@ -12,6 +12,8 @@ local function place(slot,dx,dz)
 end
 callbacks:add('frame',function()
  f=f+1
+ if f==110 and areaHero==5 then emu:write8(gNativeRoster,55) end
+ if f==120 and areaHero==5 then emu:setKeys(128) end
  if f==110 and areaHero==3 then emu:write8(gNativeRoster,31) end
  if f==100 and areaHero~=0 then emu:setKeys(256) end
  if f==104 or f==124 or f==140 and areaHero==3 or f==164 and areaHero==3 then emu:setKeys(0) end

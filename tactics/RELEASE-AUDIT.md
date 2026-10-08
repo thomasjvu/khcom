@@ -1,3 +1,17 @@
+# Current 0.41 development evidence
+
+The Aladdin package applies byte-identically to ROM SHA256
+`1f52bcd88993a08ef318a9ba72ea19b7c410e181a113d8911e1a040597ca519d`.
+290 scoped native checks pass, including original-party movesets, all six heroes'
+sleights, Aladdin recruitment/recovery, whole-roster saves and actual format-12
+import/rewrite/reboot. One input-only all-room campaign passes314381 with all36
+rooms/nine chests, both recruits deployed, native suspend/reset and composed
+descent; frontend exit0 verified. Three-seed regression remains running.
+See [0.41 notes](ALADDIN-0.41.md) and the exact evidence manifest under build/release.
+Final completion remains unproven until remaining regression/audit gates pass.
+
+The entries below describe predecessor builds and must retain their version scope.
+
 # Current release audit
 
 Current packaged0.40 development phase-strip ROM SHA256 `a01f555dff42d1146ffa3e7ca044d3c06d4c6305450790342a67726a6eb11c33` passes516 scoped native checks: Sora/Rally confirmation aiming37, End Turn13, one original jump-pad confirmation9, Party selector17, Donald healing/revival/save17, Goofy spin/Guard26, Cloud sword9, Guard Armor40, Jafar25, Marluxia30, five-hero area recipes60, Rally states12, personal reward14 and save fallback12. Ready-party/enemy order now remains visible in the spare row of detailed menus with no panel-height increase. Exact VRAM/window/landing checks, process exit0 and hashes verified. The101 earlier checks below remain predecessor-scoped. The predecessor all-room sweep exited0 with a driver snapshot IO error141782; zero complete runs were verified. The filesystem reason was not captured, and this does not establish a gameplay pass/failure. BPS98,597 bytes applies byte-identically. Current-ROM sweep87441 passes all three all-room/nine-chest campaigns892349; frontend exits0 with matching ROM/driver/log hashes and native recruitment, save/reset, composed descent and retry coverage. Final gameplay, content and release verification are incomplete.

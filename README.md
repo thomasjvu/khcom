@@ -1,7 +1,9 @@
 # KH Tactics
 
+Current patch: [0.41 Aladdin notes](tactics/ALADDIN-0.41.md). Original Aladdin sprites/card, Jafar recruit-or-power reward, skirmish movement recovery and backward-compatible six-hero saves. 290 current-build native checks and one complete all-room campaign pass; three-seed regression is running.
+
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The packaged **0.40 Phase UI development build** runs in the original 2.5D engine with full
+The packaged **0.41 Aladdin development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -10,7 +12,7 @@ reward rooms; the prototype progresses through Traverse Town, Agrabah and
 Castle Oblivion. Movement and attacks have turn budgets, and enemies act when
 you end your turn. Combat stays in the field.
 
-Sora, Donald, Goofy, recruited Cloud and original character Rally are selectable party members with separate action and
+Sora, Donald, Goofy, recruited Cloud/Aladdin and original character Rally are selectable party members with separate action and
 movement budgets. A shared card deck uses original card artwork and values,
 with draw/discard/reload, melee, Fire, Cure, Guard and character bonuses.
 Versioned suspend saves preserve native field state and recover from a damaged

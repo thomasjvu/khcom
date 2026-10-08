@@ -1876,3 +1876,22 @@ Evidence: build/tactics-us/aladdin-clear-card-full-run-evidence. Current scoped
 mechanics count remains158 exact-ROM checks, plus strict sanitized host suite
 and read-only replay policy checks. Further multi-seed regression and release
 packaging/audit are still required before claiming fully polished completion.
+
+## 0.41 package and original-party regression (October 8)
+
+The 99,656-byte Aladdin development BPS applies byte-identically to the current
+ROM (1f52bcd88993a08ef318a9ba72ea19b7c410e181a113d8911e1a040597ca519d).
+Applied ROM, patch, base and exact evidence hashes are recorded in
+build/release/aladdin-0.41-manifest.json. Current README/build instructions link
+the new package; 0.40 certificates remain historical.
+
+132 more exact-build checks pass: Donald capped healing/revival/enhancement/save17,
+Goofy spin/Guard26, contextual Party UI17 and all six heroes' area recipes72.
+Donald enhancement fixture now derives the sleight-array offset from hero count;
+Aladdin recipe fixture unlocks him explicitly and deploys through native assembly.
+Screenshots inspect his original casting pose and card stock. Every bounded
+frontend exits0; hashes and counts verified. Current scoped native count290.
+
+Fresh input-only three-run sweep frontend72595 is live, requiring all36 rooms,
+nine chests, both recruit/deploy paths, suspend/reboot, composed descent and native
+seed retries per campaign. The manifest labels it running, not certified.
