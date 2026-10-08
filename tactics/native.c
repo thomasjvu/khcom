@@ -1302,7 +1302,7 @@ typedef struct NativeJumpContact {
 } NativeJumpContact;
 static void NativeJumpContacts(const FieldJumpPoint* point, NativeJumpContact* result) {
     FldWork* player=((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
-    ListNode* node=((ListPool*)ColliderGetPool(6))->activeTail;
+    ListNode* node=((ListPool*)ColliderGetPool(6))->activeHead;
     Collider* other;
     int radius, dx, dy, dz, penetration, angle, platformZ;
     platformZ=point->ground;
@@ -1331,7 +1331,7 @@ static void NativeJumpContacts(const FieldJumpPoint* point, NativeJumpContact* r
                 }
             }
         }
-        node=node->prev;
+        node=node->next;
     }
     if (result->standing) result->ground=platformZ<point->ground ? platformZ : point->ground;
 }
