@@ -111,7 +111,7 @@ static ObjPalette* sPartyShadowPalette;
 u16 gNativeFriendPose[2];
 extern FieldRoster gNativeRoster;
 static u8 NativeHero(u8 slot) {return gNativeRoster.deployed[slot];}
-static const AnimDef sFriendAnims[4][5] = {
+static const AnimDef sFriendAnims[FIELD_HEROES - 1][5] = {
     {{gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,0},
      {gDonaBtLl00Frames,gDonaBtLl00Anims,gDonaBtLl00Tiles,0},
      {gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,1},
@@ -131,7 +131,12 @@ static const AnimDef sFriendAnims[4][5] = {
      {(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,1},
      {(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,2},
      {(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,3},
-     {(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,4}}
+     {(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,4}},
+    {{gAladdin00Frames,gAladdin00Anims,gAladdin00Tiles,0},
+     {gAladdin10Frames,gAladdin10Anims,gAladdin10Tiles,0},
+     {gAladdin01Frames,gAladdin01Anims,gAladdin01Tiles,0},
+     {gAladdin02Frames,gAladdin02Anims,gAladdin02Tiles,0},
+     {gAladdin03Frames,gAladdin03Anims,gAladdin03Tiles,0}}
 
 };
 static void NativePartyPose(u8 member) {
@@ -607,7 +612,7 @@ static void NativeFriendsInit(void) {
         }
         sFriends[i].tiles = AllocObjTiles(size, defs[0].tiles);
         sFriends[i].palette = LoadObjPalette(hero == FIELD_DONALD ? gDonaldPalette :
-            hero == FIELD_GOOFY ? gGoofyPalette : hero == FIELD_RALLY ? sRallyPalette : gCroudPalette, 32);
+            hero == FIELD_GOOFY ? gGoofyPalette : hero == FIELD_RALLY ? sRallyPalette : hero == FIELD_ALADDIN ? gAladdinPalette : gCroudPalette, 32);
         AnimInit(&sFriends[i].anim, defs[0].anims, defs[0].gfxTable);
         AnimStart(&sFriends[i].anim, defs[0].animId, ANIM_FLAG_LOOP);
         sFriends[i].pose = sFriends[i].timer = sFriends[i].facing = 0;
@@ -690,10 +695,14 @@ static void NativePartyActivate(u8 slot) {
 static void NativePartySelect(void) {
     NativePartyActivate(FieldPartyNext(&gNativePartyHealth, gNativeParty));
 }
+static u8 NativeRecruitHero(void) {
+    return gNativeFloor == 1 && gMapFloorState.room == 7 ? FIELD_ALADDIN : FIELD_CLOUD;
+}
 static int NativeRecruitEligible(void) {
-    return gNativeFloor == 0 && gMapFloorState.room == 9 &&
+    return ((gNativeFloor == 0 && gMapFloorState.room == 9) ||
+        (gNativeFloor == 1 && gMapFloorState.room == 7)) &&
         gNativeRoster.phase == FIELD_REWARD && gNativeRoster.reward == FIELD_REWARD_BOSS &&
-        !(gNativeRoster.unlocked & (1 << FIELD_CLOUD));
+        !(gNativeRoster.unlocked & (1 << NativeRecruitHero()));
 }
 static void NativeRecruitFree(void) {
     if (sRecruitTiles) ReleaseObjTiles(sRecruitTiles);
@@ -706,7 +715,7 @@ static void NativeRecruitInit(void) {
     if (sCardTiles[1]) ReleaseObjTiles(sCardTiles[1]);
     if (sCardPalettes[1]) ReleaseObjPalette(sCardPalettes[1]);
     sCardTiles[1] = NULL;sCardPalettes[1] = NULL;
-    for (i = 0; i < 950; i++) if (gCardDefs[i].kind == CARD_KIND_CLOUD && gCardDefs[i].value == 5) {
+    for (i = 0; i < 950; i++) if (gCardDefs[i].kind == (NativeRecruitHero() == FIELD_ALADDIN ? CARD_KIND_ALADDIN : CARD_KIND_CLOUD) && gCardDefs[i].value == 5) {
         sRecruitCard = &gCardDefs[i];break;
     }
     if (sRecruitCard) {
@@ -733,7 +742,7 @@ static void NativeAssemblyFree(void) {
 static const CardDef* NativeHeroCard(u8 hero) {
     u16 i;
     u16 kind = hero == FIELD_DONALD ? CARD_KIND_DONALD_DUCK :
-        hero == FIELD_GOOFY ? CARD_KIND_GOOFY : CARD_KIND_CLOUD;
+        hero == FIELD_GOOFY ? CARD_KIND_GOOFY : hero == FIELD_ALADDIN ? CARD_KIND_ALADDIN : CARD_KIND_CLOUD;
     if (hero == FIELD_RALLY) return NULL;
     for (i = 0; i < 950; i++) if (gCardDefs[i].kind == kind && gCardDefs[i].value == 5) return &gCardDefs[i];
     return NULL;
@@ -1475,7 +1484,7 @@ static void NativeHud(void) {
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, NativeHero(gNativeCureTarget) == FIELD_SORA ? "CURE SORA A PLAY" :
-            NativeHero(gNativeCureTarget) == FIELD_DONALD ? "CURE DONALD A PLAY" : NativeHero(gNativeCureTarget) == FIELD_GOOFY ? "CURE GOOFY A PLAY" : NativeHero(gNativeCureTarget) == FIELD_RALLY ? "CURE RALLY A PLAY" : "CURE CLOUD A PLAY");
+            NativeHero(gNativeCureTarget) == FIELD_DONALD ? "CURE DONALD A PLAY" : NativeHero(gNativeCureTarget) == FIELD_GOOFY ? "CURE GOOFY A PLAY" : NativeHero(gNativeCureTarget) == FIELD_RALLY ? "CURE RALLY A PLAY" : NativeHero(gNativeCureTarget) == FIELD_ALADDIN ? "CURE ALADDIN A PLAY" : "CURE CLOUD A PLAY");
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && !gNativeDeck.stocked &&
         gNativeDeck.kind[card] == FIELD_CARD_FIRE && gNativeActionLeft)
@@ -1483,7 +1492,7 @@ static void NativeHud(void) {
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames && !gNativeClimbing &&
         !charging && card >= 0 && !gNativeDeck.stocked && gNativeActionLeft &&
         gNativeDeck.kind[card] == FIELD_CARD_KEY && gNativeParty)
-        NativeLabel(0, 8, NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD MAGIC R B A" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY SPIN A PLAY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY STRIKE A PLAY" : "CLOUD SLASH R B A");
+        NativeLabel(0, 8, NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD MAGIC R B A" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY SPIN A PLAY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY STRIKE A PLAY" : NativeHero(gNativeParty) == FIELD_ALADDIN ? "ALADDIN STRIKE A PLAY" : "CLOUD SLASH R B A");
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
@@ -1493,7 +1502,7 @@ static void NativeHud(void) {
         route[13] += gNativeMoveLeft;
         NativeLabel(0, 16, route);
     } else NativeLabel(0, 16, location);
-    NativeLabel(128, 16, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : "CLOUD");
+    NativeLabel(128, 16, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : NativeHero(gNativeParty) == FIELD_ALADDIN ? "ALADDIN" : "CLOUD");
     for (i = 0; i < 3; i++) {
         health[i * 4] = threat[5 + i * 4] = NativeHero(i) == FIELD_SORA ? 'S' : NativeHero(i) == FIELD_DONALD ? 'D' : NativeHero(i) == FIELD_GOOFY ? 'G' : NativeHero(i) == FIELD_RALLY ? 'R' : 'C';
         health[1 + i * 4] = '0' + gNativePartyHealth.hp[i] / 10;
@@ -1528,8 +1537,8 @@ static void NativeHud(void) {
         NativeLabel(0, 24, "PARTY HEAL 12");
     }
     if (gNativeAssembly) {
-        static const char* const heroes[5] = {"SORA", "DONALD", "GOOFY", "CLOUD", "RALLY"};
-        static const char* const shortNames[5] = {"SOR", "DON", "GOO", "CLO", "RAL"};
+        static const char* const heroes[FIELD_HEROES] = {"SORA", "DONALD", "GOOFY", "CLOUD", "RALLY", "ALADDIN"};
+        static const char* const shortNames[FIELD_HEROES] = {"SOR", "DON", "GOO", "CLO", "RAL", "ALA"};
         char reserves[31] = "RESERVE HP ";
         char bonuses[] = "KEY 0 FIR 0 CUR 0";
         u8 hero = NativeHero(sAssemblyChoice);
@@ -1575,7 +1584,7 @@ static void NativeHud(void) {
         NativeLabel(0, 144, hero == FIELD_SORA ? "KEYBLADE CLOSE RANGE" :
             hero == FIELD_DONALD ? "MAGIC CURE PLUS 8" :
             hero == FIELD_GOOFY ? "SPIN PARTY GUARD" :
-            hero == FIELD_RALLY ? "MELEE CURE PLUS 4" : "SWORD TARGET RANGE 64");
+            hero == FIELD_RALLY ? "MELEE CURE PLUS 4" : hero == FIELD_ALADDIN ? "SWORD 48 HIT MOVE PLUS 1" : "SWORD TARGET RANGE 64");
     }
     if (gNativeProgressReward) {
         NativeLabel(0, 8, "CLEAR REWARD L R A");
@@ -1583,7 +1592,7 @@ static void NativeHud(void) {
             sProgressKind == 1 ? "KEY SLEIGHT PLUS 4" :
             sProgressKind == 2 ? "FIRE SLEIGHT PLUS 4" : "CURE SLEIGHT PLUS 4");
         NativeLabel(0, 32, NativeHero(sProgressHero) == FIELD_SORA ? "SORA UP DOWN CHOOSE" :
-            NativeHero(sProgressHero) == FIELD_DONALD ? "DONALD UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_GOOFY ? "GOOFY UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_RALLY ? "RALLY UP DOWN CHOOSE" : "CLOUD UP DOWN CHOOSE");
+            NativeHero(sProgressHero) == FIELD_DONALD ? "DONALD UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_GOOFY ? "GOOFY UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_RALLY ? "RALLY UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_ALADDIN ? "ALADDIN UP DOWN CHOOSE" : "CLOUD UP DOWN CHOOSE");
         if (sProgressKind == 0 && gNativeRoster.power[NativeHero(sProgressHero)] >= 8)
             NativeLabel(0, 8, "POWER MAX CHANGE HERO");
         else if (sProgressKind > 0 && sProgressKind < 4 &&
@@ -1591,8 +1600,8 @@ static void NativeHud(void) {
             NativeLabel(0, 8, "OWNED CHOOSE ANOTHER");
     }
     if (gNativeProgressReward && sProgressKind == 4 && NativeRecruitEligible()) {
-        NativeLabel(0, 8, "CLOUD RECRUIT A");
-        NativeLabel(0, 24, "UNLOCK CLOUD CARD");
+        NativeLabel(0, 8, NativeRecruitHero() == FIELD_ALADDIN ? "ALADDIN RECRUIT A" : "CLOUD RECRUIT A");
+        NativeLabel(0, 24, NativeRecruitHero() == FIELD_ALADDIN ? "UNLOCK ALADDIN CARD" : "UNLOCK CLOUD CARD");
         NativeLabel(0, 32, "POWER OR RECRUIT");
     }
     if (gNativeProgressReward && !gNativeMenu) {
@@ -1602,10 +1611,10 @@ static void NativeHud(void) {
         gWin0V = 56;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         NativeLabel(0, 0, hero == FIELD_SORA ? "REWARD FOR SORA" : hero == FIELD_DONALD ? "REWARD FOR DONALD" :
-            hero == FIELD_GOOFY ? "REWARD FOR GOOFY" : hero == FIELD_RALLY ? "REWARD FOR RALLY" : "REWARD FOR CLOUD");
+            hero == FIELD_GOOFY ? "REWARD FOR GOOFY" : hero == FIELD_RALLY ? "REWARD FOR RALLY" : hero == FIELD_ALADDIN ? "REWARD FOR ALADDIN" : "REWARD FOR CLOUD");
         for (i = 0; i < options; i++) {
             NativeLabel(0, (i + 1) * 8, i == sProgressKind ? "X" : " ");
-            NativeLabel(16, (i + 1) * 8, rewards[i]);
+            NativeLabel(16, (i + 1) * 8, i == 4 && NativeRecruitHero() == FIELD_ALADDIN ? "RECRUIT ALADDIN" : rewards[i]);
             if (!i && gNativeRoster.power[hero] >= 8) NativeLabel(184, 8, "MAX");
             else if (i > 0 && i < 4 && (gNativeRoster.sleights[hero] & (1 << (i - 1))))
                 NativeLabel(184, (i + 1) * 8, "OWNED");
@@ -1639,7 +1648,7 @@ static void NativeHud(void) {
                 status[14] += i == gNativeParty ? gNativeActionLeft : sPartyAction[i];
                 NativeLabel(0, 16 + i * 8, i == gNativeMenuChoice ? "X" : " ");
                 NativeLabel(8, 16 + i * 8, hero == FIELD_SORA ? "SORA" : hero == FIELD_DONALD ? "DONALD" :
-                    hero == FIELD_GOOFY ? "GOOFY" : hero == FIELD_RALLY ? "RALLY" : "CLOUD");
+                    hero == FIELD_GOOFY ? "GOOFY" : hero == FIELD_RALLY ? "RALLY" : hero == FIELD_ALADDIN ? "ALADDIN" : "CLOUD");
                 NativeLabel(72, 16 + i * 8, gNativePartyHealth.hp[i] ? status : "KO");
             }
             NativeLabel(0, 48, gNativePartyHealth.hp[gNativeMenuChoice] ? "A SWITCH  B BACK" : "KO CANNOT TAKE A TURN");
@@ -1656,7 +1665,7 @@ static void NativeHud(void) {
                 budget[14] += damage / 10;
                 budget[15] += damage % 10;
                 NativeLabel(0, 16 + i * 8, hero == FIELD_SORA ? "SORA" : hero == FIELD_DONALD ? "DONALD" :
-                    hero == FIELD_GOOFY ? "GOOFY" : hero == FIELD_RALLY ? "RALLY" : "CLOUD");
+                    hero == FIELD_GOOFY ? "GOOFY" : hero == FIELD_RALLY ? "RALLY" : hero == FIELD_ALADDIN ? "ALADDIN" : "CLOUD");
                 NativeLabel(64, 16 + i * 8, gNativePartyHealth.hp[i] ? budget : "KO");
             }
             NativeLabel(0, 40, "HIT IS EXPECTED DAMAGE");
@@ -1693,7 +1702,7 @@ static void NativeHud(void) {
             if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY && gNativeDeck.stocked != 3) {
                 u8 hero = NativeHero(gNativeParty);
                 NativeLabel(0, 16, hero == FIELD_DONALD ? "DONALD MAGIC" : hero == FIELD_GOOFY ? "GOOFY SHIELD SPIN" :
-                    hero == FIELD_CLOUD ? "CLOUD SWORD" : hero == FIELD_RALLY ? "RALLY STRIKE" : "SORA KEYBLADE");
+                    hero == FIELD_CLOUD ? "CLOUD SWORD" : hero == FIELD_ALADDIN ? "ALADDIN SKIRMISH" : hero == FIELD_RALLY ? "RALLY STRIKE" : "SORA KEYBLADE");
             }
             if (gNativeDeck.stocked == 3 && FieldDeckSleightPreview(&gNativeDeck, &sleightKind, &sleightValue)) {
                 NativeLabel(0, 16, sleightKind == FIELD_CARD_CURE ? "PARTY CURE SLEIGHT" : sleightKind == FIELD_CARD_GUARD ? "PARTY GUARD SLEIGHT" : "AREA ATTACK SLEIGHT");
@@ -1702,7 +1711,7 @@ static void NativeHud(void) {
             } else if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE) {
                 u8 hero = NativeHero(gNativeCureTarget);
                 NativeLabel(0, 24, hero == FIELD_SORA ? "TARGET SORA" : hero == FIELD_DONALD ? "TARGET DONALD" :
-                    hero == FIELD_GOOFY ? "TARGET GOOFY" : hero == FIELD_RALLY ? "TARGET RALLY" : "TARGET CLOUD");
+                    hero == FIELD_GOOFY ? "TARGET GOOFY" : hero == FIELD_RALLY ? "TARGET RALLY" : hero == FIELD_ALADDIN ? "TARGET ALADDIN" : "TARGET CLOUD");
                 amount[8] += gNativeCureHeal / 10;amount[9] += gNativeCureHeal % 10;
                 NativeLabel(0, 32, amount);
             } else if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY && NativeHero(gNativeParty) == FIELD_GOOFY) {
@@ -1713,7 +1722,7 @@ static void NativeHud(void) {
                 NativeLabel(0, 24, "AREA DAMAGE ON MAP");
                 NativeLabel(0, 32, targets);
             } else if (card >= 0 && (gNativeDeck.kind[card] == FIELD_CARD_FIRE ||
-                (gNativeDeck.kind[card] == FIELD_CARD_KEY && (NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD)))) {
+                (gNativeDeck.kind[card] == FIELD_CARD_KEY && (NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD || NativeHero(gNativeParty) == FIELD_ALADDIN)))) {
                 char damage[] = "DAMAGE 00";
                 NativeLabel(0, 24, gNativeFireTarget < 0 ? "NO ELIGIBLE TARGET" : "SELECTED ENEMY ON MAP");
                 damage[7] += gNativeFireDamage / 10;damage[8] += gNativeFireDamage % 10;
@@ -1752,7 +1761,7 @@ static void NativeHud(void) {
             if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY) {
                 u8 hero = NativeHero(gNativeParty);
                 NativeLabel(0, 16, hero == FIELD_DONALD ? "DONALD MAGIC" : hero == FIELD_GOOFY ? "GOOFY SHIELD SPIN" :
-                    hero == FIELD_CLOUD ? "CLOUD SWORD" : hero == FIELD_RALLY ? "RALLY STRIKE" : "SORA KEYBLADE");
+                    hero == FIELD_CLOUD ? "CLOUD SWORD" : hero == FIELD_ALADDIN ? "ALADDIN SKIRMISH" : hero == FIELD_RALLY ? "RALLY STRIKE" : "SORA KEYBLADE");
             }
             NativeLabel(0, 24, gNativeDeck.stocked == 3 ? "THREE STOCKED  A SLEIGHT" : gNativeDeck.stocked ? "UP STOCK  DOWN CLEAR" : "UP STOCK  DOWN RELOAD");
             NativeLabel(0, 32, "B BACK  L R CARD");
@@ -1783,7 +1792,7 @@ static void NativeHud(void) {
             gWin1V = (144 << 8) | 160;
             NativeLabel(0, 0, line);
             NativeLabel(168, 0, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" :
-                NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : "CLOUD");
+                NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : NativeHero(gNativeParty) == FIELD_ALADDIN ? "ALADDIN" : "CLOUD");
         }
         /* Party actions are freely ordered. Show eligible members together,
          * followed by the enemy phase, rather than implying initiative. */
@@ -1798,7 +1807,7 @@ static void NativeHud(void) {
                 gNativeMoveLeft || gNativeActionLeft : sPartyMove[i] || sPartyAction[i])) continue;
             if (!gNativeEnemyFrames && i == gNativeParty) turns[turnLength++] = 'X';
             turnName = NativeHero(i) == FIELD_SORA ? "SOR" : NativeHero(i) == FIELD_DONALD ? "DON" :
-                NativeHero(i) == FIELD_GOOFY ? "GOO" : NativeHero(i) == FIELD_RALLY ? "RAL" : "CLO";
+                NativeHero(i) == FIELD_GOOFY ? "GOO" : NativeHero(i) == FIELD_RALLY ? "RAL" : NativeHero(i) == FIELD_ALADDIN ? "ALA" : "CLO";
             for (j = 0; j < 3; j++) turns[turnLength++] = turnName[j];
             turns[turnLength++] = ' ';
         }
@@ -2694,9 +2703,20 @@ static void NativeCloudSlash(void) {
     Task* target = NativeRangedTarget(64);
     if (target) NativeDamageEnemy(target, 12 + sPlayedValue);
 }
+static void NativeAladdinSlash(void) {
+    Task* target = NativeRangedTarget(48);
+    u8 i;
+    for (i = 0; i < 6; i++) if (target && sEnemyTasks[i] == target) {
+        u16 before = gNativeEnemyHp[i];
+        NativeDamageEnemy(target, 9 + sPlayedValue);
+        /* Skirmish restores one movement only after a resolved hit. */
+        if (gNativeEnemyHp[i] < before && gNativeMoveLeft < 3) gNativeMoveLeft++;
+        return;
+    }
+}
 static void NativeCycleFireTarget(void) {
     int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
-    int range = card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY && NativeHero(gNativeParty) == FIELD_CLOUD ? 64 : 128;
+    int range = card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY ? (NativeHero(gNativeParty) == FIELD_CLOUD ? 64 : NativeHero(gNativeParty) == FIELD_ALADDIN ? 48 : 128) : 128;
     Task* current = NativeRangedTarget(range);
     int i, slot = -1;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] && sEnemyTasks[i] == current) slot = i;
@@ -2772,12 +2792,12 @@ static void NativeCardIntentDraw(void) {
         return;
     }
     if (gNativeDeck.kind[card] != FIELD_CARD_FIRE &&
-        !((NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD) && gNativeDeck.kind[card] == FIELD_CARD_KEY)) return;
-    target = NativeRangedTarget(gNativeDeck.kind[card] == FIELD_CARD_KEY && NativeHero(gNativeParty) == FIELD_CLOUD ? 64 : 128);
+        !((NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD || NativeHero(gNativeParty) == FIELD_ALADDIN) && gNativeDeck.kind[card] == FIELD_CARD_KEY)) return;
+    target = NativeRangedTarget(gNativeDeck.kind[card] == FIELD_CARD_KEY ? (NativeHero(gNativeParty) == FIELD_CLOUD ? 64 : NativeHero(gNativeParty) == FIELD_ALADDIN ? 48 : 128) : 128);
     if (!target) return;
     for (i = 0; i < 6; i++) if (sEnemyTasks[i] == target) {
         gNativeFireTarget = i;
-        damage = (gNativeDeck.kind[card] == FIELD_CARD_KEY && NativeHero(gNativeParty) == FIELD_CLOUD ? 12 : 6) + gNativeDeck.value[card] + (NativeHero(gNativeParty) == FIELD_DONALD ? 3 : 0) + gNativeRoster.power[NativeHero(gNativeParty)];
+        damage = (gNativeDeck.kind[card] == FIELD_CARD_KEY ? (NativeHero(gNativeParty) == FIELD_CLOUD ? 12 : NativeHero(gNativeParty) == FIELD_ALADDIN ? 9 : 6) : 6) + gNativeDeck.value[card] + (NativeHero(gNativeParty) == FIELD_DONALD ? 3 : 0) + gNativeRoster.power[NativeHero(gNativeParty)];
         if (gNativeDeck.value[card] && gNativeDeck.value[card] < 3 + gNativeFloor) damage = 0;
         if (damage > gNativeEnemyHp[i]) damage = gNativeEnemyHp[i];
         gNativeFireDamage = damage;
@@ -2956,7 +2976,7 @@ static void NativeUpdate(void) {
         if (pressed & DPAD_UP) sProgressKind = (sProgressKind + options - 1) % options;
         else if (pressed & DPAD_DOWN) sProgressKind = (sProgressKind + 1) % options;
         if ((pressed & A_BUTTON) && !gNativeBusy && !gNativeEnemyFrames &&
-            (sProgressKind == 4 ? FieldRosterRecruit(&gNativeRoster, FIELD_CLOUD) :
+            (sProgressKind == 4 ? FieldRosterRecruit(&gNativeRoster, NativeRecruitHero()) :
                 FieldRosterUpgrade(&gNativeRoster, NativeHero(sProgressHero), sProgressKind))) {
             gNativeProgressReward = 0;NativeRecruitFinish();
         }
@@ -3042,7 +3062,7 @@ static void NativeUpdate(void) {
                 int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
                 int ranged = gNativeDeck.stocked != 3 && card >= 0 && (gNativeDeck.kind[card] == FIELD_CARD_FIRE ||
                     (gNativeDeck.kind[card] == FIELD_CARD_KEY &&
-                     (NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD)));
+                     (NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD || NativeHero(gNativeParty) == FIELD_ALADDIN)));
                 if ((pressed & (DPAD_UP | DPAD_DOWN)) && card >= 0 && gNativeDeck.stocked != 3) {
                     if (gNativeDeck.kind[card] == FIELD_CARD_CURE) NativeCycleCureTarget();
                     else if (ranged) NativeCycleFireTarget();
@@ -3121,7 +3141,7 @@ static void NativeUpdate(void) {
             int selected = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
             if (selected >= 0 && !gNativeDeck.stocked &&
                 (gNativeDeck.kind[selected] == FIELD_CARD_FIRE ||
-                 ((NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD) && gNativeDeck.kind[selected] == FIELD_CARD_KEY))) NativeCycleFireTarget();
+                 ((NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD || NativeHero(gNativeParty) == FIELD_ALADDIN) && gNativeDeck.kind[selected] == FIELD_CARD_KEY))) NativeCycleFireTarget();
             else if (selected >= 0 && !gNativeDeck.stocked &&
                 gNativeDeck.kind[selected] == FIELD_CARD_CURE) NativeCycleCureTarget();
         } else if ((raw & L_BUTTON) && (pressed & SELECT_BUTTON) && player->state == FLD_STATE_GROUND) {
@@ -3167,6 +3187,8 @@ static void NativeUpdate(void) {
                         NativeShieldSpin();
                     } else if (NativeHero(gNativeParty) == FIELD_CLOUD) {
                         NativeCloudSlash();
+                    } else if (NativeHero(gNativeParty) == FIELD_ALADDIN) {
+                        NativeAladdinSlash();
                     } else {
                         edge = A_BUTTON;
                         sAttack = 1;

@@ -325,3 +325,9 @@ Select opens detailed Commands. Clear rewards use Up/Down to choose and L/R to c
 
 The Skills menu keeps the same ready-party strip visible as Commands. Its
 footer shows confirm/back controls and action cost, without adding HUD height.
+
+Aladdin can be recruited after defeating Jafar in Agrabah by choosing his
+character card instead of a personal upgrade. Deploy him from the next room's
+party setup. His Key skill strikes a selected nearby enemy and restores one
+movement after a successful hit, up to the usual three. His sword reaches less
+far than Cloud's; target and damage previews use the same height checks as combat.

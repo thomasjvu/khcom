@@ -1781,3 +1781,32 @@ This is preparation, not a playable Aladdin claim. Native sprites, names, origin
 card selection, distinct moveset, Jafar reward choice and exact-build emulator
 checks are still required. Existing 0.40 manifests and full-run evidence remain
 scoped to the frozen prior ROM; they do not certify the changed format-13 build.
+
+## Native Aladdin integration (October 8)
+
+Aladdin now uses original gAladdin event sprites, original friend sword animation,
+original palette and CARD_KIND_ALADDIN artwork in assembly. Native menus, phase
+strip and party selection identify him. Jafar's Agrabah boss reward offers his
+recruit card beside the four personal upgrades, only while he remains locked.
+Cloud's existing optional challenger remains a separate recruit choice.
+
+Aladdin's Key skill is a targeted skirmish: 9 + card value + personal power damage
+within a 48-pixel Manhattan search radius (strict less-than, as existing ranged
+searches use), with the existing 24-pixel height boundary. A resolved hit restores
+one movement, capped at three; card breaks or misses do not restore movement.
+Fire/Cure/Guard and shared sleight rules remain available. No new native BSS is
+allocated: it remains 8180/8192 bytes.
+
+Current ROM SHA256: 637b465d6227e223a2b61cac1b4adbc56948586385eb1643788e83d38051ef16.
+73 scoped native checks pass with actual frontend exit0: nine assembly/pose/
+preview/damage/movement-recovery checks, 32 Jafar recruit checks and 32 alternative
+power checks. Both reward paths use native boss defeat/selection/suspend/reboot;
+encounter/HP/card-position fixtures are disclosed. Screenshots inspect original
+Aladdin sword art and contextual reward panel. A stale-build action run and an
+incorrect assembly-cycle driver run remain preserved as failures; the corrected
+current-build fixture passes. Python unit checks pass4; native build passes.
+
+Still required: edge/miss/card-break recovery, new hero save/deployment and world
+transition checks, updated old five-hero emulator fixtures/offsets, visual polish
+of recruit-card placement, and fresh full-run testing of this changed ROM. Prior
+0.40 complete campaigns remain historical, not evidence for this build.
