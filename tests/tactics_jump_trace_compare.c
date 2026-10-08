@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     while (fgets(line,sizeof(line),input)) {
         if (sscanf(line,"%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
                    &video,&frame,&x,&y,&z,&ground,&menu,&busy,&direction,&move,&action,&speed,&angle,&sine,&cosine)!=15) return 2;
-        if (!started && busy==2 && direction==16) {
+        if (!started && busy==2 && direction!=0) {
             FieldJumpMotionInit(&motion,x,y,z,originX,originY,speed); started=1;
             continue;
         }
