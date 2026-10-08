@@ -8,11 +8,11 @@ party Cure sleights receive a four-point healing bonus, with the usual caps.
 Individual upgrades, health, budgets and facing persist in save format 12.
 Formats8–11 remain readable and initialize Rally at full health on migration.
 
-R+Select opens the command panel. Up/Down selects Move, Attack, Skills, Party,
+Select opens the command panel (R+Select remains an alias). Up/Down selects Move, Attack, Skills, Party,
 End Turn or Suspend; A confirms and B returns. Move opens the actual reachable
 map/cost preview. Attack chooses an available Key card. Skills opens the card
 selection submenu, with L/R or Left/Right to browse and A to use. Party switches
-the active member without renewing budgets. Existing field shortcuts remain.
+the active member without renewing budgets. L+Select switches heroes directly; Start+Select suspends. Other field shortcuts remain.
 A lighter single-stroke 5x7 font replaces the bold debug glyphs.
 
 Rally's source is the approved `pink-ponytail/starter-sheet-v2.png` artwork.
@@ -67,3 +67,12 @@ beside each command: no movement left, spent action, missing Key card, stocked
 hand, hero switching, enemy turn and suspend. Rendering reads the hand without
 cycling it or changing resources. The native build and all 14 input-only
 Rally/menu/save checks pass; menu screenshot inspected for fit.
+
+Select now opens Commands directly, with R+Select retained as an alias.
+L+Select is the direct party-switch shortcut. Start+Select suspend and Select
+after victory/defeat retain their meanings. The input-only Rally/menu/save
+fixture passes16 checks, including plain-Select menu access and L+Select
+cycling through Goofy and Sora after resume. The explicit Donald/Goofy combat
+fixture passes8 checks for actual ranged magic/spin damage and action costs
+using the new party shortcut. The retry policy regression passes. Full current
+ROM campaign completion remains unverified.

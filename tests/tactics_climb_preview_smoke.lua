@@ -41,7 +41,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeActionLeft)==1,'climbing preserves the combat action')
   emu:screenshot('@OUTPUT@/attached.png');emu:setKeys(0)
  end
- if f==360 then emu:setKeys(4) end
+ if f==360 then emu:setKeys(516) end
  if f==364 then emu:setKeys(0) end
  if f==390 then check(emu:read16(gNativeParty)==0,'party switch is rejected while attached to stairs');emu:setKeys(576) end
  if f==394 then emu:setKeys(0) end
@@ -114,7 +114,7 @@ callbacks:add('frame',function()
  if f==1280 then
   check(emu:read32(player()+0x94)==0 and emu:read16(gNativeBusy)==0,'B drops from stairs and finishes native landing')
   check(emu:read16(gNativeActionLeft)==0,'dropping consumes the action')
-  emu:screenshot('@OUTPUT@/landed.png');emu:setKeys(4)
+  emu:screenshot('@OUTPUT@/landed.png');emu:setKeys(516)
  end
  if f==1284 then emu:setKeys(0) end
  if f==1330 then

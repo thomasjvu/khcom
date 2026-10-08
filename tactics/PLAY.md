@@ -8,7 +8,8 @@ tiles, card pictures, value digits, chests and doors.
 | --- | --- |
 | D-pad | Commit a short movement step; adjacent directions allow diagonals |
 | L + D-pad | Open a projected walking route preview; D-pad moves the cursor, A confirms, B cancels |
-| Select | Switch Sora → Donald → Goofy; each retains movement/action budgets |
+| Select | Open Commands: Move, Attack, Skills, Party, End Turn, Suspend |
+| L + Select | Cycle deployed heroes; each retains movement/action budgets |
 | L / R | Select the previous/next card in the five-card hand |
 | R + B with Fire or Cure selected | Cycle eligible enemies or party members without spending cards or turn budgets |
 | L + A | Stock the selected card; stock three, then release L and press A for a sleight |
@@ -55,7 +56,7 @@ native prop colliders change. Unchanged previews are cached to keep cursor
 input responsive; A always revalidates collision before committing movement.
 Entering stairs through a movement step attaches the native climbing
 controller. Holding a direction still commits only one segment. You can end
-a turn while attached to recover movement; Select is disabled until landing
+a turn while attached to recover movement; L+Select party switching is disabled until landing
 so another party member cannot inherit the stair controller’s target.
 While attached, L+Up/Down opens a height cursor for up to three segments.
 R switches to a floor cursor around the predicted landing; D-pad selects a

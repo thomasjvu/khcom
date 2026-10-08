@@ -199,7 +199,7 @@ local returningToSora=false
 local function turnKey()
  if returningToSora then
   if emu:read16(gNativeEnemyFrames)>0 then return 0 end
-  if emu:read16(gNativeParty)~=0 then return 4 end
+  if emu:read16(gNativeParty)~=0 then return 516 end
   returningToSora=false;return 0
  end
  local guard=nil;local slot=0
@@ -214,7 +214,7 @@ local function turnKey()
  local party=emu:read16(gNativeParty)
  local action=party==2 and emu:read16(gNativeActionLeft) or emu:read16(sPartyAction+4)
  if state==0 and threat>0 and guard and emu:read16(gNativeGuard)==0 and emu:read8(gNativePartyHealth+2)>0 and action>0 then
-  if party~=2 then return 4 end
+  if party~=2 then return 516 end
   if emu:read8(gNativeDeck+73)~=guard then return 256 end
   out:write('GOOFY GUARD frame='..f..' threat='..threat..'\n');out:flush();return 1
  end

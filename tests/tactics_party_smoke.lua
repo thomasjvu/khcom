@@ -7,7 +7,7 @@ local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flu
 local function hp() return emu:read16(gGameState+0x32) end
 callbacks:add('frame',function()
  f=f+1
- if f==180 then emu:setKeys(4) end
+ if f==180 then emu:setKeys(516) end
  if f==184 then emu:setKeys(0) end
  if f==210 then check(emu:read16(gNativeParty)==1,'Select controls Donald');emu:setKeys(64) end
  if f==214 then emu:setKeys(0) end
@@ -28,7 +28,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeCureHeal)==0,'spent Cure clears recovery preview')
   check(emu:read16(gNativeActionLeft)==0,'Donald card costs his action')
   check(emu:read8(gNativeDeck+48+2)==2,'played Cure enters discard')
-  emu:setKeys(4)
+  emu:setKeys(516)
  end
  if f==374 then emu:setKeys(0) end
  if f==400 then
@@ -60,7 +60,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeGuard)==2,'suspend restores guard state')
   check(emu:read8(gNativeDeck+50)==2,'suspend restores card discard pile')
   check(emu:read16(gNativeActionLeft)==0,'suspend restores spent party action')
-  emu:setKeys(4)
+  emu:setKeys(516)
  end
  if f==724 then emu:setKeys(0) end
  if f==750 then
@@ -106,7 +106,7 @@ callbacks:add('frame',function()
  if f==960 then
   check(emu:read8(gNativePartyHealth+1)==reviveHp and reviveHp>0,'Cure revives nearby knocked-out Donald')
   check(hp()==80,'reviving Donald preserves Sora health')
-  emu:setKeys(4)
+  emu:setKeys(516)
  end
  if f==964 then emu:setKeys(0) end
  if f==1000 then

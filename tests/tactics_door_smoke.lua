@@ -28,7 +28,7 @@ local function approach(room,dx,dy)
 end
 callbacks:add('frame',function()
  f=f+1
- if f==180 then emu:setKeys(4) end
+ if f==180 then emu:setKeys(516) end
  if f==184 then emu:setKeys(0) end
  if f==260 then check(approach(1,4096,-2048),'first room contains a real door to room one');emu:setKeys(160) end
  if f==264 then emu:setKeys(0) end

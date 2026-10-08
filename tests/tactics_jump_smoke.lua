@@ -19,7 +19,7 @@ end
 callbacks:add('frame',function()
  f=f+1
  if testParty then
-  if f==120 or (testParty==2 and f==150) then emu:setKeys(4) end
+  if f==120 or (testParty==2 and f==150) then emu:setKeys(516) end
   if f==124 or f==154 then emu:setKeys(0) end
   if f>180 and f<400 then
    local pose=emu:read16(gNativeFriendPose+(testParty-1)*2)

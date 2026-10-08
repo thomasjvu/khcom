@@ -63,7 +63,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeActionLeft)==1,'top boundary transition preserves the combat action')
   emu:screenshot('@OUTPUT@/top-arrival.png')
  end
- if f==880 then emu:setKeys(4) end
+ if f==880 then emu:setKeys(516) end
  if f==884 then emu:setKeys(0) end
  if f==910 then check(emu:read16(gNativeParty)==1,'party selection works after top-platform landing');out:close() end
 end)

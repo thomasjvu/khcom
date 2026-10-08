@@ -98,7 +98,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeMoveLeft)==0 and emu:read16(gNativeActionLeft)==1,'three-segment descent charges exactly three movement and preserves action')
   emu:screenshot('@OUTPUT@/descent-arrival.png')
  end
- if f==1530 then emu:setKeys(4) end
+ if f==1530 then emu:setKeys(516) end
  if f==1534 then emu:setKeys(0) end
  if f==1550 then check(emu:read16(gNativeParty)==1,'party selection works after the planned descent');out:close() end
 end)

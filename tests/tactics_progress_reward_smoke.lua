@@ -20,7 +20,7 @@ callbacks:add('frame',function()
   emu:write16(gNativeRoster+12,2);place();emu:write8(gNativeDeck+73,1);emu:setKeys(1)
  end
  if f==214 then emu:setKeys(0) end
- if f==260 then emu:setKeys(4) end
+ if f==260 then emu:setKeys(516) end
  if f==264 then emu:setKeys(0) end
  if f==290 then emu:write8(gNativeDeck+73,0);emu:setKeys(1) end
  if f==294 then emu:setKeys(0) end

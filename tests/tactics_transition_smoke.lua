@@ -8,7 +8,7 @@ local function transition(room)
 end
 callbacks:add('frame',function()
  f=f+1
- if f==180 then emu:setKeys(4) end
+ if f==180 then emu:setKeys(516) end
  if f==184 then emu:setKeys(0) end
  if f==220 then emu:setKeys(64) end
  if f==224 then emu:setKeys(0) end
@@ -25,7 +25,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeMoveLeft)==2 and emu:read16(gNativeActionLeft)==0,'room entry preserves Donald budgets')
   check(emu:read16(gNativeGuard)==2,'room entry preserves active Guard')
   check(emu:read16(gGameState+0x32)==56,'room entry preserves active member health')
-  emu:setKeys(4)
+  emu:setKeys(516)
  end
  if f==524 then emu:setKeys(0) end
  if f==560 then
@@ -35,17 +35,17 @@ callbacks:add('frame',function()
  if f==564 then emu:setKeys(0) end
  if f==640 then emu:setKeys(1) end
  if f==644 then emu:setKeys(0) end
- if f==720 then emu:setKeys(4) end
+ if f==720 then emu:setKeys(516) end
  if f==724 then emu:setKeys(0) end
  if f==800 then transition(0) end
  if f==920 then
   check(emu:read16(gNativeParty)==0 and emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'backtracking preserves untouched Sora budgets')
-  emu:setKeys(4)
+  emu:setKeys(516)
  end
  if f==924 then emu:setKeys(0) end
  if f==960 then
   check(emu:read16(gNativeParty)==1 and emu:read16(gNativeMoveLeft)==2 and emu:read16(gNativeActionLeft)==0,'backtracking does not refill Donald')
-  emu:setKeys(4)
+  emu:setKeys(516)
  end
  if f==964 then emu:setKeys(0) end
  if f==1000 then

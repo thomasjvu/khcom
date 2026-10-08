@@ -1365,7 +1365,7 @@ static void NativeHud(void) {
     }
     if (!gNativeMenu && !gNativeAssembly && !gNativePreview && !gNativeProgressReward &&
         !gNativeReward && !gNativeEnemyFrames && !gNativeResult && !gNativeSaveNotice)
-        NativeLabel(0, 32, "R SELECT COMMANDS");
+        NativeLabel(0, 32, "SELECT COMMANDS");
     if (gNativeMenu) {
         static const char* const commands[6] = {"MOVE", "ATTACK", "SKILLS", "PARTY", "END TURN", "SUSPEND"};
         gWin0V = 64;
@@ -2594,7 +2594,7 @@ static void NativeUpdate(void) {
         !(gFieldState->flags & (FIELD_FLAG_FREEZE_PLAYER | FIELD_FLAG_ROOM_CREATE))) {
         /* The command panel shares the authoritative native actions and
          * budgets with shortcuts. Menu navigation never commits a field step. */
-        if (!gNativePreview && (raw & R_BUTTON) && (pressed & SELECT_BUTTON)) {
+        if (!gNativePreview && !(raw & (L_BUTTON | START_BUTTON)) && (pressed & SELECT_BUTTON)) {
             gNativeMenu = gNativeMenu ? 0 : 1;
             pressed = 0;
         } else if (gNativeMenu) {
@@ -2687,7 +2687,7 @@ static void NativeUpdate(void) {
                  ((NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD) && gNativeDeck.kind[selected] == FIELD_CARD_KEY))) NativeCycleFireTarget();
             else if (selected >= 0 && !gNativeDeck.stocked &&
                 gNativeDeck.kind[selected] == FIELD_CARD_CURE) NativeCycleCureTarget();
-        } else if ((pressed & SELECT_BUTTON) && player->state == FLD_STATE_GROUND) {
+        } else if ((raw & L_BUTTON) && (pressed & SELECT_BUTTON) && player->state == FLD_STATE_GROUND) {
             NativePartySelect();
         } else if ((raw & (L_BUTTON | R_BUTTON)) == (L_BUTTON | R_BUTTON) &&
             (pressed & (L_BUTTON | R_BUTTON)) && gNativeActionLeft) {

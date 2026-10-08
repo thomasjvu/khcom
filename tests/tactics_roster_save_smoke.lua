@@ -17,7 +17,7 @@ callbacks:add('frame',function()
  f=f+1
  if f==180 then emu:setKeys(1) end
  if f==184 then emu:setKeys(0) end
- if f==200 then emu:setKeys(4) end
+ if f==200 then emu:setKeys(516) end
  if f==204 then emu:setKeys(0) end
  if f==230 then check(emu:read16(gNativeParty)==1,'Select controls Donald');place(64) end
  if f==250 then check(emu:read16(gNativeFireDamage)==14,'Donald attack card previews ranged magic');emu:setKeys(1) end
@@ -25,7 +25,7 @@ callbacks:add('frame',function()
  if f==310 then
   check(emu:read16(gNativeEnemyHp)==16,'Donald attack card resolves magic without Sora melee')
   check(emu:read16(gNativeEnemyHp+2)==30,'Donald magic damages one target')
-  emu:setKeys(4)
+  emu:setKeys(516)
  end
  if f==314 then emu:setKeys(0) end
  if f==350 then

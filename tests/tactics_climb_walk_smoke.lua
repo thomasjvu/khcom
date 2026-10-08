@@ -99,19 +99,19 @@ callbacks:add('frame',function()
   check(saved and p[1]==saved[1] and p[2]==saved[2] and p[3]==saved[3],'reset restores exact position after composed route')
   check(emu:read16(gNativeMoveLeft)==0 and emu:read16(gNativeActionLeft)==1 and emu:read16(gNativeParty)==0,'reset preserves active hero and spent movement with action available')
  end
- if f==1080 then emu:setKeys(4) end
+ if f==1080 then emu:setKeys(516) end
  if f==1084 then emu:setKeys(0) end
  if f==1110 then
   check(emu:read16(gNativeParty)==1,'Donald remains selectable after composed-route resume')
   check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'Donald retains his independent unspent turn resources')
  end
- if f==1120 then emu:setKeys(4) end
+ if f==1120 then emu:setKeys(516) end
  if f==1124 then emu:setKeys(0) end
  if f==1150 then
   check(emu:read16(gNativeParty)==2,'Goofy remains selectable after composed-route resume')
   check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'Goofy retains his independent unspent turn resources')
  end
- if f==1160 then emu:setKeys(4) end
+ if f==1160 then emu:setKeys(516) end
  if f==1164 then emu:setKeys(0) end
  if f==1190 then
   check(emu:read16(gNativeParty)==0 and emu:read16(gNativeMoveLeft)==0 and emu:read16(gNativeActionLeft)==1,'returning to Sora preserves the composed route cost')
