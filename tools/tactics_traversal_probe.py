@@ -37,6 +37,10 @@ for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).spli
     words = line.split()
     if len(words) == 3:
         names[words[2]] = int(words[0], 16)
+# Distinguish tactics input from the identically named original field local.
+raw=[int(w[0],16) for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitlines() if len(w:=line.split())==3 and w[2]=='sRawKeys' and 0x0203e000<=int(w[0],16)<0x02040000]
+if len(raw)!=1:p.error('unique tactics raw-input symbol required')
+names['sRawKeys']=raw[0]
 keys = ('gFrameCounter','sRawKeys','gCurrentMode', 'gCurrentModeUpdate', 'gPendingMode', 'sNativeMode', 'NativeUpdate', 'gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
         'gTaskDescMapDoor', 'gTaskDescMapGmk01', 'gNativeChests', 'gNativeBusy', 'gNativeMenu', 'gNativeMenuChoice', 'gNativeEnemyFrames', 'gNativeParty', 'gNativeGuard', 'gNativeThreats', 'sPartyAction', 'gNativePreview',
         'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing', 'gNativeCureTarget','gNativeReachCost','gNativeReachCount','gNativeClimbReachMask','sRouteValid','sPlayerEdge',

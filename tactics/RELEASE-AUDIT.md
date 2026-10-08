@@ -13,14 +13,14 @@ Historical entries in PLAN.md describe earlier versions; current evidence wins.
 | Controllable Sora/Donald/Goofy | Separate budgets/HP; menu and native party checks; Donald magic/Cure and Goofy spin/Guard | Current-ROM review of all moves and attached poses |
 | Fight/recruit Cloud; party assembly only at round start | Actual fresh-run fight/recruit/deploy; recruit and alternative-power fixtures; original character cards in setup | Wider recruit/reward balance |
 | Optional Aerith/Tifa suggestion | Aerith event-character/portrait declarations exist; no Tifa references found in src/include/assets | Inspect actual Aerith resources and feasibility; neither recruit is implemented |
-| Original Rally | Five-hero roster; menu/save/reset, walking/actions/air native tests and golden asset checks | Original card implemented and native setup inspected; hurt/climb/casting art and further visual integration |
+| Original Rally | Five-hero roster; menu/save/reset, walking/actions/air native tests and golden asset checks | Card and six hurt/climb/cast poses implemented and native captures inspected; further visual review |
 | Selectable Move/Attack/Skills/Party/End Turn | Compact single-stroke font, 18+16 idle and 56+16 contextual windows; rendered native UI checks | Visual usability review of all submenus |
 | Turn order visible | Available party members then enemy phase; freely ordered party actions; forecast before ending | Review enemy-phase strip and all depleted/KO combinations |
 | Movement tiles, heights, chests, doors | Native projected previews, costs, cancel, collision execution, composed descent; all-room nine chest campaign | Wider seeds and combined ledge/jump route discovery |
 | Card combat and sleights | Original artwork, draw/discard/reload, three-card sleights, targeted Fire/Cure/Guard; host/native tests | Current-ROM review of each character/recipe combination |
 | Bosses and roguelike rewards | TT Guard Armor, Agrabah Jafar, Castle Marluxia; completed campaigns; personal power/sleight rewards, Cloud summon-or-power choice | Balance and reward variety; additional recruit bosses |
 | Suspend saves | Current native alternating slots/reset/corrupt-newest fallback12 checks, exact saves in both complete campaigns | Multi-seed replay with reset/retry |
-| Verified complete runs | Current main PASS119943; all36 rooms/nine chests PASS281892, stable victory120 frames | Two-seed test terminal: first PASS, second frame-bound failure in Agrabah room2; diagnose captured geometry |
+| Verified complete runs | Current main PASS119943; all36 rooms/nine chests PASS281892, stable victory120 frames | 0.33 passes two consecutive seeds292638 and all-room281892; rerun on new state-art ROM |
 
 Next implementation priority after the active seed test: resolve a reproduced
 physical navigation defect if one appears; otherwise finish Rally's missing

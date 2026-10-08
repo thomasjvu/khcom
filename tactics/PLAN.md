@@ -1306,3 +1306,28 @@ states-draft-v1.png; it incorrectly contains translucent haze and duplicate
 climb poses, so it is not imported. Built-in image edit is correcting alpha
 and alternate arms/knees (cell564). Runtime remains0.33 until actual asset
 validation and native integration are complete; no missing pose claim made.
+
+
+0.33 complete campaign proof (2026-10-08): jobs65844 and92124 terminal exit0.
+Two consecutive fresh/native-retry seeds PASS292638 (first127518; retry127530
+seed2658846982; second victory292518, Sora67HP stable120). Both Cloud recruit/
+deploy, exact suspend/reset and composed descent verified. Prior Agrabah
+room2 blockage passed212878. Independent established all-room policy PASS
+281892, room masks4095 each, nine chests,41kills, Sora80 stable120. Exact0.33
+ROM64bb02ac04b1e662fc839bbd5c4c3479a626f856cd02f28e752658364c661505;
+metadata/log/ROM hashes checked and package manifest finalized. The defeated
+exploratory-policy all-room attempt remains retained as separate evidence.
+
+Rally original six state poses integrated: hurt after actual nonzero HP loss,
+cast for non-Key cards/sleights, held climb for native stairs/ledge states.
+Source3 solid-green sheet compiled against unchanged palette, original30
+frames retain golden hashes, all six4bpp encodings/boots verified. Native49
+checks PASS:12 disclosed native-damage/generated-stair fixtures,14 input-only
+melee/air,23 menu/deploy/card-OBJ/save-reset. Captures inspected; hostPASS.
+RAM still8140/8192; new ROM5f1a98008c3f8e9e6d27f12466fe4744de8035a34743cd7f543d9563bd3f846b.
+Initial action regression failed its input wait because ELF has two local
+sRawKeys symbols; corrected generator resolves tactics reserved-EWRAM local.
+A second attempt mislabeled Fire as rear melee after draw advanced the hand;
+explicit Key selection now verifies all rear strike stages. Failed logs
+remain. Traversal generator also resolves the tactics input variable now.
+Complete0.33 proof does not prove this newer state-art ROM; run fresh campaigns.

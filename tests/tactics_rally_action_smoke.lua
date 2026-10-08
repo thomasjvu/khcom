@@ -91,7 +91,19 @@ callbacks:add('frame',function()
  elseif phase=='back_attack' then
   check(emu:read16(sFriends+16)==5,'north facing uses the authored rear view')
   check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'facing leaves renewed resources untouched')
-  command(1,'back_wait')
+  phase='back_select'
+ elseif phase=='back_select' then
+  local selected=emu:read8(gNativeDeck+73);local slot=0;local kind=nil
+  for i=0,emu:read8(gNativeDeck+72)-1 do
+   if emu:read8(gNativeDeck+48+i)==1 then
+    if slot==selected then kind=emu:read8(gNativeDeck+i) end
+    slot=slot+1
+   end
+  end
+  if kind==0 then
+   check(true,'rear melee explicitly selects Key card after draw advances hand')
+   command(1,'back_wait')
+  else command(256,'back_select') end
  elseif phase=='back_wait' then
   if emu:read16(gNativeBusy)~=0 or emu:read16(sFriends+50)~=0 then return end
   check(not backLoops,'rear strike plays once rather than looping')

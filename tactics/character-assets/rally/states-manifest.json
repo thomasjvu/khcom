@@ -1,0 +1,25 @@
+{
+  "source": "tactics/character-assets/rally/states-source-v3.png",
+  "source_sha256": "9184629857994190d0a06f95687867c9b18e36992b102e9acccf12bd0f54f815",
+  "frames": 6,
+  "states": [
+    "hurt",
+    "cast",
+    "climb"
+  ],
+  "views": [
+    "front",
+    "rear"
+  ],
+  "cell": [
+    32,
+    64
+  ],
+  "foot": [
+    16,
+    56
+  ],
+  "palette": "unchanged sRallyPalette",
+  "tiles_bytes": 6144,
+  "climb": "single held pose; no alternation claim"
+}

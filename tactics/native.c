@@ -43,6 +43,7 @@
 #include "ui_font.h"
 #include "character-assets/rally/rally_data.h"
 #include "character-assets/rally/rally_card_data.h"
+#include "character-assets/rally/rally_states_data.h"
 #include "malloc.h"
 #include "gba/macro.h"
 
@@ -168,6 +169,24 @@ static u8 sPartyAngle[3], sCarryAngle[3];
 static u8 sCarryTurn, sCarryParty, sCarryGuard;
 u16 gNativeParty;
 FieldParty gNativePartyHealth;
+/* Presentation follows actual resolved damage, including Guard prevention. */
+static int NativePartyDamage(u8 member, u16 damage) {
+    u8 before = gNativePartyHealth.hp[member];
+    int defeated = FieldPartyDamage(&gNativePartyHealth, member, damage);
+    if (member && NativeHero(member) == FIELD_RALLY &&
+        gNativePartyHealth.hp[member] && gNativePartyHealth.hp[member] < before) {
+        sFriends[member - 1].pose = 5;
+        sFriends[member - 1].timer = 24;
+    }
+    return defeated;
+}
+static void NativePartyCardPose(u8 member, u8 kind) {
+    NativePartyPose(member);
+    if (member && NativeHero(member) == FIELD_RALLY && kind != FIELD_CARD_KEY) {
+        sFriends[member - 1].pose = 6;
+        sFriends[member - 1].timer = 48;
+    }
+}
 static void* sCardTiles[4];
 static void* sValueTiles;
 static ObjPalette* sValuePalette;
@@ -815,16 +834,25 @@ static void NativePartyDraw(void) {
             sFriends[i].facing = sPartyPos[i + 1].x > sFriends[i].pos.x;
         sFriends[i].pos = sPartyPos[i + 1];
         if (sFriends[i].timer) sFriends[i].timer--;
-        if (sFriends[i].timer || (NativeHero(i + 1) == FIELD_GOOFY && gNativeGuard && sFriends[i].pose == 1)) pose = 1;
+        if (sFriends[i].timer || (NativeHero(i + 1) == FIELD_GOOFY && gNativeGuard && sFriends[i].pose == 1))
+            pose = NativeHero(i + 1) == FIELD_RALLY && sFriends[i].pose >= 5 ? sFriends[i].pose : 1;
         if (gNativeParty == i + 1) {
             if (player->state == FLD_STATE_JUMP_START || player->state == FLD_STATE_JUMP_RISE) pose = 3;
             else if (player->state == FLD_STATE_FALL) pose = 4;
+            else if (NativeHero(i + 1) == FIELD_RALLY &&
+                (player->state == FLD_STATE_CLIMB || player->state == FLD_STATE_LEDGE_CATCH ||
+                 player->state == FLD_STATE_LEDGE_HANG)) pose = 7;
         }
         if (NativeHero(i + 1) == FIELD_RALLY) {
             u8 angle = gNativeParty == i + 1 ? gFieldState->actor.angle : sPartyAngle[i + 1];
             u8 bank = (angle > 0 && angle < 128 ? 2 : 0) + (angle < 64 || angle > 192 ? 1 : 0);
-            AnimDef def = sFriendAnims[FIELD_RALLY - 1][pose];
-            def.animId = bank * 5 + pose;
+            AnimDef def = sFriendAnims[FIELD_RALLY - 1][pose < 5 ? pose : 0];
+            if (pose >= 5) {
+                def.gfxTable = (void*)sRallyStateFrames;
+                def.anims = (void*)sRallyStateAnims;
+                def.tiles = (void*)sRallyStateTiles;
+                def.animId = (bank % 2) * 3 + pose - 5;
+            } else def.animId = bank * 5 + pose;
             sFriends[i].facing = bank >= 2;
             AnimChangeWithDef(&def, &sFriends[i].anim, 0,
                 pose == 0 || pose == 2 ? ANIM_FLAG_LOOP : 0, sFriends[i].tiles);
@@ -2405,21 +2433,21 @@ static void NativeEnemyTurn(void) {
             if (sEnemyTasks[i]->desc == &sCloudTaskDesc) {
                 sCloudImpact = 24;
                 for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j] && NativeCloudHits(i, &sPartyPos[j]))
-                    if (FieldPartyDamage(&gNativePartyHealth, j, NativeCloudDamage(i))) gNativeResult = 1;
+                    if (NativePartyDamage(j, NativeCloudDamage(i))) gNativeResult = 1;
                 gNativeEnemyCharge[i] = 0;
                 continue;
             }
             if (sEnemyTasks[i]->desc == &sMarlTaskDesc) {
                 sMarlImpact = 24;
                 for (j = 0; j < 3; j++) if (gNativePartyHealth.hp[j] && NativeMarlHits(i, &sPartyPos[j]))
-                    if (FieldPartyDamage(&gNativePartyHealth, j, NativeMarlDamage(i))) gNativeResult = 1;
+                    if (NativePartyDamage(j, NativeMarlDamage(i))) gNativeResult = 1;
                 gNativeEnemyCharge[i] = 0;
                 continue;
             }
             if (sEnemyTasks[i]->desc == &sJafarTaskDesc) {
                 sJafarImpact = 24;
                 if (best <= (96 << 8) && dz <= (32 << 8))
-                    if (FieldPartyDamage(&gNativePartyHealth, closest, NativeJafarDamage())) gNativeResult = 1;
+                    if (NativePartyDamage(closest, NativeJafarDamage())) gNativeResult = 1;
                 gNativeEnemyCharge[i] = 0;
                 continue;
             }
@@ -2428,7 +2456,7 @@ static void NativeEnemyTurn(void) {
                 distance = NativeAbs(work->obj.fieldPosition.x - sPartyPos[j].x) +
                     NativeAbs(work->obj.fieldPosition.y + work->obj.fieldPosition.z - sPartyPos[j].y - sPartyPos[j].z);
                 if (distance <= (NativeBlastRange(i) << 8) && NativeAbs(work->obj.fieldPosition.z - sPartyPos[j].z) <= (24 << 8))
-                    if (FieldPartyDamage(&gNativePartyHealth, j, gNativeGuard == 2 ? 0 :
+                    if (NativePartyDamage(j, gNativeGuard == 2 ? 0 :
                         gNativeGuard ? 1 : NativeBlastDamage(i))) gNativeResult = 1;
             }
             gNativeEnemyCharge[i] = 0;
@@ -2440,7 +2468,7 @@ static void NativeEnemyTurn(void) {
         }
         if (gNativeEnemyKind[i] != 2 && best <= (FieldEnemyRange(gNativeEnemyKind[i]) << 8) &&
             dz <= (FieldEnemyHeight(gNativeEnemyKind[i]) << 8)) {
-            if (FieldPartyDamage(&gNativePartyHealth, closest,
+            if (NativePartyDamage(closest,
                 gNativeGuard == 2 ? 0 : gNativeGuard ? 1 : FieldEnemyDamage(gNativeEnemyKind[i], gNativeFloor)))
                 gNativeResult = 1;
         } else {
@@ -2725,7 +2753,7 @@ static void NativeSleight(void) {
     u8 i;
     if (!FieldDeckSleight(&gNativeDeck, &kind, &value)) return;
     sPlayedValue = value;
-    NativePartyPose(gNativeParty);
+    NativePartyCardPose(gNativeParty, kind);
     if (kind == FIELD_CARD_CURE) {
         for (i = 0; i < 3; i++) FieldPartyHeal(&gNativePartyHealth, i, NativeSleightRecovery(i, value, recipe));
         gGameState.hp = gNativePartyHealth.hp[gNativeParty];
@@ -2985,7 +3013,7 @@ static void NativeUpdate(void) {
                 int card = FieldDeckPlay(&gNativeDeck);
                 if (card >= 0) {
                     u8 kind = gNativeDeck.kind[card];
-                    NativePartyPose(gNativeParty);
+                    NativePartyCardPose(gNativeParty, kind);
                     sPlayedValue = gNativeDeck.value[card];
                     if (kind == FIELD_CARD_CURE) {
                         NativeCure();
