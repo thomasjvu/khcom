@@ -53,7 +53,8 @@ static int SegmentOracle(const int a[3],const int b[3],const int half[3]) {
         if(!delta){if(a[i]<=-half[i]||a[i]>=half[i])return 0;continue;}
         low=(-half[i]-a[i])/delta;high=(half[i]-a[i])/delta;
         if(low>high){swap=low;low=high;high=swap;}
-        if(low>enter)enter=low;if(high<leave)leave=high;
+        if(low>enter)enter=low;
+        if(high<leave)leave=high;
         if(enter>=leave)return 0;
     }
     return 1;

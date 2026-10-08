@@ -1,0 +1,9 @@
+Create a new combat animation sprite sheet for RALLY, the exact pink ponytail girl in the reference. Preserve light pastel pink high ponytail, short bangs, ivory sleeveless top, plum shorts, white shoes, skin and compact pixel-art proportions.
+Rally uses two fluffy POMPOMS for melee attacks and a MEGAPHONE for rally magic. Pompoms are white and pink with plum handles. Megaphone has white cone, plum rim and pink handle, visibly a megaphone not a weapon barrel. Transparent background.
+Exactly 5 rows x 6 columns, uniform separated cells, whole sprites uncut, fixed foot baseline and scale. No labels.
+Row 1 six sequential front-right pompom ATTACK poses: ready holding two pompoms, windup pulling one back, forward pompom swipe, opposite pompom strike, both arms extended follow-through, recovery.
+Row 2 same pompom attack sequence from back-right.
+Row 3 six sequential front-right MEGAPHONE magic poses: ready holding lowered megaphone and one pompom, lift megaphone to mouth, inhale leaning back, shout into megaphone pointed right, sustain shout with free pompom raised, recovery lowering megaphone. Face remains readable, no extra hands. Small pink sound marks only.
+Row 4 same megaphone cast sequence from back-right.
+Row 5 six ISOLATED spell effect sprites without character: small pink sound crescent, two expanding sound crescents, three broad pink sound-wave arcs, compact pink star buff sparkle, larger bright pink/white rally burst, fading pink spark fragments. Crisp hard pixel clusters, no blurry glow. Each effect in separate cell.
+Match reference GBA-inspired dark outlines, limited colors and crisp pixel clusters enlarged nearest-neighbor. Distinct readable motion silhouettes, consistent design and equipment. No ground shadows, text, watermarks, scenery, grid lines or red fringes. Genuine transparency. Game animation asset sheet, not poster.
