@@ -273,3 +273,7 @@ After landing on solid scenery, L+D-pad can preview walking across its top.
 Reachable destinations stay within the original prop footprint and preserve the
 terrain ground beneath it. Use native jump/drop movement to leave the edge;
 prop ascent and descent are not yet combined into a single preview route.
+
+In Commands → Skills, Down opens Reload when no cards are stocked. Confirm
+with A to spend one action and return discarded cards, or B to cancel. Down
+with stocked cards clears the stock first.

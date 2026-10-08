@@ -76,3 +76,12 @@ cycling through Goofy and Sora after resume. The explicit Donald/Goofy combat
 fixture passes8 checks for actual ranged magic/spin damage and action costs
 using the new party shortcut. The retry policy regression passes. Full current
 ROM campaign completion remains unverified.
+
+Skills now offers Reload through Down when no cards are stocked. Down with a
+stock still clears it. Reload has a separate confirmation showing its one-action
+cost; B returns to Skills without spending. Confirmation returns discard to
+draw and replenishes the hand through the authoritative deck implementation.
+A spent action blocks it. Nine explicit discarded-hand fixture checks pass,
+including exact five-card draw and cancel safety; all23 target/sleight checks
+pass on the same ROM. Build/header/capacity checks pass and the screenshot was
+inspected. Full campaign evidence from prior ROMs remains separate.

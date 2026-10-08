@@ -1371,7 +1371,12 @@ static void NativeHud(void) {
         gWin0V = 64;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         NativeLabel(0, 0, gNativeMenu >= 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  UP DOWN A  B BACK");
-        if (gNativeMenu >= 3) {
+        if (gNativeMenu == 5) {
+            NativeLabel(0, 0, "RELOAD CARDS  A CONFIRM");
+            NativeLabel(0, 16, "RETURN DISCARDED CARDS");
+            NativeLabel(0, 24, "COST ONE ACTION");
+            NativeLabel(0, 40, gNativeActionLeft ? "A RELOAD  B BACK" : "ACTION ALREADY SPENT");
+        } else if (gNativeMenu >= 3) {
             char amount[] = "RECOVER 00";
             NativeLabel(0, 16, card < 0 ? "NO CARD" : names[gNativeDeck.kind[card]]);
             if (gNativeDeck.stocked == 3 && FieldDeckSleightPreview(&gNativeDeck, &sleightKind, &sleightValue)) {
@@ -1396,8 +1401,8 @@ static void NativeHud(void) {
             } else NativeLabel(0, 24, "CONFIRM SELECTED ACTION");
             NativeLabel(0, 48, gNativeActionLeft ? "B BACK WITHOUT SPENDING" : "ACTION ALREADY SPENT");
         } else if (gNativeMenu == 2) {
-            NativeLabel(0, 16, card < 0 ? "NO CARDS  L R RELOAD" : names[gNativeDeck.kind[card]]);
-            NativeLabel(0, 24, gNativeDeck.stocked == 3 ? "THREE STOCKED  A SLEIGHT" : "UP STOCK  DOWN CLEAR");
+            NativeLabel(0, 16, card < 0 ? "NO CARDS  DOWN RELOAD" : names[gNativeDeck.kind[card]]);
+            NativeLabel(0, 24, gNativeDeck.stocked == 3 ? "THREE STOCKED  A SLEIGHT" : gNativeDeck.stocked ? "UP STOCK  DOWN CLEAR" : "UP STOCK  DOWN RELOAD");
             NativeLabel(0, 32, "B BACK  L R CARD");
         } else {
             int hasKey = 0;
@@ -2598,8 +2603,14 @@ static void NativeUpdate(void) {
             gNativeMenu = gNativeMenu ? 0 : 1;
             pressed = 0;
         } else if (gNativeMenu) {
-            if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 4 ? 1 : gNativeMenu == 3 ? 2 : gNativeMenu == 2 ? 1 : 0;pressed = 0;}
-            else if (gNativeMenu >= 3) {
+            if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 4 ? 1 : gNativeMenu >= 3 ? 2 : gNativeMenu == 2 ? 1 : 0;pressed = 0;}
+            else if (gNativeMenu == 5) {
+                if ((pressed & A_BUTTON) && gNativeActionLeft && FieldDeckReload(&gNativeDeck)) {
+                    gNativeActionLeft = 0;
+                    gNativeMenu = 0;
+                }
+                pressed = 0;
+            } else if (gNativeMenu >= 3) {
                 int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
                 int ranged = gNativeDeck.stocked != 3 && card >= 0 && (gNativeDeck.kind[card] == FIELD_CARD_FIRE ||
                     (gNativeDeck.kind[card] == FIELD_CARD_KEY &&
@@ -2619,7 +2630,10 @@ static void NativeUpdate(void) {
             }
             else if (gNativeMenu == 2) {
                 if (pressed & DPAD_UP) FieldDeckStock(&gNativeDeck);
-                if (pressed & DPAD_DOWN) FieldDeckCancelStock(&gNativeDeck);
+                if (pressed & DPAD_DOWN) {
+                    if (gNativeDeck.stocked) FieldDeckCancelStock(&gNativeDeck);
+                    else gNativeMenu = 5;
+                }
                 if (pressed & (DPAD_LEFT | L_BUTTON)) FieldDeckCycle(&gNativeDeck, -1);
                 if (pressed & (DPAD_RIGHT | R_BUTTON)) FieldDeckCycle(&gNativeDeck, 1);
                 if ((pressed & A_BUTTON) && (FieldDeckHand(&gNativeDeck, gNativeDeck.selected) >= 0 || gNativeDeck.stocked == 3) &&
