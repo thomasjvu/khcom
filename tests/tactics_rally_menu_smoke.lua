@@ -30,8 +30,20 @@ callbacks:add('frame',function()
   check(hudText(0,0,'PARTY SETUP A DEPLOY'),'setup heading rendered with single stroke font')
   check(hudText(2,1,'RALLY') and hudText(2,9,'HP64 M3 A1 P0'),'deployed Rally health and budgets visible')
   check(hudText(5,0,'RESERVE HP DON56'),'reserve Donald health visible after swap')
+  local tiles=emu:read32(sAssemblyTiles);local palette=emu:read32(sAssemblyPalette)
+  local tileMatch=tiles~=0;local paletteMatch=palette~=0
+  if tiles~=0 then
+   local address=0x06010000+emu:read16(tiles+6)*32
+   for offset=0,511 do if emu:read8(address+offset)~=emu:read8(sRallyCardTiles+offset) then tileMatch=false end end
+  end
+  if palette~=0 then
+   local address=0x05000200+emu:read16(palette+6)*32
+   for offset=0,15 do if emu:read16(address+offset*2)~=emu:read16(sRallyCardPalette+offset*2) then paletteMatch=false end end
+  end
+  check(tileMatch,'Rally original card tiles uploaded to allocated OBJ bank')
+  check(paletteMatch,'Rally original card palette uploaded to allocated bank')
   check(emu:read8(gNativeRoster+2)==4,'Rally selected into companion slot');emu:screenshot('@OUTPUT@/setup.png');emu:setKeys(8) end
- if f==260 then check(emu:read16(gNativeParty)==1 and emu:read16(gNativeAssembly)==0,'deploy and control Rally');emu:setKeys(4) end
+ if f==260 then check(emu:read32(sAssemblyTiles)==0 and emu:read32(sAssemblyPalette)==0,'deployment releases Rally setup card resources');check(emu:read16(gNativeParty)==1 and emu:read16(gNativeAssembly)==0,'deploy and control Rally');emu:setKeys(4) end
  if f==300 then check(emu:read16(gNativeMenu)==1,'open tactical commands');check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'opening menu preserves budgets');emu:screenshot('@OUTPUT@/menu.png');emu:setKeys(128) end
  if f==340 then check(emu:read16(gNativeMenuChoice)==1,'navigate attack without moving');emu:setKeys(128) end
  if f==380 then check(emu:read16(gNativeMenuChoice)==2,'navigate skills');emu:setKeys(1) end

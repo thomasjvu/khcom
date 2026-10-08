@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The packaged **0.32 compact-menu development build** runs in the original 2.5D engine with full
+The packaged **0.33 Rally-card development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -32,7 +32,7 @@ either companion. Every second unique room clear grants a personal upgrade.
 Original cards support explicit Fire/Cure targets,
 matching-type sleights and three-card chest reward choices. Palette budgets
 keep party, card artwork and value digits visible beside generated scenery.
-The current 0.32 ROM completes separate fresh-SRAM input-only main-route and
+The earlier 0.32 ROM completes separate fresh-SRAM input-only main-route and
 all-room campaigns: all twelve rooms per world, nine chest opens, Cloud
 recruitment/deployment, height-route execution and exact suspend/reset. World
 exits rest the recruited roster, including benched heroes. Broader seeds remain
