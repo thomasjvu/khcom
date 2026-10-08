@@ -1335,6 +1335,14 @@ static void NativeJumpContacts(const FieldJumpPoint* point, NativeJumpContact* r
     }
     if (result->standing) result->ground=platformZ<point->ground ? platformZ : point->ground;
 }
+static int NativeDirectionAngle(u16 direction) {
+    if (direction & DPAD_UP) direction &= ~DPAD_DOWN;
+    if (direction & DPAD_LEFT) direction &= ~DPAD_RIGHT;
+    return (direction & DPAD_UP) ?
+        ((direction & DPAD_LEFT) ? 211 : (direction & DPAD_RIGHT) ? 45 : 0) :
+        (direction & DPAD_DOWN) ? ((direction & DPAD_LEFT) ? 173 : (direction & DPAD_RIGHT) ? 83 : 128) :
+        (direction & DPAD_LEFT) ? 192 : 64;
+}
 static void NativeJumpPredict(void) {
     FieldJumpMotion motion;
     NativeJumpContact contact;
@@ -1350,11 +1358,7 @@ static void NativeJumpPredict(void) {
     angle=gFieldState->actor.angle;
     speed=0;
     if (gNativeDirection) {
-        angle=(gNativeDirection & DPAD_UP) ?
-            ((gNativeDirection & DPAD_LEFT) ? 211 : (gNativeDirection & DPAD_RIGHT) ? 45 : 0) :
-            (gNativeDirection & DPAD_DOWN) ?
-            ((gNativeDirection & DPAD_LEFT) ? 173 : (gNativeDirection & DPAD_RIGHT) ? 83 : 128) :
-            (gNativeDirection & DPAD_LEFT) ? 192 : 64;
+        angle=NativeDirectionAngle(gNativeDirection);
         speed=614;
         if (angle!=gFieldState->actor.angle)
             speed=NativeAbs((s8)GetAngleDiff(gFieldState->actor.angle,angle))>100 ? 0 : speed/2;
@@ -3045,8 +3049,7 @@ static void NativeUpdate(void) {
                 }
                 if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY && !ranged &&
                     gNativeDeck.stocked != 3 && (pressed & DPAD_ANY)) {
-                    gFieldState->actor.angle = (pressed & DPAD_LEFT) ? 192 :
-                        (pressed & DPAD_RIGHT) ? 64 : (pressed & DPAD_UP) ? 0 : 128;
+                    gFieldState->actor.angle = NativeDirectionAngle(raw & DPAD_ANY);
                 }
                 if ((pressed & A_BUTTON) && (card >= 0 || gNativeDeck.stocked == 3) && gNativeActionLeft &&
                     (!ranged || gNativeFireTarget >= 0)) {gNativeMenu = 0;raw = pressed = A_BUTTON;}
@@ -3097,13 +3100,8 @@ static void NativeUpdate(void) {
         } else if (player->state == FLD_STATE_GROUND && (raw & R_BUTTON) && (pressed & DPAD_ANY) &&
             !(raw & (L_BUTTON | A_BUTTON | B_BUTTON | START_BUTTON | SELECT_BUTTON))) {
             u16 direction = raw & DPAD_ANY;
-            if (direction & DPAD_UP) direction &= ~DPAD_DOWN;
-            if (direction & DPAD_LEFT) direction &= ~DPAD_RIGHT;
             gFieldState->actor.speed = 0;
-            gFieldState->actor.angle = (direction & DPAD_UP) ?
-                ((direction & DPAD_LEFT) ? 211 : (direction & DPAD_RIGHT) ? 45 : 0) :
-                (direction & DPAD_DOWN) ? ((direction & DPAD_LEFT) ? 173 : (direction & DPAD_RIGHT) ? 83 : 128) :
-                (direction & DPAD_LEFT) ? 192 : 64;
+            gFieldState->actor.angle = NativeDirectionAngle(direction);
             gNativeCommands++;
         } else if (player->state == FLD_STATE_CLIMB && (pressed & DPAD_ANY) && gNativeMoveLeft) {
             gNativeDirection = raw & DPAD_ANY;
