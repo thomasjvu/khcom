@@ -42,8 +42,8 @@ for script_name, expected in (("sleights",14),("sleight-area",12),("recipes",16)
  },indent=2)+"\n")
 
 # Each caster is deployed through the native assembly menu.
-for hero,name in ((1,'donald'),(2,'goofy'),(4,'rally')):
+for hero,name in ((1,'donald'),(2,'goofy'),(3,'cloud'),(4,'rally')):
  script=header+f'local testAreaHero={hero}\n'+Path('tests/tactics_sleight_area_smoke.lua').read_text().replace('@OUTPUT@',str(out))
  script=script.replace('/sleight-area.txt',f'/{name}-area.txt')
  (out/f'{name}-area.lua').write_text(script)
- (out/f'{name}-area-metadata.json').write_text(json.dumps(dict(rom_sha256=hashlib.sha256(rom.read_bytes()).hexdigest(),driver_sha256=hashlib.sha256(script.encode()).hexdigest(),explicit_card_enemy_position_hp_fixtures=True,native_party_assembly=True,expected_checks=12,result='pending'),indent=2)+'\n')
+ (out/f'{name}-area-metadata.json').write_text(json.dumps(dict(rom_sha256=hashlib.sha256(rom.read_bytes()).hexdigest(),driver_sha256=hashlib.sha256(script.encode()).hexdigest(),explicit_card_enemy_position_hp_fixtures=True,native_party_assembly=True,explicit_cloud_unlock_fixture=hero==3,expected_checks=12,result='pending'),indent=2)+'\n')

@@ -1665,3 +1665,7 @@ Current attachment-preview ROM passes12 native Donald area recipe checks: native
 ### Four-caster native area matrix
 
 Current ROM passes48 native area recipe checks: Sora, Donald, Goofy and Rally each12, native assembly selection, exact range/height inclusion/exclusion, two-target prediction and execution, resource/stock clearing. Explicit cards/enemy HP/positions; deployment/stocking/play use native input. Rally initial cycle direction selected Goofy instead and is retained as a failed setup fixture; corrected Down selection passes. Generator now uses one parameterized Lua fixture rather than brittle expected-value string rewrites. All four ROM/driver/check hashes and process exits verified. Hash-identical completed fixture ROM copies were removed to recover disk space; cleanup manifest retained, canonical ROM and live replay ROMs preserved.
+
+### Cloud completes area caster matrix
+
+Cloud area fixture passes12, completing60 scoped area checks across all5 heroes. Explicit Cloud unlock is applied after roster initialization; actual party deployment uses native assembly cycling, then native stock/play. An earlier unlock before initialization was overwritten and failed identity validation; preserved. Cloud fixture verifies mechanics, not recruitment acquisition (separate live fresh campaign covers recruitment). Current three-run script reports PASS379750, but frontend89724 still live to its540003-frame bound; terminal exit/hash audit required before promoting full proof. All-room3run frontend70148 remains live.

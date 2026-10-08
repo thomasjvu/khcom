@@ -12,12 +12,16 @@ local function place(slot,dx,dz)
 end
 callbacks:add('frame',function()
  f=f+1
+ if f==110 and areaHero==3 then emu:write8(gNativeRoster,31) end
  if f==100 and areaHero~=0 then emu:setKeys(256) end
- if f==104 or f==124 then emu:setKeys(0) end
+ if f==104 or f==124 or f==140 and areaHero==3 or f==164 and areaHero==3 then emu:setKeys(0) end
  if f==120 and areaHero==2 then emu:setKeys(256) end
+ if f==120 and areaHero==3 then emu:setKeys(128) end
+ if f==136 and areaHero==3 then emu:setKeys(128) end
+ if f==160 and areaHero==3 then emu:setKeys(1) end
  if f==120 and areaHero==4 then emu:setKeys(128) end
- if f==160 then check(emu:read8(gNativeRoster+1+emu:read16(gNativeParty))==areaHero and emu:read16(gNativeAssembly)==0,'native assembly selects requested recipe caster') end
- if f==140 then emu:setKeys(1) end
+ if f==170 then check(emu:read8(gNativeRoster+1+emu:read16(gNativeParty))==areaHero and emu:read16(gNativeAssembly)==0,'native assembly selects requested recipe caster') end
+ if f==140 and areaHero~=3 then emu:setKeys(1) end
  if f==144 then emu:setKeys(0) end
  if f==180 or f==220 or f==260 then emu:setKeys(513) end
  if f==184 or f==224 or f==264 then emu:setKeys(0) end
