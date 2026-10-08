@@ -445,3 +445,24 @@ No bounds were expanded after failure and no emulated memory was written.
 Exact ROM/driver/log hashes and failure scope are preserved locally in
 `select-commands-all-rooms-evidence`. This predates Reload/directional Rally
 and is not evidence for those newer native builds.
+
+### Current selector ROM full campaign verification
+
+Native source66fa4d42b completes a fresh-SRAM input-only three-world campaign
+with mandatory Cloud recruitment12711/deployment15168, suspend15182/exact
+resume15512 and composed descent. Worlds advance31379/68946; victory98474
+has Sora80HP, and terminal floor/HP remain stable throughPASS98594 (15kills,
+745movement commands). No ROM changes or memory writes were needed. The replay
+now retains an affordable native preferred preview for confirmation when its
+negative score cannot be beaten by another candidate, rather than cancelling
+and scanning/reopening that same destination. Native A still revalidates the
+route. Real inspection-block policy tests cover cost, preview presence, visits
+and scan fallback; retry policy passes. The120000-frame bound is unchanged.
+
+The prior same-ROM driver endsFAIL120001 in Castle room7 (15kills,745moves)
+and remains recorded separately. Both driver hashes and their exact scopes
+are retained in `party-selector-full-run-evidence` and
+`party-selector-preferred-full-run-evidence`. The success is one main campaign
+path, not all rooms/chests/seeds, and does not prove the unfinished Rally art,
+additional recruitment/content, integrated height destination routing or
+hardware verification. Full goal remains active.

@@ -586,8 +586,15 @@ local function replayFrame()
    local px=signed(emu:read32(a));local z=signed(emu:read32(a+8))
    local py=signed(emu:read32(a+4))+z
    local score=math.abs(px-dx)+2*math.abs(py-dy)+math.abs(z-dz)+(visits[cell(px,py,z)] or 0)*16384
-   if planned==dirs[index] and (visits[cell(px,py,z)] or 0)<2 then score=score-10000000 end
+   local preferred=planned==dirs[index] and (visits[cell(px,py,z)] or 0)<2
+   if preferred then score=score-10000000 end
    if not best or score<best.score then best={dir=dirs[index],score=score,key=cell(px,py,z)} end
+   -- A negative preferred score cannot be beaten by any other direction.
+   -- Keep this native-validated preview open instead of cancelling it and
+   -- spending the rest of the scan merely to reopen the same destination.
+   if preferred and score<0 then
+    index=1;emu:setKeys(0);phase='confirm';nextFrame=f+4;return
+   end
   end
   emu:setKeys(2);phase='cancel';nextFrame=f+4;return
  end
