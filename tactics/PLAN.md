@@ -1414,3 +1414,13 @@ nine chests,38 kills,1894 moves; same Cloud/reset/descent requirements. Native
 final capture inspected. ROM1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
 and generated driver/log hashes verified; metadata/manifests finalized. These
 prove their finite native campaigns and do not close the full polish audit.
+
+## Command column navigation
+
+Native Commands Left/Right switches columns on the same row; existing Up/Down
+cycling remains. Header now says D PAD. Native ROM SHA256 `27acd304ee14ab79fd4e1892d0cb5bb807b2adde0dd093245d2c8876c7b29950`.
+Input-only column checks8/8, existing input-only assembly/menu/preview/save/
+reset26/26 and rendered turn-strip fixtures6/6 pass on this exact ROM.
+Full three-run session81749 (540003 emulator frames) and all-room/nine-chest
+session58715 (300003) are fresh native input-only campaigns, pending. No
+earlier complete-ROM evidence is promoted to this newer hash.

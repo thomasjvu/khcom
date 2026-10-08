@@ -1479,7 +1479,7 @@ static void NativeHud(void) {
         static const char* const commands[6] = {"MOVE", "ATTACK", "SKILLS", "PARTY", "END TURN", "SUSPEND"};
         gWin0V = gNativeMenu == 1 ? 40 : 56;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
-        NativeLabel(0, 0, gNativeMenu >= 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  UP DOWN A  B BACK");
+        NativeLabel(0, 0, gNativeMenu >= 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  D PAD A  B BACK");
         if (gNativeMenu == 9) {
             NativeLabel(0, 0, "LEDGE  UP DOWN A SELECT");
             NativeLabel(0, 16, gNativeMenuChoice ? " " : "X");
@@ -2937,6 +2937,7 @@ static void NativeUpdate(void) {
             } else {
                 if (pressed & DPAD_UP) gNativeMenuChoice = (gNativeMenuChoice + 5) % 6;
                 else if (pressed & DPAD_DOWN) gNativeMenuChoice = (gNativeMenuChoice + 1) % 6;
+                else if (pressed & (DPAD_LEFT | DPAD_RIGHT)) gNativeMenuChoice = (gNativeMenuChoice + 3) % 6;
                 pressed = 0;
             }
         }

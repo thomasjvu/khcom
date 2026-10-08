@@ -39,7 +39,8 @@ the controlled hero with X, then shows ENEMIES. Party actions can be taken
 in any order; enemies act together after End Turn. Exhausted heroes leave
 the ready list. During enemy resolution, ENEMIES comes first. Commands and
 Commands open a 40-pixel panel with six choices in two columns and the party
-phase order underneath. This leaves 104 of 160 pixels of battlefield
+phase order underneath. Left/Right switches columns on the same row; Up/Down
+cycles the six choices. This leaves 104 of 160 pixels of battlefield
 unobscured. Detailed confirmations, assembly and rewards use a 56-pixel
 contextual panel; B backs out before confirmation.
 
