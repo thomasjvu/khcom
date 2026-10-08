@@ -778,3 +778,17 @@ logging/traversal only. The live two-run replay still uses its earlier driver
 and repeats Agrabah room5 position76060,86995,8192. A terminal snapshot or
 focused route reproduction is needed before changing physics/planning.
 No arbitrary lock-on suppression is introduced.
+
+### Agrabah route fixture isolates live-state stall
+
+A saved-approach fixture starts seed4411213/floor1/room5 at exact observed
+position76060,86995,8192 with ground8192. Initial snapshot confirms these
+values; goal door45056,95744,8192 and original prop colliders are captured.
+The current settled-diagnostic driver reaches room6 at4479 using native
+input only after boot. Fixture clears encounters and KOs companions, so it
+does not reproduce the live party/enemy state or establish the stall's cause.
+Some confirmed attempts have unchanged position/budgets while other attempts
+execute, but the route ultimately succeeds. Exact evidence/metadata in
+`agrabah-settled-route-evidence`; source fixture retained for further native
+isolation. No physics change or campaign success claimed. Live two-run job
+remains separate and pending.
