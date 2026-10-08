@@ -1,6 +1,8 @@
 # Current release audit
 
-Current source adds compact charged-attack warnings, SHA256
+Current source also adds the Skills turn strip; see latest entry below for its
+exact hash, PASS29 and pending campaign. Previous packaged0.37 adds compact
+charged-attack warnings, SHA256
 `f92bc47131331b1eb168b5b668b6e14c7ebbe8edc6c3457bb1c97c8b8b1e6a2d`. It passes304 scoped native checks (58 UI,114 boss/Cloud,44 party,12 SRAM,
 14 Rally action,12 Rally state and50 card-recipe fixtures). Three-run
 PASS434168 (process exited0). Fresh all-room/nine-chest run PASS253238
@@ -57,3 +59,5 @@ native party defeat at134022. Full polish/release scope remains open.
 Group finishing-Fire replay now considers the weakest eligible foe among multiple enemies, cycles native targets when needed, and only attacks when the actual native damage forecast confirms a kill. No native game rules or HP changed. Policy regression checks pass. Fresh current-ROM all-room run PASS253238; terminal process exit0 and ROM/driver/log hashes verified. Driver requires all36 room visits, nine chests, Cloud recruitment/deployment, exact suspend/reset and composed descent. Evidence: build/tactics-us/charge-warning-group-finisher-all-rooms-evidence. Earlier failed attempts remain retained. Final polish remains open.
 
 Current0.37 exact-ROM recipe verification: 50 native checks PASS (14 mixed-stock/save/reload/cancel,11 multi-target range/height,16 Curaga/Triple Key,9 recipe suspend/reset). Explicit initial card/HP/enemy-position fixtures; stocking/save/play use native inputs. Each process exited0 and ROM/driver/log hashes verified. Complete evidence: build/tactics-us/charge-warning-recipes-complete-evidence. Initial800-frame mixed-stock run was incomplete before final880-frame cancel check and remains preserved; complete1000-frame run passes14. Scoped native total now304. Other hero/recipe combinations and visual review remain open.
+
+Skills turn-strip polish: native source now keeps the available-party/controlled-marker/enemy-phase list visible in Skills, replacing a redundant control row. Footer includes A Next, B Back and one-action cost; no extra HUD height. Current ROM SHA256 59a8670fa43268e7cdd2e85895ec862192ba0e6f4c32827ebb5b200f643e00c7. Input-only native deployment/menu/save replay PASS29, process exit0 and hashes verified; skills screenshot inspected. Fresh all-room/chest/reset/recruit/descent campaign session73310 live. Prior0.37 304 checks and complete campaigns remain scoped to previous f92 hash; this source change is not yet fully campaign-verified.

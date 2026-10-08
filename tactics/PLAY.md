@@ -314,3 +314,6 @@ A confirms, and B closes the menu without dropping. The jump cost is already pai
 The compact field HUD shows the active hero and phase sequence. Party actions
 can be taken in any order; End Turn begins the enemy phase, then refreshes the party.
 Select opens detailed Commands. Clear rewards use Up/Down to choose and L/R to change hero.
+
+The Skills menu keeps the same ready-party strip visible as Commands. Its
+footer shows confirm/back controls and action cost, without adding HUD height.

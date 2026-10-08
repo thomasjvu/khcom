@@ -1610,7 +1610,7 @@ static void NativeHud(void) {
             NativeLabel(0, 24, gNativeDeck.stocked == 3 ? "THREE STOCKED  A SLEIGHT" : gNativeDeck.stocked ? "UP STOCK  DOWN CLEAR" : "UP STOCK  DOWN RELOAD");
             NativeLabel(0, 32, "B BACK  L R CARD");
             NativeLabel(0, 40, detail);
-            NativeLabel(0, 48, gNativeActionLeft ? "PLAY COSTS ONE ACTION" : "ACTION ALREADY SPENT");
+            NativeLabel(0, 48, gNativeActionLeft ? "A NEXT B BACK COST ONE ACT" : "B BACK ACTION ALREADY SPENT");
         } else {
             for (i = 0; i < 6; i++) {
                 int x = (i / 3) * 120;
@@ -1628,7 +1628,7 @@ static void NativeHud(void) {
             NativeLabel(0, 32, player->state == FLD_STATE_LEDGE_HANG ? "SELECT LEDGE COMMANDS" : "CATCHING LEDGE");
         }
     }
-    if ((gNativeMenu == 1 || !gNativeMenu) && !gNativeAssembly && !gNativeProgressReward && !gNativeReward &&
+    if ((gNativeMenu == 1 || gNativeMenu == 2 || !gNativeMenu) && !gNativeAssembly && !gNativeProgressReward && !gNativeReward &&
         !gNativePreview && !gNativeResult && !gNativeClimbing && gNativeBusy != 2) {
         if (!gNativeMenu) {
             for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;

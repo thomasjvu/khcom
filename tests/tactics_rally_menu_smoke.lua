@@ -47,7 +47,7 @@ callbacks:add('frame',function()
  if f==300 then check(emu:read16(gWin0V)==40 and emu:read16(gWin1V)==37024,'commands leave 104 pixels of field unobscured');check(hudText(1,2,'MOVE') and hudText(1,17,'PARTY') and hudText(3,17,'SUSPEND'),'commands use compact two column layout');check(hudText(4,0,'SOR XRAL GOO THEN ENEMIES'),'commands retain party phase order');check(emu:read16(gNativeMenu)==1,'open tactical commands');check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'opening menu preserves budgets');emu:screenshot('@OUTPUT@/menu.png');emu:setKeys(128) end
  if f==340 then check(emu:read16(gNativeMenuChoice)==1,'navigate attack without moving');emu:setKeys(128) end
  if f==380 then check(emu:read16(gNativeMenuChoice)==2,'navigate skills');emu:setKeys(1) end
- if f==420 then check(emu:read16(gNativeMenu)==2,'skills submenu opens');emu:screenshot('@OUTPUT@/skills.png');emu:setKeys(2) end
+ if f==420 then check(emu:read16(gNativeMenu)==2,'skills submenu opens');check(hudText(4,0,'SOR XRAL GOO THEN ENEMIES'),'skills retain ready-party turn strip');check(hudText(6,0,'A NEXT B BACK COST ONE ACT'),'skills show confirm back and action cost');check(emu:read16(gWin0V)==56 and emu:read16(gWin1V)==37024,'skills phase strip adds no screen coverage');emu:screenshot('@OUTPUT@/skills.png');emu:setKeys(2) end
  if f==460 then check(emu:read16(gNativeMenu)==1,'back returns to commands');emu:setKeys(64) end
  if f==500 then emu:setKeys(64) end
  if f==540 then emu:setKeys(1) end
