@@ -32,6 +32,16 @@ callbacks:add('frame',function()
  if f==720 then check(emu:read16(gNativeMenu)==5,'spent hero can inspect Reload cost') end
  if f==760 then
   check(emu:read16(gNativeMenu)==5 and emu:read16(gNativeActionLeft)==0,'spent action blocks Reload confirmation')
-  check(emu:read8(gNativeDeck+48)==2,'blocked reload preserves discarded cards');out:close()
+  check(emu:read8(gNativeDeck+48)==2,'blocked reload preserves discarded cards')
+ end
+ if f==800 then
+  emu:write16(gNativeActionLeft,1)
+  for i=0,11 do emu:write8(gNativeDeck+48+i,i<5 and 1 or 0) end
+ end
+ if f==840 then emu:screenshot('@OUTPUT@/empty-reload.png');emu:setKeys(1) end
+ if f==844 then emu:setKeys(0) end
+ if f==880 then
+  check(emu:read16(gNativeActionLeft)==1,'empty reload preserves available action')
+  check(emu:read8(gNativeDeck+48)==1 and emu:read8(gNativeDeck+53)==0,'empty reload preserves hand and draw piles');out:close()
  end
 end)

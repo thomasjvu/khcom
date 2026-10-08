@@ -670,3 +670,17 @@ resume26460 passed there; all three Traverse Town chests collected by90125.
 This is intermediate coverage, not terminal all-room success. Rally combat
 drafts inspected: visible fringe/noise requires cleanup before native import;
 other-chat source assets remain untouched.
+
+### Reload availability and no-op verification
+
+Reload confirmation shows the authoritative number of discarded cards to
+recover. With zero discard it says NOTHING TO RELOAD instead of advertising
+a charged action. Native behavior remains unchanged: only a successful
+reload spends an action. All11 explicit native fixture checks pass including
+confirmation/cancel, actual reload drawing five, spent-action rejection, and
+empty reload preserving available action and both piles. Both12-card and
+empty confirmation screens visually inspected. Exact evidence in
+`reload-count-evidence/metadata.json`; native build/header/capacity pass.
+No reserved RAM/save change. Broader all-room replay remains on85dd43827
+ROM; current intermediate evidence has5 chests and Agrabah room3, no terminal
+full-coverage result yet.

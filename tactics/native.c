@@ -1433,9 +1433,15 @@ static void NativeHud(void) {
             NativeLabel(0, 48, !gNativeActionLeft ? "ACTION ALREADY SPENT" :
                 gNativeDirection && !gNativeMoveLeft ? "NO MOVE LEFT  B BACK" : "A JUMP  B BACK TO MOVE");
         } else if (gNativeMenu == 5) {
+            char returned[] = "RECOVER 00 DISCARDED";
+            u8 discarded = 0;
+            u8 n;
+            for (n = 0; n < gNativeDeck.count; n++) if (gNativeDeck.pile[n] == 2) discarded++;
+            returned[8] += discarded / 10;returned[9] += discarded % 10;
             NativeLabel(0, 0, "RELOAD CARDS  A CONFIRM");
             NativeLabel(0, 16, "RETURN DISCARDED CARDS");
-            NativeLabel(0, 24, "COST ONE ACTION");
+            NativeLabel(0, 24, discarded ? "COST ONE ACTION" : "NOTHING TO RELOAD");
+            NativeLabel(0, 32, returned);
             NativeLabel(0, 40, gNativeActionLeft ? "A RELOAD  B BACK" : "ACTION ALREADY SPENT");
         } else if (gNativeMenu >= 3) {
             char amount[] = "RECOVER 00";
