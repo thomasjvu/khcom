@@ -40,3 +40,14 @@ for script_name, expected in (("sleights",14),("sleight-area",11),("recipes",16)
   "expected_checks":expected,
   "result":"not yet observed; inspect "+script_name+".txt",
  },indent=2)+"\n")
+
+# Donald's Fire specialty must affect preview and actual multi-target resolution,
+# while retaining the same melee boundary behavior.
+script=header+Path('tests/tactics_sleight_area_smoke.lua').read_text().replace('@OUTPUT@',str(out))
+script=script.replace("/sleight-area.txt", "/donald-area.txt")
+script=script.replace(' if f==140 then emu:setKeys(1) end', " if f==100 then emu:setKeys(256) end\n if f==104 then emu:setKeys(0) end\n if f==140 then emu:setKeys(1) end\n if f==160 then check(emu:read16(gNativeParty)==1 and emu:read16(gNativeAssembly)==0,'native assembly selects Donald for area recipes') end")
+script=script.replace("==32 and emu:read16(gNativeSleightDamage+2)==32,'Fire", "==36 and emu:read16(gNativeSleightDamage+2)==36,'Fire")
+script=script.replace("==32,'Fire", "==36,'Fire")
+script=script.replace("==8 and emu:read16(gNativeEnemyHp+2)==8,'native Fire", "==4 and emu:read16(gNativeEnemyHp+2)==4,'native Fire")
+(out/'donald-area.lua').write_text(script)
+(out/'donald-area-metadata.json').write_text(json.dumps(dict(rom_sha256=hashlib.sha256(rom.read_bytes()).hexdigest(),driver_sha256=hashlib.sha256(script.encode()).hexdigest(),explicit_card_enemy_position_hp_fixtures=True,native_party_assembly=True,expected_checks=12,result='pending'),indent=2)+'\n')
