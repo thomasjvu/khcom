@@ -1437,3 +1437,9 @@ Failed evidence retained, native code unchanged. Goofy held-Guard test waits
 until48-frame action timer reaches zero, verifies pose1 persists and animation
 loop flag remains clear. Native screenshots captured. Total83 scoped current
 native checks, including40 previous UI checks. Full campaigns still pending.
+
+Latest command-column ROM all-room campaign session58715 exited0,
+PASS295578. All three room masks4095, nine chests, Sora80 HP stable120,
+Cloud fight/recruit/deploy, exact suspend/reset and composed descent. ROM/
+driver/log hashes verified. Session81749 remains live after two completed
+seeds, now running the third; three-run completion is not yet proven.
