@@ -35,8 +35,13 @@ PASS97531 (14 kills, 699 move attempts). The 120000-frame bound is unchanged.
 Replay movement inputs now wait for actual native sampling/update completion,
 so video frames cannot release input during expensive route calculations.
 
-This proves one main-route seed. The all-room/chest run is separate and
-pending. Earlier full-route failures and the original false SRAM failure
+This proves one main-route seed. The all-room/chest run failed its300000
+frame bound in Agrabah room5 after six chests and optional backtracking.
+The consecutive-run test completed the first campaign and native seed retry,
+but ended at240001 in the second seed's Castle entrance room0. Both second
+Cloud and save/descent requirements passed; second victory did not. These
+are wider failures, not two-run or all-room completion proof.
+Earlier full-route failures and the original false SRAM failure
 are retained. The explicit recorded Agrabah fixture reaches its exit using
 native inputs; it is not fresh-campaign evidence.
 

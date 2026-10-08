@@ -1,3 +1,12 @@
+-- A final approach still needs a clear walking route. Proximity alone does
+-- not mean a diagonal crosses a wall or prop corner safely.
+local function directApproachDirection(x,y,z,tx,ty,tz)
+ if math.abs(x-tx)>=8192 or math.abs(y-ty)>=4096 or math.abs(z-tz)>=2048 then return nil end
+ local key=0
+ if math.abs(tx-x)>512 then key=key|(tx<x and 32 or 16) end
+ if math.abs(ty-y)>512 then key=key|(ty<y and 64 or 128) end
+ return key~=0 and key or nil
+end
 -- Return a direction and remaining distance; native previews retain authority.
 local function walkingSearch(ox,oy,tx,ty,clear,stride)
  local queue={{x=0,y=0,first=nil}}

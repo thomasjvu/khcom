@@ -975,3 +975,44 @@ native-ack-two-run-evidence, under a shared240000-frame total bound. The
 first seed starts from fresh SRAM; the second must use the game's Select
 retry and seed advancement, with renewed Cloud/save/descent requirements.
 No independent per-run timeout is implied. Both wider jobs remain pending.
+
+### Wider terminal results and collision-aware final approach
+
+Both wider jobs are now terminal. All-room/chest run FAILED300001 in
+Agrabah room5 after all12 Traverse Town rooms, both Agrabah optional
+branches/backtracking and6 total chests;20 kills2991 attempts. Native mode
+and frame progression were inspected read-only through mGBA's console;
+inspection added no game memory writes or inputs. Final position
+40612,92784,8192 is blocked before the forward door45056,95744,8192.
+
+Consecutive run completed first victory97357 stable to97477, then verified
+native retry97489 with seed2658846982. Second Cloud109437/deploy111100,
+save111115/exact resume111445, composed descent116542 and world transitions
+129635/169514 passed. It FAILED240001 in Castle entrance room0, not the
+earlier Agrabah progress line; position50728,97439,8192, busy3/movement0.
+No second victory, all-room success or multiple-complete-seed claim is made.
+Manifest and0.27 notes now record terminal scopes rather than pending work.
+
+Final approach previously bypassed walking search when within32px across/
+16px depth of a door or chest. A diagonal can still hit a corner at that
+distance. Replay now uses that shortcut only when the collision-aware
+walking planner agrees with the direct direction; otherwise normal native
+preview scanning chooses a detour. Aligned axes no longer receive an extra
+diagonal component. Direct approach input waits for native acknowledgement.
+This changes the explorer, not game collision or door placement.
+
+The recorded cleared Agrabah5 fixture reproduces the old failure12001 with
+141 attempts and unchanged position. Revised input reaches room6 at327 in
+two commands. The fixture with all recorded live enemies restored reaches6
+at330/two commands. Its initial terrain, props, goal, party/roster/deck,
+resources and enemy HP/positions exactly match the failed live snapshot.
+Fixtures inherit4 source-save kills; no combat is inferred. Evidence is in
+agrabah-door-baseline-evidence, agrabah-door-guard-evidence and
+agrabah-door-live-party-evidence. Host fixture codec/sanitizers and actual
+approach-block, acknowledgement/preferred/rejection/ledge/retry policies pass.
+
+The fixture build also exposed an incorrect assertion that host FieldRoster
+sizeof equals its39-byte body. It has trailing alignment padding. Fixtures
+now assert the last logical field's extent using offsetof and copy exactly
+the39 source bytes, avoiding overread. The failed setup run is explicitly
+invalid and preserved separately; no native ROM or save format change.

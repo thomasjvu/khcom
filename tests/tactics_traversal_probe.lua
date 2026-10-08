@@ -46,6 +46,7 @@ local routeStep=1
 local roomVisitMasks={0,0,0}
 local observedChests=0
 local chestDebugFrame=0
+local approachDebugFrame=0
 local victoryHealth=nil
 local composedRoutes=0
 local composedSelection=nil
@@ -667,7 +668,15 @@ local function replayFrame()
  end
  local x0,y0,z0=pos()
  if not ex and not approach and phase=='scan' and math.abs(x0-dx)<8192 and math.abs(y0-dy)<4096 and math.abs(z0-dz)<2048 then
-  emu:setKeys((dx<x0 and 32 or 16)+(dy<y0 and 64 or 128));commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
+  local direct=directApproachDirection(x0,y0,z0,dx,dy,dz)
+  local safe=walkingDirection(dx,dy)
+  if direct and safe==direct then
+   pressNative(direct);commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
+  end
+  if f-approachDebugFrame>=1000 then
+   out:write('APPROACH DETOUR frame='..f..' position='..x0..','..y0..','..z0..' target='..dx..','..dy..','..dz..' direct='..tostring(direct)..' planned='..tostring(safe)..'\n');out:flush()
+   approachDebugFrame=f
+  end
  end
  local stair
  dx,dy,dz,stair=stairGoal(dx,dy,dz)
