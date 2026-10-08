@@ -1761,3 +1761,23 @@ Sweep87441 exited0 after driver PASS892349. Three stable victories301053/640036/
 Native stair basic32/multi25/occupancy15/top14/composed-walk27 pass113. Initial post-run command read wrong climb.txt instead of climb-preview.txt; first checks pass but shell exit ambiguous, retained. Fresh confirmed folders record actual frontend0, expected checks and exact ROM/driver/log hashes. Route/refund33 and discarded/empty Reload11 pass44. First route attempt limited2473 video frames while script subtracts80 boot frames, producing31/33 checks; retained. Fresh2553-frame run reaches all33 checks, frontend0. Scoped total516 on packaged0.40; patch unchanged, manifest updated.
 
 Completion audit finds native NativeRecruitEligible limits summon recruitment to Traverse Town optional Cloud room9. Other world bosses expose personal upgrades only. Broader boss summon/recruit alternatives remain aligned unfinished content from the user request; Cloud-only proof is not evidence for all boss recruitment. Aerith original resources are already identified; expanding roster/content needs original sprite/card review, distinct moveset, backward-compatible saves and native recruitment/party/combat validation. Keep full goal active.
+
+## Sixth-hero roster and save preparation (October 8)
+
+Aladdin has original event/friend sprites and a character card, making him a
+world-appropriate recruit candidate after Jafar. The roster now reserves identity
+5 with 60 HP, independent power/sleights/health/resources/facing, and keeps him
+locked initially. Format 13 writes six hero records; format 12 explicitly reads
+five and formats 8–11 retain their prior four-hero layout/defaults.
+
+The checked-in native 0.40 Donald suspend fixture contains only two generated
+SRAM slots, no ROM assets. Its migration test compares every existing serialized
+payload byte against the format-13 projection, plus generation and new locked
+hero defaults. Sanitized strict C89 host suite passes, including sixth-hero boss
+recruit/deploy, duplicate refusal, mask bounds, and exact save round-trip. Native
+build/header/capacity checks pass. Native BSS is now 0x1ff4 (8180/8192 bytes).
+
+This is preparation, not a playable Aladdin claim. Native sprites, names, original
+card selection, distinct moveset, Jafar reward choice and exact-build emulator
+checks are still required. Existing 0.40 manifests and full-run evidence remain
+scoped to the frozen prior ROM; they do not certify the changed format-13 build.

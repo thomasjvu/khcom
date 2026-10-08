@@ -36,6 +36,15 @@ int main(void) {
     assert(r.heroHp[FIELD_CLOUD]==72&&r.heroHp[FIELD_DONALD]==56);
     assert(r.heroMove[FIELD_CLOUD]==3&&r.heroAction[FIELD_DONALD]==1);
     assert(r.deployed[1]==FIELD_CLOUD&&r.power[FIELD_CLOUD]==8&&r.sleights[FIELD_CLOUD]==2);
+    assert(!(r.unlocked&(1<<FIELD_ALADDIN)));
+    assert(!FieldRosterDeploy(&r,2,FIELD_ALADDIN));
+    assert(FieldRosterBegin(&r,8));assert(FieldRosterClear(&r,1)==FIELD_REWARD_BOSS);
+    assert(FieldRosterRecruit(&r,FIELD_ALADDIN));
+    assert(!FieldRosterRecruit(&r,FIELD_ALADDIN));
+    assert(FieldRosterDeploy(&r,2,FIELD_ALADDIN));
+    assert(r.deployed[2]==FIELD_ALADDIN&&r.heroHp[FIELD_ALADDIN]==60);
+    assert(FieldRosterValid(&r));
+    r.unlocked|=64;assert(!FieldRosterValid(&r));r.unlocked&=63;
     r.deployed[0]=FIELD_CLOUD;assert(!FieldRosterValid(&r));
     puts("roster: deployment phases, recruitment, alternate rewards, repeat clears and upgrade limits passed");return 0;
 }

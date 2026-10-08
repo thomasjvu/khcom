@@ -69,7 +69,7 @@ static int Pack(const FieldSaveState* s,unsigned char* p) {
     return n;
 }
 static int Unpack(FieldSaveState* s,const unsigned char* p,int version) {
-    int n=0,i,j,k,heroes=version>=12?FIELD_HEROES:4;
+    int n=0,i,j,k,heroes=version>=13?FIELD_HEROES:version>=12?5:4;
 #define BYTE(v) v=p[n++]
 #define WORD(v) v=Get(p+n);n+=4
     WORD(s->seed);
@@ -112,13 +112,13 @@ static int Unpack(FieldSaveState* s,const unsigned char* p,int version) {
 int FieldSaveEncode(const FieldSaveState* s,unsigned int gen,unsigned char* out) {
     int i,n;if(!Valid(s))return 0;
     for(i=0;i<FIELD_SAVE_SIZE;i++)out[i]=0;
-    out[0]='K';out[1]='T';out[2]='F';out[3]='S';out[4]=12;
+    out[0]='K';out[1]='T';out[2]='F';out[3]='S';out[4]=13;
     Put(out+8,gen);n=Pack(s,out+16);if(n>FIELD_SAVE_SIZE-20)return 0;out[6]=n&255;out[7]=n>>8;
     Put(out+FIELD_SAVE_SIZE-4,Crc(out));return 1;
 }
 int FieldSaveDecode(FieldSaveState* s,unsigned int* gen,const unsigned char* data) {
     FieldSaveState candidate;int n;
-    if(data[0]!='K'||data[1]!='T'||data[2]!='F'||data[3]!='S'||(data[4]!=8&&data[4]!=9&&data[4]!=10&&data[4]!=11&&data[4]!=12)||data[5]||Get(data+FIELD_SAVE_SIZE-4)!=Crc(data))return 0;
+    if(data[0]!='K'||data[1]!='T'||data[2]!='F'||data[3]!='S'||(data[4]!=8&&data[4]!=9&&data[4]!=10&&data[4]!=11&&data[4]!=12&&data[4]!=13)||data[5]||Get(data+FIELD_SAVE_SIZE-4)!=Crc(data))return 0;
     n=Unpack(&candidate,data+16,data[4]);
     if(n!=(data[6]|data[7]<<8)||!Valid(&candidate))return 0;
     *s=candidate;*gen=Get(data+8);return 1;

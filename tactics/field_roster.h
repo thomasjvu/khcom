@@ -1,11 +1,12 @@
 #ifndef FIELD_ROSTER_H
 #define FIELD_ROSTER_H
-#define FIELD_HEROES 5
+#define FIELD_HEROES 6
 #define FIELD_SORA 0
 #define FIELD_DONALD 1
 #define FIELD_GOOFY 2
 #define FIELD_CLOUD 3
 #define FIELD_RALLY 4
+#define FIELD_ALADDIN 5
 #define FIELD_ASSEMBLY 0
 #define FIELD_BATTLE 1
 #define FIELD_REWARD 2

@@ -49,11 +49,21 @@ int main(void) {
     s.roster.power[FIELD_RALLY]=5;s.roster.sleights[FIELD_RALLY]=4;
     s.roster.heroMove[FIELD_RALLY]=2;s.roster.heroAction[FIELD_RALLY]=0;
     s.roster.heroAngle[FIELD_RALLY]=211;
-    assert(FieldSaveEncode(&s,9,b)&&b[4]==12&&FieldSaveDecode(&loaded,&gen,b));
+    assert(FieldSaveEncode(&s,9,b)&&b[4]==13&&FieldSaveDecode(&loaded,&gen,b));
     assert(loaded.roster.deployed[1]==FIELD_RALLY&&loaded.roster.heroHp[FIELD_RALLY]==64);
     assert(loaded.roster.power[FIELD_RALLY]==5&&loaded.roster.sleights[FIELD_RALLY]==4);
     assert(loaded.roster.heroMove[FIELD_RALLY]==2&&loaded.roster.heroAction[FIELD_RALLY]==0);
     assert(loaded.roster.heroAngle[FIELD_RALLY]==211);
+    s.roster.unlocked|=1<<FIELD_ALADDIN;
+    s.roster.deployed[1]=FIELD_ALADDIN;s.hp=60;s.partyHp[1]=60;
+    s.roster.heroHp[FIELD_ALADDIN]=60;s.roster.power[FIELD_ALADDIN]=2;
+    s.roster.sleights[FIELD_ALADDIN]=3;s.roster.heroMove[FIELD_ALADDIN]=1;
+    s.roster.heroAction[FIELD_ALADDIN]=0;s.roster.heroAngle[FIELD_ALADDIN]=83;
+    assert(FieldSaveEncode(&s,10,b)&&FieldSaveDecode(&loaded,&gen,b));
+    assert(loaded.roster.deployed[1]==FIELD_ALADDIN&&loaded.hp==60);
+    assert(loaded.roster.power[FIELD_ALADDIN]==2&&loaded.roster.sleights[FIELD_ALADDIN]==3);
+    assert(loaded.roster.heroMove[FIELD_ALADDIN]==1&&loaded.roster.heroAction[FIELD_ALADDIN]==0);
+    assert(loaded.roster.heroAngle[FIELD_ALADDIN]==83);
     puts("field save: all-byte corruption, fallback, generation wrap, exact state passed");
     return 0;
 }
