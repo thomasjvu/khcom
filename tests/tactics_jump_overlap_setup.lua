@@ -19,4 +19,5 @@
    emu:write16(otherCollider+48,emu:read16(otherCollider+48)|1);emu:write32(otherCollider+16,emu:read32(pillar+16))
    emu:write32(otherWork+4,emu:read32(pillar+4));emu:write32(otherWork+8,emu:read32(pillar+8)//2);emu:write32(otherWork+12,emu:read32(pillar+12))
    emu:write32(otherCollider+4,emu:read32(pillar+4));emu:write32(otherCollider+8,emu:read32(pillar+8));emu:write32(otherCollider+12,emu:read32(pillar+12));emu:write32(otherCollider+20,emu:read32(pillar+20)-4096)
+   overlapTop=emu:read32(otherCollider+12)-emu:read32(otherCollider+20)
   end

@@ -1342,8 +1342,9 @@ static void NativeJumpPredict(void) {
     FldPos origin, attachment;
     FieldJumpPoint overLedge, underLedge;
     int angle, speed, frame, sine, cosine, oldX, oldY, landingFrames;
-    gNativeJumpPrediction=0;
-    if (gNativeMenu!=6 || gNativeBusy || !gNativeActionLeft) return;
+    if (gNativeMenu!=6 || gNativeBusy || !gNativeActionLeft) {
+        gNativeJumpPrediction=0; return;
+    }
     origin=gFieldState->actor.fieldPosition;
     angle=gFieldState->actor.angle;
     speed=0;
@@ -2997,7 +2998,7 @@ static void NativeUpdate(void) {
                 if (pressed & A_BUTTON) {gNativeMenu = 0;raw = pressed = START_BUTTON;}
                 else pressed = 0;
             } else if (gNativeMenu == 6) {
-                if (pressed & DPAD_ANY) gNativeDirection = raw & DPAD_ANY;
+                if (pressed & DPAD_ANY) { gNativeDirection = raw & DPAD_ANY; gNativeJumpPrediction=0; }
                 if ((pressed & A_BUTTON) && gNativeActionLeft && (!gNativeDirection || gNativeMoveLeft)) {
                     gNativeMenu = 0;raw = B_BUTTON | gNativeDirection;pressed = B_BUTTON;
                 } else pressed = 0;

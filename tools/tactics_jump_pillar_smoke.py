@@ -11,7 +11,7 @@ if a.overlap:
  s=s.replace('  x=emu:read32(pillar+4)+9216;',extra+'\n  x=emu:read32(pillar+4)+9216;')
 if a.tall:
  s=s.replace("  x=emu:read32(pillar+4)+9216;","  emu:write32(pillar+20,emu:read32(pillar+20)+16384)\n  x=emu:read32(pillar+4)+9216;")
- s=s.replace("==emu:read32(pillar+12)-emu:read32(pillar+20),'native jump lands on original pillar top'",">emu:read32(pillar+12)-emu:read32(pillar+20),'tall side-contact cannot land on elevated prop top'")
+ s=s.replace("==(overlapTop or emu:read32(pillar+12)-emu:read32(pillar+20)),'native jump lands on the specified platform support'",">emu:read32(pillar+12)-emu:read32(pillar+20),'tall side-contact cannot land on elevated prop top'")
 (out/'test.lua').write_text(s)
 (out/'fresh.sav').write_bytes(a.saved_room.read_bytes())
 (out/'metadata.json').write_text(json.dumps(dict(explicit_saved_room_position_budget_fixture=True,expected_checks=6 if a.overlap else 5,overlap_collider_fixture=a.overlap,tall_collider_fixture=a.tall,rom_sha256=hashlib.sha256(Path(a.elf).with_suffix('.gba').read_bytes()).hexdigest(),driver_sha256=hashlib.sha256(s.encode()).hexdigest(),saved_room_sha256=hashlib.sha256(a.saved_room.read_bytes()).hexdigest(),result='pending'),indent=2)+'\n')

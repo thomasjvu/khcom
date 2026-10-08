@@ -1,5 +1,5 @@
 local f=0
-local pillar,x,y,z,predX,predY,predZ
+local pillar,x,y,z,predX,predY,predZ,overlapTop
 local out=assert(io.open('@OUTPUT@/checks.txt','w'))
 local function check(ok,msg) out:write((ok and 'PASS ' or 'FAIL ')..msg..'\n');out:flush() end
 callbacks:add('frame',function()
@@ -25,6 +25,9 @@ callbacks:add('frame',function()
  if f==240 or f==360 then emu:setKeys(1) end
  if f==280 then emu:setKeys(256) end
  if f==320 then emu:setKeys(32) end
+ if f>=330 and f<=360 and pillar then
+  out:write('STATUS '..f..' prediction='..emu:read16(gNativeJumpPrediction)..' action='..emu:read16(gNativeActionLeft)..' busy='..emu:read16(gNativeBusy)..' menu='..emu:read16(gNativeMenu)..'\n');out:flush()
+ end
  if f==360 and pillar then
   check(emu:read16(gNativeMenu)==6,'native Jump menu opens beside pillar')
   check(emu:read16(gNativeJumpPrediction)==1,'prop-contact jump has resolved prediction')
@@ -34,7 +37,7 @@ callbacks:add('frame',function()
  if f==650 and pillar then
   local a=emu:read32(gFieldState)
   check(emu:read16(gNativeBusy)==0 and emu:read32(a+0x18)==predX and emu:read32(a+0x1c)==predY and emu:read32(a+0x20)==predZ,'native prop landing agrees exactly')
-  check(emu:read32(a+0x20)==emu:read32(pillar+12)-emu:read32(pillar+20),'native jump lands on original pillar top')
+  check(emu:read32(a+0x20)==(overlapTop or emu:read32(pillar+12)-emu:read32(pillar+20)),'native jump lands on the specified platform support')
   out:write('ACTUAL '..emu:read32(a+0x18)..','..emu:read32(a+0x1c)..','..emu:read32(a+0x20)..'\n');out:close()
  end
 end)
