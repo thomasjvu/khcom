@@ -1,12 +1,13 @@
 # Current release audit
 
-Current development ROM is 0.35, SHA256
-`1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f`.
-It passes 51 scoped native checks. Two consecutive exact-ROM campaigns pass327681; the independent all-room/
-nine-chest replay passes295578. Both native processes exited0. The 0.34 two-run result
-PASS288347 remains scoped to its own hash; both 0.34 all-room policies ended
-in native defeat (130336 and134022). Earlier 0.33 all-room coverage is scoped
-to hash64bb02ac04b1e662fc839bbd5c4c3479a626f856cd02f28e752658364c661505.
+Current source ROM adds column navigation, SHA256
+`27acd304ee14ab79fd4e1892d0cb5bb807b2adde0dd093245d2c8876c7b29950`.
+It passes40 scoped native UI checks (8 column navigation,26 menu/save,6 turn
+strip). Three-run and all-room campaigns are pending on this exact ROM.
+Latest packaged0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
+passes51 scoped checks, two campaigns327681 and all36/nine chests295578.
+Earlier0.34 two runs PASS288347 and its all-room defeats130336/134022 remain
+version-scoped. Earlier0.33 all-room PASS281892 is likewise historical.
 This audit concerns the requested complete game. Historical entries in PLAN.md
 describe earlier versions; current evidence wins.
 
