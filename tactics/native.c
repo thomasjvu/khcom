@@ -1380,7 +1380,20 @@ static void NativeHud(void) {
         gWin0V = 64;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         NativeLabel(0, 0, gNativeMenu >= 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  UP DOWN A  B BACK");
-        if (gNativeMenu == 6) {
+        if (gNativeMenu == 7) {
+            NativeLabel(0, 0, "END PARTY TURN  A CONFIRM");
+            for (i = 0; i < 3; i++) {
+                char budget[] = "MP 0 ACT 0";
+                u8 hero = NativeHero(i);
+                budget[3] += i == gNativeParty ? gNativeMoveLeft : sPartyMove[i];
+                budget[9] += i == gNativeParty ? gNativeActionLeft : sPartyAction[i];
+                NativeLabel(0, 16 + i * 8, hero == FIELD_SORA ? "SORA" : hero == FIELD_DONALD ? "DONALD" :
+                    hero == FIELD_GOOFY ? "GOOFY" : hero == FIELD_RALLY ? "RALLY" : "CLOUD");
+                NativeLabel(64, 16 + i * 8, gNativePartyHealth.hp[i] ? budget : "KO");
+            }
+            NativeLabel(0, 40, "ENEMIES ACT NEXT");
+            NativeLabel(0, 48, "A END TURN  B BACK");
+        } else if (gNativeMenu == 6) {
             NativeLabel(0, 0, "JUMP  D PAD DIRECTION");
             NativeLabel(0, 16, gNativeDirection ? "MOVING JUMP" : "STANDING JUMP");
             NativeLabel(0, 24, gNativeDirection ? "COST ONE MOVE AND ACTION" : "COST ONE ACTION");
@@ -2630,8 +2643,11 @@ static void NativeUpdate(void) {
         } else if (gNativeMenu) {
             if ((pressed & B_BUTTON) && gNativeMenu == 6) {
                 gNativeMenu = 0;NativePreviewInput(0);pressed = 0;
-            } else if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 4 ? 1 : gNativeMenu >= 3 ? 2 : gNativeMenu == 2 ? 1 : 0;pressed = 0;}
-            else if (gNativeMenu == 6) {
+            } else if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 4 || gNativeMenu == 7 ? 1 : gNativeMenu >= 3 ? 2 : gNativeMenu == 2 ? 1 : 0;pressed = 0;}
+            else if (gNativeMenu == 7) {
+                if (pressed & A_BUTTON) {gNativeMenu = 0;raw = pressed = START_BUTTON;}
+                else pressed = 0;
+            } else if (gNativeMenu == 6) {
                 if (pressed & DPAD_ANY) gNativeDirection = raw & DPAD_ANY;
                 if ((pressed & A_BUTTON) && gNativeActionLeft && (!gNativeDirection || gNativeMoveLeft)) {
                     gNativeMenu = 0;raw = B_BUTTON | gNativeDirection;pressed = B_BUTTON;
@@ -2690,7 +2706,7 @@ static void NativeUpdate(void) {
                     }
                 } else if (command == 2) {gNativeMenu = 2;pressed = 0;}
                 else if (command == 3) {NativePartySelect();pressed = 0;}
-                else if (command == 4) raw = pressed = START_BUTTON;
+                else if (command == 4) {gNativeMenu = 7;pressed = 0;}
                 else {NativeWriteSuspend();pressed = 0;}
             } else {
                 if (pressed & DPAD_UP) gNativeMenuChoice = (gNativeMenuChoice + 5) % 6;

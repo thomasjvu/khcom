@@ -105,3 +105,11 @@ settling, exact movement/action costs and spent-action rejection. All26 Rally
 directional/menu/save/party checks pass on the same ROM; Jump screen inspected.
 Integrated walk/climb/jump destination planning and broader campaign proof
 remain unfinished.
+
+End Turn now requires a separate menu confirmation showing each deployed
+hero's live remaining movement/action resources and KO status. A starts the
+authoritative enemy phase; B returns to Commands without advancing the turn.
+Eight input-only native checks pass for confirmation/cancel safety, exactly
+one enemy phase and refreshed party resources. The10-check Jump regression
+passes on the same ROM; End Turn screen visually inspected. Direct Start
+remains the existing shortcut. No new reserved RAM or save format changes.

@@ -283,3 +283,7 @@ chooses a cardinal/diagonal direction; A commits and B returns to Move. A
 standing jump costs one action; a moving jump costs one movement plus one
 action. The panel shows the direction and cost. It does not yet predict a
 landing tile. Stair-attached R retains its existing landing-floor toggle.
+
+Commands → End Turn shows each deployed hero's remaining movement and action
+(or KO), then asks for A to begin the enemy phase. B returns to Commands
+without advancing the turn. The direct Start shortcut remains immediate.
