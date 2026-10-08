@@ -4,9 +4,11 @@
  * Terrain/ledge/collider resolution must be applied by a native adapter. */
 typedef struct FieldJumpMotion {
     int x, y, z, originX, originY, speed, velocity, timer, phase;
+    int padActive, padX, padY, padTargetZ;
 } FieldJumpMotion;
 void FieldJumpMotionInit(FieldJumpMotion* motion, int x, int y, int z,
                          int originX, int originY, int speed);
+void FieldJumpPadInit(FieldJumpMotion* motion, int padX, int padY, int targetZ);
 void FieldJumpMotionStep(FieldJumpMotion* motion, int sine, int cosine,
                          int moving, int ground);
 /* Apply the original wall response after terrain rejects a motion step.

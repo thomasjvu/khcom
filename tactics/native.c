@@ -1341,7 +1341,8 @@ static void NativeJumpPredict(void) {
     FieldJumpPoint point;
     FldPos origin, attachment;
     FieldJumpPoint overLedge, underLedge;
-    int angle, speed, frame, sine, cosine, oldX, oldY, landingFrames;
+    int angle, speed, frame, sine, cosine, oldX, oldY, landingFrames, padFrame;
+    FldWork* padPlayer;
     if (gNativeMenu!=6 || gNativeBusy || !gNativeActionLeft) {
         gNativeJumpPrediction=0; return;
     }
@@ -1359,6 +1360,12 @@ static void NativeJumpPredict(void) {
             speed=NativeAbs((s8)GetAngleDiff(gFieldState->actor.angle,angle))>100 ? 0 : speed/2;
         speed+=128; if (speed>614) speed=614;
     }
+    if (gMapRoomState->jumpGmkHeight) {
+        /* Moving starts may leave the launcher during startup. Until that
+         * contact transition is modeled, withhold a guaranteed destination. */
+        if (gNativeDirection) { gNativeJumpPrediction=2; return; }
+        angle=gMapRoomState->jumpGmkAngle;
+    }
     sine=gSineTable[angle]; cosine=gSineTable[angle+64];
     point.x=origin.x+(sine*speed >> 8);
     point.y=origin.y+(-cosine*speed >> 8);
@@ -1367,19 +1374,25 @@ static void NativeJumpPredict(void) {
         gNativeJumpPrediction=2; return;
     }
     FieldJumpMotionInit(&motion,point.x,point.y,point.z,origin.x,origin.y,speed);
+    if (gMapRoomState->jumpGmkHeight) {
+        padPlayer=((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
+        FieldJumpPadInit(&motion,padPlayer->collider.platformX,padPlayer->collider.platformY,
+            origin.z-gMapRoomState->jumpGmkHeight);
+    }
     landingFrames=0;
     for (frame=0;frame<160 && landingFrames<8;frame++) {
         if (motion.phase==3) { motion.speed=0; landingFrames++; }
-        oldX=motion.x; oldY=motion.y;
+        oldX=motion.x; oldY=motion.y;padFrame=motion.phase==4;
         NativeJumpContacts(&point,&contact);
         FieldJumpMotionStep(&motion,sine,cosine,gNativeDirection!=0,contact.ground);
-        if (contact.colliding && !contact.standing) {
+        if (!padFrame && contact.colliding && !contact.standing) {
             motion.speed=230*motion.speed >> 8;
             motion.x+=contact.pushX; motion.y+=contact.pushY;
         }
         point.x=motion.x; point.y=motion.y; point.z=motion.z;
         if (FieldJumpTerrainCheck(&point,NativeJumpGround,NativeJumpBlocked,NULL)) {
             point.x=oldX; point.y=oldY;
+            if (padFrame) { motion.x=oldX;motion.y=oldY;continue; }
             attachment.x=oldX; attachment.y=oldY-1536;
             attachment.z=point.z; attachment.ground=point.ground;
             if (GetFldPosClimbDir(&attachment)) { gNativeJumpPrediction=3; return; }

@@ -6,7 +6,7 @@
 int main(int argc,char** argv) {
     unsigned char bytes[32768];FieldSaveState state;unsigned int generation;
     FILE* file;int i,j;
-    if(argc!=3)return 1;
+    if(argc!=3&&argc!=4)return 1;
     file=fopen(argv[1],"rb");if(!file)return 2;
     if(fread(bytes,1,sizeof(bytes),file)!=sizeof(bytes)){fclose(file);return 3;}fclose(file);
     if(FieldSaveSelect(&state,&generation,bytes,bytes+FIELD_SAVE_SIZE)<0)return 4;
@@ -31,6 +31,14 @@ int main(int argc,char** argv) {
         state.move[i]=i==0?2:3;state.action[i]=i==0?0:1;state.partyHp[i]=i==0?68:i==1?64:56;
         j=state.roster.deployed[i];state.roster.heroHp[j]=state.partyHp[i];
         state.roster.heroMove[j]=state.move[i];state.roster.heroAction[j]=state.action[i];
+    }
+    if(argc==4) {
+        int pad=argv[3][0]-'0';
+        static const int position[3][3]={{32768,73728,24576},{49152,81920,45056},{57344,86016,61440}};
+        if(pad<0||pad>2||argv[3][1])return 9;
+        for(i=0;i<3;i++)state.partyPos[0][i]=position[pad][i];
+        state.partyPos[0][3]=position[pad][2];
+        state.move[0]=3;state.action[0]=1;state.roster.heroMove[0]=3;state.roster.heroAction[0]=1;
     }
     memset(bytes,0xff,sizeof(bytes));
     if(!FieldSaveEncode(&state,generation+1,bytes))return 6;
