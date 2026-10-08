@@ -32,24 +32,23 @@ either companion. Every second unique room clear grants a personal upgrade.
 Original cards support explicit Fire/Cure targets,
 matching-type sleights and three-card chest reward choices. Palette budgets
 keep party, card artwork and value digits visible beside generated scenery.
-The earlier 0.32 ROM completes separate fresh-SRAM input-only main-route and
-all-room campaigns: all twelve rooms per world, nine chest opens, Cloud
-recruitment/deployment, height-route execution and exact suspend/reset. World
-exits rest the recruited roster, including benched heroes. Broader seeds remain
-under test. See [native validation](tactics/HEADLESS-VALIDATION.md) for exact
-ROM hashes, coverage and retained failures.
-Physical room reachability guarantees, complete climb/jump navigation,
-additional recruits and content/polish remain unfinished.
-Development patch notes: [0.20 climb routes](tactics/CLIMB-ROUTES-0.20.md). Native stairs use one movement point per sixteen-pixel
-climb segment, with attached-state suspend.
-Current source extends attached-stair previews to several vertical segments,
-with reachable heights, total movement cost and sequenced original-controller
-climb/descent animations. Party/enemy occupancy blocks these routes; floor
-markers predict the original landing offset. The packaged 0.19 patch predates
-this extension. The exact 0.20 ROM passes 86 native stair checks and completes
-a fresh input-only Cloud recruitment/deployment and suspend/reset three-world
-run (stable PASS 92683, Sora HP75, 15 kills, 649 movement commands).
-Walking, climbing and jumping are not yet one combined route.
+The packaged 0.38 ROM passes 540 scoped native checks and three complete
+fresh-SRAM runs with native retry, Cloud recruitment/deployment, exact
+suspend/reset, and composed descent-to-walking routes. The emulator exits
+successfully after the three-run replay. A separate all-room/nine-chest replay
+on the exact 0.38 ROM is still running. These tests cover their recorded seeds
+and routes; they do not prove physical reachability for every generated seed.
+See [0.38 patch notes](tactics/SKILLS-PARTY-UI-0.38.md) and
+[release audit](tactics/RELEASE-AUDIT.md) for current evidence and remaining work.
+
+The normal HUD occupies 18 pixels at the top and 16 at the bottom. Commands
+opens a 40-pixel top panel; Skills and detailed choices use 56 pixels. Ready
+party members, the controlled hero and the enemy phase remain visible in
+Commands and Skills. Party shows each hero's HP, MOVE and ACT budgets.
+Native stairs support several vertical preview segments with total movement
+cost, occupancy checks and original climb/descent animation. Composed descent
+can continue into walking; arbitrary combined jump/climb path discovery,
+additional recruits and final content/visual polish remain unfinished.
 Door travel preserves the selected member, every party budget and active Guard;
 backtracking cannot refill turn resources. One B press commits a native full-height
 jump; moving jumps have a world-space travel budget and safely hand off to stairs.

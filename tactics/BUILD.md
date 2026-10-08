@@ -95,8 +95,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.16-world-bosses.bps
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.16-world-bosses.bps build/release/kh_tactics_field.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.38-skills-party-ui-dev.bps --version 0.38-development
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.38-skills-party-ui-dev.bps build/release/kh_tactics_skills_party_ui_038.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application
@@ -841,7 +841,7 @@ default seed/main route only; broader seeds, optional branches, full-run reset,
 the remaining boss content, navigation guarantees and hardware remain open.
 
 The 0.16 world-bosses development BPS is now packaged as
-`build/release/kh-tactics-0.16-world-bosses.bps` (29,647 bytes). Application to
+`build/release/kh-tactics-0.38-skills-party-ui-dev.bps` (29,647 bytes). Application to
 the supported original US ROM reproduces the tested native ROM byte-for-byte,
 SHA-256 `ae815595a2c7c3de21736baecd64716266aa69fb045799e5292d1f7fcf749d32`.
 `world-bosses-0.16-manifest.json` records patch/source hashes, the native source
@@ -947,3 +947,24 @@ Cloud-party runs. The native ROM and all host rule/save tests build and pass.
 Summon artwork is reserved for setup/recruitment; combat Guard uses original
 Guard Armor enemy-card artwork. Per-character HP/movement/action records fit
 the existing 1,024-byte suspend slots (983-byte payload, plus header/checksum).
+
+## Current input-only campaign replay
+
+Use a new output directory and fresh SRAM for each independent replay. The
+frame limit is aggregate across all runs; a three-run replay uses 540000.
+The headless build script expects mGBA source at `build/tools/mgba-source`,
+checked out at `cef7dde504af189e47f6074365f2d77e8177ad06`. It validates that
+revision before applying frontend-only changes. See
+[headless validation](HEADLESS-VALIDATION.md) for runtime dependencies; then
+build with `python3 tools/build_headless_mgba.py`.
+
+```sh
+python3 tools/tactics_traversal_probe.py build/tactics-us/kh_tactics.elf build/tactics-us/local-three-runs --worlds 3 --runs 3 --frames 540000 --recruit-cloud --composed-descent --suspend-room 1
+cp build/tactics-us/kh_tactics.gba build/tactics-us/local-three-runs/fresh.gba
+build/tools/mgba-headless/mgba-headless -l 7 -F 540003 --script build/tactics-us/local-three-runs/traversal.lua build/tactics-us/local-three-runs/fresh.gba
+```
+
+Require the final `PASS completed 3 three-world runs` in `traversal.txt`,
+check ROM/driver hashes in `replay-metadata.json`, and confirm process exit0.
+An exit0 alone does not prove the replay passed. The retained 0.38 evidence is
+`build/tactics-us/party-label-three-runs-aggregate-evidence`: PASS379646.
