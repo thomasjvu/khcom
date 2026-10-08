@@ -5,7 +5,7 @@ local memory={}
 local function read(_,a) assert(a~=nil);return memory[a] or 0 end
 local env=setmetatable({emu={read8=read,read16=read,read32=read},
  callbacks={add=function() end},io={open=function() return {write=function() end,flush=function() end} end}}, {__index=_G})
-local names={'gFieldState','sEnemyTasks','gNativeActionLeft','gNativeDeck','gNativePartyHealth','gNativeCureTarget','gNativeThreats'}
+local names={'gFieldState','sEnemyTasks','gNativeActionLeft','gNativeDeck','gNativePartyHealth','gNativeCureTarget','gNativeThreats','sPartyPos'}
 for i,name in ipairs(names) do env[name]=i*256 end
 memory[env.gFieldState]=4096
 memory[env.sEnemyTasks]=8192;memory[8192+4]=12288
@@ -37,3 +37,17 @@ memory[env.sEnemyTasks]=0;memory[env.gNativePartyHealth]=40;memory[env.gNativeDe
 assert(combat()==1,'heal injured Sora even between distant encounters')
 memory[env.gNativeDeck]=1;assert(combat()==nil,'do not waste offensive cards without nearby enemies')
 print('Combat replay policy: explicit Sora Cure, defensive Guard, and action/card gates passed')
+
+-- Healthy leader can rescue a nearby companion using actual native range.
+memory[env.gNativePartyHealth]=80;memory[env.gNativePartyHealth+1]=10;memory[env.gNativePartyHealth+4]=56
+memory[env.gNativeDeck]=2;memory[env.gNativeCureTarget]=0
+memory[env.sPartyPos+16]=2048
+assert(combat()==258,'cycle Cure toward injured nearby companion')
+memory[env.gNativeCureTarget]=1;assert(combat()==1,'heal injured Donald while Sora is healthy')
+memory[env.gNativePartyHealth+2]=0;memory[env.gNativePartyHealth+5]=72
+memory[env.gNativeCureTarget]=2;assert(combat()==1,'revive nearby knocked-out Goofy')
+memory[env.sPartyPos+32+8]=8192
+assert(combat()==258,'exclude recipient beyond native height reach')
+memory[env.sPartyPos+16]=65536;memory[env.gNativeCureTarget]=1
+assert(combat()==nil,'no attempted Cure at out-of-range companions without enemies')
+print('Combat replay recovery: nearby injured/KO companions, native range and height gates passed')

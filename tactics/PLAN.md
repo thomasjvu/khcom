@@ -1341,3 +1341,24 @@ Both require actual Cloud recruit/deploy, exact suspend/reset, composed
 descent and stable terminal victory. Generated headers now resolve tactics
 sRawKeys rather than its vanilla duplicate. Observed positions and command
 logs progress; do not infer completion from any earlier ROM proof.
+
+
+State-art build packaged0.34 (2026-10-08): exact ROM5f1a98008c3f8e9e6d27f12466fe4744de8035a34743cd7f543d9563bd3f846b,
+BPS96168 bytes, production apply byte-identical.49 native checks, host and
+asset golden/state encoding PASS; RAM8140/8192. Two-seed job27303 terminal
+PASS288347: first stable123214, retry123226, second victory288227 Sora67
+stable120; recruit/deploy/reset/descent per run required. Baseline all-room
+job36732 terminal native defeat130336, retained. Neither terminal result
+is inferred from earlier ROMs. Metadata hashes verified; manifest scoped.
+
+Replay companion recovery now heals injured/KO nearby friends when Sora is
+healthy rather than reserving every Cure for the leader. Eligible companion
+checks match actual96px raw-plane range and24px height; out-of-range targets
+are not cycled toward. New read-only cases cover injured Donald, KO Goofy,
+height and range exclusions; all13 policy regressions PASS. Native gameplay
+and ROM remain unchanged by this replay policy. Full36-room/nine-chest job
+78252 at rally-states-party-recovery-all-rooms-evidence is live under300000
+frames; its terminal result remains required. Aerith original resources are
+confirmed as gEarF00/F01/B00/B01 with gEarisPalette; these provide idle/walk
+only. No Tifa sprite resources found in this checkout. Neither added recruit
+is claimed implemented. Current release remains development, goal active.

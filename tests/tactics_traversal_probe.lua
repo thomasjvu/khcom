@@ -198,6 +198,22 @@ local function encounterGoal()
  end
  if best then return best.x,best.y,best.z end
 end
+-- Keep nearby companions available for their own actions, including Guard.
+-- Match native Cure's raw-plane range and height checks; do not cycle toward
+-- a recipient the game cannot heal from the controlled actor's position.
+local function healingRecipient(x,y,z)
+ if emu:read8(gNativePartyHealth)<60 then return 0 end
+ local target,lowest=nil,24
+ for member=1,2 do
+  local hp=emu:read8(gNativePartyHealth+member)
+  if emu:read8(gNativePartyHealth+3+member)>0 and hp<lowest then
+   local a=sPartyPos+member*16
+   local px=signed(emu:read32(a));local py=signed(emu:read32(a+4));local pz=signed(emu:read32(a+8))
+   if math.abs(px-x)+math.abs(py-(y-z))<=24576 and math.abs(pz-z)<=6144 then target,lowest=member,hp end
+  end
+ end
+ return target
+end
 local function combatInput()
  local x,y,z=pos();local near=false
  for i=0,5 do
@@ -210,13 +226,14 @@ local function combatInput()
  end
  if emu:read16(gNativeActionLeft)==0 then return nil end
  local hand={};local wanted=nil;local healing=false
+ local healTarget=healingRecipient(x,y,z)
  for i=0,emu:read8(gNativeDeck+72)-1 do
   if emu:read8(gNativeDeck+48+i)==1 then
    local kind=emu:read8(gNativeDeck+i);hand[#hand+1]=kind
    if kind==1 and not wanted then wanted=#hand-1 end
   end
  end
- if emu:read8(gNativePartyHealth)<60 then
+ if healTarget~=nil then
   for i,kind in ipairs(hand) do if kind==2 then wanted=i-1;healing=true;break end end
  end
  if not near and not healing then return nil end
@@ -230,8 +247,8 @@ local function combatInput()
   wanted=0
  end
  if emu:read8(gNativeDeck+73)~=wanted then return 256 end
- if emu:read8(gNativePartyHealth)<60 and hand[wanted+1]==2 and
-    emu:read16(gNativeCureTarget)~=0 then return 258 end
+ if healing and hand[wanted+1]==2 and
+    emu:read16(gNativeCureTarget)~=healTarget then return 258 end
  return 1
 end
 -- Roster HP belongs to hero identity, including reserves. Replace KO
