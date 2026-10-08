@@ -219,3 +219,25 @@ empty confirmation screens visually inspected. Exact evidence in
 No reserved RAM/save change. Broader all-room replay remains on85dd43827
 ROM; current intermediate evidence has5 chests and Agrabah room3, no terminal
 full-coverage result yet.
+
+### Compact field HUD and visible phase sequence
+
+Normal field play now shows only two rows: active hero HP/movement/action
+and PARTY THEN ENEMIES (Select opens Commands). During the enemy phase
+it switches to ENEMIES THEN PARTY. The game uses freely ordered party
+actions followed by its enemy phase, not individual initiative; the display
+reflects those rules. Detailed card/pile/threat/control text stays in menus
+or relevant targeting/ledge/reward states. Top dim window18px, bottom dim
+window16px for card values; full original card artwork remains visible.
+Both normal and enemy-phase screenshots visually inspected.
+
+Encounter-clear upgrades now use a selectable list with the receiving hero,
+owned/max markers and eligible Cloud recruitment alongside powerups. Up/Down
+chooses; L/R changes recipient; A confirms through existing rules. Reward
+text uses contiguous menu rows inside a64px window. All14 native encounter
+clear/upgrade/suspend/exact resume and real Donald damage checks pass. The
+old fixture used four-hero cleared/phase offsets; failed evidence retained
+in `reward-list-evidence`. Updated five-hero fixture and exact current ROM
+evidence in `compact-hud-reward-evidence` pass. No reserved RAM/save/game
+rules change. Build/header/capacity pass. Wider all-room run is still on
+85dd43827, separate from this HUD.

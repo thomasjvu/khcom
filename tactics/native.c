@@ -1120,7 +1120,7 @@ static void (*sPreviousVBlank)();
 static void NativeLabel(u8 x, u8 y, const char* text) {
     int tile = (y / 8) * 32 + x / 8 + 1;
     int column = x / 8;
-    int row = gNativeMenu ? y / 8 : y == 24 ? 19 : y == 32 ? 18 : y / 8;
+    int row = (gNativeMenu || gNativeProgressReward) ? y / 8 : y == 24 ? 19 : y == 32 ? 18 : y / 8;
     int glyph, i;
     u32 pixels;
     int pixel;
@@ -1376,6 +1376,23 @@ static void NativeHud(void) {
         NativeLabel(0, 24, "UNLOCK CLOUD CARD");
         NativeLabel(0, 32, "POWER OR RECRUIT");
     }
+    if (gNativeProgressReward && !gNativeMenu) {
+        static const char* const rewards[5] = {"POWER PLUS 1", "KEY SLEIGHT PLUS 4", "FIRE SLEIGHT PLUS 4", "CURE SLEIGHT PLUS 4", "RECRUIT CLOUD"};
+        u8 hero = NativeHero(sProgressHero);
+        u8 options = NativeRecruitEligible() ? 5 : 4;
+        gWin0V = 64;
+        for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
+        NativeLabel(0, 0, hero == FIELD_SORA ? "REWARD FOR SORA" : hero == FIELD_DONALD ? "REWARD FOR DONALD" :
+            hero == FIELD_GOOFY ? "REWARD FOR GOOFY" : hero == FIELD_RALLY ? "REWARD FOR RALLY" : "REWARD FOR CLOUD");
+        for (i = 0; i < options; i++) {
+            NativeLabel(0, (i + 1) * 8, i == sProgressKind ? "X" : " ");
+            NativeLabel(16, (i + 1) * 8, rewards[i]);
+            if (!i && gNativeRoster.power[hero] >= 8) NativeLabel(184, 8, "MAX");
+            else if (i > 0 && i < 4 && (gNativeRoster.sleights[hero] & (1 << (i - 1))))
+                NativeLabel(184, (i + 1) * 8, "OWNED");
+        }
+        NativeLabel(0, 48, "UP DOWN  L R HERO  A CHOOSE");
+    }
     if (!gNativeMenu && !gNativeAssembly && !gNativePreview && !gNativeProgressReward &&
         !gNativeReward && !gNativeEnemyFrames && !gNativeResult && !gNativeBusy && !gNativeSaveNotice)
         NativeLabel(0, 32, "SELECT COMMANDS");
@@ -1536,6 +1553,17 @@ static void NativeHud(void) {
             NativeLabel(0, 8, "LEDGE  UP CLIMB  B DROP");
             NativeLabel(0, 32, player->state == FLD_STATE_LEDGE_HANG ? "SELECT LEDGE COMMANDS" : "CATCHING LEDGE");
         }
+    }
+    if (!gNativeMenu && !gNativeAssembly && !gNativeProgressReward && !gNativeReward &&
+        !gNativePreview && !gNativeResult && !gNativeClimbing && !gNativeBusy) {
+        for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
+        gWin0V = 18;
+        gWin1V = (144 << 8) | 160;
+        NativeLabel(0, 0, line);
+        NativeLabel(168, 0, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" :
+            NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : "CLOUD");
+        NativeLabel(0, 8, gNativeSaveNotice ? (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") :
+            gNativeEnemyFrames ? "ENEMIES THEN PARTY" : "PARTY THEN ENEMIES  SELECT");
     }
     sHudPending = 1;
 }

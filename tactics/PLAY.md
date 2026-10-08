@@ -295,3 +295,7 @@ cycle shortcut. Switching preserves each hero's spent resources.
 
 While hanging from a ledge, press Select for Climb/Drop. Up/Down selects,
 A confirms, and B closes the menu without dropping. The jump cost is already paid.
+
+The compact field HUD shows the active hero and phase sequence. Party actions
+can be taken in any order; End Turn begins the enemy phase, then refreshes the party.
+Select opens detailed Commands. Clear rewards use Up/Down to choose and L/R to change hero.
