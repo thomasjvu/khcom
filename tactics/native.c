@@ -138,7 +138,7 @@ static void NativePartyPose(u8 member) {
     friend->pose = 1;
     friend->timer = 48;
     AnimChangeWithDef(sFriendAnims[NativeHero(member) - 1], &friend->anim, 1,
-        ANIM_FLAG_LOOP, friend->tiles);
+        NativeHero(member) == FIELD_RALLY ? 0 : ANIM_FLAG_LOOP, friend->tiles);
 }
 u16 gNativeProgressReward;
 static u16 sProgressHero, sProgressKind;
@@ -821,7 +821,7 @@ static void NativePartyDraw(void) {
             def.animId = bank * 5 + pose;
             sFriends[i].facing = bank >= 2;
             AnimChangeWithDef(&def, &sFriends[i].anim, 0,
-                pose >= 3 ? 0 : ANIM_FLAG_LOOP, sFriends[i].tiles);
+                pose == 0 || pose == 2 ? ANIM_FLAG_LOOP : 0, sFriends[i].tiles);
             sFriends[i].pose = pose;
         } else if (sFriends[i].pose != pose) {
             sFriends[i].pose = pose;

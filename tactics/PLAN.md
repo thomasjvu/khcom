@@ -1121,3 +1121,38 @@ immutable0.29 ROM. It has verified composed descent1217 and reached TT
 room1=8648, room2=11739, room3=14652, party HP80/32/72. No restart was
 performed. Keep following this same job for save/recruit/reserve/full-run
 evidence; new menu ROM and campaign ROM remain distinguished.
+
+Rally dedicated action/air artwork (2026-10-08), development0.31: generated
+new action-source-v1.png with built-in imagegen using approved starterv2
+identity. Added10 frames (front/rear windup, punch, recovery, rise, fall) to
+existing20. Compile with one shared action scale, 32x64 cells, foot anchor
+16/56, existing15 opaque colors. Original20 frame tile bytes and palette
+remain byte-identical, now protected by golden hashes in asset verifier.
+Unrelated other-chat drafts were not modified or imported. Action provenance
+and generation prompt are saved under character-assets/rally.
+
+Rally attack animation now plays once and holds recovery instead of looping;
+idle/walk still loop. Physics, attacks/resource rules and save formats are
+unchanged. RAM8140/8192. Fresh configuration regenerated header dependencies
+so native object actually rebuilt for rally_data.h; the older build.ninja
+had omitted the newer asset header. Asset encoding/bounds/bindings and host
+suite pass. Input-only rally-single-strike-actions-evidence passes13 checks
+for both attack sequences, nonloop flags, rear rise/fall, full jump height,
+landing idle and costs. rally-final-actions-direction-evidence passes26
+for menus, save/reset, and front/rear/mirror banks on the exact final ROM.
+Screenshots of strike and rise were inspected. Early fixed-video-frame
+action harness missed end-turn input; native-completion acknowledgement
+corrected it. An intermediate acknowledgement harness omitted required
+symbols and is not proof. Final13+26 evidence is the proof.
+
+ROM SHA2566ea7e1243f1cdd3ab8d9a3dfa7c6d97747379b0c9f509708346a34513ea65fe9;
+local0.31 BPS applies byte-identically. Dedicated hurt/climb/casting art and
+Rally's own card still remain unfinished; no full polish claim.
+
+Same all-room session73273/PID62815 remains live on0.29. Read-only CUA
+console inspection confirmed room3, partyHP80/32/72, native counter172,
+move1/action1; subsequent logs advance through frame21254 and partyHP80/44/72
+after room3 chest recovery. Inspection did not send game input or write game
+memory. Suspend14733/exact reset resume15063 remains verified. The quiet log
+was not a terminal job; no restart was performed. Keep following this job
+for wider coverage, distinguished from0.31 artwork regression evidence.
