@@ -1,5 +1,9 @@
 # Current release audit
 
+Current unpackaged native ROM SHA256 `ae159d5bbfc1519a77e2d3679a65638d498add95f16bba9e3caa70f4cc409e8a`. Exact-ROM focused checks pass65: Sora/Rally eight-direction command aiming35, consecutive sword damage/card break12, ready-party/enemy phase strip6 and contextual End Turn12. Actual rendered VRAM/window bounds and input-driven confirmation/cancel verified; setup fixtures disclosed. Frontends exit0 with matching ROM/driver/log hashes. Current-ROM three-seed all-room/chest/Cloud/suspend/composed-descent sweep is live and unproven. Native jump-pad predictions passed24 on the immediate predecessor; a normal Jump regression passed12 there. These are version-scoped until rechecked on this ROM.
+
+The predecessor sword-hit-gate ROM completed two all-room campaigns300977/639960, then failed900001 on third-seed Castle room5. Source enum diagnosis: state6 is CLIMB. Corrected explorer reaches the connected stair endpoint and original room6 exit in a disclosed isolated saved-position fixture PASS6632. This driver fix does not establish a complete third campaign. Final visual/content/recruit/balance audit and current release packaging remain open.
+
 Current packaged0.39 ROM SHA256 `35953e2f0493cfd1e6e1c14bef9cda3d10c1e7974210c569ca6f0ca955349572`. It passes79 exact-ROM scoped native checks (12 stair forecasts,7 ledge forecasts,60 five-hero area recipes) and three native campaigns PASS379750, frontend exit0. BPS application matches the build byte for byte. The three-seed all-room/chest sweep failed900001 in second-run Agrabah room11; universal navigation and final visual/content polish remain unproven. See [0.39 notes](JUMP-PREVIEW-0.39.md). Earlier evidence below is version-scoped.
 
 Previous packaged0.38 ROM SHA256 `2d438556ac07c2e9340f6c9591d6435413bc42e5174ed0321e3dc8fe1688c7af`.
