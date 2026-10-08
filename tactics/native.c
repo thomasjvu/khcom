@@ -1479,6 +1479,11 @@ static void NativeHud(void) {
             detail[6] = card < 0 ? ' ' : '0' + gNativeDeck.value[card];
             detail[16] += gNativeDeck.stocked;
             NativeLabel(0, 16, card < 0 ? "NO CARDS  DOWN RELOAD" : skills[gNativeDeck.kind[card]]);
+            if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY) {
+                u8 hero = NativeHero(gNativeParty);
+                NativeLabel(0, 16, hero == FIELD_DONALD ? "DONALD MAGIC" : hero == FIELD_GOOFY ? "GOOFY SHIELD SPIN" :
+                    hero == FIELD_CLOUD ? "CLOUD SWORD" : hero == FIELD_RALLY ? "RALLY STRIKE" : "SORA KEYBLADE");
+            }
             NativeLabel(0, 24, gNativeDeck.stocked == 3 ? "THREE STOCKED  A SLEIGHT" : gNativeDeck.stocked ? "UP STOCK  DOWN CLEAR" : "UP STOCK  DOWN RELOAD");
             NativeLabel(0, 32, "B BACK  L R CARD");
             NativeLabel(0, 40, detail);

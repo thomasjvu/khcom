@@ -161,3 +161,13 @@ fixture checks pass for target cycling, cancellation, confirmed healing/ranged
 damage, costs and Rally Curaga. The rendered Skills screen was inspected.
 Exact ROM/driver hashes are in `skills-detail-target-evidence/metadata.json`.
 The running full campaign uses preceding b5b66489f, not this presentation change.
+
+Skills browsing now names the active hero attack consistently with confirmation:
+Sora Keyblade, Donald Magic, Goofy Shield Spin, Cloud Sword or Rally Strike.
+The native16-check Donald/Goofy fixture passes combat, two-target spin, menu
+cancellation, confirmation costs and spent-action Skills browsing. Goofy
+browsing screen inspected with card value/stock/action status and original
+card artwork visible. Initial added fixture selected Party due to an extra
+Down; failure preserved separately, corrected input passes. Exact evidence
+`hero-skills-browse-fixed-evidence` is scoped to this later presentation ROM;
+the full campaign still runs on e2e4a18d8. Native build/header/capacity pass.

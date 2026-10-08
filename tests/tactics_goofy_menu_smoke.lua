@@ -59,6 +59,15 @@ callbacks:add('frame',function()
  if f==660 then check(emu:read16(gNativeMenu)==1 and emu:read16(gNativeEnemyHp)==30,'cancel shield spin returns without damage') end
  if f==780 then
   check(emu:read16(gNativeEnemyHp)==21 and emu:read16(gNativeEnemyHp+2)==21,'menu-confirmed spin hits both previewed enemies')
-  check(emu:read16(gNativeActionLeft)==0 and emu:read8(gNativeDeck+48)==2,'confirmed spin spends one action and card');out:close()
+  check(emu:read16(gNativeActionLeft)==0 and emu:read8(gNativeDeck+48)==2,'confirmed spin spends one action and card')
+ end
+ if f==820 then emu:setKeys(4) end
+ if f==860 then emu:setKeys(128) end
+ if f==940 then emu:setKeys(1) end
+ if f==824 or f==864 or f==904 or f==944 then emu:setKeys(0) end
+ if f==980 then
+  check(emu:read16(gNativeMenu)==2,'Goofy Skills opens browsing after spent action')
+  check(emu:read16(gNativeActionLeft)==0,'browsing preserves spent action')
+  emu:screenshot('@OUTPUT@/spin-skills.png');out:close()
  end
 end)
