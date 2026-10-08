@@ -1224,3 +1224,19 @@ uses acknowledged combat/reward driver ed20c687c; all-room uses earlier
 immutable script. Their earlier failures are preserved. Consecutive two-
 seed native-retry job26675 is live at headless-ack-two-runs-evidence with
 240000 frame bound. Full content/art/hardware polish still unfinished.
+
+
+Consecutive-seed job26675 is now terminal exit0, replay FAIL240001. First
+campaign PASS119943, native retry119955 seed2658846982. Second reached
+Agrabah room2 at172148 then wandered to frame bound with all six enemies
+already defeated, Sora74/Cloud49/Goofy72 HP, idle state and remaining
+budgets1/1. Position100778,65253,0; exit12288,99840,20480. Snapshot, native
+save bytes, terminal image and exact generated driver retained in
+headless-ack-two-runs-evidence; metadata marks failure. Same-height read-only
+analysis at16/8/4px found no progress toward the higher door (615.875px
+weighted distance), but excludes stairs/jumps and cannot prove impossible
+physical geometry. Inspect standing-region connectors and native ledge/jump
+execution next; do not enlarge bounds or describe two-run success. Player
+instructions now describe the compact ready-party/enemy strip and contextual
+End Turn health/damage forecast; current release audit enumerates actual
+requirements and missing proof/art/content without imposing hardware testing.

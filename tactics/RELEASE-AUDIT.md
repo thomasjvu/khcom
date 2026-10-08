@@ -20,7 +20,7 @@ Historical entries in PLAN.md describe earlier versions; current evidence wins.
 | Card combat and sleights | Original artwork, draw/discard/reload, three-card sleights, targeted Fire/Cure/Guard; host/native tests | Current-ROM review of each character/recipe combination |
 | Bosses and roguelike rewards | TT Guard Armor, Agrabah Jafar, Castle Marluxia; completed campaigns; personal power/sleight rewards, Cloud summon-or-power choice | Balance and reward variety; additional recruit bosses |
 | Suspend saves | Current native alternating slots/reset/corrupt-newest fallback12 checks, exact saves in both complete campaigns | Multi-seed replay with reset/retry |
-| Verified complete runs | Current main PASS119943; all36 rooms/nine chests PASS281892, stable victory120 frames | Consecutive native-retry seeds job26675 live; broader seeds |
+| Verified complete runs | Current main PASS119943; all36 rooms/nine chests PASS281892, stable victory120 frames | Two-seed test terminal: first PASS, second frame-bound failure in Agrabah room2; diagnose captured geometry |
 
 Next implementation priority after the active seed test: resolve a reproduced
 physical navigation defect if one appears; otherwise finish Rally's missing
