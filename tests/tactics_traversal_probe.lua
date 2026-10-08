@@ -289,9 +289,13 @@ local function turnKey()
  local p=emu:read32(gFieldState);local task=emu:read32(emu:read32(p+0x94));local state=emu:read32(emu:read32(task+4)+0x94)
  local threat=emu:read16(gNativeThreats)+emu:read16(gNativeThreats+2)+emu:read16(gNativeThreats+4)
  local party=emu:read16(gNativeParty)
- local action=party==2 and emu:read16(gNativeActionLeft) or emu:read16(sPartyAction+4)
- if state==0 and threat>0 and guard and emu:read16(gNativeGuard)==0 and emu:read8(gNativePartyHealth+2)>0 and action>0 then
-  if party~=2 then return 516 end
+ local defender=nil
+ for i=0,2 do
+  local action=i==party and emu:read16(gNativeActionLeft) or emu:read16(sPartyAction+i*2)
+  if emu:read8(gNativeRoster+1+i)==2 and emu:read8(gNativePartyHealth+i)>0 and action>0 then defender=i end
+ end
+ if state==0 and threat>0 and guard and emu:read16(gNativeGuard)==0 and defender then
+  if party~=defender then return 516 end
   if emu:read8(gNativeDeck+73)~=guard then return 256 end
   out:write('GOOFY GUARD frame='..f..' threat='..threat..'\n');out:flush();return 1
  end

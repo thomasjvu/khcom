@@ -1380,3 +1380,14 @@ recorded 0.34 ROM only; this build has no new complete campaign proof.
 
 The 0.34 companion-recovery all-room attempt also ended in native party defeat
 at frame134022 in Agrabah. This remains a failed campaign, not a completion.
+
+## Exact 0.35 campaign verification
+
+Replay turn policy now locates Goofy by deployed roster identity, current HP
+and remaining action, rather than assuming slot two. Read-only tests cover
+Goofy swapped into slot one and no Goofy deployed. This changes the test driver
+only. Fresh-ROM sessions73601 (two runs,360003 emulator frames) and92992
+(all rooms/nine chests,300003) use exact 0.35 ROM, native input acknowledgement,
+Cloud fight/recruit/deploy, composed descent and exact suspend/reset. Their
+results remain pending in compact-commands-two-runs-evidence and
+compact-commands-all-rooms-evidence. Host suite completed successfully.
