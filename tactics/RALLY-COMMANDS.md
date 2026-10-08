@@ -52,3 +52,12 @@ the same ROM. The campaign verifier now snapshots all 39 meaningful bytes of
 the five-hero roster and expects the starter unlock mask 23 on retry; its held
 retry/reset policy test passes. Current whole-campaign evidence is tracked
 separately and is not implied by these focused checks.
+
+Attack now opens a separate confirmation rather than immediately spending its
+Key card. Melee characters can set facing with the D-pad; B returns directly
+to Commands without attacking or spending. A commits the native strike.
+Donald/Cloud ranged Keys retain enemy target selection. A dedicated explicit
+Key-hand/enemy fixture passes 10 checks for Rally facing, cancel safety, native
+damage and exact card/action charging. The 23 target/sleight and 14 input-only
+Rally/menu/save checks also pass on this Attack-confirmation ROM (47 total).
+These fixtures do not establish whole-campaign completion.
