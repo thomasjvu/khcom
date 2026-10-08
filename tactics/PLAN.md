@@ -1575,3 +1575,9 @@ finishing choice near the last turns. Recorded terminal state in a read-only
 memory mock predicts hand slot1, enemy2, HP12; this is model diagnosis only,
 not native proof. New diagnostic logs explicit selection-rejection reason and
 controlled party, session30946 live. Preserve failures; do not claim resolution.
+
+Decision-reason replay30946 script FAIL137348. At135585 (HP50) and136589
+(HP26), finishingFireSlot explicitly rejects multiple living enemies while
+Sora is controlled. The lone-enemy terminal snapshot does not describe those
+earlier decisions. Next diagnosis must inspect live target choice and incoming
+damage before terminal cleanup, not assume a guaranteed last-enemy kill.
