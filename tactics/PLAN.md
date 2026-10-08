@@ -424,3 +424,24 @@ of that prior snapshot approaches within10.72px but does not meet its strict
 goal tolerance; it excludes jumps/actors/native execution and cannot establish
 that the room is blocked. Full campaign completion and wider seeds/branches/
 chests remain required.
+
+### Directional Rally and broader campaign coverage
+
+Rally now uses a coherent front/back pair, mirrored for right-facing poses.
+The approved draft's opposite-facing rows are inconsistent and remain preserved
+but unused for facing playback. Twenty-six input-only directional/menu/save/
+party checks pass on source ebe62cce7; cardinal/diagonal banks, mirror flags and
+unchanged budgets are checked. North/east screenshots inspected. Dedicated
+action/air art, card and encounter remain unfinished.
+
+The immutable Select-menu source8a6bac4d1 all-room/chest replay ends as
+FAIL300001 in Agrabah room5 (19kills,2028movement commands). It visits all
+12 Traverse Town rooms, collects3chests there, recruits Cloud50061/deploys
+148960 and verifies suspend44787/resume45117. World1 begins232705; two more
+Agrabah chests are collected (5total) before the frame bound. The long first
+Cloud-room backtrack eventually exits at148858, so repetition there was not
+a permanent stall. Current three-world all-room/chest proof remains missing.
+No bounds were expanded after failure and no emulated memory was written.
+Exact ROM/driver/log hashes and failure scope are preserved locally in
+`select-commands-all-rooms-evidence`. This predates Reload/directional Rally
+and is not evidence for those newer native builds.
