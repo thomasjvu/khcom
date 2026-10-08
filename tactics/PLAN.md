@@ -718,3 +718,23 @@ and switching. The moving screenshot was inspected with original scene,
 actors and cards visible. Exact evidence in `compact-walk-party-evidence`;
 build/header/capacity pass. No gameplay/persistent RAM/save change.
 All-room campaign remains live on85dd43827, outside this newer UI evidence.
+
+### Refined all-room terminal result and current two-run coverage
+
+The85dd43827 native ROM with refined walking/save-ready replay FAILED
+300001 in Castle room11 (entered298785),35 kills,2702 commands,8 chests.
+Both early worlds and Castle's first optional branch/backtracking completed;
+room9 exited276707 after entry251133. Grounded idle busy0 at final position
+107686,70090,0. Save request26126/suspend26130/exact resume26460 passed.
+This improves observed coverage over the earlier room8 timeout, but does
+not prove all rooms/chests or victory. Exact terminal snapshot/log/hashes
+preserved in `refined-save-ready-all-room-evidence`. No limit expansion.
+
+`compact-hud-two-run-evidence` is running on4dec13bdf native ROM: fresh SRAM,
+two sequential main-route campaigns using native Select retry/seed advance,
+Cloud recruitment, room4 save/exact resume and composed descent each run.
+The240000 total-frame limit is the existing two-run bound; this replay does
+not enforce independent120000 per-run caps. No multi-seed success claimed
+until both complete and terminal coverage passes. Read-only investigation
+of chest-facing stalls suggests lock-on interactions may matter, but no
+controller change is made without a focused native reproduction.
