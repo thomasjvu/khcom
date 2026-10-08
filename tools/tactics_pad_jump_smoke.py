@@ -11,4 +11,4 @@ helper='local function hudText'+Path('tests/tactics_jump_forecast_smoke.lua').re
 s=f'local targetHeight={(0,24576,45056)[a.pad]}\n'+''.join(f'local {k}=0x{names[k]:x}\n' for k in keys)+helper+Path('tests/tactics_pad_jump_smoke.lua').read_text().replace('@OUTPUT@',str(out))
 assert 'emu:write' not in s
 (out/'test.lua').write_text(s)
-(out/'metadata.json').write_text(json.dumps(dict(expected_checks=8,pad_index=a.pad,explicit_saved_pad_position_party_deck_fixture=True,input_only_after_boot=True,seed_save_sha256=hashlib.sha256(a.seed_save.read_bytes()).hexdigest(),rom_sha256=hashlib.sha256(Path(a.elf).with_suffix('.gba').read_bytes()).hexdigest(),driver_sha256=hashlib.sha256(s.encode()).hexdigest(),result='pending'),indent=2)+'\n')
+(out/'metadata.json').write_text(json.dumps(dict(expected_checks=9,pad_index=a.pad,explicit_saved_pad_position_party_deck_fixture=True,input_only_after_boot=True,seed_save_sha256=hashlib.sha256(a.seed_save.read_bytes()).hexdigest(),rom_sha256=hashlib.sha256(Path(a.elf).with_suffix('.gba').read_bytes()).hexdigest(),driver_sha256=hashlib.sha256(s.encode()).hexdigest(),result='pending'),indent=2)+'\n')

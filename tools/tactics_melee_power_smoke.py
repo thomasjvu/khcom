@@ -11,4 +11,4 @@ if a.facing:
  s=s[:s.index("callbacks:add('frame'")]+Path('tests/tactics_melee_facing_smoke.lua').read_text().replace('@OUTPUT@',str(out))
 if a.trace:s+=Path('tests/tactics_melee_trace_tail.lua').read_text().replace('@OUTPUT@',str(out))
 (out/'test.lua').write_text(s)
-(out/'metadata.json').write_text(json.dumps(dict(expected_checks=(18 if a.rally else 17) if a.facing else 13 if a.rally else 12,native_rally_assembly=a.rally,eight_direction_facing=a.facing,explicit_card_power_enemy_position_hp_fixture=True,rom_sha256=hashlib.sha256(Path(a.elf).with_suffix('.gba').read_bytes()).hexdigest(),driver_sha256=hashlib.sha256(s.encode()).hexdigest(),result='pending'),indent=2)+'\n')
+(out/'metadata.json').write_text(json.dumps(dict(expected_checks=(19 if a.rally else 18) if a.facing else 13 if a.rally else 12,native_rally_assembly=a.rally,eight_direction_facing=a.facing,explicit_card_power_enemy_position_hp_fixture=True,rom_sha256=hashlib.sha256(Path(a.elf).with_suffix('.gba').read_bytes()).hexdigest(),driver_sha256=hashlib.sha256(s.encode()).hexdigest(),result='pending'),indent=2)+'\n')

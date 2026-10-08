@@ -13,6 +13,7 @@ callbacks:add('frame',function()
  if f==380 then setup(5,0) end
  if f==400 then
   check(emu:read16(gNativeMenu)==4,'native sword confirmation opens')
+  check(hudText(1,0,testRally and 'SOR XRAL GOO THEN ENEMIES' or 'XSOR DON GOO THEN ENEMIES'),'phase strip stays visible inside sword confirmation')
   if testRally then check(emu:read16(gNativeParty)==1 and emu:read8(gNativeRoster+2)==4,'native assembly controls Rally') end
  end
  for i=1,8 do

@@ -43,7 +43,7 @@ the ready list. During enemy resolution, ENEMIES comes first. Commands open a 40
 phase order underneath. Left/Right switches columns on the same row; Up/Down
 cycles the six choices. This leaves 104 of 160 pixels of battlefield
 unobscured. Detailed confirmations, assembly and rewards use a 56-pixel
-contextual panel; B backs out before confirmation.
+contextual panel; B backs out before confirmation. The ready-party/enemy strip stays visible in the spare row of detailed Attack, Jump, Party, Reload and End Turn confirmations without expanding the panel.
 
 Each member has three movement points and one action per turn. A jump consumes
 an action and a directional jump also consumes movement. Holding a direction

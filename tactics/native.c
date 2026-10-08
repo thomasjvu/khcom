@@ -1775,7 +1775,7 @@ static void NativeHud(void) {
             NativeLabel(0, 32, player->state == FLD_STATE_LEDGE_HANG ? "SELECT LEDGE COMMANDS" : "CATCHING LEDGE");
         }
     }
-    if ((gNativeMenu == 1 || gNativeMenu == 2 || !gNativeMenu) && !gNativeAssembly && !gNativeProgressReward && !gNativeReward &&
+    if (!gNativeAssembly && !gNativeProgressReward && !gNativeReward &&
         !gNativePreview && !gNativeResult && !gNativeClimbing && gNativeBusy != 2) {
         if (!gNativeMenu) {
             for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
@@ -1807,7 +1807,7 @@ static void NativeHud(void) {
             while (*turnName) turns[turnLength++] = *turnName++;
         }
         turns[turnLength] = 0;
-        NativeLabel(0, gNativeMenu ? 32 : 8, gNativeSaveNotice ? (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") : turns);
+        NativeLabel(0, gNativeMenu == 1 || gNativeMenu == 2 ? 32 : 8, gNativeSaveNotice ? (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") : turns);
         if (!gNativeMenu && charging) NativeLabel(0, 16,
             gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE CHARGED" :
                 gNativeBossPhase == 1 ? "HAND SLAM CHARGED" : "ARMOR SLAM CHARGED") :

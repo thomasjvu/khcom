@@ -13,6 +13,7 @@ callbacks:add('frame',function()
  if f==244 or f==284 or f==324 or f==444 then emu:setKeys(0) end
  if f==400 then
   check(emu:read16(gNativeMenu)==6,'native Jump command opens on original launcher')
+  check(hudText(1,0,'XSOR RAL DON THEN ENEMIES'),'phase strip remains visible inside Jump confirmation')
   check(emu:read32(emu:read32(gMapRoomState)+0x1c)>0,'original collider warms native launcher height')
   check(emu:read16(gNativeJumpPrediction)==1,'launcher has resolved landing forecast')
   check(hudText(4,0,'LANDING DIAMOND ON MAP'),'launcher forecast renders resolved status')
