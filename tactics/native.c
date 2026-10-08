@@ -1300,13 +1300,16 @@ static void NativeHud(void) {
     int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
     static const char* const names[4] = {"KEYBLADE A PLAY", "FIRE A PLAY", "CURE A PLAY", "GUARD A PLAY"};
     u16 i;
-    int turnLength, j;
+    int turnLength, j, compactIdle;
     const char* turnName;
     /* Keep completed tiles immutable until VBlank consumes them. Clearing
      * pending at the next draw can otherwise starve uploads indefinitely. */
     if (!sHudTiles || !sHudScreen || sHudPending) return;
     for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
     for (i = 0; i < 225 * 8; i++) sHudTiles[i] = 0x11111111;
+    for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
+    compactIdle = !gNativeReward && !gNativePreview && !gNativeResult &&
+        !gNativeClimbing && gNativeBusy != 2;
     /* Darken only the scenery under the HUD; card and actor OBJ art stays
      * full color. Outside these two windows the field has no blend effect. */
     gDispCnt |= 0x6000;
@@ -1314,9 +1317,8 @@ static void NativeHud(void) {
     /* VBlank can occur while labels are being built. Never publish a
      * provisional large window during ordinary movement. */
     gWin0V = gNativeMenu == 1 ? 40 : gNativeMenu || gNativeProgressReward || gNativeAssembly ? 56 :
-        !gNativeReward && !gNativePreview && !gNativeResult &&
-        !gNativeClimbing && gNativeBusy != 2 ? 18 : 26;
-    gWin1V = ((gNativeMenu || gNativeProgressReward || gNativeAssembly || gWin0V == 18 ? 144 : 128) << 8) | 160;
+        compactIdle ? (charging ? 26 : 18) : 26;
+    gWin1V = ((gNativeMenu || gNativeProgressReward || gNativeAssembly || compactIdle ? 144 : 128) << 8) | 160;
     gWinIn = 0x3f3f;
     gWinOut = 0x1e;
     gBldCnt = 0x00ee;
@@ -1329,7 +1331,6 @@ static void NativeHud(void) {
     while (hp >= 10) { line[17]++; hp -= 10; }
     line[18] += hp;
     NativeLabel(0, 0, line);
-    for (i = 0; i < 6; i++) if (sEnemyTasks[i] && gNativeEnemyCharge[i]) charging = 1;
     gNativeCureTarget = NativeCureTarget();
     NativeLabel(0, 8, gNativePreview ? (gNativeRouteCost < 0 ? "OUT OF REACH B CANCEL" : gNativeRouteCost == 0 ? "AT ORIGIN B CANCEL" : gNativeRouteCost > gNativeMoveLeft ? "TOO FAR B CANCEL" : gNativePreview == 3 ? "A DESCEND MOVE B CANCEL" : gNativePreview == 2 ? (sClimbPreviewDirection == DPAD_UP ? "A CLIMB B CANCEL" : "A DESCEND B CANCEL") : "A MOVE B CANCEL") : gNativeResult == 1 ? "DEFEAT SELECT RETRY" : gNativeResult == 2 ? "RUN CLEAR SELECT RETRY" : gNativeEnemyFrames ? "ENEMY TURN" : gNativeClimbing ? "CLIMB D PAD B DROP" : charging ? (gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE 48" : gNativeBossPhase == 1 ? "ONE HAND SLAM 64" : "GUARD ARMOR SLAM 80") : gNativeJafarReady ? "JAFAR SPELL 96" : gNativeCloudReady ? "CLOUD CROSS SLASH 64" : gNativeMarlReady ? (gNativeEnemyHp[0] <= 28 ? "MARLUXIA RAGE SCYTHE" : "MARLUXIA SCYTHE") : "GUARDIAN CHARGING") : card < 0 ? "EMPTY L R RELOAD" : names[gNativeDeck.kind[card]]);
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
@@ -1631,7 +1632,7 @@ static void NativeHud(void) {
         !gNativePreview && !gNativeResult && !gNativeClimbing && gNativeBusy != 2) {
         if (!gNativeMenu) {
             for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
-            gWin0V = 18;
+            gWin0V = charging ? 26 : 18;
             gWin1V = (144 << 8) | 160;
             NativeLabel(0, 0, line);
             NativeLabel(168, 0, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" :
@@ -1660,6 +1661,11 @@ static void NativeHud(void) {
         }
         turns[turnLength] = 0;
         NativeLabel(0, gNativeMenu ? 32 : 8, gNativeSaveNotice ? (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") : turns);
+        if (!gNativeMenu && charging) NativeLabel(0, 16,
+            gNativeBossReady ? (gNativeBossPhase == 2 ? "BODY STRIKE CHARGED" :
+                gNativeBossPhase == 1 ? "HAND SLAM CHARGED" : "ARMOR SLAM CHARGED") :
+            gNativeJafarReady ? "JAFAR SPELL CHARGED" : gNativeCloudReady ? "CLOUD SLASH CHARGED" :
+            gNativeMarlReady ? (gNativeEnemyHp[0] <= 28 ? "RAGE SCYTHE CHARGED" : "SCYTHE CHARGED") : "GUARDIAN CHARGED");
     }
     sHudPending = 1;
 }

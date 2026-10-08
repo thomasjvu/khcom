@@ -35,7 +35,9 @@ that hero selected. Summon cards assemble the party during setup.
 
 The normal HUD occupies 18 pixels at the top and 16 at the bottom of the
 160-pixel screen. Its turn strip lists available living party members, marks
-the controlled hero with X, then shows ENEMIES. Party actions can be taken
+the controlled hero with X, then shows ENEMIES. A charged enemy adds one
+warning row naming its windup; the header becomes26 pixels, then returns to18
+when the charge clears. Party actions can be taken
 in any order; enemies act together after End Turn. Exhausted heroes leave
 the ready list. During enemy resolution, ENEMIES comes first. Commands and
 Commands open a 40-pixel panel with six choices in two columns and the party

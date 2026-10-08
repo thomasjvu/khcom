@@ -1511,3 +1511,19 @@ Cloud recruitment/deployment, suspend/reset stage3 and native composed descent
 all required and verified. Third descent385146 in Agrabah validates the policy
 fix. ROM/driver/log hashes finalized; earlier FAIL444879 retained. Emulator
 session21328 completed its540003-frame frontend bound and exited0.
+
+## Compact charged-attack warning
+
+Native compact idle HUD previously cleared the older windup text while
+rebuilding its ready-party strip. It now adds one warning row naming charged
+Guardian/Guard Armor phases/Jafar/Cloud/Marluxia attacks. Header26 and footer16
+leave118/160 battlefield pixels clear. Turn phase strip remains; header returns
+to18 when charge clears. Charge is sampled before publishing window geometry
+to prevent intermediate-frame window mismatch.
+
+New ROM `f92bc47131331b1eb168b5b668b6e14c7ebbe8edc6c3457bb1c97c8b8b1e6a2d`: native58 checks pass (six disclosed warning/room-transition
+fixtures,26 input-only menu/save,8 input-only columns,6 turn-strip fixtures and
+12 input-only End Turn). The first warning-window mismatch was fixed and its
+evidence retained. Earlier342 checks/campaign proofs stay scoped to0.36.
+Fresh three-run session84597 and all-room/nine-chest63209 are live on exact
+new ROM. Full polish audit remains open.
