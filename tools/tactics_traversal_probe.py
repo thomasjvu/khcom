@@ -52,7 +52,9 @@ out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
 suspend_bytes = next(int(w[1],16) for line in subprocess.check_output(['arm-none-eabi-nm','-S',a.elf],text=True).splitlines() if len(w:=line.split())==4 and w[3]=='sSuspend')
 hero_count=int(re.search(r'#define FIELD_HEROES (\d+)',Path('tactics/field_roster.h').read_text())[1])
-roster_bytes=next(int(w[1],16) for line in subprocess.check_output(['arm-none-eabi-nm','-S',a.elf],text=True).splitlines() if len(w:=line.split())==4 and w[3]=='gNativeRoster')
+roster_storage_bytes=next(int(w[1],16) for line in subprocess.check_output(['arm-none-eabi-nm','-S',a.elf],text=True).splitlines() if len(w:=line.split())==4 and w[3]=='gNativeRoster')
+roster_bytes=9+6*hero_count
+if roster_bytes>roster_storage_bytes:p.error('roster semantic span exceeds ELF storage')
 header = f'local heroCount={hero_count}\nlocal rosterHpOffset={9+2*hero_count}\nlocal suspendBytes={suspend_bytes}\nlocal rosterBytes={roster_bytes}\nlocal initialRosterMask=23\nlocal composedDescent={str(a.composed_descent).lower()}\nlocal collectChests={str(a.collect_chests).lower()}\nlocal allRooms={str(a.all_rooms).lower()}\nlocal goalRuns={a.runs}\nlocal recruitAladdin={str(a.recruit_aladdin).lower()}\nlocal recruitCloud={str(a.recruit_cloud).lower()}\nlocal suspendRoom={a.suspend_room or 0}\nlocal goalRoom={a.rooms}\nlocal goalFrames={a.frames}\nlocal goalWorlds={a.worlds or 0}\n' + ''.join(f'local {key}=0x{names[key]:08x}\n' for key in keys)
 script = header + Path(
     'tests/tactics_traversal_probe.lua').read_text().replace('-- @INPUT@', Path('tests/tactics_traversal_input.lua').read_text()).replace('-- @GEOMETRY@', Path('tests/tactics_traversal_geometry.lua').read_text()).replace('-- @REGIONS@', Path('tests/tactics_traversal_regions.lua').read_text()).replace('@OUTPUT@', str(out))

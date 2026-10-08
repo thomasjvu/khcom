@@ -1912,3 +1912,26 @@ explicitly historical sections. Manifest contains every current scoped folder.
 Three-seed session72595 is live: campaign1 PASS314381 with native retry seed
 2658846982; campaign2 Aladdin recruited545435/deployed547265. No terminal
 three-campaign or process-exit claim yet.
+
+## Verified 0.41 release sign-off (October 8)
+
+Three-seed session72595 finishes its 1200000-frame bound and exits0. Campaigns
+pass314381/656291/909264, stable victories314261/656171/909144. Each verifies all36
+rooms/nine chests, both recruits/deployment, native suspend/reset and composed
+descent. Two native retries advance seeds2658846982/1018315455. Exact frozen
+ROM/driver/log hashes match; no FAIL/DRIVER_ERROR. Replay metadata and release
+manifest now certify all three campaigns.
+
+All655 scoped evidence entries were reread: exact ROM, expected PASS count,
+matching recorded driver/check hashes and actual frontend exit0. Strict C89
+ASan/UBSan host suite passes again; all15 Lua replay policy tests and Python4
+checks pass. A stale reserve mock lacked the new hero-count/HP-offset inputs;
+corrected mock passes. Roster comparisons exclude trailing C padding while
+covering every semantic field, with ELF size used as a bounds check. Native
+legacy import and six-hero corrupt-slot fallback remain verified.
+
+PLAY and PARTY-ROGUELIKE now describe the current game rather than contradictory
+historical milestones. README/build instructions select the tactics fork.
+Documentation links verified. Final 0.41 BPS (99,644 bytes) applies byte-identically
+to the unchanged fully tested ROM. Final requirements/evidence/visual/package
+audit passes; optional Aerith/Tifa and cartridge testing are explicitly scoped.

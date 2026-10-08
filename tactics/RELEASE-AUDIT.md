@@ -1,31 +1,34 @@
-# Current 0.41 development evidence
+# Verified 0.41 release
 
 The Aladdin package applies byte-identically to ROM SHA256
 `1f52bcd88993a08ef318a9ba72ea19b7c410e181a113d8911e1a040597ca519d`.
 655 scoped native checks pass, including original-party movesets, all six heroes'
 sleights, Aladdin recruitment/recovery, whole-roster saves and actual format-12
-import/rewrite/reboot. One input-only all-room campaign passes314381 with all36
-rooms/nine chests, both recruits deployed, native suspend/reset and composed
-descent; frontend exit0 verified. Three-seed regression remains running.
-See [0.41 notes](ALADDIN-0.41.md) and the exact evidence manifest under build/release.
-Final completion remains unproven until remaining regression/audit gates pass.
+import/rewrite/reboot. Three consecutive input-only campaigns pass at frames
+314381, 656291 and 909264. Every campaign verifies all 36 rooms, nine chests,
+Cloud/Aladdin recruitment and deployment, native suspend/reset and composed
+descent, then stable terminal floor/health for 120 frames. Two native retries
+advance seeds. Actual frontend exit0 and exact ROM/driver/log hashes are verified.
+Strict C89 ASan/UBSan host suite and all 15 read-only replay policy tests pass.
+See [0.41 notes](ALADDIN-0.41.md) and the exact manifest under build/release.
+The final requirement, source, evidence, visual and packaging audit passes.
 
 ## Requested behavior: current 0.41 evidence
 
 | Requirement | Current proof | Remaining gate |
 | --- | --- | --- |
-| Fork, native GBA hack and usable patch | Fork/draft PR1; reproducible native target; 99,656-byte BPS applies byte-identically | Final audit and release designation |
-| Original 2.5D world and procedural biome maps | Native renderer/collision/height; original scene/sprite/card screenshots; all 36 rooms in one completed current campaign | Three-seed sweep running |
-| Controllable Sora/Donald/Goofy with distinct movesets | Independent HP/budgets; Donald magic/healing/revival17; Goofy spin/Guard26; Party menus17; six-hero recipes72 | Final combined audit |
-| Fight/recruit Cloud and broader boss reward choices | Natural Cloud fight/recruit/deploy; two Cloud choices38; Jafar recruit/power64; natural Aladdin recruit/deploy | Three-seed sweep running |
-| Rally integrated from custom assets | Native card/roster; current cast/hurt/climb12 and eight-direction commands19; native menus/save | Final visual audit |
-| Typical tactical menus and unobtrusive UI | Single-stroke font; 18+16 idle, 40+16 Commands, 56+16 details; Party17, End Turn8+13, eight-direction commands37 | Final visual audit |
-| Visible party/enemy phase order | Actual rendered spare-row checks during Party/Attack/End Turn; exhausted/KO filtering in native source | Final combined audit |
-| Movement tiles, ledges, heights, doors and chests | Projected costs/cancel/occupancy/stairs/descent113; route/refunds33; original pad landing9; current all-room/nine-chest campaign | Three-seed sweep running |
-| Original cards, stock/sleights/reload and personal rewards | Six-hero area recipes72; reload11; personal reward14 and capped/owned choices7 | Final combined audit |
-| Varied encounters and original bosses | Seeded role/height host checks; current Guard Armor40, Jafar64, Marluxia30, Cloud38; full campaign | Three-seed sweep running |
-| Suspend and compatibility | Whole six-hero alternating/corrupt-slot checks12; actual format-12 native import/rewrite/reboot7; Aladdin save14; campaign suspend/reset | Three-seed retry/reset coverage running |
-| Complete-run emulator verification | Current input-only all 36 rooms/nine chests/both recruits/suspend/descent PASS314381, actual frontend exit0 | Three-seed sweep running |
+| Fork, native GBA hack and usable patch | Fork/draft PR1; reproducible native target; 99,644-byte BPS applies byte-identically | PASS: verified patch and current instructions |
+| Original 2.5D world and procedural biome maps | Native renderer/collision/height; original scene/sprite/card screenshots; all 36 rooms in three complete current campaigns | PASS: three complete current campaigns |
+| Controllable Sora/Donald/Goofy with distinct movesets | Independent HP/budgets; Donald magic/healing/revival17; Goofy spin/Guard26; Party menus17; six-hero recipes72 | PASS: current source and exact-build checks audited |
+| Fight/recruit Cloud and broader boss reward choices | Natural Cloud fight/recruit/deploy; two Cloud choices38; Jafar recruit/power64; natural Aladdin recruit/deploy | PASS: three complete current campaigns |
+| Rally integrated from custom assets | Native card/roster; current cast/hurt/climb12 and eight-direction commands19; native menus/save | PASS: current native captures inspected |
+| Typical tactical menus and unobtrusive UI | Single-stroke font; 18+16 idle, 40+16 Commands, 56+16 details; Party17, End Turn8+13, eight-direction commands37 | PASS: current native captures inspected |
+| Visible party/enemy phase order | Actual rendered spare-row checks during Party/Attack/End Turn; exhausted/KO filtering in native source | PASS: current source and exact-build checks audited |
+| Movement tiles, ledges, heights, doors and chests | Projected costs/cancel/occupancy/stairs/descent113; route/refunds33; original pad landing9; three current all-room/nine-chest campaigns | PASS: three complete current campaigns |
+| Original cards, stock/sleights/reload and personal rewards | Six-hero area recipes72; reload11; personal reward14 and capped/owned choices7 | PASS: current source and exact-build checks audited |
+| Varied encounters and original bosses | Seeded role/height host checks; current Guard Armor40, Jafar64, Marluxia30, Cloud38; three complete campaigns | PASS: three complete current campaigns |
+| Suspend and compatibility | Whole six-hero alternating/corrupt-slot checks12; actual format-12 native import/rewrite/reboot7; Aladdin save14; campaign suspend/reset | PASS: three campaigns and two native retries verified |
+| Complete-run emulator verification | Current input-only all 36 rooms/nine chests/both recruits/suspend/descent PASS314381/656291/909264, actual frontend exit0 | PASS: three complete current campaigns |
 
 Aerith/Tifa were optional suggestions. Aerith resources exist; no Tifa resources
 were found. Neither is implemented. Cloud and Aladdin provide verified recruitable

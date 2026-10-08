@@ -1,333 +1,183 @@
-# Play KH Tactics: native party build
+# Play KH Tactics 0.41
 
-Build with `configure.py --tactics` and open `build/tactics-us/kh_tactics.gba`
-in mGBA. The ROM uses CoM's native 2.5D field engine, original actors, world
-tiles, card pictures, value digits, chests and doors.
+Apply the [release patch](ALADDIN-0.41.md) to the supported US game, or follow
+[build instructions](BUILD.md), then open the resulting ROM in mGBA. Gameplay
+uses the original 2.5D field engine: procedural rooms retain native sprites,
+scenery, height, collision, doors, chests, climbing and jumping.
+
+Choose your party at room entry, deploy with A, then use Select to open Commands.
+Move, Attack, Skills, Party, End Turn and Suspend have contextual menus. B backs
+out before confirmation. Party actions can be taken in any order; End Turn
+begins the enemy phase and then refreshes the party's turn resources.
+
+## Controls
 
 | Button | Action |
 | --- | --- |
-| D-pad | Commit a short movement step; adjacent directions allow diagonals |
-| L + D-pad | Open a projected walking route preview; D-pad moves the cursor, A confirms, B cancels |
-| Select | Open Commands: Move, Attack, Skills, Party, End Turn, Suspend |
-| L + Select | Cycle deployed heroes; each retains movement/action budgets |
-| L / R | Select the previous/next card in the five-card hand |
-| R + B with Fire or Cure selected | Cycle eligible enemies or party members without spending cards or turn budgets |
-| L + A | Stock the selected card; stock three, then release L and press A for a sleight |
-| L + B | Return stocked cards to the deck without exhaustion |
-| A | Play the selected card from the active member's position |
-| B | Commit a full-height native jump; combine with a direction for a moving jump |
-| L + Up/Down on stairs | Preview a height route; R toggles the landing-floor cursor, A confirms, B cancels |
-| D-pad on stairs | Climb/descend one 16-pixel level for one movement point |
-| B on stairs | Drop using native physics, spending the action |
-| D-pad / B while hanging | Climb / drop using native ledge physics |
-| L + R | Reload discarded cards, spending the active member's action |
-| Start | End the whole party turn; every enemy resolves one decision |
-| Start + Select | Suspend while idle; the next boot automatically resumes |
-| Select after defeat/run clear | Start a new run with a new seed |
+| Select | Open Commands |
+| D-pad | Commit one short movement step; adjacent directions allow diagonals |
+| L + D-pad | Open a walking preview; D-pad selects a destination, A confirms, B cancels |
+| R + D-pad while grounded | Face any of eight directions without spending resources |
+| L + Select | Cycle living deployed heroes while grounded |
+| L / R | Select a card in the five-card hand |
+| A | Play the selected card from the controlled hero's position |
+| R + B | Cycle eligible Fire/Cure targets, or Cloud/Aladdin sword targets |
+| L + A | Stock a card; stock three, release L, then A executes a sleight |
+| L + B | Cancel stock without exhausting cards |
+| L + R | Reload discarded cards for one action |
+| B | Native jump; combine with a direction for a moving jump |
+| D-pad while attached to stairs | Climb/descend one level for one movement |
+| L + Up/Down while attached | Open a height-route preview |
+| R during attached height preview | Toggle the landing-floor cursor for descent plus walking |
+| B while attached, outside a preview | Drop using native physics for one action |
+| Select while hanging from a ledge | Open Climb/Drop; A confirms, B closes |
+| Start | Immediately end the whole party turn |
+| Start + Select while idle | Suspend; next boot resumes automatically |
+| Select after defeat or run clear | Begin a new run with a new seed |
 
-During round setup, L/R highlights a deployed slot and Up/Down changes its
-character among the unlocked roster. Original character cards identify the
-party. The header shows the highlighted hero's own health, movement and action
-resources; the next line shows their power bonus and owned KEY/FIR/CUR sleight
-bonuses (4 means the matching recipe has its personal enhancement). The footer
-explains the highlighted character's role. A confirms the party and begins with
-that hero selected. Summon cards assemble the party during setup.
+Holding a direction commits one command. Release and press again to make the
+next step. In Commands → Move, R opens Jump confirmation while grounded. In
+Skills, Down opens Reload when nothing is stocked; with stocked cards, it
+clears the stock first. Commands → Party highlights a deployed hero with
+Up/Down; A takes control and B returns without switching.
 
-The normal HUD occupies 18 pixels at the top and 16 at the bottom of the
-160-pixel screen. Its turn strip lists available living party members, marks
-the controlled hero with X, then shows ENEMIES. A charged enemy adds one
-warning row naming its windup; the header becomes26 pixels, then returns to18
-when the charge clears. Party actions can be taken
-in any order; enemies act together after End Turn. Exhausted heroes leave
-the ready list. During enemy resolution, ENEMIES comes first. Commands open a 40-pixel panel with six choices in two columns and the party
-phase order underneath. Left/Right switches columns on the same row; Up/Down
-cycles the six choices. This leaves 104 of 160 pixels of battlefield
-unobscured. Detailed confirmations, assembly and rewards use a 56-pixel
-contextual panel; B backs out before confirmation. The ready-party/enemy strip stays visible in the spare row of detailed Attack, Jump, Party, Reload and End Turn confirmations without expanding the panel.
+## Party and turn information
 
-Each member has three movement points and one action per turn. A jump consumes
-an action and a directional jump also consumes movement. Holding a direction
-commits one command; release and press again for the next. A completely blocked
-step refunds its movement point. Sora has 80 HP, Donald 56 and Goofy 72. Sora
-falling ends the run. Knocked-out friends are skipped by selection until
-Cure, a chest, or the rest after a world boss revives them. Open Commands →
-End Turn to inspect all three health pools, remaining movement/actions and
-expected incoming damage before confirming. HIT is expected damage. This
-estimate uses current positions;
-later enemies can retarget if an earlier attack knocks out a member.
+Sora occupies the leader slot. Two companion slots can hold unlocked Donald,
+Goofy, Cloud, Rally or Aladdin. During PARTY SETUP, L/R selects a slot and
+Up/Down changes its character. Choosing an already deployed companion swaps
+the two slots. A/Start deploys and controls the highlighted living hero.
+Original character cards identify the party; they are used for assembly and
+recruitment rather than combat summons. Resuming an active battle skips setup.
 
-Walking previews show movement costs using the original card-value digits on
-native field surfaces. A route charges one point per 16-pixel horizontal or
-8-pixel vertical segment, or one combined 16-by-8-pixel diagonal. Diagonal
-segments use native diagonal movement and check the floor footprint at quarter
-intervals. The planner exposes only routes within the remaining movement
-budget; a destination without an affordable route cannot be confirmed.
-The original player controller walks each segment; it stops if
-collision prevents progress and refunds segments that never started. Preview
-walking stays on the current floor level, allows safe upper ledges above void,
-and avoids occupied destinations and solid props. Preview costs update as
-native prop colliders change. Unchanged previews are cached to keep cursor
-input responsive; A always revalidates collision before committing movement.
-Entering stairs through a movement step attaches the native climbing
-controller. Holding a direction still commits only one segment. You can end
-a turn while attached to recover movement; L+Select party switching is disabled until landing
-so another party member cannot inherit the stair controller’s target.
-While attached, L+Up/Down opens a height cursor for up to three segments.
-R switches to a floor cursor around the predicted landing; D-pad selects a
-reachable tile and A descends and continues walking as one route. Diamonds
-show affordable floor destinations and original digits show the combined cost.
-R returns to height selection. B cancels either preview without spending turn
-resources. Execution uses the original stair and walking controllers, charges
-each segment once, and revalidates the landing before walking onward.
+| Hero | HP | Distinct abilities |
+| --- | --- | --- |
+| Sora | 80 | Original Keyblade swings and field sleights |
+| Donald | 56 | Ranged attack magic; Cure and healing sleights gain eight recovery |
+| Goofy | 72 | Attack-card shield spin; stronger party Guard |
+| Cloud | 72 | Targeted sword slash: 12 + value + power, search radius 64 |
+| Rally | 64 | Close strike; Cure and healing sleights gain four recovery |
+| Aladdin | 60 | Targeted sword skirmish: 9 + value + power, search radius 48; a hit restores one movement |
 
-A B press commits the full native ascent even if released immediately. A moving
-jump spends one action and one movement point; its directional input stops at
-32 pixels of weighted world-space travel (horizontal distance plus twice depth).
-Native collision and landing remain authoritative. With no movement left, B
-performs a stationary jump. Catching stairs hands off to the budgeted stair
-controller and clears the airborne flag.
+Each hero has three movement points and one action per turn. Health, movement,
+actions, facing, power and sleight upgrades follow identity when switched or
+benched. Switching never refills resources. Aladdin's recovery is capped at
+three movement; misses and card breaks grant none. Targeted sword searches
+use Manhattan distance strictly below their radius and a 24-pixel height limit.
 
-Use B jump/climb controls for other height changes. Walking into stairs and
-jumping between levels still use separate commands; descent followed by walking
-can be composed from an attached stair.
+The normal HUD uses 18 pixels at the top and 16 at the bottom of the 160-pixel
+screen. Its strip lists living heroes who can still act, marks the controlled
+hero with X, then shows the enemy phase. During enemy resolution, ENEMIES comes
+first. This represents free party ordering, not fixed initiative. Charged
+attacks add one warning row. Commands use a 40-pixel top panel; detailed menus,
+assembly and rewards use 56 pixels. The phase strip remains visible in detailed
+Attack, Jump, Party, Reload and End Turn confirmations.
 
-The shared deck starts with twelve cards. The hand contains up to five cards;
-playing a card discards it and draws a replacement. L+R reloads discarded cards.
-When three cards are stocked, the HUD previews their combined value and effect
-(KEY, FIR, CUR, or GRD) before A commits the sleight. Inspecting this preview
-does not spend cards or an action.
+End Turn confirmation shows each deployed hero's HP, movement, action and
+expected incoming damage. The forecast uses current positions; later enemies
+can retarget if an earlier attack knocks someone out. Sora falling ends the
+run. Knocked-out companions cannot take turns; Cure, chest healing or the rest
+at a world transition can revive them.
 
-A sleight combines three card values. The most frequent type chooses the
-result (ties favor Kingdom Key, then Fire, Cure and Guard): an area melee
-attack, an area Fire attack, party-wide Cure, or full Guard. It costs one
-action. The first stocked card is exhausted for the run; the other two enter
-discard. Stocked cards use original card pictures and survive suspend/resume.
+## Movement, height and interactions
 
-Kingdom Key uses the original sword hitbox, Fire strikes the nearest enemy within
-range and height limits, Cure heals the most injured nearby member (including knocked-out friends), and Guard reduces the next enemy phase's
-damage. Donald gets a Cure/Fire bonus; Goofy gets stronger Guard. Donald's cast
-and Goofy's guard use original animation assets. Zero cards bypass the value
-check with weaker melee damage. Values below an enemy's threshold are broken.
+Walking previews outline affordable destinations on native terrain. Original
+number sprites show route costs. A segment costs one movement for 16 pixels
+horizontally, eight pixels in depth, or a combined diagonal. Collision,
+occupancy, solid props and current floor height constrain the route. A
+revalidates it before commitment. Native physics executes each segment;
+completely blocked steps and segments that never start are refunded.
 
-Walk through doors to explore twelve generated rooms per world, including side
-branches. Ordinary door travel preserves the current party turn.
-Backtracking gives no free movement, actions or Guard reset. Completing a world
-boss and entering the next world fully heals all recruited characters, including
-benched heroes, and refreshes movement/actions. Strike chests with
-a Kingdom Key card to open them. Choose among three seeded cards with L/R or
-Left/Right, then confirm with A. The selected card joins the deck and every
-party member heals 12 HP. At the 24-card limit, A grants healing only. Finish
-the reward choice before using field commands or suspend. Confirmed cards,
-healing and opened chests survive suspend/resume; an unconfirmed choice has
-not been saved. Chest flags and room enemy
-counts persist. World groups mix Shadow, ranged Red Nocturne, Darkball and
-Black Fungus. Regular cohorts use two enemy palettes per room, with room seeds varying the pair. Optional props use a limited palette budget so party, card art and value digits can remain visible. Traverse Town room 7 has a solo Guard Armor with 40 HP, rendered
-using its original seven animated sprite components. A charged slam raises its hands and crouches; impact lowers the hands before returning to idle. Its warned slam reaches
-80 pixels for 10 damage. At 26 HP the far hand breaks, reducing reach to 64 pixels and damage to 8. At 13 HP both hands are gone, leaving a 48-pixel body strike for 6 damage. The warning names the current attack and reach. These are custom tactics phases. Agrabah now has a solo sorcerer Jafar with 48 HP, using his original field and lamp artwork. He charges a single-target spell reaching 96 projected pixels and 32 pixels of height for 10 damage; equally reachable targets prefer Sora, then Donald, then Goofy. Moving out of reach or playing Guard defends against it. This is a custom tactics form, rather than a port of the original giant Genie battle. Castle Oblivion has solo humanoid Marluxia with 56 HP, using original battle idle, windup and scythe attack animations. Within 112 projected pixels and 32 pixels of height he spends a decision charging. His next decision sweeps all living members within 96 horizontal pixels, 16 pixels of projected depth and 24 pixels of height. The sweep deals 10 damage, increasing to 14 at 28 HP or less. Move out during the warning or play Guard. Incoming damage uses original
-value digits above threatened characters and the End Turn confirmation. The
-warning is based on current positions; it updates as the party moves.
+Walking into stairs attaches the original climbing controller. Party switching
+waits until landing. End Turn can refresh movement while attached. L+Up/Down
+selects up to three height segments; diamonds show affordable heights. R
+switches to a floor cursor at the predicted landing so descent and subsequent
+walking can be composed into one route. B cancels without dropping or spending
+resources. Execution checks the landing again before walking onward.
 
-Clear the room-7 encounter and leave through its far
-door to advance from Traverse Town to Agrabah and Castle Oblivion.
+A standing jump costs one action. A moving jump also costs one movement;
+directional input stops after 32 pixels of weighted travel, while the original
+controller completes ascent and landing. Jump confirmation shows direction,
+cost and a landing diamond when resolved, or an explicit stair attachment,
+ledge catch or unresolved forecast. An unresolved forecast does not guarantee
+a landing. Original jump-pad physics and native collision remain authoritative.
+Walking, ascent, jumping and prop departure retain their separate controls;
+attached descent can continue directly into walking.
 
-Suspend records exact party positions/budgets, enemies and their HP/positions,
-the shared deck, individual HP, every visited room encounter and seed in
-two checksummed 1,024-byte SRAM slots. Partially damaged enemies keep their
-health and positions when you backtrack. A damaged
-latest slot falls back to the older valid slot. Defeat/run clear invalidates
-suspends. This source writes save format 12, including the five-hero roster and bench
-health/budgets, and migrates formats 8–11. Saved native stair state preserves
-the controller target/facing. Format 8 initializes the starter roster; format 7
-and earlier saves are incompatible.
+Face Sora or Rally toward a chest or enemy with R+D-pad, then play a Key card.
+Sword confirmation shows damage **on a successful hit**; scenery, facing and
+the original animated hitbox still determine contact. Walk through open doors
+to travel. Sword swings beside them do not reset the generated room.
 
-This is still a development build. Three exact-ROM input-only campaigns pass
-on0.38, including recruitment, reset and native composed descent. Universal
-physical reachability, arbitrary combined jump/climb route discovery, richer
-content and final visual/balance review remain unverified or unfinished.
-Hardware validation is optional; current verification uses the native emulator. Native room
-creation gathers the party at the entry door, preserving the selected member,
-health, remaining movement/actions and Guard. Only ending a turn renews budgets.
+## Cards, sleights and rewards
 
-Open doors belong to the generated run. Sword swings beside them keep the room intact; walk through the doorway to travel.
+The shared deck starts with twelve cards and draws a hand of up to five.
+Playing discards a card and draws a replacement; Reload returns discarded cards
+for one action. Zero cards bypass the value check with weaker melee damage.
+Insufficient nonzero values break and still spend the card/action.
 
-While attached to native stairs, hold L and press Up or Down to preview the
-next sixteen-pixel vertical segment. Further Up/Down presses move the selected
-height, allowing a route of up to three segments within the remaining movement
-budget. Original value digits show the total cost; reachable diamonds mark the
-affordable heights. A confirms and the original controller animates each
-segment; B cancels without dropping. Outside a preview, B retains the normal
-drop action. Climb routes still use a separate preview from walking routes.
+Fire targets a nearby enemy within its 128-pixel search radius and 24 pixels
+of height. Cure targets the eligible member missing the most health, including
+knocked-out friends, within 96 pixels and 24 pixels of height. R+B changes the
+eligible target; original digits preview actual damage or capped recovery.
+Target selection resets on room entry or resume. Guard reduces incoming damage;
+Goofy's Guard protects the party through the complete enemy phase.
 
-Selecting Cure names its intended party member in the HUD before play. It chooses the nearby member missing the most HP, including knocked-out friends; height and range still constrain healing.
+Three stocked cards preview their combined effect before commitment. The most
+frequent type chooses melee, Fire, party Cure or full Guard; ties favor Key,
+then Fire, Cure and Guard. Three matching cards unlock TRIPLE KEY/FIRAGA
+(+6 damage), CURAGA (+8 party healing) or AEGIS (full Guard). Personal matching
+sleight enhancements add four. A sleight spends one action, exhausts its first
+card for the run, and discards the other two. Stock survives suspend/resume.
+These are custom field tactics recipes.
 
-Selecting Fire projects the expected HP loss above its nearest valid enemy using original number sprites. The HUD says FIRE NO TARGET when none is in range. The projection accounts for card-value breaks, Donald’s bonus and remaining enemy HP.
+Every second newly cleared room and every world boss offers a personal reward.
+L/R selects a deployed hero, Up/Down selects power or a Key/Fire/Cure sleight
+upgrade, and A confirms. Power adds one damage and is capped at eight. Each
+sleight enhancement can be granted once per hero. Revisited clears do not
+repeat rewards. Pending personal rewards can be suspended with Start+Select.
 
-Fire displays FIRE CARD BREAK when its selected value will be broken by the current floor’s enemy threshold. Playing it still spends the action and card; the projected HP loss is zero.
+Traverse Town's optional room-9 Cloud challenge offers his original character
+card instead of a personal upgrade. Jafar offers Aladdin's original character
+card. Up from POWER selects recruitment; A unlocks the ally. Choose them in a
+subsequent room's party setup. The regular reward leaves the ally locked.
 
-Donald and Goofy use original walking sprites while moving and return to idle
-when stopped. Casting and Guard keep their action poses. Original airborne poses follow
-native jump rise/fall states. Active party sprites stay at their physical
-positions. Rally has dedicated original hurt, cast and climb poses; companions
-use their available original-game animation assets.
+Strike chests with a Key card. Choose one of three seeded cards with L/R or
+Left/Right and confirm with A. It joins the deck and all deployed heroes recover
+12 HP. At the 24-card cap, confirmation grants healing only. Finish the chest
+choice before issuing commands or suspending.
 
-Living Donald and Goofy cast original-game shadows on their current standing
-surface. During jumps, the body rises while the shadow stays on the ground.
+## Worlds and bosses
 
-Fire defaults to the nearest enemy within 128 world-space pixels and 24 pixels
-of height. R+B selects another eligible enemy; the projected damage digits
-follow that choice, and A attacks the same enemy. An invalid choice falls back
-to the nearest eligible enemy. Target choice resets on room entry or resume.
+Each world has twelve generated rooms with side branches and reward rooms.
+Clear room 7 and leave through its far door to advance through Traverse Town,
+Agrabah and Castle Oblivion. Ordinary doors preserve movement/actions and Guard.
+World transitions fully heal all recruited heroes, revive the bench and refresh
+turn resources while preserving recruitment and upgrades.
 
-Cure normally chooses the nearby member missing the most HP. R+B chooses a
-specific nearby member, including a knocked-out friend; the named HUD target
-and actual healing use the same choice. A member outside 96 world-space
-pixels or 24 pixels of height cannot remain selected. Cure target choice is
-transient and resets on room entry or resume.
+| Encounter | Telegraph and response |
+| --- | --- |
+| Guard Armor, 40 HP | Original multipart body charges a slam. Hand breaks at 26/13 HP reduce reach from 80 to 64 to 48 pixels and damage from 10 to 8 to 6. Move out or Guard. |
+| Jafar, 48 HP | Original sorcerer/lamp poses charge a single-target spell: 96 projected pixels, 32 height, 10 damage. Leave its range or Guard. |
+| Marluxia, 56 HP | Original windup/scythe poses telegraph a party sweep: 96 horizontal pixels, 16 projected depth, 24 height. Damage rises from 10 to 14 at 28 HP. |
+| Cloud, 40 HP | Optional challenger telegraphs a sword sweep: 64 horizontal pixels, 16 projected depth, 24 height. Damage rises from 12 to 16 at 20 HP. |
 
-Cure projects original value digits above its chosen recipient to show actual
-HP recovery, capped at missing HP. Donald’s casting bonus is included. A
-full-health target shows zero; a knocked-out target shows revival HP.
+Regular encounters mix original Shadow, Red Nocturne, Darkball and Black Fungus
+roles. Their warning and damage previews update with party positions. Boss
+phases are custom tactics rules; Jafar uses his sorcerer form.
 
-With three cards stocked, attack sleights project damage digits above each
-enemy they will hit. The preview uses the attack’s area and height limits and
-caps displayed damage at the enemy’s remaining HP.
+## Suspend and verification
 
-Attached-stair previews label A as CLIMB or DESCEND according to the chosen
-direction; B cancels the preview without dropping. Budget and blocked-route
-warnings take priority over the confirm prompt.
+Two checksummed 1,024-byte SRAM slots preserve the seed, roster, party positions,
+health/budgets/facing, deck/stock, enemy positions and partial damage, visited
+rooms, chests, rewards and attached stair state. A damaged newest slot falls
+back to the older valid slot. Defeat and run clear invalidate suspends.
 
-Three matching card types unlock named field recipes: TRIPLE KEY and FIRAGA
-add 6 damage to the usual attack sleight; CURAGA adds 8 party healing. AEGIS
-labels the existing full-Guard sleight and grants the same protection as mixed
-Guard stocks. These are custom field rules, not reproductions of the original
-battle recipes. Mixed stocks retain their majority-type effect. The first
-card is still exhausted and the action cost remains one.
+Format 13 stores six heroes and imports formats 8–12 automatically. Older saves
+initialize previously unrecorded roster resources; Aladdin remains locked.
+Format 7 and earlier are incompatible. Current-build checks include an actual
+recorded format-12 resume, native upgrade save and second reboot.
 
-Cure and Curaga sleights preview capped healing above all three party
-positions, including revival HP for knocked-out friends.
-
-When the active member has spent their action, the HUD says ACT SPENT START
-TURN. Start ends the party turn; you may still use remaining movement or
-switch to another available member before doing so.
-
-Donald plays attack cards as ranged magic (128-pixel range, 24-pixel height);
-R+B cycles targets. Goofy plays attack cards as a shield spin hitting every
-enemy within 48 world pixels and 24 pixels of height. Original number sprites
-preview damage. Sora retains native Keyblade swings. Cloud uses a ranged sword slash and Rally uses a native close strike. Party
-assembly, Cloud recruitment and personal upgrades are implemented; see
-`PARTY-ROGUELIKE.md` for their design.
-
-At room entry, PARTY SETUP shows character cards. L/R selects a deployed slot;
-Up/Down cycles unlocked heroes in companion slots. Sora remains the leader.
-A or Start deploys the selected party and controls the highlighted living hero
-without spending an action. Combat and movement wait for confirmation.
-Resuming an active battle preserves the party and skips setup. Cloud becomes
-available after choosing his recruitment reward; Rally starts unlocked.
-
-Every second newly cleared encounter offers a character reward, and room-7
-bosses always offer one. L/R chooses Sora, Donald or Goofy; Up/Down chooses
-POWER PLUS 1 or a personal Key/Fire/Cure sleight enhancement; A confirms. Power
-adds one to that hero's card damage. Sleight enhancements add four to matching
-sleight damage or healing. Each enhancement can be granted once per hero; power
-is capped at eight. Revisited cleared rooms cannot grant another reward.
-Pending rewards may be suspended with Start+Select. Finish the reward before
-leaving the room. Recruit-card rewards and custom roster deployment remain work.
-
-Walking preview now outlines all reachable destinations on the original
-terrain within the selected hero's remaining movement. The cursor and numbered
-route use the same collision, occupancy and cost rules. Spent movement removes
-these outlines. This local walking overlay covers the current surface; stair
-and jump connections still use their separate controls and previews.
-
-Traverse Town's optional room 9 now has a solo 40-HP Cloud challenge. His warned
-sword sweep spans 64 horizontal pixels, 16 projected depth and 24 height. It
-deals 12 damage, rising to 16 at 20 HP or below. Defeat offers a normal power/
-sleight reward or Cloud's original summon card. At the reward, Up from POWER
-selects recruitment; A unlocks Cloud in the saved roster. Choosing regular loot
-leaves him locked. This unlock does not yet make Cloud deployable: character-slot
-mapping and the recruited party-selection UI still require implementation.
-
-Recruited Cloud is now deployable. In ROUND SETUP, L/R chooses a slot; Up/Down
-cycles its unlocked companion card. Sora remains required in slot 0. Donald,
-Goofy and Cloud can occupy either companion slot; choosing an already deployed
-hero swaps the companions. A/Start confirms and controls the selected living
-hero. Select cycles living deployed heroes during combat.
-
-Health, movement, actions, power and sleight upgrades follow character identity
-when benched or swapped. Switching slots does not refill resources. Ending a
-turn refreshes movement/actions for the roster. Cloud's attack card is a targeted
-sword slash within 64 world pixels and 24 pixels of height, for 12 plus card
-value and personal power. R+B cycles targets. Donald retains magic/healing
-bonuses and Goofy shield/protection behavior in either slot.
-
-Summon cards appear in setup and recruitment. Combat Guard now uses the original
-Guard Armor enemy-card artwork, rather than Goofy's summon card. Format-8/9
-saves migrate with default health/budgets for previously unrecorded benched
-heroes and preserve saved deployed party state.
-
-Attached stair previews outline affordable vertical destinations. Up/Down moves
-the selected height; A commits the displayed movement cost; B cancels the
-preview. With no movement left, no reachable outlines appear. The final descent
-marker includes the supporting floor and original controller's landing offset.
-The HUD shows OUT OF REACH for an unaffordable or blocked destination, with
-ROUTE X instead of a misleading zero cost. Selecting the origin spends nothing.
-
-On the ground, R + D-pad faces the active character in any of eight directions
-without moving or spending movement/action points. It preserves the selected
-card. Cancel a movement preview with B before facing. Use this to aim Sora's
-Keyblade at a chest or nearby enemy without walking past it. Sword confirmation
-shows ON HIT power, including the active hero's upgrades, or CARD BREAK NO
-DAMAGE for an insufficient nonzero value. This value describes a successful
-hit; facing, the original animated hitbox and scenery still determine contact.
-
-Current source preserves each hero's facing when switching, benching, traveling
-between rooms, or resuming a format-12 suspend. Formats8–10 migrate with each
-hero facing up; format11 preserves facing for its four original roster entries; attached stair saves retain their recorded climb direction.
-The 0.20 development patch includes per-hero facing persistence; the earlier
-0.19 patch predates it.
-
-Donald adds eight healing points to single Cure and party-healing sleights.
-His personal Cure recipe enhancement adds another four to matching three-Cure
-sleights. Recovery is capped separately at each hero's missing health, including
-revival of knocked-out companions. Original digits preview the exact recovery
-before the action and cards are spent.
-
-After landing on solid scenery, L+D-pad can preview walking across its top.
-Reachable destinations stay within the original prop footprint and preserve the
-terrain ground beneath it. Use native jump/drop movement to leave the edge;
-prop ascent and descent are not yet combined into a single preview route.
-
-In Commands → Skills, Down opens Reload when no cards are stocked. Confirm
-with A to spend one action and return discarded cards, or B to cancel. Down
-with stocked cards clears the stock first.
-
-In Commands → Move, R opens Jump confirmation while grounded. The D-pad
-chooses a cardinal/diagonal direction; A commits and B returns to Move. A
-standing jump costs one action; a moving jump costs one movement plus one
-action. The panel shows the direction and cost. It does not yet predict a
-landing tile. Stair-attached R retains its existing landing-floor toggle.
-
-Commands → End Turn shows each deployed hero's remaining movement and action
-(or KO), then asks for A to begin the enemy phase. B returns to Commands
-without advancing the turn. The direct Start shortcut remains immediate.
-
-Commands → Party opens the deployed hero list. Up/Down highlights a hero,
-showing HP, remaining movement/action or KO. A switches directly to a living
-hero while grounded; B returns without switching. L+Select remains the quick
-cycle shortcut. Switching preserves each hero's spent resources.
-
-While hanging from a ledge, press Select for Climb/Drop. Up/Down selects,
-A confirms, and B closes the menu without dropping. The jump cost is already paid.
-
-The compact field HUD shows the active hero and phase sequence. Party actions
-can be taken in any order; End Turn begins the enemy phase, then refreshes the party.
-Select opens detailed Commands. Clear rewards use Up/Down to choose and L/R to change hero.
-
-The Skills menu keeps the same ready-party strip visible as Commands. Its
-footer shows confirm/back controls and action cost, without adding HUD height.
-
-Aladdin can be recruited after defeating Jafar in Agrabah by choosing his
-character card instead of a personal upgrade. Deploy him from the next room's
-party setup. His Key skill strikes a selected nearby enemy and restores one
-movement after a successful hit, up to the usual three. His sword reaches less
-far than Cloud's; target and damage previews use the same height checks as combat.
+See [0.41 notes](ALADDIN-0.41.md) and [release audit](RELEASE-AUDIT.md) for evidence
+and verification scope. Focused fixtures and completed campaigns have different
+verification scopes; no universal guarantee for every generated seed is claimed.

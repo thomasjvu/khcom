@@ -4,8 +4,12 @@
 
 Use a local US ROM with SHA-1 `10729bd884f8fdca7a310b6d606c52e46657aa48`,
 placed at `roms/B8CE.gba`. No ROM or extracted assets are included in the repository.
-The local checkout is `/Users/area/kh-tactics`; `origin` is the fork and
-`upstream` is Pheenoh/khcom. Work is on `tactics/bootstrap`.
+Clone the tactics fork and branch before setting up dependencies:
+
+```sh
+git clone --branch tactics/bootstrap https://github.com/thomasjvu/khcom.git kh-tactics
+cd kh-tactics
+```
 
 macOS arm64 setup used here:
 
@@ -32,7 +36,7 @@ binutils 2.10 and runtime source checksums. Install gbagfx before extracting ass
 .venv/bin/python configure.py --version us
 .venv/bin/ninja
 
-# Native field prototype; validates its header and ROM capacity.
+# Native tactics game; validates its header and ROM capacity.
 .venv/bin/python configure.py --tactics
 .venv/bin/ninja
 ```
@@ -95,8 +99,8 @@ archived board alpha; do not run them against the native field target.
 ## BPS patch
 
 ```sh
-python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.41-aladdin-dev.bps --version 0.41-development
-python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.41-aladdin-dev.bps build/release/kh_tactics_aladdin_041.gba
+python3 tools/tactics_patch.py create roms/B8CE.gba build/tactics-us/kh_tactics.gba build/release/kh-tactics-0.41.bps --version 0.41
+python3 tools/tactics_patch.py apply roms/B8CE.gba build/release/kh-tactics-0.41.bps build/release/kh_tactics_041.gba
 ```
 
 Creation verifies the supported input SHA-1 and a byte-exact application

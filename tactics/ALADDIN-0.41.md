@@ -1,4 +1,4 @@
-# Aladdin 0.41 development patch
+# Aladdin 0.41 release
 
 Defeating Jafar offers Aladdin's original character card alongside personal power
 and sleight upgrades. Recruit him, then choose him during a subsequent room's
@@ -16,7 +16,7 @@ format-12 saves import automatically; Aladdin remains locked with fresh resource
 Recorded native format-12 import, native rewrite and reboot preserve old hero,
 deck, health and control state.
 
-Patch: `build/release/kh-tactics-0.41-aladdin-dev.bps` (99,656 bytes).
+Patch: `build/release/kh-tactics-0.41.bps` (99644 bytes).
 Apply to the US base SHA-1 `10729bd884f8fdca7a310b6d606c52e46657aa48` using
 [build instructions](BUILD.md). Applied ROM SHA-256:
 `1f52bcd88993a08ef318a9ba72ea19b7c410e181a113d8911e1a040597ca519d`.
@@ -31,6 +31,9 @@ from the input-only complete campaign.
 
 One complete input-only campaign passes at frame 314381 with stable terminal state, all 36
 rooms, nine chests, Cloud/Aladdin recruitment and deployment, suspend/reboot and
-composed descent. The three-seed regression is running and has not been certified.
+composed descent. Three consecutive input-only campaigns pass at frames 314381, 656291 and
+909264, with full room/chest/recruit/save/descent coverage and two verified native
+seed retries. The frontend exits successfully, with exact ROM/driver/log hashes.
 The exact evidence list is `build/release/aladdin-0.41-manifest.json`.
-This is a development package; final release audit remains open.
+The requested native tactics scope is verified in [release audit](RELEASE-AUDIT.md).
+Aerith and Tifa are not included; the recruitable allies are Cloud and Aladdin.

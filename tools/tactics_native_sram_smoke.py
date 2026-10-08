@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -15,7 +16,10 @@ keys = ('gNativeDeck', 'gNativeRoster', 'gNativePartyHealth', 'sPartyPos',
         'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeSaveNotice', 'sSaveSlot')
 out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
-roster_bytes=next(int(w[1],16) for line in subprocess.check_output(['arm-none-eabi-nm','-S',a.elf],text=True).splitlines() if len(w:=line.split())==4 and w[3]=='gNativeRoster')
+roster_storage_bytes=next(int(w[1],16) for line in subprocess.check_output(['arm-none-eabi-nm','-S',a.elf],text=True).splitlines() if len(w:=line.split())==4 and w[3]=='gNativeRoster')
+hero_count=int(re.search(r'#define FIELD_HEROES (\d+)',Path('tactics/field_roster.h').read_text())[1])
+roster_bytes=9+6*hero_count
+if roster_bytes>roster_storage_bytes:p.error('roster semantic span exceeds ELF storage')
 script = f'local rosterBytes={roster_bytes}\n'+''.join(f'local {k}=0x{names[k]:x}\n' for k in keys) + Path(
     'tests/tactics_native_sram_smoke.lua').read_text().replace('@OUTPUT@', str(out))
 (out / 'test.lua').write_text(script)
