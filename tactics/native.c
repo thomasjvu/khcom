@@ -1339,7 +1339,7 @@ static void NativeJumpPredict(void) {
     FieldJumpPoint point;
     FldPos origin, attachment;
     FieldJumpPoint overLedge, underLedge;
-    int angle, speed, frame, sine, cosine, oldX, oldY;
+    int angle, speed, frame, sine, cosine, oldX, oldY, landingFrames;
     gNativeJumpPrediction=0;
     if (gNativeMenu!=6 || gNativeBusy || !gNativeActionLeft) return;
     origin=gFieldState->actor.fieldPosition;
@@ -1364,7 +1364,9 @@ static void NativeJumpPredict(void) {
         gNativeJumpPrediction=2; return;
     }
     FieldJumpMotionInit(&motion,point.x,point.y,point.z,origin.x,origin.y,speed);
-    for (frame=0;frame<160 && motion.phase!=3;frame++) {
+    landingFrames=0;
+    for (frame=0;frame<160 && landingFrames<8;frame++) {
+        if (motion.phase==3) { motion.speed=0; landingFrames++; }
         oldX=motion.x; oldY=motion.y;
         NativeJumpContacts(&point,&contact);
         FieldJumpMotionStep(&motion,sine,cosine,gNativeDirection!=0,contact.ground);
