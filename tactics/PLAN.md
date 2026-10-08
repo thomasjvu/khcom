@@ -1510,4 +1510,4 @@ HP76; retry326105 seed1018315455; third stable victory448492 HP80. Per-run
 Cloud recruitment/deployment, suspend/reset stage3 and native composed descent
 all required and verified. Third descent385146 in Agrabah validates the policy
 fix. ROM/driver/log hashes finalized; earlier FAIL444879 retained. Emulator
-session21328 still finishes its540003-frame frontend bound after script pass.
+session21328 completed its540003-frame frontend bound and exited0.

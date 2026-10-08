@@ -25,6 +25,7 @@ Three-run revised replay PASS448492: stable victories129417 HP76,326093
 HP76 and448492 HP80, native retry seeds2658846982 and1018315455. Each run
 requires actual Cloud recruit/deploy, exact suspend/reset and composed
 descent. Third descent executes in Agrabah at385146; actual native landing
-and subsequent walking/budgets verified. ROM/driver/log hashes recorded.
+and subsequent walking/budgets verified. ROM/driver/log hashes recorded;
+emulator process exited0 after its540003-frame bound.
 The earlier failure444879 remains preserved; its policy only sought the
 descent in the starting room. Final polish audit remains open.
