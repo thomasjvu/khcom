@@ -57,6 +57,23 @@ local function pos()
  return signed(emu:read32(p+0x18)),signed(emu:read32(p+0x1c))+signed(emu:read32(p+0x20)),signed(emu:read32(p+0x20))
 end
 local function cell(x,y,z) return math.floor((x+2048)/4096)..':'..math.floor((y+1024)/2048)..':'..math.floor(z/2048) end
+local jumpAttempts={}
+-- A blocked connector may require approaching a prop from another side.
+-- Remember attempts instead of resetting the same jump forever.
+local function escapeJumpDirection(x,y,z,tx,ty)
+ local origin=cell(x,y,z)
+ local attempts=jumpAttempts[origin] or {}
+ jumpAttempts[origin]=attempts
+ local best,score
+ for _,key in ipairs(dirs) do
+  local px=x+((key&16)~=0 and 4096 or (key&32)~=0 and -4096 or 0)
+  local py=y+((key&128)~=0 and 2048 or (key&64)~=0 and -2048 or 0)
+  local value=(attempts[key] or 0)*65536+math.abs(px-tx)+2*math.abs(py-ty)
+  if not score or value<score then best,score=key,value end
+ end
+ attempts[best]=(attempts[best] or 0)+1
+ return best
+end
 local function chestGoal()
  local node=emu:read32(emu:read32(gFieldState)+0x80)
  while node~=0 do
@@ -455,7 +472,7 @@ local function replayFrame()
     routeStep=1;roomVisitMasks={0,0,0}
     observedChests=0
     composedRoutes=0;composedSelection=nil;composedApproach=nil
-    terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+120
+    terrainPlan=nil;best=nil;visits={};jumpAttempts={};index=1;phase='release';nextFrame=f+120
    else
     finish(true,'completed '..completedRuns..' three-world runs; terminal floor and Sora HP remain stable for 120 frames')
    end
@@ -472,7 +489,7 @@ local function replayFrame()
  if room~=previousRoom then
   if allRooms and room==optionalRoute[routeStep+1] then routeStep=routeStep+1 end
   out:write('ROOM '..room..' frames='..f..' hp='..emu:read8(gNativePartyHealth)..','..emu:read8(gNativePartyHealth+1)..','..emu:read8(gNativePartyHealth+2)..'\n');out:flush()
-  previousRoom=room;terrainPlan=nil;best=nil;visits={};rejectedOrigin=nil;rejectedDirections={};index=1;phase='release';nextFrame=f+60
+  previousRoom=room;terrainPlan=nil;best=nil;visits={};jumpAttempts={};rejectedOrigin=nil;rejectedDirections={};index=1;phase='release';nextFrame=f+60
   composedSelection=nil;composedApproach=nil
  end
  if emu:read16(gNativeResult)~=0 then finish(false,'run ended before traversal goal');return end
@@ -536,7 +553,7 @@ local function replayFrame()
    for i=0,5 do matches=matches and emu:read16(gNativeEnemyHp+i*2)==suspendSnapshot.enemies[i] and emu:read8(gNativeEnemyCharge+i)==suspendSnapshot.charges[i] end
    if not matches then finish(false,'resume changed party state enemy HP windups or deck');return end
    out:write('RESUME verified frame='..f..' room='..room..'\n');out:flush()
-   suspendStage=3;terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+8;return
+   suspendStage=3;terrainPlan=nil;best=nil;visits={};jumpAttempts={};index=1;phase='release';nextFrame=f+8;return
   end
  end
  if phase=='progress_release' then phase='scan';nextFrame=f+4;return end
@@ -696,7 +713,7 @@ local function replayFrame()
   end
   if (visits[cell(x,y,z)] or 0)>=3 and emu:read16(gNativeActionLeft)>0 and emu:read16(gNativeMoveLeft)>0 then
    local tx,ty=stairGoal(dx,dy,dz)
-   local key=(tx<x and 32 or 16)+(ty<y and 64 or 128)
+   local key=escapeJumpDirection(x,y,z,tx,ty)
    out:write('JUMP '..f..' '..x..' '..y..' '..z..'\n');out:flush()
    pressNative(key+2);commands=commands+1;visits[cell(x,y,z)]=0;phase='release';nextFrame=f+4;return
   end

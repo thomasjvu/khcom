@@ -1270,3 +1270,17 @@ Native20 Rally menu/deployment/suspend/reset checks PASS and setup capture
 visually inspected; original30-frame golden verifier PASS. Existing complete
 0.32 campaigns retain their exact hashes and do not prove this newer ROM.
 Two-seed job14103 remains live on its immutable pre-card ROM.
+
+
+Replay connector escape (2026-10-08): acknowledged-jump two-seed job14103
+terminal FAIL240001 at second seed Agrabah room2, position100705,65259,0.
+It reproduced the same post-clear loop; timing alone did not fix it.
+The stuck-position policy always selected the same connector diagonal and
+reset visit count, so repeated failures had no direction memory. New policy
+tracks attempted jump directions per coarse position/height, initially
+prefers the connector, then tries all eight directions before repeating;
+room changes/native retry/reset clear attempts. New read-only policy test
+checks direction coverage and separate origins/heights; all13 policy tests
+pass. An independent explicit Agrabah room2 fixture is retained against the
+new Rally-card ROM. This is replay navigation, not altered game geometry or
+forced input/memory writes. Fresh campaign validation remains required.
