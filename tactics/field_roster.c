@@ -1,14 +1,14 @@
 #include "field_roster.h"
-int FieldHeroMaxHp(int hero) {return hero==0?80:hero==1?56:hero==2||hero==3?72:0;}
+int FieldHeroMaxHp(int hero) {return hero==0?80:hero==1?56:hero==2||hero==3?72:hero==4?64:0;}
 void FieldRosterInit(FieldRoster* r) {
-    int i;r->unlocked=7;r->cleared=0;r->phase=FIELD_ASSEMBLY;r->reward=0;r->room=0;
+    int i;r->unlocked=23;r->cleared=0;r->phase=FIELD_ASSEMBLY;r->reward=0;r->room=0;
     for(i=0;i<3;i++)r->deployed[i]=i;
     for(i=0;i<FIELD_HEROES;i++){r->power[i]=0;r->sleights[i]=0;r->heroHp[i]=FieldHeroMaxHp(i);r->heroMove[i]=3;r->heroAction[i]=1;r->heroAngle[i]=0;}
 }
 int FieldRosterValid(const FieldRoster* r) {
     int i,j;
     if(r->deployed[0]!=FIELD_SORA)return 0;
-    if(!(r->unlocked&1)||r->unlocked>15||r->phase>FIELD_REWARD||r->reward>FIELD_REWARD_BOSS||r->room>=12||r->cleared>4095)return 0;
+    if(!(r->unlocked&1)||r->unlocked>31||r->phase>FIELD_REWARD||r->reward>FIELD_REWARD_BOSS||r->room>=12||r->cleared>4095)return 0;
     if((r->phase==FIELD_REWARD)!=(r->reward!=0))return 0;
     for(i=0;i<3;i++) {
         if(r->deployed[i]>=FIELD_HEROES||!(r->unlocked&(1<<r->deployed[i])))return 0;

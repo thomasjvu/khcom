@@ -273,7 +273,7 @@ if args.tactics:
         obj = f"{build_dir}/tactics/{Path(source).stem}.o"
         units.append((Path(source), obj, None))
         tactics_objects.append(obj)
-        edges.append((obj, "tactics_cc", Path(source), sorted(str(p) for p in Path("tactics").glob("*.h"))
+        edges.append((obj, "tactics_cc", Path(source), sorted(str(p) for p in Path("tactics").rglob("*.h"))
                       + ["tools/tactics_far_calls.py"]
                       + (headers + generated_headers if source == "tactics/native.c" else []), None))
 if args.tactics:

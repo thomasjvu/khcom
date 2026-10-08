@@ -44,6 +44,16 @@ int main(void) {
     s.encounters[0][0].kind=2;
     s.roomEnemies[0]=2;assert(!FieldSaveEncode(&s,1,b));
     s.roomEnemies[0]=1;s.hp=0;assert(!FieldSaveEncode(&s,1,b));
+    s.hp=64;s.party=1;s.partyHp[1]=64;s.roster.unlocked|=1<<FIELD_RALLY;
+    s.roster.deployed[1]=FIELD_RALLY;s.roster.heroHp[FIELD_RALLY]=64;
+    s.roster.power[FIELD_RALLY]=5;s.roster.sleights[FIELD_RALLY]=4;
+    s.roster.heroMove[FIELD_RALLY]=2;s.roster.heroAction[FIELD_RALLY]=0;
+    s.roster.heroAngle[FIELD_RALLY]=211;
+    assert(FieldSaveEncode(&s,9,b)&&b[4]==12&&FieldSaveDecode(&loaded,&gen,b));
+    assert(loaded.roster.deployed[1]==FIELD_RALLY&&loaded.roster.heroHp[FIELD_RALLY]==64);
+    assert(loaded.roster.power[FIELD_RALLY]==5&&loaded.roster.sleights[FIELD_RALLY]==4);
+    assert(loaded.roster.heroMove[FIELD_RALLY]==2&&loaded.roster.heroAction[FIELD_RALLY]==0);
+    assert(loaded.roster.heroAngle[FIELD_RALLY]==211);
     puts("field save: all-byte corruption, fallback, generation wrap, exact state passed");
     return 0;
 }

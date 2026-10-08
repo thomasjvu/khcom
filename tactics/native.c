@@ -39,6 +39,8 @@
 #include "field_route.h"
 #include "field_enemy.h"
 #include "display.h"
+#include "ui_font.h"
+#include "character-assets/rally/rally_data.h"
 #include "malloc.h"
 #include "gba/macro.h"
 
@@ -105,7 +107,7 @@ static ObjPalette* sPartyShadowPalette;
 u16 gNativeFriendPose[2];
 extern FieldRoster gNativeRoster;
 static u8 NativeHero(u8 slot) {return gNativeRoster.deployed[slot];}
-static const AnimDef sFriendAnims[3][5] = {
+static const AnimDef sFriendAnims[4][5] = {
     {{gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,0},
      {gDonaBtLl00Frames,gDonaBtLl00Anims,gDonaBtLl00Tiles,0},
      {gDonaFl00Frames,gDonaFl00Anims,gDonaFl00Tiles,1},
@@ -120,7 +122,12 @@ static const AnimDef sFriendAnims[3][5] = {
      {gCroud01Frames,gCroud01Anims,gCroud01Tiles,2},
      {gCroudBt01Frames,gCroudBt01Anims,gCroudBt01Tiles,0},
      {gCroudBt02Frames,gCroudBt02Anims,gCroudBt02Tiles,0},
-     {gCroudBt02Frames,gCroudBt02Anims,gCroudBt02Tiles,0}}
+     {gCroudBt02Frames,gCroudBt02Anims,gCroudBt02Tiles,0}},
+    {{(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,0},
+     {(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,1},
+     {(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,2},
+     {(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,3},
+     {(void*)sRallyFrames,(void*)sRallyAnims,(void*)sRallyTiles,4}}
 
 };
 static void NativePartyPose(u8 member) {
@@ -577,7 +584,7 @@ static void NativeFriendsInit(void) {
         }
         sFriends[i].tiles = AllocObjTiles(size, defs[0].tiles);
         sFriends[i].palette = LoadObjPalette(hero == FIELD_DONALD ? gDonaldPalette :
-            hero == FIELD_GOOFY ? gGoofyPalette : gCroudPalette, 32);
+            hero == FIELD_GOOFY ? gGoofyPalette : hero == FIELD_RALLY ? sRallyPalette : gCroudPalette, 32);
         AnimInit(&sFriends[i].anim, defs[0].anims, defs[0].gfxTable);
         AnimStart(&sFriends[i].anim, defs[0].animId, ANIM_FLAG_LOOP);
         sFriends[i].pose = sFriends[i].timer = sFriends[i].facing = 0;
@@ -701,6 +708,7 @@ static const CardDef* NativeHeroCard(u8 hero) {
     u16 i;
     u16 kind = hero == FIELD_DONALD ? CARD_KIND_DONALD_DUCK :
         hero == FIELD_GOOFY ? CARD_KIND_GOOFY : CARD_KIND_CLOUD;
+    if (hero == FIELD_RALLY) return NULL;
     for (i = 0; i < 950; i++) if (gCardDefs[i].kind == kind && gCardDefs[i].value == 5) return &gCardDefs[i];
     return NULL;
 }
@@ -737,8 +745,8 @@ static void NativeAssemblyCycle(int direction) {
     if (!sAssemblyChoice) return;
     NativeRosterSync();
     hero = NativeHero(sAssemblyChoice);
-    for (step = 0; step < 3; step++) {
-        hero = 1 + (hero - 1 + (direction > 0 ? 1 : 2)) % 3;
+    for (step = 0; step < FIELD_HEROES - 1; step++) {
+        hero = 1 + (hero - 1 + (direction > 0 ? 1 : FIELD_HEROES - 2)) % (FIELD_HEROES - 1);
         if (gNativeRoster.unlocked & (1 << hero)) break;
     }
     if (FieldRosterDeploy(&gNativeRoster, sAssemblyChoice, hero)) {
@@ -772,6 +780,10 @@ static void NativeAssemblyDraw(void) {
         card = i == 1 ? sAssemblyDonald : i == 2 ? sAssemblyOther : sCards[0];
         tiles = i == 1 ? sAssemblyTiles : i == 2 ? sAssemblyOtherTiles : sCardTiles[0];
         palette = i == 1 ? sAssemblyPalette : i == 2 ? sAssemblyOtherPalette : sCardPalettes[0];
+        if (i && NativeHero(i) == FIELD_RALLY)
+            DrawSprite(68 + i * 52, i == sAssemblyChoice ? 92 : 105,
+                (void*)sRallyFrames[0], sFriends[i - 1].tiles,
+                sFriends[i - 1].palette, NULL, 0, 1);
         if (card && tiles && palette) DrawSprite(68 + i * 52, i == sAssemblyChoice ? 65 : 78,
             card->gfx2, tiles, palette, NULL, 0, 1);
     }
@@ -1086,7 +1098,7 @@ static const u16 sHudPalette[16] = {
     0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff
 };
 extern void MapEnmSetAnim(MapEnmWork* work, u8 index, u16 flags);
-extern u8 gDebugFont0Tiles[];
+u16 gNativeMenu, gNativeMenuChoice;
 static u32* sHudTiles;
 static u16* sHudScreen;
 static volatile u8 sHudPending;
@@ -1095,25 +1107,23 @@ static void (*sPreviousVBlank)();
 static void NativeLabel(u8 x, u8 y, const char* text) {
     int tile = (y / 8) * 32 + x / 8 + 1;
     int column = x / 8;
-    int row = y == 24 ? 19 : y == 32 ? 18 : y / 8;
+    int row = gNativeMenu ? y / 8 : y == 24 ? 19 : y == 32 ? 18 : y / 8;
     int glyph, i;
     u32 pixels;
-    const u32* source;
+    int pixel;
     if (!sHudTiles || !sHudScreen) return;
     /* A shorter replacement prompt must erase the prior label tail. The
      * reserved blank tile is shared; later labels can still fill this row. */
     for (i = column; i < 30; i++) sHudScreen[row * 32 + i] = 0xf000;
-    while (*text && column < 30 && tile < 161) {
-        glyph = *text == ' ' ? 0 : *text >= '0' && *text <= '9' ?
-            *text - '0' + 0x40 : *text - 'A' + 0x60;
-        source = (const u32*)(gDebugFont0Tiles + glyph * 32);
+    while (*text && column < 30 && tile < 225) {
+        glyph = *text >= '0' && *text <= '9' ? *text - '0' + 1 :
+            *text >= 'A' && *text <= 'Z' ? *text - 'A' + 11 : 0;
         for (i = 0; i < 8; i++) {
-            pixels = source[i];
-            /* The debug font uses F for ink and D for its drop shadow.
-             * Folding every nonzero nibble into ink fills digit counters and
-             * makes different resource values look like zero. Keep only F. */
-            pixels = (pixels & (pixels >> 1) & (pixels >> 2) & (pixels >> 3)) & 0x11111111;
-            sHudTiles[tile * 8 + i] = 0x11111111 | (pixels << 1);
+            pixels = 0x11111111;
+            if (i < 7) for (pixel = 0; pixel < 5; pixel++)
+                if (sUiGlyphs[glyph][i] & (1 << (4 - pixel)))
+                    pixels |= 2 << ((pixel + 1) * 4);
+            sHudTiles[tile * 8 + i] = pixels;
         }
         sHudScreen[row * 32 + column] = tile | 0xf000;
         text++; column++; tile++;
@@ -1125,7 +1135,7 @@ static void NativeHudUpload(void) {
     if (REG_VCOUNT < 160 || REG_VCOUNT > 208) return;
     /* Upload after the original VBlank display transfer. No visible-frame
      * VRAM writes, and the font stays within its 16 KiB BG character bank. */
-    CpuFastCopy(sHudTiles, GetBgCharBase(0), 161 * 32);
+    CpuFastCopy(sHudTiles, GetBgCharBase(0), 225 * 32);
     CpuFastCopy(sHudScreen, GetBgScreenBase(0), 2048);
     sHudPending = 0;
 }
@@ -1241,7 +1251,7 @@ static void NativeHud(void) {
      * pending at the next draw can otherwise starve uploads indefinitely. */
     if (!sHudTiles || !sHudScreen || sHudPending) return;
     for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
-    for (i = 0; i < 161 * 8; i++) sHudTiles[i] = 0x11111111;
+    for (i = 0; i < 225 * 8; i++) sHudTiles[i] = 0x11111111;
     /* Darken only the scenery under the HUD; card and actor OBJ art stays
      * full color. Outside these two windows the field has no blend effect. */
     gDispCnt |= 0x6000;
@@ -1266,7 +1276,7 @@ static void NativeHud(void) {
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_CURE)
         NativeLabel(0, 8, NativeHero(gNativeCureTarget) == FIELD_SORA ? "CURE SORA A PLAY" :
-            NativeHero(gNativeCureTarget) == FIELD_DONALD ? "CURE DONALD A PLAY" : NativeHero(gNativeCureTarget) == FIELD_GOOFY ? "CURE GOOFY A PLAY" : "CURE CLOUD A PLAY");
+            NativeHero(gNativeCureTarget) == FIELD_DONALD ? "CURE DONALD A PLAY" : NativeHero(gNativeCureTarget) == FIELD_GOOFY ? "CURE GOOFY A PLAY" : NativeHero(gNativeCureTarget) == FIELD_RALLY ? "CURE RALLY A PLAY" : "CURE CLOUD A PLAY");
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames &&
         !gNativeClimbing && !charging && card >= 0 && !gNativeDeck.stocked &&
         gNativeDeck.kind[card] == FIELD_CARD_FIRE && gNativeActionLeft)
@@ -1274,7 +1284,7 @@ static void NativeHud(void) {
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames && !gNativeClimbing &&
         !charging && card >= 0 && !gNativeDeck.stocked && gNativeActionLeft &&
         gNativeDeck.kind[card] == FIELD_CARD_KEY && gNativeParty)
-        NativeLabel(0, 8, NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD MAGIC R B A" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY SPIN A PLAY" : "CLOUD SLASH R B A");
+        NativeLabel(0, 8, NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD MAGIC R B A" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY SPIN A PLAY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY STRIKE A PLAY" : "CLOUD SLASH R B A");
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
@@ -1284,9 +1294,9 @@ static void NativeHud(void) {
         route[13] += gNativeMoveLeft;
         NativeLabel(0, 16, route);
     } else NativeLabel(0, 16, location);
-    NativeLabel(128, 16, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : "CLOUD");
+    NativeLabel(128, 16, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : "CLOUD");
     for (i = 0; i < 3; i++) {
-        health[i * 4] = threat[5 + i * 4] = NativeHero(i) == FIELD_SORA ? 'S' : NativeHero(i) == FIELD_DONALD ? 'D' : NativeHero(i) == FIELD_GOOFY ? 'G' : 'C';
+        health[i * 4] = threat[5 + i * 4] = NativeHero(i) == FIELD_SORA ? 'S' : NativeHero(i) == FIELD_DONALD ? 'D' : NativeHero(i) == FIELD_GOOFY ? 'G' : NativeHero(i) == FIELD_RALLY ? 'R' : 'C';
         health[1 + i * 4] = '0' + gNativePartyHealth.hp[i] / 10;
         health[2 + i * 4] = '0' + gNativePartyHealth.hp[i] % 10;
     }
@@ -1331,7 +1341,7 @@ static void NativeHud(void) {
             NativeLabel(0,16,bonuses);
             NativeLabel(0,32,hero==FIELD_SORA ? "SORA KEYBLADE CLOSE RANGE" :
                 hero==FIELD_DONALD ? "DONALD MAGIC CURE BONUS" :
-                hero==FIELD_GOOFY ? "GOOFY SPIN SHIELD GUARD" : "CLOUD SWORD TARGET RANGE 64");
+                hero==FIELD_GOOFY ? "GOOFY SPIN SHIELD GUARD" : hero==FIELD_RALLY ? "RALLY MELEE CURE PLUS 4" : "CLOUD SWORD TARGET RANGE 64");
         }
     }
     if (gNativeProgressReward) {
@@ -1340,7 +1350,7 @@ static void NativeHud(void) {
             sProgressKind == 1 ? "KEY SLEIGHT PLUS 4" :
             sProgressKind == 2 ? "FIRE SLEIGHT PLUS 4" : "CURE SLEIGHT PLUS 4");
         NativeLabel(0, 32, NativeHero(sProgressHero) == FIELD_SORA ? "SORA UP DOWN CHOOSE" :
-            NativeHero(sProgressHero) == FIELD_DONALD ? "DONALD UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_GOOFY ? "GOOFY UP DOWN CHOOSE" : "CLOUD UP DOWN CHOOSE");
+            NativeHero(sProgressHero) == FIELD_DONALD ? "DONALD UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_GOOFY ? "GOOFY UP DOWN CHOOSE" : NativeHero(sProgressHero) == FIELD_RALLY ? "RALLY UP DOWN CHOOSE" : "CLOUD UP DOWN CHOOSE");
         if (sProgressKind == 0 && gNativeRoster.power[NativeHero(sProgressHero)] >= 8)
             NativeLabel(0, 8, "POWER MAX CHANGE HERO");
         else if (sProgressKind > 0 && sProgressKind < 4 &&
@@ -1352,6 +1362,22 @@ static void NativeHud(void) {
         NativeLabel(0, 8, "CLOUD RECRUIT A");
         NativeLabel(0, 24, "UNLOCK CLOUD CARD");
         NativeLabel(0, 32, "POWER OR RECRUIT");
+    }
+    if (!gNativeMenu && !gNativeAssembly && !gNativePreview && !gNativeProgressReward &&
+        !gNativeReward && !gNativeEnemyFrames && !gNativeResult && !gNativeSaveNotice)
+        NativeLabel(0, 32, "R SELECT COMMANDS");
+    if (gNativeMenu) {
+        static const char* const commands[6] = {"MOVE", "ATTACK", "SKILLS", "PARTY", "END TURN", "SUSPEND"};
+        gWin0V = 64;
+        for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
+        NativeLabel(0, 0, gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A USE" : "COMMANDS  UP DOWN A  B BACK");
+        if (gNativeMenu == 2) {
+            NativeLabel(0, 16, card < 0 ? "NO CARDS  L R RELOAD" : names[gNativeDeck.kind[card]]);
+            NativeLabel(0, 32, "B BACK  L R CARD");
+        } else for (i = 0; i < 6; i++) {
+            NativeLabel(0, (i + 1) * 8, i == gNativeMenuChoice ? "X" : " ");
+            NativeLabel(16, (i + 1) * 8, commands[i]);
+        }
     }
     sHudPending = 1;
 }
@@ -1423,6 +1449,7 @@ static void NativeInit(s32 arg) {
     sFrames = 0;
     sAttack = 0;
     gNativePreview = 0;
+    gNativeMenu = gNativeMenuChoice = 0;
     gNativeClimbReachMask = 0;
     sPathLength = 0;
     sAssemblyResume = sResume;
@@ -1525,7 +1552,7 @@ static void NativeInit(s32 arg) {
     NativeAssemblyInit();
     NativeRecruitInit();
     sHudPending = 0;
-    sHudTiles = EwramAlloc(161 * 32);
+    sHudTiles = EwramAlloc(225 * 32);
     sHudScreen = EwramAlloc(2048);
     DebugTextInit(0, 0x2000, 0x800);
     DebugTextLoadPalette(0, sHudPalette, 32, 15);
@@ -2354,7 +2381,7 @@ static void NativeCycleCureTarget(void) {
     }
 }
 static u16 NativeCureRecovery(u8 target, u8 value) {
-    u16 amount = 8 + value + (NativeHero(gNativeParty) == FIELD_DONALD ? 8 : 0);
+    u16 amount = 8 + value + (NativeHero(gNativeParty) == FIELD_DONALD ? 8 : NativeHero(gNativeParty) == FIELD_RALLY ? 4 : 0);
     u16 missing = gNativePartyHealth.maxHp[target] - gNativePartyHealth.hp[target];
     return amount < missing ? amount : missing;
 }
@@ -2368,7 +2395,7 @@ u16 gNativeSleightDamage[6];
 u16 gNativeSleightHeal[3];
 static u16 NativeSleightRecovery(u8 member, int value, int recipe) {
     u16 amount = 12 + value + (recipe ? 8 : 0) +
-        (NativeHero(gNativeParty) == FIELD_DONALD ? 8 : 0) +
+        (NativeHero(gNativeParty) == FIELD_DONALD ? 8 : NativeHero(gNativeParty) == FIELD_RALLY ? 4 : 0) +
         (recipe && (gNativeRoster.sleights[NativeHero(gNativeParty)] & 4) ? 4 : 0);
     u16 missing = gNativePartyHealth.maxHp[member] - gNativePartyHealth.hp[member];
     return amount < missing ? amount : missing;
@@ -2525,6 +2552,40 @@ static void NativeUpdate(void) {
     }
     if (!gNativeProgressReward && !gNativeAssembly && !gNativeReward && !gNativeResult && !gNativeBusy && !gNativeEnemyFrames &&
         !(gFieldState->flags & (FIELD_FLAG_FREEZE_PLAYER | FIELD_FLAG_ROOM_CREATE))) {
+        /* The command panel shares the authoritative native actions and
+         * budgets with shortcuts. Menu navigation never commits a field step. */
+        if (!gNativePreview && (raw & R_BUTTON) && (pressed & SELECT_BUTTON)) {
+            gNativeMenu = gNativeMenu ? 0 : 1;
+            pressed = 0;
+        } else if (gNativeMenu) {
+            if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 2 ? 1 : 0;pressed = 0;}
+            else if (gNativeMenu == 2) {
+                if (pressed & (DPAD_LEFT | L_BUTTON)) FieldDeckCycle(&gNativeDeck, -1);
+                if (pressed & (DPAD_RIGHT | R_BUTTON)) FieldDeckCycle(&gNativeDeck, 1);
+                if (pressed & A_BUTTON) {gNativeMenu = 0;raw = pressed = A_BUTTON;}
+                else pressed = 0;
+            } else if (pressed & A_BUTTON) {
+                u16 command = gNativeMenuChoice;
+                gNativeMenu = 0;
+                if (command == 0) {NativePreviewInput(0);pressed = 0;}
+                else if (command == 1) {
+                    u8 n;
+                    for (n = 0; n < 5; n++) {
+                        int card = FieldDeckHand(&gNativeDeck, gNativeDeck.selected);
+                        if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY) break;
+                        FieldDeckCycle(&gNativeDeck, 1);
+                    }
+                    raw = pressed = n < 5 ? A_BUTTON : 0;
+                } else if (command == 2) {gNativeMenu = 2;pressed = 0;}
+                else if (command == 3) {NativePartySelect();pressed = 0;}
+                else if (command == 4) raw = pressed = START_BUTTON;
+                else {NativeWriteSuspend();pressed = 0;}
+            } else {
+                if (pressed & DPAD_UP) gNativeMenuChoice = (gNativeMenuChoice + 5) % 6;
+                else if (pressed & DPAD_DOWN) gNativeMenuChoice = (gNativeMenuChoice + 1) % 6;
+                pressed = 0;
+            }
+        }
         if (gNativePreview || ((raw & L_BUTTON) && (pressed & DPAD_ANY) &&
             (player->state == FLD_STATE_GROUND || player->state == FLD_STATE_CLIMB))) {
             NativePreviewInput(pressed);

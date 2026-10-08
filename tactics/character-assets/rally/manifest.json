@@ -1,0 +1,19 @@
+{
+  "name": "Rally",
+  "source": "tactics/character-assets/pink-ponytail/starter-sheet-v2.png",
+  "source_sha256": "8fb41e90ee10b8cc439d5cbe3dc8b10fc78d359b8a2ce60e0bc6d36b280875b8",
+  "frames": 20,
+  "cell": [
+    32,
+    64
+  ],
+  "foot_anchor": [
+    16,
+    56
+  ],
+  "palette_entries": 16,
+  "tiles_bytes": 20480,
+  "limitations": [
+    "Attack and air poses currently reuse approved walking frames; dedicated action artwork remains needed."
+  ]
+}

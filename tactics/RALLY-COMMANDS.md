@@ -1,0 +1,34 @@
+# Rally and native tactical commands
+
+Rally is available during round setup in either companion slot. Select that
+slot with Left/Right, then cycle heroes with Up/Down. Deploy with A or Start.
+She has her own 64-HP roster identity, pink-haired sprites and shared native
+16-entry palette. Her melee strike uses the field controller; her Cure and
+party Cure sleights receive a four-point healing bonus, with the usual caps.
+Individual upgrades, health, budgets and facing persist in save format12.
+Formats8–11 remain readable and initialize Rally at full health on migration.
+
+R+Select opens the command panel. Up/Down selects Move, Attack, Skills, Party,
+End Turn or Suspend; A confirms and B returns. Move opens the actual reachable
+map/cost preview. Attack chooses an available Key card. Skills opens the card
+selection submenu, with L/R or Left/Right to browse and A to use. Party switches
+the active member without renewing budgets. Existing field shortcuts remain.
+A lighter single-stroke5x7 font replaces the bold debug glyphs.
+
+Rally's source is the approved `pink-ponytail/starter-sheet-v2.png` artwork.
+`tools/import_rally.py` reproducibly compiles it into20 indexed32x64 OBJ frames,
+a shared15-color-plus-transparency palette, and aligned native data. The source
+is preserved. Native foot anchor is(16,56); artwork height is at most44px.
+The current attack and air animations reuse approved walking poses. Dedicated
+action art, improved directional animation, a portrait/card and fuller moveset
+remain unfinished. She currently starts unlocked rather than having a recruit
+encounter. This is integration work toward the requested game, not a finished
+Rally character or finished UI redesign.
+
+The native input-only Rally/menu fixture verifies deployment and active control,
+menu selection/submenu/back behavior, no navigation resource cost, reachable
+Move preview and menu suspend/reset persistence. Host sanitizer checks include
+Rally deployment and exact saved upgrades/health/budgets/facing. A recorded
+format11 prop-top save also migrates through the current host reader into
+format12 with Rally initialized. Current whole-campaign and combat-specific
+Rally/menu verification still need to be completed.

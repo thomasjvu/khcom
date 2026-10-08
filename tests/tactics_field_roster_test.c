@@ -4,6 +4,9 @@
 int main(void) {
     FieldRoster r;int i;
     FieldRosterInit(&r);assert(FieldRosterValid(&r));
+    assert(r.unlocked&(1<<FIELD_RALLY));assert(FieldHeroMaxHp(FIELD_RALLY)==64);
+    assert(FieldRosterDeploy(&r,1,FIELD_RALLY));assert(r.deployed[1]==FIELD_RALLY);
+    assert(FieldRosterDeploy(&r,1,FIELD_DONALD));
     assert(!FieldRosterDeploy(&r,1,FIELD_CLOUD));
     assert(!FieldRosterDeploy(&r,0,FIELD_GOOFY));
     assert(FieldRosterDeploy(&r,1,FIELD_GOOFY));assert(r.deployed[2]==FIELD_DONALD);
