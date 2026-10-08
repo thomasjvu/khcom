@@ -39,8 +39,7 @@ the controlled hero with X, then shows ENEMIES. A charged enemy adds one
 warning row naming its windup; the header becomes26 pixels, then returns to18
 when the charge clears. Party actions can be taken
 in any order; enemies act together after End Turn. Exhausted heroes leave
-the ready list. During enemy resolution, ENEMIES comes first. Commands and
-Commands open a 40-pixel panel with six choices in two columns and the party
+the ready list. During enemy resolution, ENEMIES comes first. Commands open a 40-pixel panel with six choices in two columns and the party
 phase order underneath. Left/Right switches columns on the same row; Up/Down
 cycles the six choices. This leaves 104 of 160 pixels of battlefield
 unobscured. Detailed confirmations, assembly and rewards use a 56-pixel
@@ -136,12 +135,16 @@ the shared deck, individual HP, every visited room encounter and seed in
 two checksummed 1,024-byte SRAM slots. Partially damaged enemies keep their
 health and positions when you backtrack. A damaged
 latest slot falls back to the older valid slot. Defeat/run clear invalidates
-suspends. This source writes save format 10 (including bench health and budgets) and reads formats 8/9 to preserve enemy identity, charged attacks and the active
-stair controller’s target/facing. Format 8 initializes the starter roster; format 7 and earlier saves are incompatible.
+suspends. This source writes save format 12, including the five-hero roster and bench
+health/budgets, and migrates formats 8–11. Saved native stair state preserves
+the controller target/facing. Format 8 initializes the starter roster; format 7
+and earlier saves are incompatible.
 
-This is still a development build. Physical room reachability guarantees, climb/jump routes and
-full area/range overlays, richer rewards, additional boss moves, complete
-input-only run testing and hardware validation remain unfinished. Native room
+This is still a development build. Three exact-ROM input-only campaigns pass
+on0.38, including recruitment, reset and native composed descent. Universal
+physical reachability, arbitrary combined jump/climb route discovery, richer
+content and final visual/balance review remain unverified or unfinished.
+Hardware validation is optional; current verification uses the native emulator. Native room
 creation gathers the party at the entry door, preserving the selected member,
 health, remaining movement/actions and Guard. Only ending a turn renews budgets.
 
@@ -164,7 +167,8 @@ Fire displays FIRE CARD BREAK when its selected value will be broken by the curr
 Donald and Goofy use original walking sprites while moving and return to idle
 when stopped. Casting and Guard keep their action poses. Original airborne poses follow
 native jump rise/fall states. Active party sprites stay at their physical
-positions; dedicated climb poses remain unfinished.
+positions. Rally has dedicated original hurt, cast and climb poses; companions
+use their available original-game animation assets.
 
 Living Donald and Goofy cast original-game shadows on their current standing
 surface. During jumps, the body rises while the shadow stays on the ground.
@@ -209,15 +213,16 @@ switch to another available member before doing so.
 Donald plays attack cards as ranged magic (128-pixel range, 24-pixel height);
 R+B cycles targets. Goofy plays attack cards as a shield spin hitting every
 enemy within 48 world pixels and 24 pixels of height. Original number sprites
-preview damage. Sora retains native Keyblade swings. These are the first distinct
-character attacks; party assembly, recruitable character cards and upgrades are
-being implemented according to `PARTY-ROGUELIKE.md`.
+preview damage. Sora retains native Keyblade swings. Cloud uses a ranged sword slash and Rally uses a native close strike. Party
+assembly, Cloud recruitment and personal upgrades are implemented; see
+`PARTY-ROGUELIKE.md` for their design.
 
-At room entry, ROUND SETUP shows the starter cards. L/R selects the starting
-hero; A or Start confirms. Confirmation changes control without spending the
-hero's action. Combat and movement wait for confirmation. Resuming an active
-battle preserves it and skips setup. This is the initial starter-leader screen;
-custom roster deployment and recruitment remain unfinished.
+At room entry, PARTY SETUP shows character cards. L/R selects a deployed slot;
+Up/Down cycles unlocked heroes in companion slots. Sora remains the leader.
+A or Start deploys the selected party and controls the highlighted living hero
+without spending an action. Combat and movement wait for confirmation.
+Resuming an active battle preserves the party and skips setup. Cloud becomes
+available after choosing his recruitment reward; Rally starts unlocked.
 
 Every second newly cleared encounter offers a character reward, and room-7
 bosses always offer one. L/R chooses Sora, Donald or Goofy; Up/Down chooses
