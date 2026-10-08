@@ -1677,3 +1677,7 @@ Three-run attachment-preview campaign PASS379750 verified after frontend89724 ex
 ### Multi-seed all-room stationary-turn diagnostic
 
 Live all-room3seed frontend70148 completed first run then stopped moving in second-run Agrabah room11 at64930,50810,0 after frame458536, repeatedly ending turns with party73/64/56 and threat0. Process still live to900003; no restart or pass claimed. Replay driver now records read-only runtime/terrain/prop snapshots after8 consecutive turns at unchanged world/room/position, including budgets/menu/phase log. Short native room0-to1 smoke PASS2453, frontend exit0; it proves driver loading/traversal, not execution of the stationary snapshot branch. Existing live driver remains unchanged and will capture terminal failure snapshot at bound.
+
+### All-room3seed terminal failure
+
+Frontend70148 exited0; script FAIL900001 in second-run Agrabah room11, seed2658846982. Final54316,53034,0, door94208,43520,0; native busy0, move3, action1, menu/preview0, no enemies, HP73/64/56. This contradicts a stuck native command gate; explorer navigation/chest decision loop needs isolation. Exact ROM/driver/log/snapshot hashes verified; result markedFAIL and manifest/current docs updated. First all-room run completed, but three-seed sweep did not. Grounded screenshot/save-state/runtime evidence retained in attachment-ui-all-rooms-three-runs-evidence.

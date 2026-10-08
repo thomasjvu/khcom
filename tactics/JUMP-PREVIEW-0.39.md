@@ -12,4 +12,4 @@ Exact-ROM verification:
 - Three fresh native campaigns PASS379750; frontend exited0. Every run includes Cloud recruitment/deployment, suspend/reset, composed descent and a stable terminal victory. ROM/driver/log hashes verified in `attachment-ui-three-runs-evidence`.
 - BPS application matches the build; host rules/worldgen/save/party/route/deck/enemy/roster/jump tests pass.
 
-The three-seed all-room/chest sweep remains running. Previous 0.38's 540 checks and all-room result belong to that version. This development patch does not establish universal physical reachability, every dynamic collision case, or final content and visual polish.
+The three-seed all-room/chest sweep failed900001 in second-run Agrabah room11 after completing its first run. The final native snapshot shows busy0, move3, action1 and no enemies; navigation/chest decision investigation remains open. Previous 0.38's 540 checks and all-room result belong to that version. This development patch does not establish universal physical reachability, every dynamic collision case, or final content and visual polish.

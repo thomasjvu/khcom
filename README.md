@@ -35,8 +35,8 @@ keep party, card artwork and value digits visible beside generated scenery.
 The packaged 0.39 ROM passes 79 scoped native checks and three complete
 fresh-SRAM campaigns, with native retry, Cloud recruitment/deployment,
 suspend/reset and composed descents in each run. The frontend exits0 and
-ROM/driver/log hashes are verified. A three-seed all-room/chest sweep remains
-running. Prior 0.38's 540 scoped checks and all-room campaign belong to that
+ROM/driver/log hashes are verified. The three-seed all-room/chest sweep failed in second-run Agrabah room11;
+that navigation investigation remains open. Prior 0.38's 540 scoped checks and all-room campaign belong to that
 version. These tests cover recorded seeds and routes.
 See [0.39 patch notes](tactics/JUMP-PREVIEW-0.39.md) and
 [release audit](tactics/RELEASE-AUDIT.md) for evidence and remaining work.
