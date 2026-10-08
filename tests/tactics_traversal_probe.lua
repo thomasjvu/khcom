@@ -405,7 +405,8 @@ local function replayFrame()
  if busyInput() then return end
  if suspendStage==2 and (world~=0 or room~=suspendRoom) then finish(false,'resume changed world or room');return end
  if suspendRoom and suspendRoom>0 and suspendStage<3 and world==0 and room==suspendRoom then
-  if suspendStage==0 and phase=='scan' and emu:read16(gNativePreview)==0 and
+  if suspendStage==0 and phase=='scan' and (emu:read32(emu:read32(gFieldState)+0x70)&0xc1010)==0 and
+     emu:read16(gNativePreview)==0 and
      emu:read16(gNativeAssembly)==0 and emu:read16(gNativeProgressReward)==0 and
      emu:read16(gNativeEnemyFrames)==0 and emu:read16(gNativeClimbing)==0 and emu:read16(gNativeReward)==0 then
    suspendSnapshot={}
@@ -424,6 +425,7 @@ local function replayFrame()
    suspendSnapshot.guard=emu:read16(gNativeGuard)
    suspendSnapshot.deck={}
    for i=0,73 do suspendSnapshot.deck[i]=emu:read8(gNativeDeck+i) end
+   out:write('SUSPEND REQUEST frame='..f..' flags='..string.format('%x',emu:read32(emu:read32(gFieldState)+0x70))..' room='..room..'\n');out:flush()
    emu:setKeys(12);suspendStage=1;nextFrame=f+4;return
   elseif suspendStage==1 then
    if emu:read16(gNativeSaveNotice)~=1 then finish(false,'input-only suspend failed');return end

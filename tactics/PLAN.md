@@ -636,3 +636,22 @@ movement distances, so rejection remains possible.
 1ac88e86c native ROM with the refined driver, Cloud recruitment, save room4
 and composed descent required, unchanged300000-frame limit. It is running;
 no all-room success is claimed before terminal coverage checks.
+
+### Guard heading and all-room save readiness
+
+Guard now has a dedicated GUARD A CONFIRM / PARTY PROTECTION heading,
+removing inapplicable target-cycling instructions. All24 native combat/menu
+fixture checks pass; screen inspected. Build/header/capacity pass. Evidence
+`guard-heading-evidence` preserves the exact ROM and fixture hashes.
+
+The refined all-room replay FAILED26083 at its suspend check after entering
+Traverse Town room4, before broader route coverage. Final actor grounded,
+busy0; flags10081. The pre-request flags were not captured, so a transition
+race is an inference, not established cause. Failure metadata/log preserved
+in `refined-walk-all-room-evidence`. Replay save readiness now excludes
+freeze-player, room-create, auto-walk and exit-room flags, and logs request
+flags before sending native save input. The fresh
+`refined-save-ready-all-room-evidence` rerun requires all rooms/chests, Cloud,
+exact save/resume and composed descent under the same300000-frame limit.
+It is running; neither the save-race diagnosis nor full coverage is proven.
+Other-chat combat draft assets remain untouched.

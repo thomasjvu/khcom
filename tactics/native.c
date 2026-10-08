@@ -1472,6 +1472,8 @@ static void NativeHud(void) {
                 NativeLabel(0, 0, "ATTACK  D PAD FACE  A USE");
                 NativeLabel(0, 24, "FACE ENEMY BEFORE CONFIRM");
             } else if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_GUARD) {
+                NativeLabel(0, 0, "GUARD  A CONFIRM");
+                NativeLabel(0, 16, "PARTY PROTECTION");
                 NativeLabel(0, 24, NativeHero(gNativeParty) == FIELD_GOOFY ? "PARTY BLOCKS ALL DAMAGE" : "PARTY TAKES ONE PER HIT");
                 NativeLabel(0, 32, "UNTIL NEXT ENEMY TURN ENDS");
                 NativeLabel(0, 40, "COST ONE CARD AND ACTION");
