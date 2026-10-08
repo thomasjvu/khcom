@@ -466,3 +466,10 @@ are retained in `party-selector-full-run-evidence` and
 path, not all rooms/chests/seeds, and does not prove the unfinished Rally art,
 additional recruitment/content, integrated height destination routing or
 hardware verification. Full goal remains active.
+
+The current selector ROM is packaged as0.26 command-menu development:74304-byte
+BPS, byte-exact US-base round trip,98 focused exact-ROM checks and the full
+main-path campaign above. Local manifest preserves individual fixture scope
+and ROM/patch/driver/log hashes. Notes: `tactics/COMMAND-MENU-0.26.md`. This
+deliverable preserves the full unfinished goal and does not claim all seeds,
+all branches/chests or final content/art/hardware completion.
