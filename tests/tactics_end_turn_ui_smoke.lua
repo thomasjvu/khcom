@@ -31,6 +31,9 @@ callbacks:add('frame',function()
  if frame==184 or (frame>=224 and frame<=584 and frame%40==24) then emu:setKeys(0) end
  if frame==460 then
   check(emu:read16(gNativeMenu)==7,'End Turn opens confirmation')
+  check(emu:read16(gWin0V)==56,'context menu ends immediately below its final text row')
+  check(emu:read16(gWin1V)==37024,'context card footer uses only sixteen pixels')
+  check(hudText(6,0,'A END TURN  B BACK'),'final menu row remains visible in shorter panel')
   check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'viewing forecast preserves active resources')
   for slot=0,2 do
    local hp=emu:read8(gNativePartyHealth+slot)

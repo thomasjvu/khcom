@@ -1156,3 +1156,34 @@ after room3 chest recovery. Inspection did not send game input or write game
 memory. Suspend14733/exact reset resume15063 remains verified. The quiet log
 was not a terminal job; no restart was performed. Keep following this job
 for wider coverage, distinguished from0.31 artwork regression evidence.
+
+Shorter contextual menus (2026-10-08), development0.32: menu/reward top
+window now ends56 instead of64, directly after text row48; footer uses
+144..160 instead of128..160. Darkened area drops96/160=60 percent to
+72/160=45 percent during menus/rewards. Field18+16 remains34/160=21.25
+percent. Every command/target/party/reward label still fits. Initial window
+assignment chooses the same final size before label construction, avoiding
+provisional larger windows during VBlank. No RAM, gameplay or save change.
+
+Exact ROM proof: compact-context-menu-evidence12 PASS (dimensions, final
+row, forecast/confirm/cancel); short-context-rally-menu-evidence20 PASS
+(rendered setup, Rally controls, menus and reset); short-cloud-recruit and
+short-cloud-power18 PASS each (explicit original boss fixtures, charge/
+height/reach, save/reset, native Fire defeat, original summon card allocation,
+fifth option and final controls rendered, recruit vs ordinary power and
+no duplicate reward). Cloud fixtures were stale: updated five-hero masks
+23/31 and reward offset17, formerly7/15 and offset15. Fixtures remain
+explicit-memory tests, not input-only full campaign proof. Total68 native
+checks, host suite and Rally tile/palette golden verifier PASS. RAM8140/8192.
+ROM SHA2566f7a3b146689c71c1442566927fbe8ad30494e60ed19efa0af1192843057503d.
+Local development0.32 BPS applies byte-identically; no complete0.32 run proven.
+
+Same all-room session73273/PID62815 remains live on immutable0.29. Log
+observed move settlement21554 after TTroom3 chest. One-second host process
+sample shows mCoreSyncPostFrame waiting for video presentation; it does
+not prove a native failure or terminal job. CUA returned from the read-only
+Scripting inspection console to the verified campaign fresh.gba window and
+raised that display; screenshot shows original opened chest, Sora/Donald/
+Goofy, card artwork and compact phase strip. No game keys or memory writes
+were introduced, and no restart was performed. Continue this handle for
+terminal coverage; slow/quiet presentation is not completion or blockage.

@@ -1279,10 +1279,10 @@ static void NativeHud(void) {
     gWin0H = gWin1H = 240;
     /* VBlank can occur while labels are being built. Never publish a
      * provisional large window during ordinary movement. */
-    gWin0V = gNativeMenu || gNativeProgressReward ? 64 : gNativeAssembly ? 56 :
+    gWin0V = gNativeMenu || gNativeProgressReward || gNativeAssembly ? 56 :
         !gNativeReward && !gNativePreview && !gNativeResult &&
         !gNativeClimbing && gNativeBusy != 2 ? 18 : 26;
-    gWin1V = ((gNativeAssembly || gWin0V == 18 ? 144 : 128) << 8) | 160;
+    gWin1V = ((gNativeMenu || gNativeProgressReward || gNativeAssembly || gWin0V == 18 ? 144 : 128) << 8) | 160;
     gWinIn = 0x3f3f;
     gWinOut = 0x1e;
     gBldCnt = 0x00ee;
@@ -1425,7 +1425,7 @@ static void NativeHud(void) {
         static const char* const rewards[5] = {"POWER PLUS 1", "KEY SLEIGHT PLUS 4", "FIRE SLEIGHT PLUS 4", "CURE SLEIGHT PLUS 4", "RECRUIT CLOUD"};
         u8 hero = NativeHero(sProgressHero);
         u8 options = NativeRecruitEligible() ? 5 : 4;
-        gWin0V = 64;
+        gWin0V = 56;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         NativeLabel(0, 0, hero == FIELD_SORA ? "REWARD FOR SORA" : hero == FIELD_DONALD ? "REWARD FOR DONALD" :
             hero == FIELD_GOOFY ? "REWARD FOR GOOFY" : hero == FIELD_RALLY ? "REWARD FOR RALLY" : "REWARD FOR CLOUD");
@@ -1443,7 +1443,7 @@ static void NativeHud(void) {
         NativeLabel(0, 32, "SELECT COMMANDS");
     if (gNativeMenu) {
         static const char* const commands[6] = {"MOVE", "ATTACK", "SKILLS", "PARTY", "END TURN", "SUSPEND"};
-        gWin0V = 64;
+        gWin0V = 56;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         NativeLabel(0, 0, gNativeMenu >= 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  UP DOWN A  B BACK");
         if (gNativeMenu == 9) {

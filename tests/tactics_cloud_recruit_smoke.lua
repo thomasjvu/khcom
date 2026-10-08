@@ -13,6 +13,25 @@ local function place(distance,height,charge)
  emu:write32(e+16,emu:read32(p+0x20)+height*256);emu:write32(e+20,emu:read32(p+0x24))
  emu:write8(gNativeEnemyCharge,charge)
 end
+local function hudText(row,column,text)
+ local control=emu:read16(0x04000008)
+ local screen=0x06000000+((control&0x1f00)<<3)
+ local tiles=0x06000000+((control&0x000c)<<12)
+ for index=1,#text do
+  local c=text:byte(index)
+  local glyph=c>=48 and c<=57 and c-48+1 or c>=65 and c<=90 and c-65+11 or 0
+  local tile=emu:read16(screen+(row*32+column+index-1)*2)&0x3ff
+  for y=0,6 do
+   local bits=emu:read8(sUiGlyphs+glyph*7+y)
+   local pixels=emu:read32(tiles+tile*32+y*4)
+   for x=0,4 do
+    local expected=(bits&(1<<(4-x)))~=0 and 3 or 1
+    if ((pixels>>((x+1)*4))&15)~=expected then return false end
+   end
+  end
+ end
+ return true
+end
 callbacks:add('frame',function()
  f=f+1
  if f==180 or f==400 then emu:setKeys(1) end
@@ -47,22 +66,26 @@ callbacks:add('frame',function()
  end
  if f==1334 then emu:setKeys(0) end
  if f==1400 then
-  check(emu:read16(gNativeEnemyHp)==0 and emu:read16(gNativeProgressReward)==1 and emu:read8(gNativeRoster+15)==2,'native Fire defeats Cloud and offers boss reward')
+  check(emu:read16(gNativeEnemyHp)==0 and emu:read16(gNativeProgressReward)==1 and emu:read8(gNativeRoster+17)==2,'native Fire defeats Cloud and offers boss reward')
   check(emu:read32(sRecruitTiles)~=0 and emu:read32(sRecruitPalette)~=0,'original Cloud summon card allocates for recruit reward')
   emu:setKeys(64)
  end
  if f==1404 then emu:setKeys(0) end
- if f==1460 then emu:screenshot('@OUTPUT@/recruit.png');emu:setKeys(1) end
+ if f==1460 then
+  check(emu:read16(gWin0V)==56 and emu:read16(gWin1V)==37024,'boss reward uses compact contextual windows')
+  check(hudText(5,2,'RECRUIT CLOUD'),'fifth reward option is fully rendered')
+  check(hudText(6,0,'UP DOWN  L R HERO  A CHOOSE'),'reward controls fit the shortened panel')
+  emu:screenshot('@OUTPUT@/recruit.png');emu:setKeys(1) end
  if f==1464 then emu:setKeys(0) end
  if f==1530 then
-  check(emu:read8(gNativeRoster)==15 and emu:read16(gNativeProgressReward)==0,'recruit choice unlocks Cloud roster card')
+  check(emu:read8(gNativeRoster)==31 and emu:read16(gNativeProgressReward)==0,'recruit choice unlocks Cloud roster card')
   check(emu:read32(sRecruitTiles)==0 and emu:read32(sCardTiles+4)~=0 and emu:read32(sCardPalettes+4)~=0,'recruit choice restores combat card artwork')
  end
  if f==1600 then emu:setKeys(12) end
  if f==1604 then emu:setKeys(0) end
  if f==1680 then emu:reset() end
  if f==2010 then
-  check(emu:read8(gNativeRoster)==15 and emu:read16(gNativeProgressReward)==0,'Cloud unlock persists without duplicate recruit reward')
+  check(emu:read8(gNativeRoster)==31 and emu:read16(gNativeProgressReward)==0,'Cloud unlock persists without duplicate recruit reward')
   emu:setKeys(1)
  end
  if f==2014 then emu:setKeys(0) end
