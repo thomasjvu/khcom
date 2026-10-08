@@ -278,6 +278,35 @@ local function finish(ok,why)
  out:flush();out:close();done=true
  emu:screenshot('@OUTPUT@/final.png')
 end
+-- A jump can end at a ledge whose original controller waits for held Up.
+-- Treat it as native input work, not an animation that settles on its own.
+local ledgeActive=false
+local function busyInput()
+ local busy=emu:read16(gNativeBusy)
+ if busy~=0 then
+  if busy==2 then
+   local field=emu:read32(gFieldState)
+   local task=emu:read32(emu:read32(field+0x94))
+   local work=emu:read32(task+4)
+   local state=emu:read32(work+0x94)
+   if state==8 or state==9 then
+    if not ledgeActive then
+     out:write('LEDGE CLIMB frame='..f..'\n');out:flush()
+     commands=commands+1;ledgeActive=true
+    end
+    emu:setKeys(64);nextFrame=f+4;return true
+   end
+  end
+  nextFrame=f+8;return true
+ end
+ if ledgeActive then
+  local x,y,z=pos()
+  out:write('LEDGE SETTLED frame='..f..' position='..x..','..y..','..z..'\n');out:flush()
+  ledgeActive=false;terrainPlan=nil;best=nil;index=1;phase='release';nextFrame=f+4
+  return true
+ end
+ return false
+end
 local function replayFrame()
  f=f+1
  if done or f<180 or (suspendStage==2 and f<nextFrame) then return end
@@ -373,7 +402,7 @@ local function replayFrame()
  if f>goalFrames then finish(false,'bounded explorer did not reach '..(goalWorlds>0 and ('world '..goalWorlds) or ('room '..goalRoom)));return end
  if f<nextFrame then return end
  emu:setKeys(0)
- if emu:read16(gNativeBusy)~=0 then nextFrame=f+8;return end
+ if busyInput() then return end
  if suspendStage==2 and (world~=0 or room~=suspendRoom) then finish(false,'resume changed world or room');return end
  if suspendRoom and suspendRoom>0 and suspendStage<3 and world==0 and room==suspendRoom then
   if suspendStage==0 and phase=='scan' and emu:read16(gNativePreview)==0 and

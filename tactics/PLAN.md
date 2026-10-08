@@ -507,3 +507,22 @@ melee-facing instruction. Explicit Donald/Goofy combat and Goofy menu fixtures
 pass14 checks, including cancel safety and confirmed two-target native damage.
 Shield-spin menu screenshot inspected. This newer presentation build is
 separate from the packaged0.26 campaign/all-room evidence.
+
+### Native ledge-aware replay recovery
+
+The replay now recognizes native LEDGE_CATCH/HANG while jumpBusy2 and holds
+Up through the original controller. Other busy states still wait. On real
+settlement, it clears stale route planning and resumes traversal. The actual
+busy-controller policy test passes catch/hang input, animation wait, one
+sequence count, route invalidation and idle continuation; preferred-preview
+and retry policy regressions pass.
+
+An explicit recorded saved-room/approach fixture on native source8f5584ea8
+passes5 native checks: actual jump catch, real-helper climb input at336,
+grounded idle upper-surface settlement at504 and preserved jump movement/
+action costs. After boot it uses input only, including pending room-clear
+reward/setup handling. The original failed fixture (reward left pending)
+remains recorded separately. Existing older ledge tests are unchanged.
+`ledge-replay-ready-evidence` preserves the exact ROM/driver/log scope. This
+proves one recorded ledge, not completion of the all-room campaign; broader
+coverage is being rerun separately without changing the300000-frame bound.
