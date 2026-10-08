@@ -371,7 +371,7 @@ Skills browses hand cards. Single-stroke5x7 text replaces bold debug glyphs.
 Fourteen input-only native deployment/menu/preview/no-cost/save/reset checks
 pass on the exact packaged ROM. Host tests cover Rally deployment and saved
 upgrades/health/budgets/facing. Build/header/capacity checks pass; reserved
-EWRAM8140/8192. The69869-byte local0.24 development BPS applies byte-exactly;
+EWRAM 8140/8192. The69869-byte local0.24 development BPS applies byte-exactly;
 the local manifest records ROM/patch/driver/log hashes.
 
 This is unfinished integration. Dedicated Rally action/air poses, directional
@@ -389,10 +389,20 @@ Cure/ranged target cycling, predicted capped recovery/damage, resource-safe
 cancellation and no-target ranged rejection. Up stocks cards and Down clears
 stock from the selection menu; a full stock opens a distinct sleight screen.
 Attack sends stocked hands to Skills instead of silently triggering a recipe.
-`menu-target-sleight-evidence` passes23 native fixture checks (explicit health,
+`menu-target-sleight-evidence` passes 23 native fixture checks (explicit health,
 card and enemy placement/HP setup; menu and action resolution by input).
-`target-menu-rally-regression-evidence` passes14 input-only deployment/menu/
+`target-menu-rally-regression-evidence` passes 14 input-only deployment/menu/
 preview/save/reset checks on the same ROM. Native build limits pass with no
-new reserved RAM. Campaign replay snapshots now cover all39 meaningful roster
-bytes and starter mask23, and the real retry-policy mock passes. Whole-campaign
+new reserved RAM. Campaign replay snapshots now cover all 39 meaningful roster
+bytes and starter mask 23, and the real retry-policy mock passes. Whole-campaign
 verification is running separately; broad polish and content remain unfinished.
+
+The current target-menu campaign ends as bounded FAIL120001 in Castle room5,
+seed4411213 (17 kills,766 moves). Cloud recruitment13431/deployment15810 and
+exact suspend15825/resume16155 pass; worlds advance at47407 and96003. This
+is incomplete whole-campaign coverage on the newer ROM, not a victory or
+proof of an impossible room. Bounds were retained. Local0.25 BPS is71243 bytes,
+byte-exact round-trip verified, with37 focused native checks (23 targeting/
+sleight fixtures plus14 input-only Rally/menu/save checks). Manifest preserves
+exact ROM/patch/driver/log hashes and the failed full-run scope. Release notes:
+`tactics/TARGET-MENU-0.25.md`. Full goal remains unfinished.
