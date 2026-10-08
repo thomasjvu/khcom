@@ -3,7 +3,7 @@ import argparse,subprocess,hashlib,json
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('elf');p.add_argument('output');p.add_argument('--trace',action='store_true',help='record read-only native jump positions and budgets for predictor comparison');a=p.parse_args()
 names={w[2]:int(w[0],16) for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitlines() if len(w:=line.split())==3}
-keys=('gNativeAssembly','gNativeRoster','gNativeParty','gNativeMenu','gNativeMenuChoice','gNativeMoveLeft','gNativeActionLeft','gNativePreview','gNativeSaveNotice','gNativePartyHealth','gGameState','gNativeDeck','gNativeCureTarget','gNativeCureHeal','gFieldState','sEnemyTasks','gNativeEnemyHp','gNativeFireTarget','gNativeFireDamage','gNativeBusy','gNativeDirection','gFrameCounter')
+keys=('gNativeAssembly','gNativeRoster','gNativeParty','gNativeMenu','gNativeMenuChoice','gNativeMoveLeft','gNativeActionLeft','gNativePreview','gNativeSaveNotice','gNativePartyHealth','gGameState','gNativeDeck','gNativeCureTarget','gNativeCureHeal','gFieldState','sEnemyTasks','gNativeEnemyHp','gNativeFireTarget','gNativeFireDamage','gNativeBusy','gNativeDirection','gFrameCounter','gSineTable')
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
 s=''.join(f'local {k}=0x{names[k]:x}\n' for k in keys)+Path('tests/tactics_menu_jump_smoke.lua').read_text().replace('@OUTPUT@',str(out))
 
