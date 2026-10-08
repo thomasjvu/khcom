@@ -792,3 +792,22 @@ execute, but the route ultimately succeeds. Exact evidence/metadata in
 `agrabah-settled-route-evidence`; source fixture retained for further native
 isolation. No physics change or campaign success claimed. Live two-run job
 remains separate and pending.
+
+### Two-run failure and runtime-state capture
+
+The4dec13bdf two-run replay FAILED240001 in first-run Agrabah room5,11
+kills/2004 attempted commands. No victory or second seed was reached.
+Final grounded busy0 at76060,86995,8192. Exact terrain cells, props, position
+and door equal the passing cleared Agrabah fixture; runtime party/enemy/menu
+state was omitted, so that fixture does not fully reproduce the failure.
+Evidence retained in `compact-hud-two-run-evidence`.
+
+Navigation JSON now captures roster39 bytes, deck78 bytes, all three party
+positions/health, six enemy HP/charge/position records, current party, budgets,
+busy/preview/menu selection and field flags. Read-only, unchanged controls
+and frame limits. Native room0-to1 passes1408; JSON parses and dimensions
+validate in `runtime-snapshot-native-evidence`. Retry/ledge policy checks pass.
+A new120000-frame current main-route run with this diagnostic is live in
+`compact-runtime-main-evidence`, requiring Cloud, exact save/resume and
+composed descent. This adds information needed for a faithful fixture; it
+does not fix or claim campaign success. Other-chat assets remain untouched.

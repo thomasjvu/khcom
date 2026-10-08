@@ -257,7 +257,30 @@ local function navigationSnapshot(name)
   end
   node=emu:read32(node+8)
  end
- file:write(']}\n');file:close()
+ file:write('],"runtime":{')
+ file:write(string.format('"party":%u,"move":%u,"action":%u,"busy":%u,"preview":%u,"menu":%u,"menu_choice":%u,"field_flags":%u,"roster":[',emu:read16(gNativeParty),emu:read16(gNativeMoveLeft),emu:read16(gNativeActionLeft),emu:read16(gNativeBusy),emu:read16(gNativePreview),emu:read16(gNativeMenu),emu:read16(gNativeMenuChoice),emu:read32(emu:read32(gFieldState)+0x70)))
+ for i=0,rosterBytes-1 do file:write((i>0 and ',' or '')..emu:read8(gNativeRoster+i)) end
+ file:write('],"deck":[')
+ for i=0,77 do file:write((i>0 and ',' or '')..emu:read8(gNativeDeck+i)) end
+ file:write('],"party_positions":[')
+ for i=0,2 do
+  file:write((i>0 and ',' or '')..'[')
+  for j=0,3 do file:write((j>0 and ',' or '')..signed(emu:read32(sPartyPos+(i*4+j)*4))) end
+  file:write(']')
+ end
+ file:write('],"party_health":[')
+ for i=0,2 do file:write((i>0 and ',' or '')..emu:read8(gNativePartyHealth+i)) end
+ file:write('],"enemies":[')
+ for i=0,5 do
+  local task=emu:read32(sEnemyTasks+i*4)
+  file:write((i>0 and ',' or '')..'{"hp":'..emu:read16(gNativeEnemyHp+i*2)..',"charge":'..emu:read8(gNativeEnemyCharge+i)..',"position":[')
+  if task~=0 then
+   local work=emu:read32(task+4)
+   for j=0,3 do file:write((j>0 and ',' or '')..signed(emu:read32(work+8+j*4))) end
+  end
+  file:write(']}')
+ end
+ file:write(']}}\n');file:close()
 end
 local function finish(ok,why)
  navigationSnapshot()

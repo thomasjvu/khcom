@@ -38,7 +38,7 @@ for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).spli
     if len(words) == 3:
         names[words[2]] = int(words[0], 16)
 keys = ('gCurrentMode', 'gCurrentModeUpdate', 'gPendingMode', 'sNativeMode', 'NativeUpdate', 'gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
-        'gTaskDescMapDoor', 'gTaskDescMapGmk01', 'gNativeChests', 'gNativeBusy', 'gNativeEnemyFrames', 'gNativeParty', 'gNativeGuard', 'gNativeThreats', 'sPartyAction', 'gNativePreview',
+        'gTaskDescMapDoor', 'gTaskDescMapGmk01', 'gNativeChests', 'gNativeBusy', 'gNativeMenu', 'gNativeMenuChoice', 'gNativeEnemyFrames', 'gNativeParty', 'gNativeGuard', 'gNativeThreats', 'sPartyAction', 'gNativePreview',
         'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing', 'gNativeCureTarget','gNativeReachCost','gNativeReachCount','gNativeClimbReachMask','sRouteValid','sPlayerEdge',
         'sRoutePos', 'sCursorX', 'sCursorY', 'gMapRoomState', 'sMapCells', 'sMapPlatforms', 'gCellMasks', 'sEnemyTasks', 'gNativeDeck', 'gNativePartyHealth', 'gNativeKills', 'gNativeResult', 'gNativeReward', 'sColliderPoolObstacle', 'gNativeFloor', 'gNativeSeed', 'gNativeSaveNotice', 'gNativeProgressReward', 'sProgressHero', 'sProgressKind', 'sAssemblyChoice', 'gNativeRoster', 'gNativeAssembly', 'sPartyPos', 'gNativeEnemyHp', 'gNativeEnemyCharge')
 out = Path(a.output).resolve()
