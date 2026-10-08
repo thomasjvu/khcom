@@ -20,7 +20,7 @@ Rally's source is the approved `pink-ponytail/starter-sheet-v2.png` artwork.
 a shared15-color-plus-transparency palette, and aligned native data. The source
 is preserved. Native foot anchor is(16,56); artwork height is at most44px.
 The current attack and air animations reuse approved walking poses. Dedicated
-action art, improved directional animation, a portrait/card and fuller moveset
+action art, a portrait/card and fuller moveset
 remain unfinished. She currently starts unlocked rather than having a recruit
 encounter. This is integration work toward the requested game, not a finished
 Rally character or finished UI redesign.
@@ -85,3 +85,13 @@ A spent action blocks it. Nine explicit discarded-hand fixture checks pass,
 including exact five-card draw and cancel safety; all23 target/sleight checks
 pass on the same ROM. Build/header/capacity checks pass and the screenshot was
 inspected. Full campaign evidence from prior ROMs remains separate.
+
+Rally now turns between front and back views when facing or moving, including
+diagonals. Because the draft's opposite-facing front rows are inconsistent,
+the consistent front/back pair is mirrored for right-facing poses; the source
+art is preserved. Animation banks reuse the existing native friend state,
+with no added reserved RAM. The input-only directional fixture passes26 checks
+covering deployment, menus, suspend/reset, party cycling, cardinal/diagonal
+animation banks, horizontal mirror flags and unchanged movement/action budgets.
+North/east screenshots were visually inspected. Dedicated action/air artwork
+still remains unfinished; directional walking is not a substitute for it.

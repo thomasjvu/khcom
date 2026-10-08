@@ -14,6 +14,7 @@
   "palette_entries": 16,
   "tiles_bytes": 20480,
   "limitations": [
+    "Opposite-facing draft rows are inconsistent; front/back pair is mirrored for right-facing animation.",
     "Attack and air poses currently reuse approved walking frames; dedicated action artwork remains needed."
   ]
 }

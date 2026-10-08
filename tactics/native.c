@@ -809,7 +809,16 @@ static void NativePartyDraw(void) {
             if (player->state == FLD_STATE_JUMP_START || player->state == FLD_STATE_JUMP_RISE) pose = 3;
             else if (player->state == FLD_STATE_FALL) pose = 4;
         }
-        if (sFriends[i].pose != pose) {
+        if (NativeHero(i + 1) == FIELD_RALLY) {
+            u8 angle = gNativeParty == i + 1 ? gFieldState->actor.angle : sPartyAngle[i + 1];
+            u8 bank = (angle > 0 && angle < 128 ? 2 : 0) + (angle < 64 || angle > 192 ? 1 : 0);
+            AnimDef def = sFriendAnims[FIELD_RALLY - 1][pose];
+            def.animId = bank * 5 + pose;
+            sFriends[i].facing = bank >= 2;
+            AnimChangeWithDef(&def, &sFriends[i].anim, 0,
+                pose >= 3 ? 0 : ANIM_FLAG_LOOP, sFriends[i].tiles);
+            sFriends[i].pose = pose;
+        } else if (sFriends[i].pose != pose) {
             sFriends[i].pose = pose;
             AnimChangeWithDef(sFriendAnims[NativeHero(i + 1) - 1], &sFriends[i].anim, pose,
                 pose >= 3 ? 0 : ANIM_FLAG_LOOP, sFriends[i].tiles);
