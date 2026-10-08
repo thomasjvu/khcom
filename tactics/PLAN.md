@@ -473,3 +473,17 @@ main-path campaign above. Local manifest preserves individual fixture scope
 and ROM/patch/driver/log hashes. Notes: `tactics/COMMAND-MENU-0.26.md`. This
 deliverable preserves the full unfinished goal and does not claim all seeds,
 all branches/chests or final content/art/hardware completion.
+
+### Prop-top party switching coverage
+
+The unchanged0.26 ROM passes14 additional native checks for original Castle
+pillar jump, top walking and cycling through companions back to Sora. Return
+preserves the exact supported position, underlying ground and spent movement/
+action budgets. Explicit saved-room/approach, valid Key hand and revived
+companion fixtures are used; jump, previewed walking and switching use native
+input. `prop-party-final-evidence` ties driver/log to the exact0.26 ROM hash.
+An initial wrong saved position and a too-early End Turn input are retained
+as failed attempts with reasons; the final fixture waits until the native
+jump has settled before End Turn. No engine repair was needed or claimed.
+This is one support location, not all surfaces or hardware proof. The broader
+0.26 all-room/chest replay is separate and still has no terminal result.
