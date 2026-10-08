@@ -17,7 +17,8 @@ HP stable120 frames. Both require Cloud recruitment/deployment, exact suspend/
 reset and composed descent. Generated headers distinguish tactics sRawKeys
 from its vanilla duplicate. The independent all-room run ends in party defeat
 130336; no all-room0.34 success is claimed. A new full36-room/nine-chest replay
-uses Cure for nearby injured/KO companions and remains under300000 frames.
+used Cure for nearby injured/KO companions but also ended in native party
+defeat at134022.
 Earlier0.33 all-room proof remains a separate exact-ROM result. This is a
 development patch; wider seed reliability, party/combat balance and final
 visual/content review remain unfinished.
