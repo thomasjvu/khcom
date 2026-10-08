@@ -275,7 +275,10 @@ ROUTE X instead of a misleading zero cost. Selecting the origin spends nothing.
 On the ground, R + D-pad faces the active character in any of eight directions
 without moving or spending movement/action points. It preserves the selected
 card. Cancel a movement preview with B before facing. Use this to aim Sora's
-Keyblade at a chest or nearby enemy without walking past it.
+Keyblade at a chest or nearby enemy without walking past it. Sword confirmation
+shows ON HIT power, including the active hero's upgrades, or CARD BREAK NO
+DAMAGE for an insufficient nonzero value. This value describes a successful
+hit; facing, the original animated hitbox and scenery still determine contact.
 
 Current source preserves each hero's facing when switching, benching, traveling
 between rooms, or resuming a format-12 suspend. Formats8–10 migrate with each

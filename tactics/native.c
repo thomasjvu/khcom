@@ -1404,6 +1404,9 @@ static void NativeJumpPredict(void) {
         gNativeJumpPrediction=2;
     }
 }
+static u16 NativeMeleeBaseDamage(u16 value) {
+    return value ? 5 + value / 2 : 3;
+}
 static void NativeHud(void) {
     char line[] = "MOVE 3 ACT 1 HP 000";
     char turns[31];
@@ -1699,8 +1702,13 @@ static void NativeHud(void) {
                 damage[7] += gNativeFireDamage / 10;damage[8] += gNativeFireDamage % 10;
                 NativeLabel(0, 32, damage);
             } else if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY) {
+                char hit[] = "ON HIT 00";
+                u16 value = gNativeDeck.value[card];
+                u16 power = NativeMeleeBaseDamage(value) + gNativeRoster.power[NativeHero(gNativeParty)];
+                hit[7] += power / 10;hit[8] += power % 10;
                 NativeLabel(0, 0, "ATTACK  D PAD FACE  A USE");
                 NativeLabel(0, 24, "FACE ENEMY OR CHEST");
+                NativeLabel(0, 32, value && value < 3 + gNativeFloor ? "CARD BREAK NO DAMAGE" : hit);
             } else if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_GUARD) {
                 NativeLabel(0, 0, "GUARD  A CONFIRM");
                 NativeLabel(0, 16, "PARTY PROTECTION");
@@ -2630,7 +2638,7 @@ static void NativeEnemies(void) {
         }
         if (sAttack && !(work->flags & 0x2000) && MapEnmCheckAttacked(work)) {
             work->flags |= 0x2000;
-            NativeDamageEnemy(task, sPlayedValue ? 5 + sPlayedValue / 2 : 3);
+            NativeDamageEnemy(task, NativeMeleeBaseDamage(sPlayedValue));
         } else if (task->desc != &sArmorTaskDesc && task->desc != &sJafarTaskDesc && task->desc != &sMarlTaskDesc && task->desc != &sCloudTaskDesc) {
             MapEnmUpdateAnim(work);
         }
@@ -3151,6 +3159,10 @@ static void NativeUpdate(void) {
                     } else {
                         edge = A_BUTTON;
                         sAttack = 1;
+                        /* Vanilla enters battle after a field hit. Tactical
+                         * encounters stay here, so each committed strike
+                         * needs its own hit gate while retaining one-hit rules. */
+                        gMapRoomState->flags &= ~ROOM_FLAG_ATTACK_HIT;
                         node = gFieldState->tasks4.head.activeHead;
                         while (node) {
                             ((MapEnmWork*)((Task*)node->owner)->work)->flags &= ~0x2000;
