@@ -818,3 +818,12 @@ TacFar_GetAngleDiff:
  bx r3
 .balign 4
 1: .word GetAngleDiff + 1
+
+.balign 4
+.global TacFar_GetFldPosClimbDir
+.thumb_func
+TacFar_GetFldPosClimbDir:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word GetFldPosClimbDir + 1

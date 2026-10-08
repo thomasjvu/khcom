@@ -1300,8 +1300,9 @@ static int NativeJumpBlocked(FieldJumpPoint* point, void* context) {
 static void NativeJumpPredict(void) {
     FieldJumpMotion motion;
     FieldJumpPoint point;
-    FldPos origin;
-    int angle, speed, frame, sine, cosine;
+    FldPos origin, attachment;
+    FieldJumpPoint overLedge, underLedge;
+    int angle, speed, frame, sine, cosine, oldX, oldY;
     gNativeJumpPrediction=0;
     if (gNativeMenu!=6 || gNativeBusy || !gNativeActionLeft) return;
     origin=gFieldState->actor.fieldPosition;
@@ -1327,11 +1328,25 @@ static void NativeJumpPredict(void) {
     }
     FieldJumpMotionInit(&motion,point.x,point.y,point.z,origin.x,origin.y,speed);
     for (frame=0;frame<160 && motion.phase!=3;frame++) {
+        oldX=motion.x; oldY=motion.y;
         FieldJumpMotionStep(&motion,sine,cosine,gNativeDirection!=0,point.ground);
         point.x=motion.x; point.y=motion.y; point.z=motion.z;
         if (FieldJumpTerrainCheck(&point,NativeJumpGround,NativeJumpBlocked,NULL)) {
-            /* A blocked airborne step can attach to a stair or ledge. */
-            gNativeJumpPrediction=2; return;
+            point.x=oldX; point.y=oldY;
+            attachment.x=oldX; attachment.y=oldY-1536;
+            attachment.z=point.z; attachment.ground=point.ground;
+            if (GetFldPosClimbDir(&attachment)) { gNativeJumpPrediction=2; return; }
+            attachment.y=oldY+1536;
+            if (GetFldPosClimbDir(&attachment)) { gNativeJumpPrediction=2; return; }
+            if (motion.phase==2 && point.ground-motion.z>4095) {
+                overLedge=point; overLedge.y-=1024; overLedge.z-=12288;
+                underLedge=overLedge; underLedge.z+=768;
+                if (!FieldJumpTerrainCheck(&overLedge,NativeJumpGround,NativeJumpBlocked,NULL) &&
+                    FieldJumpTerrainCheck(&underLedge,NativeJumpGround,NativeJumpBlocked,NULL)) {
+                    gNativeJumpPrediction=2; return;
+                }
+            }
+            FieldJumpMotionWall(&motion,oldX,oldY,point.ground);
         }
     }
     if (motion.phase==3) {
