@@ -749,3 +749,17 @@ control works at spawn; it does not cover the recorded chest approach or
 prove lock-on caused those delays. No speculative controller change made.
 The current two-run compact-HUD campaign remains live and is still in its
 first run; no terminal/multiple-seed success claimed.
+
+### Recorded chest-approach verification
+
+An explicit saved fixture recreates Traverse Town room9 approach50387,59052,0
+with north-facing R+Up input then native melee. All4 checks pass: persistent
+north facing, unchanged movement/action before attack, actual chest opening
+with pending reward and one spent attack action. After boot it uses input
+only. The fixture clears encounters and fixes a valid Key hand; it is not
+campaign/lock-on evidence with live enemies. The first fixture inherited an
+earlier chest count and its failed assertion is retained separately.
+`recorded-chest-counter-fixed-evidence` preserves current4dec13bdf ROM/driver
+hashes. This rules out basic geometry/facing failure at that cleared approach,
+but does not explain intermittent replay/live-enemy delays. No controller
+change is justified by this result. Two-run campaign remains live separately.
