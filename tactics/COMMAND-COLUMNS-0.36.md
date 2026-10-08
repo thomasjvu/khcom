@@ -10,8 +10,10 @@ columns on the same row; Up/Down cycles six choices. Ready living party
 members precede enemies; party actions can be freely ordered. All other0.35
 native game features remain, including single-play companion action poses.
 
-229 scoped native checks pass:40 UI,17 Donald healing,26 Goofy spin/Guard/menu,
-89 Guard Armor/Jafar/Marluxia and57 reward checks. Rewards include capped/owned
+342 scoped native checks pass:40 UI,17 Donald healing,26 Goofy spin/Guard/menu,
+89 Guard Armor/Jafar/Marluxia,57 reward and113 height-preview checks. Height
+fixtures cover multi-segment routes, actor occupancy, top boundaries,
+descent-to-walking, cancellation, exact budgets and suspend/reset. Rewards include capped/owned
 upgrade availability, persistent Donald power and actual magic damage, and
 both Cloud summon and ordinary boss-power choices through save/reset. Explicit combat/phase/transition fixtures are
 recorded separately from full input-only campaigns. Native all-room replay

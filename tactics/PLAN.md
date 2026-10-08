@@ -1489,3 +1489,15 @@ state through reset and release original art resources on exit. Initial short
 1700-frame attempts were incomplete; final1900/2400 runs include every check.
 Hashes and metadata finalized, total229 current scoped native checks. Revised
 three-run session21328 polled live in its second seed; result remains pending.
+
+## Current native height preview review
+
+113 checks pass on exact0.36 ROM: base32, multi-segment25, occupancy15,
+top-boundary14, composed descent-to-walking27. Fixtures initially position the
+actor on real generated stairs (occupancy also moves blockers); subsequent
+preview/confirm/execution uses original native physics. Covers cancellation,
+vertical/combined costs, actor occupancy, route boundaries, budgets, attached
+state persistence, exact suspend/reset and party selection after arrival.
+All five processes exited0; count/ROM/script/log hashes verified. Total342
+scoped current native checks. These fixtures complement, rather than replace,
+the full all-room campaign. Three-run session21328 remains live on third seed.
