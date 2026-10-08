@@ -15,7 +15,8 @@ keys = ('gNativeDeck', 'gNativeRoster', 'gNativePartyHealth', 'sPartyPos',
         'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeSaveNotice', 'sSaveSlot')
 out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
-script = ''.join(f'local {k}=0x{names[k]:x}\n' for k in keys) + Path(
+roster_bytes=next(int(w[1],16) for line in subprocess.check_output(['arm-none-eabi-nm','-S',a.elf],text=True).splitlines() if len(w:=line.split())==4 and w[3]=='gNativeRoster')
+script = f'local rosterBytes={roster_bytes}\n'+''.join(f'local {k}=0x{names[k]:x}\n' for k in keys) + Path(
     'tests/tactics_native_sram_smoke.lua').read_text().replace('@OUTPUT@', str(out))
 (out / 'test.lua').write_text(script)
 (out / 'metadata.json').write_text(json.dumps({

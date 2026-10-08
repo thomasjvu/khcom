@@ -9,7 +9,7 @@ local function sramWord(address)
  return value
 end
 local function state()
- return emu:readRange(gNativeDeck,78)..emu:readRange(gNativeRoster,39)..
+ return emu:readRange(gNativeDeck,78)..emu:readRange(gNativeRoster,rosterBytes)..
   emu:readRange(gNativePartyHealth,3)..emu:readRange(sPartyPos,48)..
   emu:readRange(gNativeMoveLeft,2)..emu:readRange(gNativeActionLeft,2)
 end

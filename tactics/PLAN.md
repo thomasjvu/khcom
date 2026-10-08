@@ -1838,3 +1838,26 @@ build/tactics-us/aladdin-clear-card-full-run-evidence with Cloud/Aladdin recruit
 suspend in room4 and composed descent required. Frontend session22497 was live
 at the last poll. Its process completion and full-run result are not yet proven.
 Previous 0.40 campaign certificates do not certify this changed ROM.
+
+## Six-hero native persistence audit (October 8)
+
+Save-fallback regression now obtains the whole roster size from ELF rather than
+comparing only the prior five-hero prefix. Twelve native checks pass on current
+ROM 1f52bcd88993a08ef318a9ba72ea19b7c410e181a113d8911e1a040597ca519d,
+including alternating generations, newest-slot reset and explicitly corrupted
+newest-slot fallback. Native KO-reserve test uses the current identity HP offset;
+seven checks verify Aladdin can replace a knocked-out Donald without reviving
+Donald or Goofy or altering Sora's health.
+
+Seven additional native compatibility checks resume the recorded format-12 Donald
+SRAM fixture, compare all six semantic hero records and every deck byte against
+a host-decoded oracle, save through native input into format13, and reboot again
+with records/deck/control/health preserved. This fixture tests actual old-version
+SRAM import rather than merely current-version reset. All three bounded emulator
+processes exit0, exact ROM/driver/check hashes recorded. Current scoped count158.
+Strict C89 ASan/UBSan host suite also passes after the six-hero integration.
+
+The running input-only sweep recorded natural ALADDIN RECRUITED207953 and
+ALADDIN DEPLOYED212092, after earlier Cloud recruitment/deployment and suspend.
+Its full terminal coverage and frontend exit remain pending until process22497
+actually finishes.
