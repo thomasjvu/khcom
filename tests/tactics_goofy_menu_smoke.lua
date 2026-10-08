@@ -89,20 +89,25 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeActionLeft)==0 and emu:read8(gNativeDeck+48)==2,'Goofy Guard spends one card and action')
   emu:setKeys(516)
  end
- if f==1220 then
+ if f==1360 then
+  check(emu:read16(gNativeFriendPose+2)==1 and emu:read16(sFriends+56+50)==0,'Goofy holds Guard pose after action animation timer expires')
+  check((emu:read16(sFriends+56+8)&1)==0,'held Goofy Guard animation remains single play')
+  emu:screenshot('@OUTPUT@/goofy-guard-held.png')
+ end
+ if f==1620 then
   check(emu:read16(gNativeParty)==0,'Guard fixture switches back to Sora')
   emu:write16(gNativeActionLeft,1);emu:write16(gNativeGuard,0)
   for i=0,11 do emu:write8(gNativeDeck+i,3);emu:write8(gNativeDeck+48+i,i<5 and 1 or 0) end
   emu:write8(gNativeDeck+73,0);emu:setKeys(4)
  end
- if f==1260 or f==1300 then emu:setKeys(1) end
- if f==1340 then
+ if f==1660 or f==1700 then emu:setKeys(1) end
+ if f==1740 then
   check(emu:read16(gNativeMenu)==3 and emu:read16(gNativeGuard)==0,'Sora Guard opens confirmation without spending')
   emu:screenshot('@OUTPUT@/sora-guard.png');emu:setKeys(1)
  end
- if f==1380 then
+ if f==1780 then
   check(emu:read16(gNativeGuard)==1,'Sora Guard enables one-damage party protection')
   check(emu:read16(gNativeActionLeft)==0 and emu:read8(gNativeDeck+48)==2,'Sora Guard spends one card and action');out:close()
  end
- if f>=1020 and f<=1340 and f%40==24 then emu:setKeys(0) end
+ if f>=1020 and f<=1740 and f%40==24 then emu:setKeys(0) end
 end)

@@ -2,8 +2,8 @@
 
 Current source ROM adds column navigation, SHA256
 `27acd304ee14ab79fd4e1892d0cb5bb807b2adde0dd093245d2c8876c7b29950`.
-It passes40 scoped native UI checks (8 column navigation,26 menu/save,6 turn
-strip). Three-run and all-room campaigns are pending on this exact ROM.
+It passes83 scoped native checks (40 UI,17 Donald healing and26 Goofy
+moves/menus/Guard fixtures). Three-run and all-room campaigns are pending on this exact ROM.
 Latest packaged0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
 passes51 scoped checks, two campaigns327681 and all36/nine chests295578.
 Earlier0.34 two runs PASS288347 and its all-room defeats130336/134022 remain
@@ -16,7 +16,7 @@ describe earlier versions; current evidence wins.
 | Fork and native GBA ROM | Fork thomasjvu/khcom, draft PR1, tactics native target, byte-identical BPS apply | Final release packaging and reproducible instructions |
 | Original 2.5D scenes, actors, cards | Native field renderer/collision/animation; inspected native screenshots | Further visual review of each biome |
 | Procedural maps from town/castle assets | Seeded room/platform generation; all36 rooms traversed on earlier 0.33 ROM | Wider seed physical reachability, especially stairs/props |
-| Controllable Sora/Donald/Goofy | Separate budgets/HP; menu and native party checks; Donald magic/Cure and Goofy spin/Guard | Current-ROM review of all moves and attached poses |
+| Controllable Sora/Donald/Goofy | Separate budgets/HP; menu and native party checks; Donald magic/Cure and Goofy spin/Guard | Current ROM Donald healing17 and Goofy spin/Guard26 checks pass; other hero/recipe combinations and visual review remain |
 | Fight/recruit Cloud; party assembly only at round start | Actual fresh-run fight/recruit/deploy; recruit and alternative-power fixtures; original character cards in setup | Wider recruit/reward balance |
 | Optional Aerith/Tifa suggestion | Aerith gEarF00/F01/B00/B01 idle/walk and gEarisPalette confirmed; no Tifa resources found | Inspect actual Aerith resources and feasibility; neither recruit is implemented |
 | Original Rally | Five-hero roster; menu/save/reset, walking/actions/air native tests and golden asset checks | Card and six hurt/climb/cast poses implemented and native captures inspected; further visual review |

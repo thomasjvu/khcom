@@ -1424,3 +1424,16 @@ reset26/26 and rendered turn-strip fixtures6/6 pass on this exact ROM.
 Full three-run session81749 (540003 emulator frames) and all-room/nine-chest
 session58715 (300003) are fresh native input-only campaigns, pending. No
 earlier complete-ROM evidence is promoted to this newer hash.
+
+## Current native companion combat review
+
+On ROM27acd304ee14ab79fd4e1892d0cb5bb807b2adde0dd093245d2c8876c7b29950,
+Donald healing17/17 and Goofy moves/menus/Guard26/26 pass with disclosed
+fixtures. Donald uses specialty+8 and owned Cure+4, caps recovery, revives
+Goofy, spends one action with exact card exhaustion, and resumes identical
+party/deck/upgrade state. The first Donald fixture failed three expectations
+because stale byte9 now addresses Sora; corrected byte10 targets Donald.
+Failed evidence retained, native code unchanged. Goofy held-Guard test waits
+until48-frame action timer reaches zero, verifies pose1 persists and animation
+loop flag remains clear. Native screenshots captured. Total83 scoped current
+native checks, including40 previous UI checks. Full campaigns still pending.

@@ -1,5 +1,6 @@
 -- Native Donald deployment, stocking, healing, and suspend/reset.
 -- Explicit health/card/upgrade fixtures isolate capped healing and revival.
+-- Five-hero FieldRoster.sleights starts at byte9; Donald is hero1 (byte10).
 local f=0
 local out=io.open('@OUTPUT@/donald-healing.txt','w')
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
@@ -30,7 +31,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeSleightHeal+2)==10,'healing preview caps Donald recovery at missing health')
   check(emu:read16(gNativeSleightHeal+4)==46,'party healing preview includes knocked-out Goofy')
   check(emu:read16(gNativeActionLeft)==1,'healing preview preserves the action')
-  emu:write8(gNativeRoster+9,4)
+  emu:write8(gNativeRoster+10,4)
  end
  if f==400 then
   check(emu:read16(gNativeSleightHeal)==50 and emu:read16(gNativeSleightHeal+4)==50,'owned Cure enhancement stacks with Donald specialty')
@@ -53,7 +54,7 @@ callbacks:add('frame',function()
  if f==710 then
   check(emu:read16(gNativeParty)==1 and emu:read16(gNativeActionLeft)==0,'reset retains Donald selection and spent action')
   check(emu:read8(gNativePartyHealth)==70 and emu:read8(gNativePartyHealth+1)==56 and emu:read8(gNativePartyHealth+2)==50,'reset retains capped healing and revived companion')
-  check(emu:read8(gNativeRoster+9)==4,'reset retains Donald owned Cure enhancement')
+  check(emu:read8(gNativeRoster+10)==4,'reset retains Donald owned Cure enhancement')
   check(emu:read8(gNativeDeck+48)==3 and emu:read8(gNativeDeck+49)==2 and emu:read8(gNativeDeck+50)==2,'reset retains exact first-card exhaustion and discarded cards')
   out:close()
  end

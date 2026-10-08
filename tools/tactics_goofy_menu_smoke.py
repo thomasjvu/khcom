@@ -15,7 +15,7 @@ keys=('gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
  'gNativeParty','gNativeFireDamage','gNativeSkillDamage','gNativeActionLeft',
  'gNativeEnemyHp','gNativeEnemyCharge','gNativeThreats','gNativePartyHealth',
  'sEnemyTasks','sPartyPos','gNativeSaveNotice','gNativeGuard','gNativeDeck',
- 'gNativeMenu','sValueTiles','sValuePalette','sCardTiles','sCardPalettes')
+ 'gNativeMenu','gNativeFriendPose','sFriends','sValueTiles','sValuePalette','sCardTiles','sCardPalettes')
 header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 script=header+Path('tests/tactics_goofy_menu_smoke.lua').read_text().replace('@OUTPUT@',str(out))
 rom=Path(a.elf).resolve().with_suffix('.gba')
@@ -27,6 +27,6 @@ if not rom.is_file():p.error('matching built ROM required beside ELF')
  'driver_sha256':hashlib.sha256(script.encode()).hexdigest(),
  'driver_logic_sha256':hashlib.sha256(script.replace(str(out),'@OUTPUT@').encode()).hexdigest(),
  'explicit_memory_fixtures':True,
- 'expected_checks':24,
+ 'expected_checks':26,
  'result':'not yet observed; inspect moves.txt'
 },indent=2)+'\n')
