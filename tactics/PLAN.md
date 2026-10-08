@@ -1046,3 +1046,10 @@ captured SRAM passes production host encode/decode. The eight-video-frame
 native completion wait explains why the earlier fixed four-frame check was
 premature at this checkpoint. This full all-room/chest run remains live
 under300000 frames; main-route0.27 proof and wider failures remain distinct.
+
+That run is now terminal: native party defeat131133 in Agrabah room10,
+21 kills910 attempts, all12 Traverse Town rooms and5 total chests. Completed
+save/exact resume remains PASS; all-room victory remains unproven. The
+door-corner and save-observation fixes do not imply combat survival or fix
+the separate second-seed Castle entrance stall. No replay is still live
+from this batch; terminal logs/snapshots are preserved for next fixes.
