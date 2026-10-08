@@ -1,7 +1,7 @@
 # KH Tactics
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
-The packaged **0.38 Skills/Party UI development build** runs in the original 2.5D engine with full
+The packaged **0.39 Jump Preview development build** runs in the original 2.5D engine with full
 Sora/Donald/Goofy/enemy sprites, world tiles, height, collision, ledges, doors and props.
 
 Rooms are generated from a seed using each world's assets. They are not copies
@@ -32,14 +32,14 @@ either companion. Every second unique room clear grants a personal upgrade.
 Original cards support explicit Fire/Cure targets,
 matching-type sleights and three-card chest reward choices. Palette budgets
 keep party, card artwork and value digits visible beside generated scenery.
-The packaged 0.38 ROM passes 540 scoped native checks and three complete
-fresh-SRAM runs with native retry, Cloud recruitment/deployment, exact
-suspend/reset, and composed descent-to-walking routes. The emulator exits
-successfully after the three-run replay. A separate exact-ROM all36-room/nine-chest replay passes253238 with successful
-emulator exit. These tests cover their recorded seeds
-and routes; they do not prove physical reachability for every generated seed.
-See [0.38 patch notes](tactics/SKILLS-PARTY-UI-0.38.md) and
-[release audit](tactics/RELEASE-AUDIT.md) for current evidence and remaining work.
+The packaged 0.39 ROM passes 79 scoped native checks and three complete
+fresh-SRAM campaigns, with native retry, Cloud recruitment/deployment,
+suspend/reset and composed descents in each run. The frontend exits0 and
+ROM/driver/log hashes are verified. A three-seed all-room/chest sweep remains
+running. Prior 0.38's 540 scoped checks and all-room campaign belong to that
+version. These tests cover recorded seeds and routes.
+See [0.39 patch notes](tactics/JUMP-PREVIEW-0.39.md) and
+[release audit](tactics/RELEASE-AUDIT.md) for evidence and remaining work.
 
 The normal HUD occupies 18 pixels at the top and 16 at the bottom. Commands
 opens a 40-pixel top panel; Skills and detailed choices use 56 pixels. Ready
@@ -51,7 +51,8 @@ can continue into walking; arbitrary combined jump/climb path discovery,
 additional recruits and final content/visual polish remain unfinished.
 Door travel preserves the selected member, every party budget and active Guard;
 backtracking cannot refill turn resources. One B press commits a native full-height
-jump; moving jumps have a world-space travel budget and safely hand off to stairs.
+jump. Resolved jump previews draw a field landing diamond; stair and ledge
+attachments have explicit status labels. Moving jumps have a world-space travel budget and safely hand off to stairs.
 Sword hits on open doors preserve the generated room and normal walk-through travel.
 Tactical enemies begin on their assigned floor, including the original flying roles.
 

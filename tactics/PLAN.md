@@ -1669,3 +1669,7 @@ Current ROM passes48 native area recipe checks: Sora, Donald, Goofy and Rally ea
 ### Cloud completes area caster matrix
 
 Cloud area fixture passes12, completing60 scoped area checks across all5 heroes. Explicit Cloud unlock is applied after roster initialization; actual party deployment uses native assembly cycling, then native stock/play. An earlier unlock before initialization was overwritten and failed identity validation; preserved. Cloud fixture verifies mechanics, not recruitment acquisition (separate live fresh campaign covers recruitment). Current three-run script reports PASS379750, but frontend89724 still live to its540003-frame bound; terminal exit/hash audit required before promoting full proof. All-room3run frontend70148 remains live.
+
+### Version0.39 development package
+
+Three-run attachment-preview campaign PASS379750 verified after frontend89724 exit0; three victories,2 native retries,3 Cloud deployments,3 suspend requests and3 verified composed descents, exact ROM/driver/log hashes. Version0.39 BPS98,240B applies byte-identically to current ROM; manifest records79 exact-ROM scoped native checks. Native all-room3seed frontend70148 remains live and is not promoted as passed. README/build/current audit updated with version scope. Final release is still unproven.

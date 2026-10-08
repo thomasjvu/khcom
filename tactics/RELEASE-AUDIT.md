@@ -1,6 +1,8 @@
 # Current release audit
 
-Current packaged0.38 ROM SHA256 `2d438556ac07c2e9340f6c9591d6435413bc42e5174ed0321e3dc8fe1688c7af`.
+Current packaged0.39 ROM SHA256 `35953e2f0493cfd1e6e1c14bef9cda3d10c1e7974210c569ca6f0ca955349572`. It passes79 exact-ROM scoped native checks (12 stair forecasts,7 ledge forecasts,60 five-hero area recipes) and three native campaigns PASS379750, frontend exit0. BPS application matches the build byte for byte. The three-seed all-room/chest sweep is still live; universal navigation and final visual/content polish remain unproven. See [0.39 notes](JUMP-PREVIEW-0.39.md). Earlier evidence below is version-scoped.
+
+Previous packaged0.38 ROM SHA256 `2d438556ac07c2e9340f6c9591d6435413bc42e5174ed0321e3dc8fe1688c7af`.
 It passes540 scoped native checks:95 menu/party/recipes,114 bosses/Cloud,
 113 height previews,58 rewards/deployment,52 companion combat,56 party/SRAM
 and52 Rally actions/states/directions. Three-run PASS379646, frontend exit0.
