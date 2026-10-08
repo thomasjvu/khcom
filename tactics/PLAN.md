@@ -828,3 +828,18 @@ room0-to1 passes979; JSON parses and1136-byte dump size verified in
 main campaign is live in `save-validator-current-main-evidence`, retaining
 Cloud, room4 exact save/resume, composed descent and120000-frame bound.
 Its pending-state dump will allow host validation if save failure repeats.
+
+### Cross-ABI save-state inspector
+
+Read-only `tools/tactics_save_state_inspect.c` accepts native SRAM or pending
+state dumps and uses the unchanged production FieldSaveEncode/Decode as its
+verdict. It prints deck/roster validity, party budgets and encounter-kind/
+coordinate/cached-count inconsistencies. agbcc rounds encounter structs to
+12 bytes (host10) and deck structs to80 (host78); explicit native mirror
+layout1136 is translated into host FieldSaveState992 before validation.
+No production format or validator relaxed. A loaded native Agrabah fixture
+dump converts to correct floor1/room5/HP73 and passes production roundtrip;
+known native SRAM also passes, uninitialized zero dump rejects as expected.
+`native-save-layout-evidence` captures the actual native dump and4307-frame
+room6 traversal. Current campaign save request22764/suspend22768 succeeded;
+full terminal campaign result remains pending separately.
