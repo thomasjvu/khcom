@@ -3,9 +3,9 @@
 Current source ROM adds column navigation, SHA256
 `27acd304ee14ab79fd4e1892d0cb5bb807b2adde0dd093245d2c8876c7b29950`.
 It passes342 scoped native checks (40 UI,17 Donald healing,26 Goofy
-moves/menus/Guard,89 boss,57 reward and113 height-preview fixtures). All-room/nine-chest campaign passes295578 on this exact ROM; three-run
-campaign ended FAIL444879: third stable victory missed required composed
-descent; first two seeds completed.
+moves/menus/Guard,89 boss,57 reward and113 height-preview fixtures). All-room/nine-chest campaign passes295578 on this exact ROM; revised three-run
+campaign passes448492, with required native descent/reset/recruitment each.
+Earlier policy failure444879 remains preserved.
 Latest packaged build is0.36 (current source hash above). Earlier0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
 passes51 scoped checks, two campaigns327681 and all36/nine chests295578.
 Earlier0.34 two runs PASS288347 and its all-room defeats130336/134022 remain

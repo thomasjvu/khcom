@@ -21,7 +21,10 @@ PASS295578 visits all36 rooms, opens nine chests, fights/recruits/deploys Cloud,
 verifies exact suspend/reset and composed descent, and ends with Sora80 HP
 stable120 frames. Process exited0; ROM/driver/log hashes verified.
 
-Three-run replay first two seeds complete129417/327681, but the third stable
-victory444879 failed the required composed descent count. This failure is
-retained. Revised replay seeks suitable stairs in later rooms/worlds and is
-pending; no three-run success is claimed. Final polish audit remains open.
+Three-run revised replay PASS448492: stable victories129417 HP76,326093
+HP76 and448492 HP80, native retry seeds2658846982 and1018315455. Each run
+requires actual Cloud recruit/deploy, exact suspend/reset and composed
+descent. Third descent executes in Agrabah at385146; actual native landing
+and subsequent walking/budgets verified. ROM/driver/log hashes recorded.
+The earlier failure444879 remains preserved; its policy only sought the
+descent in the starting room. Final polish audit remains open.

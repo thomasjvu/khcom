@@ -1501,3 +1501,13 @@ state persistence, exact suspend/reset and party selection after arrival.
 All five processes exited0; count/ROM/script/log hashes verified. Total342
 scoped current native checks. These fixtures complement, rather than replace,
 the full all-room campaign. Three-run session21328 remains live on third seed.
+
+## Three current native campaigns completed
+
+Revised any-room descent replay PASS448492 on exact0.36 ROM: first stable
+victory129417 HP76; retry129429 seed2658846982; second stable victory326093
+HP76; retry326105 seed1018315455; third stable victory448492 HP80. Per-run
+Cloud recruitment/deployment, suspend/reset stage3 and native composed descent
+all required and verified. Third descent385146 in Agrabah validates the policy
+fix. ROM/driver/log hashes finalized; earlier FAIL444879 retained. Emulator
+session21328 still finishes its540003-frame frontend bound after script pass.
