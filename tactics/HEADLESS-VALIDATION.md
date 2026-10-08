@@ -39,3 +39,23 @@ all-room campaign was started with a 300000-frame bound; its terminal result
 must be recorded separately. The older desktop all-room session remains
 untouched. Native tests and campaign scripts use their actual ROM and ELF;
 never mix these with an older package's completion evidence.
+
+## Complete current-ROM campaigns
+
+The revised driver in ed20c687c passes the native input-only main route at
+frame 119943 (victory119823, Sora80 HP stable120 frames, 14 kills).
+Cloud recruited18931/deployed24436; suspend8798/exact resume9128;
+composed descent1258; worlds47957/82429. Evidence:
+`build/tactics-us/headless-ack-combat-main-evidence`.
+
+The independently running pre-revision driver also completes all rooms at
+frame281892 (victory281772, Sora80 HP stable120 frames, 41 kills).
+All three room masks are4095, all nine chests opened; Cloud recruited28856/
+deployed34832; suspend14734/exact resume15064; composed descent1218;
+worlds81469/160785. Evidence:
+`build/tactics-us/headless-current-all-rooms-evidence`.
+
+These are separate fresh-SRAM replays of the exact 0.32 ROM above. Completed
+metadata verifies ROM and generated-driver hashes and records the terminal
+log hash. The earlier120000-frame failure remains retained. Two consecutive
+seeds are being tested separately; one-seed success does not prove them.

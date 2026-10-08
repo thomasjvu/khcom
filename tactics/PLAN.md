@@ -1211,3 +1211,16 @@ README now identifies the actual 0.32 package and compact phase/menu UI.
 This is progress toward the full goal, not completion; complete current
 campaigns, wider seeds, remaining Rally assets and final content polish
 are still required.
+
+
+Current 0.32 complete-run proofs (2026-10-08): main-route input-only run
+54345 exit0/PASS119943; all-room run82835 exit0/PASS281892. Both exact ROM
+6f7a3b146689c71c1442566927fbe8ad30494e60ed19efa0af1192843057503d, fresh
+SRAM, Cloud recruit/deploy, exact suspend/reset, composed descent and
+Sora80 HP stable120 frames after victory. All-room masks4095 each, nine
+chests, 41 kills. Generated driver/ROM/log hashes checked and metadata
+finalized; local0.32 package manifest extended with scoped proof. Main
+uses acknowledged combat/reward driver ed20c687c; all-room uses earlier
+immutable script. Their earlier failures are preserved. Consecutive two-
+seed native-retry job26675 is live at headless-ack-two-runs-evidence with
+240000 frame bound. Full content/art/hardware polish still unfinished.
