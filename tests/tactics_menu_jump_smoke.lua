@@ -1,6 +1,7 @@
 -- Input-only command Move to Jump confirmation and native jump execution.
 local f=0
 local startX=0
+local predictedX,predictedY,predictedZ
 local out=io.open('@OUTPUT@/checks.txt','w')
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 callbacks:add('frame',function()
@@ -27,7 +28,13 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeMenu)==0 and emu:read16(gNativeBusy)==2,'confirmation starts native jump')
   check(emu:read16(gNativeMoveLeft)==2 and emu:read16(gNativeActionLeft)==0,'moving jump spends one movement and action')
  end
+ if f==520 then
+  check(emu:read16(gNativeJumpPrediction)==1,'terrain predictor resolves the clear moving jump')
+  predictedX=emu:read32(gNativeJumpLanding);predictedY=emu:read32(gNativeJumpLanding+4);predictedZ=emu:read32(gNativeJumpLanding+8)
+ end
  if f==800 then
+  local field=emu:read32(gFieldState)
+  check(emu:read32(field+0x18)==predictedX and emu:read32(field+0x1c)==predictedY and emu:read32(field+0x20)==predictedZ,'native landing agrees exactly with pre-commit terrain prediction')
   check(emu:read32(emu:read32(gFieldState)+0x18)>startX and emu:read16(gNativeBusy)==0,'native moving jump travels and settles');emu:screenshot('@OUTPUT@/landed.png')
  end
  if f==840 then emu:setKeys(4) end

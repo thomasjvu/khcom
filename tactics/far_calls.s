@@ -804,3 +804,17 @@ TacFar_MapSnapCamera:
  bx r3
 .balign 4
 1: .word MapSnapCamera + 1
+
+.balign 4
+.global TacFar__call_via_r9
+.thumb_func
+TacFar__call_via_r9:
+ bx r9
+.balign 4
+.global TacFar_GetAngleDiff
+.thumb_func
+TacFar_GetAngleDiff:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word GetAngleDiff + 1

@@ -38,6 +38,7 @@
 #include "field_save.h"
 #include "field_party.h"
 #include "field_route.h"
+#include "field_jump.h"
 #include "field_enemy.h"
 #include "display.h"
 #include "ui_font.h"
@@ -1285,6 +1286,60 @@ static void NativeIntentDraw(void) {
             sValueTiles, sValuePalette, NULL, 0, 0);
     }
 }
+/* Diagnostic only until collider/attachment agreement is verified. */
+FldPos gNativeJumpLanding;
+u16 gNativeJumpPrediction;
+static int NativeJumpGround(FieldJumpPoint* point, void* context) {
+    (void)context;
+    return GetFldPosGround((FldPos*)point);
+}
+static int NativeJumpBlocked(FieldJumpPoint* point, void* context) {
+    (void)context;
+    return IsFldPosBlocked((FldPos*)point);
+}
+static void NativeJumpPredict(void) {
+    FieldJumpMotion motion;
+    FieldJumpPoint point;
+    FldPos origin;
+    int angle, speed, frame, sine, cosine;
+    gNativeJumpPrediction=0;
+    if (gNativeMenu!=6 || gNativeBusy || !gNativeActionLeft) return;
+    origin=gFieldState->actor.fieldPosition;
+    angle=gFieldState->actor.angle;
+    speed=0;
+    if (gNativeDirection) {
+        angle=(gNativeDirection & DPAD_UP) ?
+            ((gNativeDirection & DPAD_LEFT) ? 211 : (gNativeDirection & DPAD_RIGHT) ? 45 : 0) :
+            (gNativeDirection & DPAD_DOWN) ?
+            ((gNativeDirection & DPAD_LEFT) ? 173 : (gNativeDirection & DPAD_RIGHT) ? 83 : 128) :
+            (gNativeDirection & DPAD_LEFT) ? 192 : 64;
+        speed=614;
+        if (angle!=gFieldState->actor.angle)
+            speed=NativeAbs((s8)GetAngleDiff(gFieldState->actor.angle,angle))>100 ? 0 : speed/2;
+        speed+=128; if (speed>614) speed=614;
+    }
+    sine=gSineTable[angle]; cosine=gSineTable[angle+64];
+    point.x=origin.x+(sine*speed >> 8);
+    point.y=origin.y+(-cosine*speed >> 8);
+    point.z=origin.z; point.ground=origin.ground;
+    if (FieldJumpTerrainCheck(&point,NativeJumpGround,NativeJumpBlocked,NULL)) {
+        gNativeJumpPrediction=2; return;
+    }
+    FieldJumpMotionInit(&motion,point.x,point.y,point.z,origin.x,origin.y,speed);
+    for (frame=0;frame<160 && motion.phase!=3;frame++) {
+        FieldJumpMotionStep(&motion,sine,cosine,gNativeDirection!=0,point.ground);
+        point.x=motion.x; point.y=motion.y; point.z=motion.z;
+        if (FieldJumpTerrainCheck(&point,NativeJumpGround,NativeJumpBlocked,NULL)) {
+            /* A blocked airborne step can attach to a stair or ledge. */
+            gNativeJumpPrediction=2; return;
+        }
+    }
+    if (motion.phase==3) {
+        gNativeJumpLanding.x=motion.x; gNativeJumpLanding.y=motion.y;
+        gNativeJumpLanding.z=motion.z; gNativeJumpLanding.ground=point.ground;
+        gNativeJumpPrediction=1;
+    }
+}
 static void NativeHud(void) {
     char line[] = "MOVE 3 ACT 1 HP 000";
     char turns[31];
@@ -1667,6 +1722,7 @@ static void NativeHud(void) {
             gNativeJafarReady ? "JAFAR SPELL CHARGED" : gNativeCloudReady ? "CLOUD SLASH CHARGED" :
             gNativeMarlReady ? (gNativeEnemyHp[0] <= 28 ? "RAGE SCYTHE CHARGED" : "SCYTHE CHARGED") : "GUARDIAN CHARGED");
     }
+    NativeJumpPredict();
     sHudPending = 1;
 }
 static void NativeExit(void) {
