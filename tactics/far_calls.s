@@ -2,6 +2,14 @@
 .section .text
 .thumb
 .balign 4
+.global TacFar_WriteAndVerifySramFast
+.thumb_func
+TacFar_WriteAndVerifySramFast:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word WriteAndVerifySramFast + 1
+.balign 4
 .global TacFar___divsi3
 .thumb_func
 TacFar___divsi3:

@@ -9,6 +9,7 @@
 #include "gba/keys.h"
 #include "gba/syscall.h"
 #include "gba/io_reg.h"
+#include "lib/agb_sram.h"
 #include "mode.h"
 #include "system_state.h"
 #include "game_state.h"
@@ -1032,9 +1033,7 @@ static void NativeRestoreWorld(void) {
     }
 }
 static void NativeReadSuspend(void) {
-    vu8* ram = (vu8*)0x0e000000;
-    u16 i;
-    for (i = 0; i < FIELD_SAVE_SIZE * 2; i++) sSaveBytes[i] = ram[i];
+    ReadSramFast((const u8*)0x0e000000, sSaveBytes, FIELD_SAVE_SIZE * 2);
     sSaveSlot = FieldSaveSelect(&sSuspend, &sGeneration, sSaveBytes,
         sSaveBytes + FIELD_SAVE_SIZE);
     if (sSaveSlot >= 0) {sResume = 1;NativeRestoreWorld();}
@@ -1059,9 +1058,9 @@ static void NativeCaptureEncounter(void) {
 }
 static void NativeWriteSuspend(void) {
     u8 i, j;
-    u16 k;
+    u8 invalidSignature[4] = {0, 0, 0, 0};
     s16 slot = sSaveSlot == 0 ? 1 : 0;
-    vu8* ram = (vu8*)(0x0e000000 + slot * FIELD_SAVE_SIZE);
+    u8* ram = (u8*)(0x0e000000 + slot * FIELD_SAVE_SIZE);
     sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
     sPartyMove[gNativeParty] = gNativeMoveLeft;
     sPartyAction[gNativeParty] = gNativeActionLeft;
@@ -1097,10 +1096,16 @@ static void NativeWriteSuspend(void) {
     NativeCaptureEncounter();
     gNativeSaveNotice = 2;
     if (!FieldSaveEncode(&sSuspend, sGeneration + 1, sSaveBytes)) return;
-    for (k = 0; k < 4; k++) ram[k] = 0;
-    for (k = 4; k < FIELD_SAVE_SIZE; k++) ram[k] = sSaveBytes[k];
-    for (k = 0; k < 4; k++) ram[k] = sSaveBytes[k];
-    for (k = 0; k < FIELD_SAVE_SIZE; k++) if (ram[k] != sSaveBytes[k]) return;
+    /* Distinguish SRAM verification failure from rejected state for native
+     * diagnostics; both remain SAVE FAILED in the player-facing HUD. */
+    gNativeSaveNotice = 3;
+    /* Use the original wait-state-aware SRAM library and RAM-resident
+     * verifier. Commit the signature last so the other slot remains a
+     * recoverable save if power is lost during the payload write. */
+    if (WriteAndVerifySramFast(invalidSignature, ram, 4)) return;
+    if (WriteAndVerifySramFast(sSaveBytes + 4, ram + 4, FIELD_SAVE_SIZE - 4)) return;
+    if (WriteAndVerifySramFast(sSaveBytes, ram, 4)) return;
+    if (VerifySramFast(sSaveBytes, ram, FIELD_SAVE_SIZE)) return;
     sGeneration++;
     sSaveSlot = slot;
     gNativeSaveNotice = 1;

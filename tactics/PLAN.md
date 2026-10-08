@@ -904,3 +904,52 @@ in Agrabah room3,10 kills/907 attempts; save/exact resume passed. Cancellation
 improves the isolated cleared fixture but does not establish full campaign
 recovery. Both terminal logs and snapshots are retained. Neither is a full
 campaign success; procedural traversal validation remains unfinished.
+
+### Native SRAM library and acknowledged route inputs
+
+The first rejected-direction main run failed a native save at18736 even
+though its captured state passes the unchanged production host encoder.
+The stage-diagnostic repeat distinguishes SRAM verification notice3 from
+state rejection notice2: save-encoded.bin exactly equals SRAM slot0, and
+both SRAM and captured state pass production host decoding. Evidence is
+retained in save-stage-direction-main-evidence. The direct verification
+loop therefore reported failure for a valid written payload.
+
+Suspend reads now use the original ReadSramFast. Writes use the original
+WriteAndVerifySramFast and RAM-resident VerifySramFast, including their
+wait-state setup and bounded retry policy. The inactive slot signature is
+invalidated, payload verified, and signature committed last; generation
+and selected slot advance only after complete verification. Added a far
+call veneer for the original library; no persistent RAM or save format
+change. State and SRAM rejection remain SAVE FAILED in the player UI.
+
+native-sram-library-byte-check-evidence passes12 native checks: two saves,
+alternating slots/generations, exact newest reset resume, and older exact
+fallback after explicit newest CRC corruption. Both captured SRAM files
+pass production host encode/decode. The initial version's three header
+assertions incorrectly used read32 on eight-bit SRAM; its failure evidence
+is preserved, corrected checks assemble bytes. Host deterministic30-run,
+3000-world graph and1000 resource-route oracle suite passes. Native build,
+header/capacity checks pass. Physical cartridge timing is not yet tested.
+
+sram-library-main-evidence passes Cloud, room4 save/exact resume, composed
+descent and both first worlds, but ends FAIL120001 in Castle room3 with
+15 kills/899 attempts. It is not a complete campaign proof.
+
+Replay route presses now wait until sRawKeys samples their held value and
+the native main-loop counter advances after that update. Video frames alone
+cannot release a press while native route search is still calculating.
+Repeated keys first wait for an acknowledged release; waits have a360-video-
+frame failure bound. This changes replay input delivery, not game rules.
+Uncommitted confirmations also avoid retrying the same direction at an
+identical position; displacement/room changes restore eligibility.
+
+Explicit Agrabah room3 suspend fixture matches the live failed snapshot's
+terrain, props, goal, roster/deck, positions, HP and budgets exactly. Current
+native input reaches room4 at2119 frames/16 attempts with no uncommitted
+confirmations, versus4740/36 before acknowledgement. The inherited4 kills
+are source-save statistics, not combat performed by this fixture. Evidence
+is in room3-native-ack-evidence; fixture generator is host-only and replay
+does not write game memory after boot. Input/rejection/preferred/ledge/retry
+policy tests pass. Fresh native-ack-full-main-evidence is still live; full
+campaign, all-room/multiple-seed traversal and broader polish remain open.

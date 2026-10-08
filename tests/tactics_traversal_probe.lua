@@ -1,6 +1,7 @@
 -- Input-only bounded exploration. No RAM writes, teleporting, or forced exits.
 local out=io.open('@OUTPUT@/traversal.txt','w')
 local f=0
+-- @INPUT@
 local nextFrame=180
 local phase='scan'
 local index=1
@@ -8,6 +9,21 @@ local dirs={16,32,64,128,80,96,144,160}
 local best=nil
 local planned=nil
 local pendingMove=nil
+local rejectedOrigin=nil
+local rejectedDirections={}
+local function rejectionKey(x,y,z)
+ return x..':'..y..':'..z
+end
+local function rejectedDirectionAt(x,y,z,direction)
+ if rejectedOrigin~=rejectionKey(x,y,z) then
+  rejectedDirections={};rejectedOrigin=rejectionKey(x,y,z)
+ end
+ return rejectedDirections[direction] or false
+end
+local function rejectDirectionAt(x,y,z,direction)
+ rejectedDirectionAt(x,y,z,direction)
+ rejectedDirections[direction]=true
+end
 local function rejectedMove(before,x,y,z,move,action,preview)
  return preview~=0 and before.x==x and before.y==y and before.z==z and
   before.move==move and before.action==action
@@ -288,6 +304,14 @@ local function navigationSnapshot(name)
  local raw=io.open('@OUTPUT@/'..(name or 'navigation-snapshot.json')..'.save-state.bin','wb')
  for i=0,suspendBytes-1 do raw:write(string.char(emu:read8(sSuspend+i))) end
  raw:close()
+ if name=='save-attempt.json' then
+  local encoded=io.open('@OUTPUT@/save-encoded.bin','wb')
+  for i=0,1023 do encoded:write(string.char(emu:read8(sSaveBytes+i))) end
+  encoded:close()
+  local sram=io.open('@OUTPUT@/save-sram.bin','wb')
+  for i=0,32767 do sram:write(string.char(emu:read8(0x0e000000+i))) end
+  sram:close()
+ end
 end
 local function finish(ok,why)
  navigationSnapshot()
@@ -426,12 +450,13 @@ local function replayFrame()
  if room~=previousRoom then
   if allRooms and room==optionalRoute[routeStep+1] then routeStep=routeStep+1 end
   out:write('ROOM '..room..' frames='..f..' hp='..emu:read8(gNativePartyHealth)..','..emu:read8(gNativePartyHealth+1)..','..emu:read8(gNativePartyHealth+2)..'\n');out:flush()
-  previousRoom=room;terrainPlan=nil;best=nil;visits={};index=1;phase='release';nextFrame=f+60
+  previousRoom=room;terrainPlan=nil;best=nil;visits={};rejectedOrigin=nil;rejectedDirections={};index=1;phase='release';nextFrame=f+60
   composedSelection=nil;composedApproach=nil
  end
  if emu:read16(gNativeResult)~=0 then finish(false,'run ended before traversal goal');return end
  if f>goalFrames then finish(false,'bounded explorer did not reach '..(goalWorlds>0 and ('world '..goalWorlds) or ('room '..goalRoom)));return end
  if f<nextFrame then return end
+ if waitNativeInput() then nextFrame=f+1;return end
  emu:setKeys(0)
  if busyInput() then return end
  if pendingMove then
@@ -440,10 +465,13 @@ local function replayFrame()
    ' actual='..x..','..y..','..z..' move='..pendingMove.move..' TO '..emu:read16(gNativeMoveLeft)..
    ' action='..pendingMove.action..' TO '..emu:read16(gNativeActionLeft)..'\n');out:flush()
   local rejected=rejectedMove(pendingMove,x,y,z,emu:read16(gNativeMoveLeft),emu:read16(gNativeActionLeft),emu:read16(gNativePreview))
+  local rejectedDirection=pendingMove.dir
   pendingMove=nil
   if rejected then
-   out:write('MOVE REJECTED cancel stale preview frame='..f..'\n');out:flush()
-   emu:setKeys(2);best=nil;index=1;phase='release';nextFrame=f+4;return
+   rejectDirectionAt(x,y,z,rejectedDirection)
+   local rejectedCost=emu:read16(gNativeRouteCost);if rejectedCost>=32768 then rejectedCost=rejectedCost-65536 end
+   out:write('MOVE REJECTED cancel stale preview frame='..f..' direction='..rejectedDirection..' cost='..rejectedCost..'\n');out:flush()
+   pressNative(2);best=nil;index=1;phase='release';nextFrame=f+4;return
   end
  end
  if suspendStage==2 and (world~=0 or room~=suspendRoom) then finish(false,'resume changed world or room');return end
@@ -649,12 +677,16 @@ local function replayFrame()
   emu:setKeys(stair);commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
  end
  if phase=='scan' then
-  if index==1 then planned=walkingDirection(dx,dy) end
-  emu:setKeys(512+dirs[index]);phase='inspect';nextFrame=f+4;return
+  if index==1 then
+   local x,y,z=pos()
+   rejectedDirectionAt(x,y,z,0)
+   planned=walkingDirection(dx,dy)
+  end
+  pressNative(512+dirs[index]);phase='inspect';nextFrame=f+4;return
  end
  if phase=='inspect' then
   local cost=emu:read16(gNativeRouteCost)
-  if emu:read16(gNativePreview)==1 and cost==1 then
+  if emu:read16(gNativePreview)==1 and cost==1 and not rejectedDirections[dirs[index]] then
    local x=emu:read16(sCursorX);if x>=32768 then x=x-65536 end
    local y=emu:read16(sCursorY);if y>=32768 then y=y-65536 end
    local a=sRoutePos+((y+4)*9+x+4)*16
@@ -671,13 +703,13 @@ local function replayFrame()
     index=1;emu:setKeys(0);phase='confirm';nextFrame=f+4;return
    end
   end
-  emu:setKeys(2);phase='cancel';nextFrame=f+4;return
+  pressNative(2);phase='cancel';nextFrame=f+4;return
  end
  if phase=='cancel' then
   index=index+1
   if index<=#dirs then phase='scan';nextFrame=f+4;return end
   index=1
-  if best then emu:setKeys(512+best.dir);phase='commit';nextFrame=f+4
+  if best then pressNative(512+best.dir);phase='commit';nextFrame=f+4
   else
    -- Walking into a stair or a door uses the original controller, not flat route edges.
    local x,y,z=pos();local key=dy<y and 64 or 128
@@ -690,8 +722,9 @@ local function replayFrame()
  if phase=='commit' then phase='confirm';nextFrame=f+4;return end
  if phase=='confirm' then
   local x,y,z=pos()
-  pendingMove={x=x,y=y,z=z,move=emu:read16(gNativeMoveLeft),action=emu:read16(gNativeActionLeft)}
-  emu:setKeys(1);commands=commands+1
+  pendingMove={x=x,y=y,z=z,move=emu:read16(gNativeMoveLeft),action=emu:read16(gNativeActionLeft),dir=best.dir}
+  out:write('MOVE CONFIRM frame='..f..' direction='..best.dir..' cost='..emu:read16(gNativeRouteCost)..' cursor='..emu:read16(sCursorX)..','..emu:read16(sCursorY)..'\n');out:flush()
+  pressNative(1);commands=commands+1
   local x,y,z=pos();local k=best.key;visits[k]=(visits[k] or 0)+1
   out:write('STEP '..commands..' '..x..' '..y..' '..z..'\n');out:flush()
   best=nil;phase='release';nextFrame=f+4

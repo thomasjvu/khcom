@@ -37,16 +37,16 @@ for line in subprocess.check_output(['arm-none-eabi-nm', a.elf], text=True).spli
     words = line.split()
     if len(words) == 3:
         names[words[2]] = int(words[0], 16)
-keys = ('gCurrentMode', 'gCurrentModeUpdate', 'gPendingMode', 'sNativeMode', 'NativeUpdate', 'gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
+keys = ('gFrameCounter','sRawKeys','gCurrentMode', 'gCurrentModeUpdate', 'gPendingMode', 'sNativeMode', 'NativeUpdate', 'gFieldState', 'gMapFloorState', 'gTaskDescMapRnd',
         'gTaskDescMapDoor', 'gTaskDescMapGmk01', 'gNativeChests', 'gNativeBusy', 'gNativeMenu', 'gNativeMenuChoice', 'gNativeEnemyFrames', 'gNativeParty', 'gNativeGuard', 'gNativeThreats', 'sPartyAction', 'gNativePreview',
         'gNativeRouteCost', 'gNativeMoveLeft', 'gNativeActionLeft', 'gNativeClimbing', 'gNativeCureTarget','gNativeReachCost','gNativeReachCount','gNativeClimbReachMask','sRouteValid','sPlayerEdge',
-        'sRoutePos', 'sCursorX', 'sCursorY', 'gMapRoomState', 'sMapCells', 'sMapPlatforms', 'gCellMasks', 'sEnemyTasks', 'gNativeDeck', 'gNativePartyHealth', 'gNativeKills', 'gNativeResult', 'gNativeReward', 'sColliderPoolObstacle', 'gNativeFloor', 'gNativeSeed', 'gNativeSaveNotice', 'gNativeProgressReward', 'sProgressHero', 'sProgressKind', 'sAssemblyChoice', 'gNativeRoster', 'gNativeAssembly', 'sSuspend', 'sPartyPos', 'gNativeEnemyHp', 'gNativeEnemyCharge')
+        'sRoutePos', 'sCursorX', 'sCursorY', 'gMapRoomState', 'sMapCells', 'sMapPlatforms', 'gCellMasks', 'sEnemyTasks', 'gNativeDeck', 'gNativePartyHealth', 'gNativeKills', 'gNativeResult', 'gNativeReward', 'sColliderPoolObstacle', 'gNativeFloor', 'gNativeSeed', 'gNativeSaveNotice', 'gNativeProgressReward', 'sProgressHero', 'sProgressKind', 'sAssemblyChoice', 'gNativeRoster', 'gNativeAssembly', 'sSuspend', 'sSaveBytes', 'sPartyPos', 'gNativeEnemyHp', 'gNativeEnemyCharge')
 out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
 suspend_bytes = next(int(w[1],16) for line in subprocess.check_output(['arm-none-eabi-nm','-S',a.elf],text=True).splitlines() if len(w:=line.split())==4 and w[3]=='sSuspend')
 header = f'local suspendBytes={suspend_bytes}\nlocal rosterBytes=39\nlocal initialRosterMask=23\nlocal composedDescent={str(a.composed_descent).lower()}\nlocal collectChests={str(a.collect_chests).lower()}\nlocal allRooms={str(a.all_rooms).lower()}\nlocal goalRuns={a.runs}\nlocal recruitCloud={str(a.recruit_cloud).lower()}\nlocal suspendRoom={a.suspend_room or 0}\nlocal goalRoom={a.rooms}\nlocal goalFrames={a.frames}\nlocal goalWorlds={a.worlds or 0}\n' + ''.join(f'local {key}=0x{names[key]:08x}\n' for key in keys)
 script = header + Path(
-    'tests/tactics_traversal_probe.lua').read_text().replace('-- @GEOMETRY@', Path('tests/tactics_traversal_geometry.lua').read_text()).replace('-- @REGIONS@', Path('tests/tactics_traversal_regions.lua').read_text()).replace('@OUTPUT@', str(out))
+    'tests/tactics_traversal_probe.lua').read_text().replace('-- @INPUT@', Path('tests/tactics_traversal_input.lua').read_text()).replace('-- @GEOMETRY@', Path('tests/tactics_traversal_geometry.lua').read_text()).replace('-- @REGIONS@', Path('tests/tactics_traversal_regions.lua').read_text()).replace('@OUTPUT@', str(out))
 
 # Tie replay evidence to the exact executable and driver, including helper code.
 elf = Path(a.elf).resolve()
