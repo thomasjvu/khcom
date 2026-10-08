@@ -29,3 +29,14 @@ memory[env.gNativeGuard]=2;assert(turn()==8);memory[env.gNativeParty]=0;assert(t
 memory[env.gNativeGuard]=0;memory[env.gNativeRoster+2]=3
 assert(turn()==8,'do not mistake Rally or Cloud for Goofy')
 print('party replay policy: Goofy Guard, phase wait, Sora return, unavailable member and attached stairs passed')
+
+-- Sixth identity can replace a KO companion without inventing health.
+env.heroCount=6;env.rosterHpOffset=21
+memory[env.gNativeRoster]=63;memory[env.gNativePartyHealth+1]=0
+memory[env.gNativeRoster+21+5]=60
+local reserve=assert(load(source..'\nreturn reserveReplacement','reserve-policy','t',env))()
+local slot,hero=reserve()
+assert(slot==1 and hero==5,'select living Aladdin reserve for KO Cloud')
+memory[env.gNativeRoster+21+5]=0
+assert(reserve()==nil,'no replacement without a living reserve')
+print('sixth hero reserve policy: identity HP offset and living-only selection passed')

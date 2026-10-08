@@ -44,6 +44,8 @@ local suspendStage=0
 local suspendSnapshot=nil
 local cloudRecruited=false
 local cloudDeployed=false
+local aladdinRecruited=false
+local aladdinDeployed=false
 local previousRoom=0
 local previousWorld=0
 local victoryFrame=nil
@@ -308,10 +310,10 @@ local function reserveReplacement()
  for slot=1,2 do
   if emu:read8(gNativePartyHealth+slot)==0 then
    local bestHero,bestHp=nil,0
-   for hero=1,4 do
+   for hero=1,heroCount-1 do
     local deployed=false
     for i=0,2 do if emu:read8(gNativeRoster+1+i)==hero then deployed=true end end
-    local hp=emu:read8(gNativeRoster+19+hero)
+    local hp=emu:read8(gNativeRoster+rosterHpOffset+hero)
     if (unlocked&(1<<hero))~=0 and not deployed and hp>bestHp then
      bestHero,bestHp=hero,hp
     end
@@ -533,6 +535,13 @@ local function replayFrame()
   cloudDeployed=true;out:write('CLOUD DEPLOYED frame='..f..'\n');out:flush()
   emu:screenshot('@OUTPUT@/cloud-deployed.png')
  end
+ if recruitAladdin and not aladdinRecruited and (emu:read8(gNativeRoster)&32)~=0 then
+  aladdinRecruited=true;out:write('ALADDIN RECRUITED frame='..f..'\n');out:flush()
+ end
+ if recruitAladdin and not aladdinDeployed and emu:read8(gNativeRoster+2)==5 and emu:read16(gNativeAssembly)==0 then
+  aladdinDeployed=true;out:write('ALADDIN DEPLOYED frame='..f..'\n');out:flush()
+  emu:screenshot('@OUTPUT@/aladdin-deployed.png')
+ end
  if goalWorlds==3 and world>=3 and emu:read16(gNativeResult)==2 then
   emu:setKeys(0)
   if not victoryFrame then
@@ -540,7 +549,7 @@ local function replayFrame()
    out:write('VICTORY frame='..f..' hp='..victoryHealth..'\n');out:flush()
   end
   if f-victoryFrame>=120 then
-   local valid=world==3 and emu:read8(gNativePartyHealth)==victoryHealth and (not recruitCloud or (cloudRecruited and cloudDeployed))
+   local valid=world==3 and emu:read8(gNativePartyHealth)==victoryHealth and (not recruitCloud or (cloudRecruited and cloudDeployed)) and (not recruitAladdin or (aladdinRecruited and aladdinDeployed))
    -- A requested suspend must actually run; branch routing can skip its room.
    if suspendRoom and suspendRoom>0 then
     out:write('SUSPEND COVERAGE '..suspendStage..'\n');out:flush()
@@ -561,7 +570,7 @@ local function replayFrame()
    if completedRuns<(goalRuns or 1) then
     retryFrame=f+12;retrySeed=emu:read32(gNativeSeed)
     emu:setKeys(4)
-    victoryFrame=nil;victoryHealth=nil;cloudRecruited=false;cloudDeployed=false;assemblyReplacement=nil
+    victoryFrame=nil;victoryHealth=nil;cloudRecruited=false;cloudDeployed=false;aladdinRecruited=false;aladdinDeployed=false;assemblyReplacement=nil
     previousWorld=0;previousRoom=-1;suspendStage=0
     routeStep=1;roomVisitMasks={0,0,0}
     observedChests=0
@@ -656,6 +665,10 @@ local function replayFrame()
    pressNative(emu:read16(sProgressKind)==4 and 1 or 64)
    phase='progress_release';nextFrame=f+4;return
   end
+  if recruitAladdin and world==1 and room==7 and not aladdinRecruited then
+   pressNative(emu:read16(sProgressKind)==4 and 1 or 64)
+   phase='progress_release';nextFrame=f+4;return
+  end
   local hero=emu:read8(gNativeRoster+1+emu:read16(sProgressHero))
   pressNative(emu:read8(gNativeRoster+4+hero)>=8 and 256 or 1)
   phase='progress_release';nextFrame=f+4;return
@@ -665,6 +678,11 @@ local function replayFrame()
   if recruitCloud and cloudRecruited and not cloudDeployed and emu:read8(gNativeRoster+2)~=3 then
    local slot=emu:read16(sAssemblyChoice)
    -- Select Donald's slot, then cycle to unlocked Cloud.
+   pressNative(slot==1 and 128 or 256)
+   phase='assembly_release';nextFrame=f+4;return
+  end
+  if recruitAladdin and aladdinRecruited and not aladdinDeployed and emu:read8(gNativeRoster+2)~=5 then
+   local slot=emu:read16(sAssemblyChoice)
    pressNative(slot==1 and 128 or 256)
    phase='assembly_release';nextFrame=f+4;return
   end
@@ -678,7 +696,7 @@ local function replayFrame()
   if assemblyReplacement then
    local replaceSlot,replaceHero=assemblyReplacement.slot,assemblyReplacement.hero
    local slot=emu:read16(sAssemblyChoice)
-   out:write('RESERVE SETUP frame='..f..' slot='..replaceSlot..' hero='..replaceHero..' hp='..emu:read8(gNativeRoster+19+replaceHero)..'\n');out:flush()
+   out:write('RESERVE SETUP frame='..f..' slot='..replaceSlot..' hero='..replaceHero..' hp='..emu:read8(gNativeRoster+rosterHpOffset+replaceHero)..'\n');out:flush()
    pressNative(slot==replaceSlot and 128 or 256)
    phase='assembly_release';nextFrame=f+4;return
   end

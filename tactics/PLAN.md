@@ -1810,3 +1810,31 @@ Still required: edge/miss/card-break recovery, new hero save/deployment and worl
 transition checks, updated old five-hero emulator fixtures/offsets, visual polish
 of recruit-card placement, and fresh full-run testing of this changed ROM. Prior
 0.40 complete campaigns remain historical, not evidence for this build.
+
+## Aladdin recovery edges and card-preview polish (October 8)
+
+The recruit card preview now sits to the right of the party at (200,80), clear of
+the central sprites. Aladdin's targeting hint explicitly names R/B target cycling.
+Current ROM SHA256: 1f52bcd88993a08ef318a9ba72ea19b7c410e181a113d8911e1a040597ca519d.
+
+132 scoped exact-build checks pass with frontend exit0 and frozen ROM/driver/log
+hashes: normal hit9, 47-pixel range/24-pixel height boundary9, 48-pixel miss9,
+25-pixel height miss9, value-one card break9, movement cap9, deployed controlled
+Aladdin suspend/reboot14, Jafar recruitment32 and alternative power32. Both misses
+and breaks preserve target HP and grant no movement. A hit with full movement
+caps at three. Native reboot preserves control, hero HP, recovered movement, spent
+action, discarded Key and resolved enemy damage. Screenshot confirms recruit card
+is visible beside the reward menu. These remain disclosed focused fixtures.
+
+The complete-run replay now derives roster byte size from the ELF, hero count
+from the header and HP offset from its layout; reserve selection includes the
+sixth hero. Read-only Lua policy tests prove living Aladdin replaces a KO companion
+and no replacement is invented for a KO reserve. New --recruit-aladdin requires
+three worlds, selects Jafar's recruit reward, deploys Aladdin at a subsequent
+assembly, and makes verified recruitment/deployment mandatory at terminal victory.
+
+A fresh input-only all36-room/nine-chest sweep is running in
+build/tactics-us/aladdin-clear-card-full-run-evidence with Cloud/Aladdin recruitment,
+suspend in room4 and composed descent required. Frontend session22497 was live
+at the last poll. Its process completion and full-run result are not yet proven.
+Previous 0.40 campaign certificates do not certify this changed ROM.

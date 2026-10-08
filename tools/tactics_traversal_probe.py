@@ -4,6 +4,7 @@ Reads diagnostics and original door geometry; never writes emulated memory.
 A failed probe is navigation evidence, not a claim that the room is impossible.
 """
 import argparse
+import re
 import hashlib
 import json
 import subprocess
@@ -18,6 +19,7 @@ p.add_argument('--runs',type=int,choices=range(1,4),default=1,help='complete con
 p.add_argument('--all-rooms',action='store_true',help='visit all twelve rooms per world, including both optional branches and backtracking')
 p.add_argument('--collect-chests',action='store_true',help='reach and strike every reward chest through native input')
 p.add_argument('--frames', type=int, default=36000, help='aggregate video-frame limit across all runs; three full all-room runs may use 1200000')
+p.add_argument('--recruit-aladdin',action='store_true',help='recruit Aladdin after Jafar and deploy him in the next assembly')
 p.add_argument('--recruit-cloud',action='store_true',help='fight optional Cloud, recruit and deploy him before continuing')
 p.add_argument('--composed-descent',action='store_true',help='use and require a verified descent-to-walking route during each full run')
 p.add_argument('--suspend-room', type=int, choices=range(1,7), help='save and reset once in this Traverse Town room')
@@ -26,6 +28,7 @@ if not 180 <= a.frames <= (400000 if a.all_rooms else 180000)*a.runs:
     p.error('--frames must be between 180 and the per-run ceiling multiplied by --runs')
 if a.all_rooms and a.worlds!=3:
     p.error('--all-rooms requires --worlds 3')
+if a.recruit_aladdin and a.worlds!=3:p.error('--recruit-aladdin requires --worlds 3')
 if a.collect_chests and not a.all_rooms:p.error('--collect-chests requires --all-rooms')
 if a.runs>1 and a.worlds!=3:
     p.error('--runs requires --worlds 3')
@@ -48,7 +51,9 @@ keys = ('gFrameCounter','sRawKeys','gCurrentMode', 'gCurrentModeUpdate', 'gPendi
 out = Path(a.output).resolve()
 out.mkdir(parents=True, exist_ok=True)
 suspend_bytes = next(int(w[1],16) for line in subprocess.check_output(['arm-none-eabi-nm','-S',a.elf],text=True).splitlines() if len(w:=line.split())==4 and w[3]=='sSuspend')
-header = f'local suspendBytes={suspend_bytes}\nlocal rosterBytes=39\nlocal initialRosterMask=23\nlocal composedDescent={str(a.composed_descent).lower()}\nlocal collectChests={str(a.collect_chests).lower()}\nlocal allRooms={str(a.all_rooms).lower()}\nlocal goalRuns={a.runs}\nlocal recruitCloud={str(a.recruit_cloud).lower()}\nlocal suspendRoom={a.suspend_room or 0}\nlocal goalRoom={a.rooms}\nlocal goalFrames={a.frames}\nlocal goalWorlds={a.worlds or 0}\n' + ''.join(f'local {key}=0x{names[key]:08x}\n' for key in keys)
+hero_count=int(re.search(r'#define FIELD_HEROES (\d+)',Path('tactics/field_roster.h').read_text())[1])
+roster_bytes=next(int(w[1],16) for line in subprocess.check_output(['arm-none-eabi-nm','-S',a.elf],text=True).splitlines() if len(w:=line.split())==4 and w[3]=='gNativeRoster')
+header = f'local heroCount={hero_count}\nlocal rosterHpOffset={9+2*hero_count}\nlocal suspendBytes={suspend_bytes}\nlocal rosterBytes={roster_bytes}\nlocal initialRosterMask=23\nlocal composedDescent={str(a.composed_descent).lower()}\nlocal collectChests={str(a.collect_chests).lower()}\nlocal allRooms={str(a.all_rooms).lower()}\nlocal goalRuns={a.runs}\nlocal recruitAladdin={str(a.recruit_aladdin).lower()}\nlocal recruitCloud={str(a.recruit_cloud).lower()}\nlocal suspendRoom={a.suspend_room or 0}\nlocal goalRoom={a.rooms}\nlocal goalFrames={a.frames}\nlocal goalWorlds={a.worlds or 0}\n' + ''.join(f'local {key}=0x{names[key]:08x}\n' for key in keys)
 script = header + Path(
     'tests/tactics_traversal_probe.lua').read_text().replace('-- @INPUT@', Path('tests/tactics_traversal_input.lua').read_text()).replace('-- @GEOMETRY@', Path('tests/tactics_traversal_geometry.lua').read_text()).replace('-- @REGIONS@', Path('tests/tactics_traversal_regions.lua').read_text()).replace('@OUTPUT@', str(out))
 
@@ -74,6 +79,7 @@ if 'emu:write' in script or 'emu.write' in script:
     'input_only': True,
     'suspend_room': a.suspend_room,
     'recruit_cloud': a.recruit_cloud,
+    'recruit_aladdin': a.recruit_aladdin,
     'composed_descent_required':a.composed_descent,
     'result': 'not yet observed; inspect traversal.txt',
 }, indent=2) + '\n')

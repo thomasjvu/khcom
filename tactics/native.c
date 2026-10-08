@@ -815,7 +815,7 @@ static void NativeAssemblyDraw(void) {
     void* tiles;
     ObjPalette* palette;
     if (gNativeProgressReward && sProgressKind == 4 && sRecruitCard && sRecruitTiles && sRecruitPalette)
-        DrawSprite(120, 72, sRecruitCard->gfx2, sRecruitTiles, sRecruitPalette, NULL, 0, 1);
+        DrawSprite(200, 80, sRecruitCard->gfx2, sRecruitTiles, sRecruitPalette, NULL, 0, 1);
     if (!gNativeAssembly) return;
     for (i = 0; i < 3; i++) {
         card = i == 1 ? sAssemblyDonald : i == 2 ? sAssemblyOther : sCards[0];
@@ -1492,7 +1492,7 @@ static void NativeHud(void) {
     if (!gNativePreview && !gNativeResult && !gNativeEnemyFrames && !gNativeClimbing &&
         !charging && card >= 0 && !gNativeDeck.stocked && gNativeActionLeft &&
         gNativeDeck.kind[card] == FIELD_CARD_KEY && gNativeParty)
-        NativeLabel(0, 8, NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD MAGIC R B A" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY SPIN A PLAY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY STRIKE A PLAY" : NativeHero(gNativeParty) == FIELD_ALADDIN ? "ALADDIN STRIKE A PLAY" : "CLOUD SLASH R B A");
+        NativeLabel(0, 8, NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD MAGIC R B A" : NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY SPIN A PLAY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY STRIKE A PLAY" : NativeHero(gNativeParty) == FIELD_ALADDIN ? "ALADDIN SWORD R B A" : "CLOUD SLASH R B A");
     location[6] += gNativeFloor < 3 ? gNativeFloor : 2;
     location[13] += gMapFloorState.room >= 10;
     location[14] += gMapFloorState.room >= 10 ? gMapFloorState.room - 10 : gMapFloorState.room;
