@@ -1492,12 +1492,12 @@ static void NativeHud(void) {
         } else if (gNativeMenu == 8) {
             NativeLabel(0, 0, "PARTY  UP DOWN A SELECT");
             for (i = 0; i < 3; i++) {
-                char status[] = "HP 00 MP0 ACT0";
+                char status[] = "HP00 MOVE0 ACT0";
                 u8 hero = NativeHero(i);
-                status[3] += gNativePartyHealth.hp[i] / 10;
-                status[4] += gNativePartyHealth.hp[i] % 10;
-                status[8] += i == gNativeParty ? gNativeMoveLeft : sPartyMove[i];
-                status[13] += i == gNativeParty ? gNativeActionLeft : sPartyAction[i];
+                status[2] += gNativePartyHealth.hp[i] / 10;
+                status[3] += gNativePartyHealth.hp[i] % 10;
+                status[9] += i == gNativeParty ? gNativeMoveLeft : sPartyMove[i];
+                status[14] += i == gNativeParty ? gNativeActionLeft : sPartyAction[i];
                 NativeLabel(0, 16 + i * 8, i == gNativeMenuChoice ? "X" : " ");
                 NativeLabel(8, 16 + i * 8, hero == FIELD_SORA ? "SORA" : hero == FIELD_DONALD ? "DONALD" :
                     hero == FIELD_GOOFY ? "GOOFY" : hero == FIELD_RALLY ? "RALLY" : "CLOUD");
