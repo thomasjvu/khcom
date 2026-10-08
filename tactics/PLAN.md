@@ -907,13 +907,16 @@ campaign success; procedural traversal validation remains unfinished.
 
 ### Native SRAM library and acknowledged route inputs
 
-The first rejected-direction main run failed a native save at18736 even
-though its captured state passes the unchanged production host encoder.
+The first rejected-direction main replay stopped at18736 after observing
+unsuccessful save notice, while its state passes the production host encoder.
+This was an observer verdict, not proof the native save function returned.
 The stage-diagnostic repeat distinguishes SRAM verification notice3 from
 state rejection notice2: save-encoded.bin exactly equals SRAM slot0, and
 both SRAM and captured state pass production host decoding. Evidence is
 retained in save-stage-direction-main-evidence. The direct verification
-loop therefore reported failure for a valid written payload.
+loop was observed at verification status3 with a valid written payload.
+This did not establish that the function had returned; later native-update
+timing evidence below corrects the earlier false-failure interpretation.
 
 Suspend reads now use the original ReadSramFast. Writes use the original
 WriteAndVerifySramFast and RAM-resident VerifySramFast, including their
@@ -1016,3 +1019,22 @@ sizeof equals its39-byte body. It has trailing alignment padding. Fixtures
 now assert the last logical field's extent using offsetof and copy exactly
 the39 source bytes, avoiding overread. The failed setup run is explicitly
 invalid and preserved separately; no native ROM or save format change.
+
+### Save completion timing correction
+
+collision-aware-all-rooms-evidence ended its replay at23231 with notice2,
+but its captured encoded buffer has zero CRC while production CRC should be
+0x6c1932d7. Both SRAM slots were still uncommitted at that observation.
+Later fresh.sav contains a complete valid slot0 and passes the production
+codec. The observer caught NativeWriteSuspend while it was still computing
+the checksum, rather than a completed encoder rejection. The earlier
+notice3/byte-identical SRAM observation likewise did not establish a final
+verification failure. The original-library integration remains, but its
+reported motivation was stronger than the evidence supported.
+
+Suspend request now uses the same native-input acknowledgement barrier as
+movement: hold the chord until sampled, then wait for the main-loop counter
+to advance after the whole update, including encoding/writing/verifying.
+Only then snapshot and judge its final notice. The360-frame acknowledgement
+bound remains. No codec rules are relaxed or save failures hidden. The
+interrupted replay and its in-flight/later SRAM evidence remain preserved.

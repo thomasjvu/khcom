@@ -20,6 +20,11 @@ Suspend uses the original wait-state-aware SRAM library and RAM-resident
 verifier. Alternating slots commit their signature last. State rejection
 and SRAM verification failure remain SAVE FAILED; diagnostics distinguish
 the stages. No save format or persistent RAM expansion.
+Later replay evidence shows that a four-video-frame observation can catch
+encoding or verification in progress. Earlier claims of a completed native
+verification failure were premature; a failed replay observation alone does
+not prove the save function returned failure. The current explorer waits
+for native update completion before judging a save.
 
 On this exact ROM, 14 input-only party/movement checks and 12 alternating-
 slot save/reset/fallback checks pass. Newest-slot CRC corruption is an

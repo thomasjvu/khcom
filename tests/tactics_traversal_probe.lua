@@ -498,7 +498,7 @@ local function replayFrame()
    suspendSnapshot.deck={}
    for i=0,73 do suspendSnapshot.deck[i]=emu:read8(gNativeDeck+i) end
    out:write('SUSPEND REQUEST frame='..f..' flags='..string.format('%x',emu:read32(emu:read32(gFieldState)+0x70))..' room='..room..'\n');out:flush()
-   emu:setKeys(12);suspendStage=1;nextFrame=f+4;return
+   pressNative(12);suspendStage=1;nextFrame=f+4;return
   elseif suspendStage==1 then
    navigationSnapshot('save-attempt.json')
    if emu:read16(gNativeSaveNotice)~=1 then finish(false,'input-only suspend failed');return end

@@ -14,4 +14,7 @@ assert(wait());memory[1]=0;assert(wait());memory[2]=12
 assert(wait() and keys==1,'completed release must deliver queued press')
 memory[1]=1;assert(wait());memory[2]=13;assert(not wait(),'queued press must complete its own update')
 press(2);env.f=401;assert(not pcall(wait),'unresponsive native input must fail within a bounded wait')
+local file=assert(io.open('tests/tactics_traversal_probe.lua'))
+local driver=file:read('*a');file:close()
+assert(driver:find('pressNative(12);suspendStage=1',1,true),'save request must wait for completed native encoding and SRAM verification')
 print('native input: delayed sampling, update completion, repeated edges and bounded timeout passed')
