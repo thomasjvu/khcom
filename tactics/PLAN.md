@@ -1476,3 +1476,16 @@ pending. Earlier failure preserved.
 Packaged0.36 development BPS95902 bytes, applied32MiB byte-identical. Exact
 hash/172 native checks/all-room evidence in COMMAND-COLUMNS-0.36.md and
 ignored manifest. This does not claim final release or three-run completion.
+
+## Current native roguelike reward review
+
+57 exact-ROM native fixture checks pass: availability7, ordinary Donald
+power reward14, Cloud recruit18 and alternate boss power18. Five-hero roster
+availability offsets corrected (phase16/reward17/Sora sleights9); game code
+unchanged. Capped/owned selections preserve the reward; available selection
+adds exactly one unlock. Donald power persists through reset and increases
+actual/predicted magic by1. Both Cloud choices preserve their distinct roster
+state through reset and release original art resources on exit. Initial short
+1700-frame attempts were incomplete; final1900/2400 runs include every check.
+Hashes and metadata finalized, total229 current scoped native checks. Revised
+three-run session21328 polled live in its second seed; result remains pending.

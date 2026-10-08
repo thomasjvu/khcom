@@ -10,8 +10,8 @@ callbacks:add('frame',function()
  if frame==184 then emu:setKeys(0) end
  if frame==210 then
   emu:write16(gNativeProgressReward,1)
-  emu:write8(gNativeRoster+14,2);emu:write8(gNativeRoster+15,1)
-  emu:write8(gNativeRoster+4,8);emu:write8(gNativeRoster+8,1)
+  emu:write8(gNativeRoster+16,2);emu:write8(gNativeRoster+17,1)
+  emu:write8(gNativeRoster+4,8);emu:write8(gNativeRoster+9,1)
   emu:write16(sProgressHero,0);emu:write16(sProgressKind,0)
  end
  if frame==240 then
@@ -31,7 +31,7 @@ callbacks:add('frame',function()
  end
  if frame==304 then emu:setKeys(0) end
  if frame==330 then
-  check(emu:read16(gNativeProgressReward)==1 and emu:read8(gNativeRoster+8)==1,'owned sleight preserves reward and unlocks')
+  check(emu:read16(gNativeProgressReward)==1 and emu:read8(gNativeRoster+9)==1,'owned sleight preserves reward and unlocks')
   emu:setKeys(128)
  end
  if frame==334 then emu:setKeys(0) end
@@ -41,7 +41,7 @@ callbacks:add('frame',function()
  end
  if frame==364 then emu:setKeys(0) end
  if frame==400 then
-  check(emu:read16(gNativeProgressReward)==0 and emu:read8(gNativeRoster+8)==3,'available choice consumes reward and adds only Fire unlock')
+  check(emu:read16(gNativeProgressReward)==0 and emu:read8(gNativeRoster+9)==3,'available choice consumes reward and adds only Fire unlock')
   out:close()
  end
 end)
