@@ -1,9 +1,10 @@
 # Current release audit
 
 Current packaged0.38 ROM SHA256 `2d438556ac07c2e9340f6c9591d6435413bc42e5174ed0321e3dc8fe1688c7af`.
-It passes432 scoped native checks:95 menu/party/recipes,114 bosses/Cloud,
-113 height previews,58 rewards/deployment and52 companion combat.
-Corrected three-run replay59790 is live; initial aggregate180000-frame
+It passes540 scoped native checks:95 menu/party/recipes,114 bosses/Cloud,
+113 height previews,58 rewards/deployment,52 companion combat,56 party/SRAM
+and52 Rally actions/states/directions. Three-run PASS379646, frontend exit0.
+Initial aggregate180000-frame
 attempt failed180001 and is retained. Current-ROM all-room completion is
 not yet verified. Skills-strip predecessor passes all36/nine chests253238;
 that result is version-scoped. Final gameplay/visual audit remains open.
@@ -86,3 +87,5 @@ Cloud deployment fixture repaired for five heroes: preserve Rally unlock31, nati
 Current0.38 companion checks PASS52: Donald healing/revival/bonus/save17, Goofy spin/Guard menus26, Cloud native sword/action/recovery9. Exact ROM/driver/log hashes verified, all processes exit0; explicit card/health/enemy fixtures disclosed. Current scoped total432. Three-run59790 remains live. Audit opening now distinguishes current build from historical campaign evidence.
 
 0.38 current-ROM three-run script PASS379646: victories130570/259594/379526 HP75/74/73, stable120 frames each; actual per-run recruitment/deployment, exact reset and composed descent required. ROM/driver/log hashes verified; frontend59790 still live, no exit claim. Fresh exact-ROM all36/nine-chest replay81924 live. Additional native party-state44 and alternating SRAM12 checks PASS56, bounded exit0/hashes verified; corrupt-newest fallback explicitly disclosed. Current scoped total488.
+
+Current0.38 Rally checks PASS52:14 input-only action/air,12 disclosed native hurt/cast/climb,26 input-only directional facing. Hashes/counts/exit0 verified; encoded30-frame/six-state fixed-feet/palette asset checks pass using system python3 (venv lacks Pillow). Scoped current total540. Three-run59790 frontend exit0 confirmed; metadata finalized PASS379646. Exact current-ROM all36/nine-chest81924 remains live.
