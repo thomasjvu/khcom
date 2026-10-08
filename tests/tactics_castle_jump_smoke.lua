@@ -2,9 +2,14 @@
 local f=0
 local out=io.open('@OUTPUT@/jump.txt','w')
 local node,collider,deckCount
+local saved=nil
+local resetDone=false
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 callbacks:add('frame',function()
  f=f+1
+ local actual=f
+ if testResume and resetDone and actual<900 then return end
+ if testResume and resetDone then f=actual-360 end
  if f==180 then
   node=emu:read32(sColliderPoolObstacle+8)
   while node~=0 do
@@ -59,11 +64,37 @@ callbacks:add('frame',function()
   emu:screenshot('@OUTPUT@/top-preview.png');emu:setKeys(1)
  end
  if f==484 then emu:setKeys(0) end
- if f==540 then
+ if f==540 and not resetDone then
   check(emu:read32(emu:read32(gFieldState)+0x20)==0,'previewed walking preserves native pillar top height')
   check(emu:read16(gNativeMoveLeft)==2 and emu:read16(gNativeActionLeft)==1,'top route charges one movement and preserves refreshed action')
  end
- if f==560 or f==620 then emu:setKeys(32) end
+ if testResume and f==550 and not resetDone then
+  local p=emu:read32(gFieldState);saved={}
+  for i=0,3 do saved[i]=emu:read32(p+0x18+i*4) end
+  emu:setKeys(12)
+ end
+ if testResume and f==554 and not resetDone then emu:setKeys(0) end
+ if testResume and f==580 and not resetDone then
+  check(emu:read16(gNativeSaveNotice)==1,'native suspend succeeds while standing on pillar')
+  resetDone=true;emu:reset()
+ end
+ if testResume and actual==900 then
+  local p=emu:read32(gFieldState);local exact=true
+  for i=0,3 do exact=exact and emu:read32(p+0x18+i*4)==saved[i] end
+  check(exact,'reset preserves exact top coordinates and underlying ground')
+  check(emu:read16(gNativeMoveLeft)==2 and emu:read16(gNativeActionLeft)==1,'reset preserves spent movement and available action')
+  check(emu:read16(gNativeBusy)==0,'resumed prop standing is idle')
+  -- Addresses of runtime colliders can change after reset.
+  node=emu:read32(sColliderPoolObstacle+8);collider=nil
+  while node~=0 do
+   local c=emu:read32(node)
+   if emu:read32(c+16)==8192 then collider=c;break end
+   node=emu:read32(node+8)
+  end
+  check(collider~=nil,'reset reconstructs original pillar collider')
+  emu:screenshot('@OUTPUT@/resumed-top.png')
+ end
+ if (not testResume or resetDone) and (f==560 or f==620) then emu:setKeys(32) end
  if f==444 or f==564 or f==624 then emu:setKeys(0) end
  if f==740 then
   local p=emu:read32(gFieldState)
@@ -72,4 +103,5 @@ callbacks:add('frame',function()
   check(emu:read32(p+0x20)==emu:read32(collider+12),'native descent returns to the supporting floor')
   emu:screenshot('@OUTPUT@/far-side.png');out:close()
  end
+ f=actual
 end)

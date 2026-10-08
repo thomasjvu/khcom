@@ -276,3 +276,22 @@ The build/header limits and full host sanitizer suite pass. A screenshot
 confirms original sprites/scenery and card-digit route overlay on the pillar.
 The second-seed replay still needs prop connections in its navigator and a new
 complete campaign verification; earlier campaign evidence is on older ROMs.
+
+### Prop-top suspend regression discovered
+
+The extended `--jump --resume` pillar fixture saves after a confirmed top
+walking route, resets, checks exact x/y/z/ground and budgets, then attempts
+far-side travel. `pillar-top-resume-evidence` fails exact standing-position
+restoration: Sora loses the top height after reset even though the save succeeds
+and movement/action budgets persist. Original pillar reconstruction succeeds.
+This is a real incomplete suspend behavior for prop-top standing. Ground and
+attached-stair saves previously passing do not prove prop-top persistence.
+
+Two attempted collider-support initialization fixes also fail the exact-position
+assertion (`pillar-top-restored-support-evidence`,
+`pillar-top-camera-support-evidence`). Both native edits were reverted; their
+exact ROM/log hashes remain in local fixture metadata. The resume test driver
+now avoids duplicate pre-reset assertions after its frame offset. It remains
+a failing regression, not a green release check. Next inspect the original
+room-entry/camera/player collision update ordering and saved support identity
+before implementing a verified fix. Full polished suspend behavior is unproven.
