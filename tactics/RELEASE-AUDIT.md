@@ -6,7 +6,7 @@ It passes172 scoped native checks (40 UI,17 Donald healing,26 Goofy
 moves/menus/Guard and89 boss fixtures). All-room/nine-chest campaign passes295578 on this exact ROM; three-run
 campaign ended FAIL444879: third stable victory missed required composed
 descent; first two seeds completed.
-Latest packaged0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
+Latest packaged build is0.36 (current source hash above). Earlier0.35 SHA1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f
 passes51 scoped checks, two campaigns327681 and all36/nine chests295578.
 Earlier0.34 two runs PASS288347 and its all-room defeats130336/134022 remain
 version-scoped. Earlier0.33 all-room PASS281892 is likewise historical.

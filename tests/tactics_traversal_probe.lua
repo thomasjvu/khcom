@@ -641,7 +641,7 @@ local function replayFrame()
  local dx,dy,dz=door()
  if not dx then finish(false,'forward door missing');return end
  local approach=nil
- if composedDescent and composedRoutes==0 and world==0 and room==0 then
+ if composedDescent and composedRoutes==0 then
   approach=composedStairApproach()
   if approach then dx,dy,dz=approach.x,approach.y,approach.z end
  end

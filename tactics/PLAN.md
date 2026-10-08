@@ -1461,3 +1461,18 @@ reached victory444759 HP80 stable120, actual Cloud recruit/deploy and exact
 suspend/reset stage3, but composed descent count0. First two complete129417/
 327681. No three-run completion is claimed; missing route execution needs
 replay investigation. All-room PASS295578 on the same ROM remains valid.
+
+## Deliberate descent coverage across seeds
+
+The three-run failure came from seeking a composed stair only in world0 room0.
+Replay now seeks a qualifying stair in any current room/world until coverage
+completes; native landing preview, cost/edge verification, walking execution,
+arrival/budget assertions and terminal count requirement remain intact. New
+read-only policy test covers later-world targeting, absent stairs, completed
+coverage and unrequested detours; all15 policy tests pass. Fresh three-run
+session21328 uses unchanged current ROM and540003 emulator-frame bound,
+pending. Earlier failure preserved.
+
+Packaged0.36 development BPS95902 bytes, applied32MiB byte-identical. Exact
+hash/172 native checks/all-room evidence in COMMAND-COLUMNS-0.36.md and
+ignored manifest. This does not claim final release or three-run completion.
