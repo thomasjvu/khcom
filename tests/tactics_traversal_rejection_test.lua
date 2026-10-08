@@ -1,0 +1,11 @@
+local f=assert(io.open('tests/tactics_traversal_probe.lua'));local s=f:read('*a');f:close()
+local fragment=assert(s:match('(local function rejectedMove.-\nend)'))
+local rejected=assert(load(fragment..'\nreturn rejectedMove'))()
+local before={x=10,y=20,z=30,move=3,action=1}
+assert(rejected(before,10,20,30,3,1,1),'unchanged open preview must be cancelled')
+assert(not rejected(before,11,20,30,3,1,1),'executed displacement must not be cancelled')
+assert(not rejected(before,10,20,30,2,1,1),'charged movement must not be classified as uncommitted')
+assert(not rejected(before,10,20,30,3,0,1),'spent action must not be classified as uncommitted')
+assert(not rejected(before,10,20,30,3,1,0),'closed preview must not receive field B input')
+assert(s:find("emu:setKeys(2);best=nil;index=1;phase='release';nextFrame=f+4;return",1,true),'rejected preview must reset the real scan')
+print('rejected move: unchanged open preview, displacement, costs and closed-preview safety passed')

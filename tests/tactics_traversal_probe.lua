@@ -8,6 +8,10 @@ local dirs={16,32,64,128,80,96,144,160}
 local best=nil
 local planned=nil
 local pendingMove=nil
+local function rejectedMove(before,x,y,z,move,action,preview)
+ return preview~=0 and before.x==x and before.y==y and before.z==z and
+  before.move==move and before.action==action
+end
 local visits={}
 local commands=0
 local done=false
@@ -435,7 +439,12 @@ local function replayFrame()
   out:write('MOVE SETTLED frame='..f..' origin='..pendingMove.x..','..pendingMove.y..','..pendingMove.z..
    ' actual='..x..','..y..','..z..' move='..pendingMove.move..' TO '..emu:read16(gNativeMoveLeft)..
    ' action='..pendingMove.action..' TO '..emu:read16(gNativeActionLeft)..'\n');out:flush()
+  local rejected=rejectedMove(pendingMove,x,y,z,emu:read16(gNativeMoveLeft),emu:read16(gNativeActionLeft),emu:read16(gNativePreview))
   pendingMove=nil
+  if rejected then
+   out:write('MOVE REJECTED cancel stale preview frame='..f..'\n');out:flush()
+   emu:setKeys(2);best=nil;index=1;phase='release';nextFrame=f+4;return
+  end
  end
  if suspendStage==2 and (world~=0 or room~=suspendRoom) then finish(false,'resume changed world or room');return end
  if suspendRoom and suspendRoom>0 and suspendStage<3 and world==0 and room==suspendRoom then

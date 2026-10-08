@@ -862,3 +862,21 @@ mutation, on both successful and failed requests. Retry policy passes;
 Cloud, room4 save/exact resume and composed descent under120000 frames. It
 is live. This timing correction makes future validator findings attributable
 to the actual attempt; campaign and broader traversal remain unfinished.
+
+### Rejected-preview recovery
+
+Actual save attempt in `exact-save-attempt-main-evidence` has notice1 and
+passes production host encode/decode after ABI translation. No save-rule
+change made. The run remains live; this proves only that captured attempt.
+
+If a confirmed move settles with unchanged exact position and unchanged
+movement/action while a preview remains open, replay now cancels it using
+native B and resets scanning. It avoids carrying an uncommitted cursor into
+the next selection. Executed movement, charged resources and already-closed
+previews do not receive this cancellation. Policy checks cover those cases;
+preferred/ledge regressions pass. Native cleared Agrabah fixture logs actual
+rejections812/1240/1388 and reaches room6 at2535,18 attempts, versus earlier
+4479/45 attempts (timings are fixture observations, not broad guarantees).
+Exact evidence in `rejected-preview-native-evidence`; no memory writes after
+boot, gameplay changes or larger bounds. Full live-state recovery remains
+unverified; current campaign uses preceding driver and continues separately.
