@@ -1482,6 +1482,15 @@ static void NativeHud(void) {
         } else if (gNativeMenu == 2) {
             static const char* const skills[4] = {"KEYBLADE", "FIRE", "CURE", "GUARD"};
             char detail[] = "VALUE 0   STOCK 0 OF 3";
+            char piles[] = "HAND 00 DRAW 00 DISCARD 00";
+            u8 counts[3] = {0,0,0};
+            u8 n;
+            for (n = 0; n < gNativeDeck.count; n++)
+                if (gNativeDeck.pile[n] < 3) counts[gNativeDeck.pile[n]]++;
+            piles[5] += counts[1] / 10;piles[6] += counts[1] % 10;
+            piles[13] += counts[0] / 10;piles[14] += counts[0] % 10;
+            piles[24] += counts[2] / 10;piles[25] += counts[2] % 10;
+            NativeLabel(0, 8, piles);
             detail[6] = card < 0 ? ' ' : '0' + gNativeDeck.value[card];
             detail[16] += gNativeDeck.stocked;
             NativeLabel(0, 16, card < 0 ? "NO CARDS  DOWN RELOAD" : skills[gNativeDeck.kind[card]]);

@@ -655,3 +655,18 @@ flags before sending native save input. The fresh
 exact save/resume and composed descent under the same300000-frame limit.
 It is running; neither the save-race diagnosis nor full coverage is proven.
 Other-chat combat draft assets remain untouched.
+
+### Skills pile counts
+
+Skills now shows two-digit hand, draw and discard counts alongside card value,
+stock and action status. Counts derive directly from the authoritative deck
+and exclude stocked/burned cards, so players can judge reload availability.
+No persistent RAM/save/control change. All24 native Donald/Goofy/Guard fixture
+checks pass; Skills screenshot visually shows HAND05 DRAW06 DISCARD01 after
+one card play. Build/header/capacity pass; exact evidence is in
+`skills-pile-count-evidence`. The ongoing all-room replay uses preceding
+85dd43827 ROM, not this newer HUD. Save request26126/suspend26130/exact
+resume26460 passed there; all three Traverse Town chests collected by90125.
+This is intermediate coverage, not terminal all-room success. Rally combat
+drafts inspected: visible fringe/noise requires cleanup before native import;
+other-chat source assets remain untouched.
