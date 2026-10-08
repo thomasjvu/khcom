@@ -32,14 +32,14 @@ either companion. Every second unique room clear grants a personal upgrade.
 Original cards support explicit Fire/Cure targets,
 matching-type sleights and three-card chest reward choices. Palette budgets
 keep party, card artwork and value digits visible beside generated scenery.
-The packaged 0.40 ROM passes223 scoped native checks covering command/party UI, companion combat/healing/saves, one original jump pad and all three bosses. Its BPS application matches the build byte for byte. The live three-seed all-room sweep has completed its first36-room/nine-chest campaign with Cloud recruitment/deployment, suspend/reset and composed descent; the other two runs remain unverified. This is a development patch, with final gameplay/content/release audit still open.
+The packaged 0.40 ROM passes 223 scoped native checks covering command/party UI, companion combat/healing/saves, one original jump pad and all three bosses. Its BPS application matches the build byte for byte. The live three-seed all-room sweep has completed its first campaign covering 36 rooms and nine chests campaign with Cloud recruitment/deployment, suspend/reset and composed descent; the other two runs remain unverified. This is a development patch, with final gameplay/content/release audit still open.
 See [0.40 patch notes](tactics/PHASE-UI-0.40.md) and
 [release audit](tactics/RELEASE-AUDIT.md) for evidence and remaining work.
 
 The normal HUD occupies 18 pixels at the top and 16 at the bottom. Commands
 opens a 40-pixel top panel; Skills and detailed choices use 56 pixels. Ready
 party members, the controlled hero and the enemy phase remain visible in
-Commands and Skills. Party shows each hero's HP, MOVE and ACT budgets.
+Commands, Skills and detailed confirmations. Party shows each hero's HP, MOVE and ACT budgets.
 Native stairs support several vertical preview segments with total movement
 cost, occupancy checks and original climb/descent animation. Composed descent
 can continue into walking; arbitrary combined jump/climb path discovery,
