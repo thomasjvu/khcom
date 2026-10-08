@@ -61,3 +61,9 @@ Key-hand/enemy fixture passes 10 checks for Rally facing, cancel safety, native
 damage and exact card/action charging. The 23 target/sleight and 14 input-only
 Rally/menu/save checks also pass on this Attack-confirmation ROM (47 total).
 These fixtures do not establish whole-campaign completion.
+
+The Commands list now includes contextual availability and short explanations
+beside each command: no movement left, spent action, missing Key card, stocked
+hand, hero switching, enemy turn and suspend. Rendering reads the hand without
+cycling it or changing resources. The native build and all 14 input-only
+Rally/menu/save checks pass; menu screenshot inspected for fit.

@@ -1399,9 +1399,24 @@ static void NativeHud(void) {
             NativeLabel(0, 16, card < 0 ? "NO CARDS  L R RELOAD" : names[gNativeDeck.kind[card]]);
             NativeLabel(0, 24, gNativeDeck.stocked == 3 ? "THREE STOCKED  A SLEIGHT" : "UP STOCK  DOWN CLEAR");
             NativeLabel(0, 32, "B BACK  L R CARD");
-        } else for (i = 0; i < 6; i++) {
-            NativeLabel(0, (i + 1) * 8, i == gNativeMenuChoice ? "X" : " ");
-            NativeLabel(16, (i + 1) * 8, commands[i]);
+        } else {
+            int hasKey = 0;
+            u8 handIndex;
+            for (handIndex = 0; handIndex < 5; handIndex++) {
+                int handCard = FieldDeckHand(&gNativeDeck, handIndex);
+                if (handCard >= 0 && gNativeDeck.kind[handCard] == FIELD_CARD_KEY) hasKey = 1;
+            }
+            for (i = 0; i < 6; i++) {
+                NativeLabel(0, (i + 1) * 8, i == gNativeMenuChoice ? "X" : " ");
+                NativeLabel(16, (i + 1) * 8, commands[i]);
+            }
+            NativeLabel(104, 8, gNativeMoveLeft ? "CHOOSE TILE" : "NO MOVE LEFT");
+            NativeLabel(104, 16, !gNativeActionLeft ? "ACTION SPENT" :
+                gNativeDeck.stocked ? "STOCKED HAND" : hasKey ? "CHOOSE FACING" : "NO KEY CARD");
+            NativeLabel(104, 24, gNativeActionLeft ? "CARDS AND COMBOS" : "ACTION SPENT");
+            NativeLabel(104, 32, "SWITCH HERO");
+            NativeLabel(104, 40, "ENEMIES ACT");
+            NativeLabel(104, 48, "SAVE AND RESUME");
         }
     }
     sHudPending = 1;
