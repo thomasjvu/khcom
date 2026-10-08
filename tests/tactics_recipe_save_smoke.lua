@@ -4,6 +4,8 @@ local out=io.open('@OUTPUT@/recipe-save.txt','w')
 local function check(v,s) out:write((v and 'PASS ' or 'FAIL ')..s..'\n');out:flush() end
 callbacks:add('frame',function()
  f=f+1
+ if f==140 then emu:setKeys(1) end
+ if f==144 then emu:setKeys(0) end
  if f==170 then
   for i=0,2 do emu:write8(gNativeDeck+i,0);emu:write8(gNativeDeck+24+i,6) end
  end

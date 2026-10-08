@@ -10,6 +10,8 @@ local function place(slot,dx,dz)
 end
 callbacks:add('frame',function()
  f=f+1
+ if f==140 then emu:setKeys(1) end
+ if f==144 then emu:setKeys(0) end
  if f==180 or f==220 or f==260 then emu:setKeys(513) end
  if f==184 or f==224 or f==264 then emu:setKeys(0) end
  if f==300 then

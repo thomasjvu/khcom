@@ -30,3 +30,13 @@ rom=Path(a.elf).resolve().with_suffix('.gba')
  'expected_checks':17,
  'result':'not yet observed; inspect donald-healing.txt',
 },indent=2)+'\n')
+
+for script_name, expected in (("sleights",14),("sleight-area",11),("recipes",16),("recipe-save",9)):
+ source=out/(script_name+".lua")
+ (out/(script_name+"-metadata.json")).write_text(json.dumps({
+  "rom_sha256":hashlib.sha256(rom.read_bytes()).hexdigest(),
+  "driver_sha256":hashlib.sha256(source.read_bytes()).hexdigest(),
+  "explicit_card_health_position_fixtures":True,
+  "expected_checks":expected,
+  "result":"not yet observed; inspect "+script_name+".txt",
+ },indent=2)+"\n")
