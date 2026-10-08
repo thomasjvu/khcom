@@ -27,6 +27,6 @@ if not rom.is_file():p.error('matching built ROM required beside ELF')
  'driver_sha256':hashlib.sha256(script.encode()).hexdigest(),
  'driver_logic_sha256':hashlib.sha256(script.replace(str(out),'@OUTPUT@').encode()).hexdigest(),
  'explicit_memory_fixtures':True,
- 'expected_checks':16,
+ 'expected_checks':24,
  'result':'not yet observed; inspect moves.txt'
 },indent=2)+'\n')

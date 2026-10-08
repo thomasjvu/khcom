@@ -599,3 +599,22 @@ card artwork visible. Initial added fixture selected Party due to an extra
 Down; failure preserved separately, corrected input passes. Exact evidence
 `hero-skills-browse-fixed-evidence` is scoped to this later presentation ROM;
 the full campaign still runs on e2e4a18d8. Native build/header/capacity pass.
+
+### Skills-detail full campaign and Guard effect confirmation
+
+The immutable e2e4a18d8 ROM passes one fresh-SRAM input-only three-world
+main-route run: victory111583 Sora80HP, stable PASS111703,13 kills,873
+commands. Cloud recruited13099/deployed14900; suspend14915 room4 and exact
+resume15245; composed descent verified1332. Required coverage was checked
+at victory. Exact ROM/driver/log scope is in
+`skills-current-save4-main-evidence/replay-metadata.json`. This is one seed
+4411213, not all-room/chest/multiple-seed/hardware coverage; later hero labels
+and Guard effect text are outside this campaign ROM.
+
+Guard confirmation now explains its party-wide protection and duration until
+the next enemy phase ends, plus one card/action cost: ordinary Guard reduces
+hits to one damage; Goofy blocks all incoming damage. All24 explicit native
+Donald/Goofy combat/menu checks pass including both guard states, cancellation
+and card/action costs. Both Guard screens visually inspected. Exact current
+fixture hashes are in `guard-menu-effect-evidence/fixture-metadata.json`.
+This changes presentation only, with no reserved RAM/save/combat change.

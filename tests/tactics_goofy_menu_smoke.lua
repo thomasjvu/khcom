@@ -68,6 +68,41 @@ callbacks:add('frame',function()
  if f==980 then
   check(emu:read16(gNativeMenu)==2,'Goofy Skills opens browsing after spent action')
   check(emu:read16(gNativeActionLeft)==0,'browsing preserves spent action')
-  emu:screenshot('@OUTPUT@/spin-skills.png');out:close()
+  emu:screenshot('@OUTPUT@/spin-skills.png')
  end
+ if f==1020 then
+  emu:write16(gNativeActionLeft,1);emu:write16(gNativeGuard,0)
+  for i=0,11 do emu:write8(gNativeDeck+i,3);emu:write8(gNativeDeck+48+i,i<5 and 1 or 0) end
+  emu:write8(gNativeDeck+73,0);emu:setKeys(1)
+ end
+ if f==1060 then
+  check(emu:read16(gNativeMenu)==3 and emu:read16(gNativeGuard)==0,'Goofy Guard confirmation does not apply guard')
+  emu:screenshot('@OUTPUT@/goofy-guard.png');emu:setKeys(2)
+ end
+ if f==1100 then
+  check(emu:read16(gNativeMenu)==2 and emu:read16(gNativeActionLeft)==1 and emu:read8(gNativeDeck+48)==1,'Guard cancel preserves card and action')
+  emu:setKeys(1)
+ end
+ if f==1140 then emu:setKeys(1) end
+ if f==1180 then
+  check(emu:read16(gNativeGuard)==2,'Goofy Guard enables complete party block')
+  check(emu:read16(gNativeActionLeft)==0 and emu:read8(gNativeDeck+48)==2,'Goofy Guard spends one card and action')
+  emu:setKeys(516)
+ end
+ if f==1220 then
+  check(emu:read16(gNativeParty)==0,'Guard fixture switches back to Sora')
+  emu:write16(gNativeActionLeft,1);emu:write16(gNativeGuard,0)
+  for i=0,11 do emu:write8(gNativeDeck+i,3);emu:write8(gNativeDeck+48+i,i<5 and 1 or 0) end
+  emu:write8(gNativeDeck+73,0);emu:setKeys(4)
+ end
+ if f==1260 or f==1300 then emu:setKeys(1) end
+ if f==1340 then
+  check(emu:read16(gNativeMenu)==3 and emu:read16(gNativeGuard)==0,'Sora Guard opens confirmation without spending')
+  emu:screenshot('@OUTPUT@/sora-guard.png');emu:setKeys(1)
+ end
+ if f==1380 then
+  check(emu:read16(gNativeGuard)==1,'Sora Guard enables one-damage party protection')
+  check(emu:read16(gNativeActionLeft)==0 and emu:read8(gNativeDeck+48)==2,'Sora Guard spends one card and action');out:close()
+ end
+ if f>=1020 and f<=1340 and f%40==24 then emu:setKeys(0) end
 end)
