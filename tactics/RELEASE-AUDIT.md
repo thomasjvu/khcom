@@ -1,8 +1,9 @@
 # Current release audit
 
 Current source adds compact charged-attack warnings, SHA256
-`f92bc47131331b1eb168b5b668b6e14c7ebbe8edc6c3457bb1c97c8b8b1e6a2d`. It passes58 scoped native UI checks. Exact three-run and
-all-room campaigns are pending (sessions84597/63209).
+`f92bc47131331b1eb168b5b668b6e14c7ebbe8edc6c3457bb1c97c8b8b1e6a2d`. It passes172 scoped native checks (58 UI and114 boss/Cloud). Three-run
+session84597 is pending; all-room script ended in native defeat137348 in
+Agrabah room10. Its terminal diagnostic is preserved for investigation.
 
 The latest packaged0.36 ROM, SHA256
 `27acd304ee14ab79fd4e1892d0cb5bb807b2adde0dd093245d2c8876c7b29950`.

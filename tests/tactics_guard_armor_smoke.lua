@@ -25,6 +25,25 @@ local function place(distance,height)
  end
  emu:write8(gNativeEnemyCharge,1)
 end
+local function hudText(row,column,text)
+ local control=emu:read16(0x04000008)
+ local screen=0x06000000+((control&0x1f00)<<3)
+ local tiles=0x06000000+((control&0x000c)<<12)
+ for index=1,#text do
+  local c=text:byte(index)
+  local glyph=c>=48 and c<=57 and c-48+1 or c>=65 and c<=90 and c-65+11 or 0
+  local tile=emu:read16(screen+(row*32+column+index-1)*2)&0x3ff
+  for y=0,6 do
+   local bits=emu:read8(sUiGlyphs+glyph*7+y)
+   local pixels=emu:read32(tiles+tile*32+y*4)
+   for x=0,4 do
+    local expected=(bits&(1<<(4-x)))~=0 and 3 or 1
+    if ((pixels>>((x+1)*4))&15)~=expected then return false end
+   end
+  end
+ end
+ return true
+end
 callbacks:add('frame',function()
  f=f+1
  -- These encounter fixtures still deploy every room through native input.
@@ -58,6 +77,7 @@ callbacks:add('frame',function()
  end
  if f==340 then
   check(emu:read16(gNativeBossPose)==1,'charged armor displays original crouch and raised-hand windup')
+  check(hudText(2,0,'ARMOR SLAM CHARGED'),'compact HUD names full armor windup')
   check(emu:read16(gNativeThreats)==10,'slam preview includes exact 80-pixel range and 24-pixel height')
   emu:screenshot('@OUTPUT@/slam-preview.png');emu:setKeys(8)
  end
@@ -126,6 +146,7 @@ callbacks:add('frame',function()
  end
  if f==1200 then
   check(emu:read16(gNativeThreats)==8,'one-hand phase previews eight damage at 64 pixels')
+  check(hudText(2,0,'HAND SLAM CHARGED'),'compact HUD names one-hand windup')
   emu:screenshot('@OUTPUT@/one-hand.png');emu:setKeys(8)
  end
  if f==1204 then emu:setKeys(0) end
@@ -140,6 +161,7 @@ callbacks:add('frame',function()
  if f==1350 then
   check(emu:read16(gNativeBossPhase)==2,'13 HP breaks both original hand components')
   check(emu:read16(gNativeThreats)==6,'body phase previews six damage at 48 pixels')
+  check(hudText(2,0,'BODY STRIKE CHARGED'),'compact HUD names body-phase windup')
   emu:screenshot('@OUTPUT@/body-phase.png');emu:setKeys(8)
  end
  if f==1354 then emu:setKeys(0) end

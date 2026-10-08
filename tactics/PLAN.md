@@ -1527,3 +1527,18 @@ fixtures,26 input-only menu/save,8 input-only columns,6 turn-strip fixtures and
 evidence retained. Earlier342 checks/campaign proofs stay scoped to0.36.
 Fresh three-run session84597 and all-room/nine-chest63209 are live on exact
 new ROM. Full polish audit remains open.
+
+## Charge warning combat verification
+
+Exact current warning ROM f92bc47131331b1eb168b5b668b6e14c7ebbe8edc6c3457bb1c97c8b8b1e6a2d
+passes114 boss/Cloud checks: armor40, Jafar25, Marluxia30, Cloud recruit19,
+including actual VRAM text for all three armor phases, spell, sword and
+normal/enraged scythe. Original mechanics/save/resource checks remain. Combined
+with58 UI checks,172 scoped checks pass on this exact ROM.
+
+All-room script FAIL137348, native Sora defeat in Agrabah room10. Terminal
+position61618,131108,36864; Cloud13/Donald5 HP; one enemy12 HP at projected
+65536,141312,36864. Late policy alternated Cure/Guard and enemy turns without
+finishing the enemy. Preserve this failure; investigate lethal-card selection
+and navigation rather than treating it as a successful campaign or altering
+health. Three-run session84597 is still live.

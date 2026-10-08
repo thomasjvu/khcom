@@ -21,6 +21,25 @@ local function cards()
  for i=0,3 do ok=ok and emu:read32(sCardTiles+i*4)~=0 and emu:read32(sCardPalettes+i*4)~=0 end
  return ok
 end
+local function hudText(row,column,text)
+ local control=emu:read16(0x04000008)
+ local screen=0x06000000+((control&0x1f00)<<3)
+ local tiles=0x06000000+((control&0x000c)<<12)
+ for index=1,#text do
+  local c=text:byte(index)
+  local glyph=c>=48 and c<=57 and c-48+1 or c>=65 and c<=90 and c-65+11 or 0
+  local tile=emu:read16(screen+(row*32+column+index-1)*2)&0x3ff
+  for y=0,6 do
+   local bits=emu:read8(sUiGlyphs+glyph*7+y)
+   local pixels=emu:read32(tiles+tile*32+y*4)
+   for x=0,4 do
+    local expected=(bits&(1<<(4-x)))~=0 and 3 or 1
+    if ((pixels>>((x+1)*4))&15)~=expected then return false end
+   end
+  end
+ end
+ return true
+end
 callbacks:add('frame',function()
  f=f+1
  -- These encounter fixtures still deploy every room through native input.
@@ -48,6 +67,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeThreats)==10,'scythe includes exact 96-pixel range and 24-pixel height')
   check(emu:read16(gNativeThreats+2)==10 and emu:read16(gNativeThreats+4)==10,'scythe previews all members within the sweep')
   check(emu:read16(gNativeMarlPose)==1,'charged scythe displays original scythe windup')
+  check(hudText(2,0,'SCYTHE CHARGED'),'compact HUD names scythe windup')
   emu:screenshot('@OUTPUT@/marluxia-charge.png');emu:setKeys(8)
  end
  if f==1134 then emu:setKeys(0) end
@@ -84,6 +104,7 @@ callbacks:add('frame',function()
  end
  if f==2190 then
   check(emu:read16(gNativeThreats)==14,'half-health enrage previews fourteen damage')
+  check(hudText(2,0,'RAGE SCYTHE CHARGED'),'compact HUD names enraged scythe windup')
   local e=emu:read32(emu:read32(sEnemyTasks)+4)
   emu:write32(e+12,emu:read32(e+12)+16*256)
  end

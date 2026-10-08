@@ -21,6 +21,25 @@ local function cards()
  for i=0,3 do ok=ok and emu:read32(sCardTiles+i*4)~=0 and emu:read32(sCardPalettes+i*4)~=0 end
  return ok
 end
+local function hudText(row,column,text)
+ local control=emu:read16(0x04000008)
+ local screen=0x06000000+((control&0x1f00)<<3)
+ local tiles=0x06000000+((control&0x000c)<<12)
+ for index=1,#text do
+  local c=text:byte(index)
+  local glyph=c>=48 and c<=57 and c-48+1 or c>=65 and c<=90 and c-65+11 or 0
+  local tile=emu:read16(screen+(row*32+column+index-1)*2)&0x3ff
+  for y=0,6 do
+   local bits=emu:read8(sUiGlyphs+glyph*7+y)
+   local pixels=emu:read32(tiles+tile*32+y*4)
+   for x=0,4 do
+    local expected=(bits&(1<<(4-x)))~=0 and 3 or 1
+    if ((pixels>>((x+1)*4))&15)~=expected then return false end
+   end
+  end
+ end
+ return true
+end
 callbacks:add('frame',function()
  f=f+1
  -- These encounter fixtures still deploy every room through native input.
@@ -46,6 +65,7 @@ callbacks:add('frame',function()
   check(emu:read16(gNativeThreats)==10,'spell includes exact 96-pixel range and 32-pixel height')
   check(emu:read16(gNativeThreats+2)==0 and emu:read16(gNativeThreats+4)==0,'spell targets one member rather than all nearby members')
   check(emu:read16(gNativeJafarPose)==1,'charged spell displays original lamp pose')
+  check(hudText(2,0,'JAFAR SPELL CHARGED'),'compact HUD names Jafar spell windup')
   emu:screenshot('@OUTPUT@/jafar-charge.png');emu:setKeys(8)
  end
  if f==734 then emu:setKeys(0) end

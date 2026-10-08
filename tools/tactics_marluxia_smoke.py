@@ -11,7 +11,7 @@ for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitl
     parts=line.split()
     if len(parts)==3:names[parts[2]]=int(parts[0],16)
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
-keys=('gNativeAssembly','gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
+keys=('sUiGlyphs','gNativeAssembly','gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
  'gNativeMarlReady','gNativeMarlPose','sMarlTiles','sMarlPalette',
  'gNativeEnemyHp','gNativeEnemyCharge','gNativeThreats','gNativePartyHealth',
  'sEnemyTasks','sPartyPos','gNativeSaveNotice','gNativeGuard','gNativeDeck',
@@ -27,6 +27,6 @@ if not rom.is_file():p.error('matching built ROM required beside ELF')
  'driver_sha256':hashlib.sha256(script.encode()).hexdigest(),
  'driver_logic_sha256':hashlib.sha256(script.replace(str(out),'@OUTPUT@').encode()).hexdigest(),
  'explicit_memory_fixtures':True,
- 'expected_checks':28,
+ 'expected_checks':30,
  'result':'not yet observed; inspect boss.txt'
 },indent=2)+'\n')

@@ -11,7 +11,7 @@ for line in subprocess.check_output(['arm-none-eabi-nm',a.elf],text=True).splitl
     parts=line.split()
     if len(parts)==3:names[parts[2]]=int(parts[0],16)
 out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=True)
-keys=('gNativeAssembly','gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
+keys=('sUiGlyphs','gNativeAssembly','gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
  'gNativeJafarReady','gNativeJafarPose','sJafarTiles','sJafarPalette',
  'gNativeEnemyHp','gNativeEnemyCharge','gNativeThreats','gNativePartyHealth',
  'sEnemyTasks','sPartyPos','gNativeSaveNotice','gNativeGuard','gNativeDeck',
@@ -25,6 +25,6 @@ script=(out/'boss.lua').read_bytes()
  'rom_sha256':hashlib.sha256(rom.read_bytes()).hexdigest(),
  'driver_sha256':hashlib.sha256(script).hexdigest(),
  'explicit_memory_fixtures':True,
- 'expected_checks':24,
+ 'expected_checks':25,
  'result':'not observed; inspect boss.txt'
 },indent=2)+'\n')

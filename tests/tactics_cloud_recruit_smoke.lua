@@ -47,6 +47,7 @@ callbacks:add('frame',function()
  if f==504 then emu:setKeys(0) end
  if f==610 then
   check(emu:read8(gNativeEnemyCharge)==1 and emu:read16(gNativeCloudPose)==1,'Cloud warns and animates sword windup')
+  check(hudText(2,0,'CLOUD SLASH CHARGED'),'compact HUD names Cloud sword windup')
   check(emu:read16(gNativeThreats)==12 and emu:read16(gNativeThreats+2)==12,'warned sweep includes sixty-four pixel reach and twenty-four pixel height')
   emu:setKeys(8)
  end

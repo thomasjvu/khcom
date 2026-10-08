@@ -31,6 +31,6 @@ if not rom.is_file():p.error('matching built ROM required beside ELF')
  'driver_logic_sha256':hashlib.sha256(script.replace(str(out),'@OUTPUT@').encode()).hexdigest(),
  'explicit_memory_fixtures':True,
  'reward_choice':'power' if a.power else 'recruit',
- 'expected_checks':18,
+ 'expected_checks':19,
  'result':'not yet observed; inspect cloud.txt'
 },indent=2)+'\n')
