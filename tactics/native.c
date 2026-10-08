@@ -643,14 +643,14 @@ static void NativeGuardPose(void) {
     u8 i;
     for (i = 1; i < 3; i++) if (NativeHero(i) == FIELD_GOOFY && gNativePartyHealth.hp[i]) NativePartyPose(i);
 }
-static void NativePartySelect(void) {
+static void NativePartyActivate(u8 slot) {
     Task* playerTask = gFieldState->tasks2.head.activeHead->owner;
     FldWork* player = playerTask->work;
     sPartyPos[gNativeParty] = gFieldState->actor.fieldPosition;
     sPartyMove[gNativeParty] = gNativeMoveLeft;
     sPartyAction[gNativeParty] = gNativeActionLeft;
     sPartyAngle[gNativeParty] = gFieldState->actor.angle;
-    gNativeParty = FieldPartyNext(&gNativePartyHealth, gNativeParty);
+    gNativeParty = slot;
     if (player->state != FLD_STATE_GROUND) {
         player->state = FLD_STATE_GROUND;
         player->timer = player->vz = 0;
@@ -663,6 +663,9 @@ static void NativePartySelect(void) {
     gFieldState->actor.speed = 0;
     gNativeMoveLeft = sPartyMove[gNativeParty];
     gNativeActionLeft = sPartyAction[gNativeParty];
+}
+static void NativePartySelect(void) {
+    NativePartyActivate(FieldPartyNext(&gNativePartyHealth, gNativeParty));
 }
 static int NativeRecruitEligible(void) {
     return gNativeFloor == 0 && gMapFloorState.room == 9 &&
@@ -1380,7 +1383,22 @@ static void NativeHud(void) {
         gWin0V = 64;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         NativeLabel(0, 0, gNativeMenu >= 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  UP DOWN A  B BACK");
-        if (gNativeMenu == 7) {
+        if (gNativeMenu == 8) {
+            NativeLabel(0, 0, "PARTY  UP DOWN A SELECT");
+            for (i = 0; i < 3; i++) {
+                char status[] = "HP 00 MP0 ACT0";
+                u8 hero = NativeHero(i);
+                status[3] += gNativePartyHealth.hp[i] / 10;
+                status[4] += gNativePartyHealth.hp[i] % 10;
+                status[8] += i == gNativeParty ? gNativeMoveLeft : sPartyMove[i];
+                status[13] += i == gNativeParty ? gNativeActionLeft : sPartyAction[i];
+                NativeLabel(0, 16 + i * 8, i == gNativeMenuChoice ? "X" : " ");
+                NativeLabel(8, 16 + i * 8, hero == FIELD_SORA ? "SORA" : hero == FIELD_DONALD ? "DONALD" :
+                    hero == FIELD_GOOFY ? "GOOFY" : hero == FIELD_RALLY ? "RALLY" : "CLOUD");
+                NativeLabel(72, 16 + i * 8, gNativePartyHealth.hp[i] ? status : "KO");
+            }
+            NativeLabel(0, 48, gNativePartyHealth.hp[gNativeMenuChoice] ? "A SWITCH  B BACK" : "KO CANNOT TAKE A TURN");
+        } else if (gNativeMenu == 7) {
             NativeLabel(0, 0, "END PARTY TURN  A CONFIRM");
             for (i = 0; i < 3; i++) {
                 char budget[] = "MP 0 ACT 0";
@@ -2643,8 +2661,17 @@ static void NativeUpdate(void) {
         } else if (gNativeMenu) {
             if ((pressed & B_BUTTON) && gNativeMenu == 6) {
                 gNativeMenu = 0;NativePreviewInput(0);pressed = 0;
+            } else if ((pressed & B_BUTTON) && gNativeMenu == 8) {
+                gNativeMenu = 1;gNativeMenuChoice = 3;pressed = 0;
             } else if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 4 || gNativeMenu == 7 ? 1 : gNativeMenu >= 3 ? 2 : gNativeMenu == 2 ? 1 : 0;pressed = 0;}
-            else if (gNativeMenu == 7) {
+            else if (gNativeMenu == 8) {
+                if (pressed & DPAD_UP) gNativeMenuChoice = (gNativeMenuChoice + 2) % 3;
+                else if (pressed & DPAD_DOWN) gNativeMenuChoice = (gNativeMenuChoice + 1) % 3;
+                if ((pressed & A_BUTTON) && gNativePartyHealth.hp[gNativeMenuChoice] && player->state == FLD_STATE_GROUND) {
+                    NativePartyActivate(gNativeMenuChoice);gNativeMenu = 0;gNativeMenuChoice = 3;
+                }
+                pressed = 0;
+            } else if (gNativeMenu == 7) {
                 if (pressed & A_BUTTON) {gNativeMenu = 0;raw = pressed = START_BUTTON;}
                 else pressed = 0;
             } else if (gNativeMenu == 6) {
@@ -2705,7 +2732,7 @@ static void NativeUpdate(void) {
                     pressed = 0;
                     }
                 } else if (command == 2) {gNativeMenu = 2;pressed = 0;}
-                else if (command == 3) {NativePartySelect();pressed = 0;}
+                else if (command == 3) {gNativeMenu = 8;gNativeMenuChoice = gNativeParty;pressed = 0;}
                 else if (command == 4) {gNativeMenu = 7;pressed = 0;}
                 else {NativeWriteSuspend();pressed = 0;}
             } else {

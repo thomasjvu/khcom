@@ -11,8 +11,7 @@ Formats8–11 remain readable and initialize Rally at full health on migration.
 Select opens the command panel (R+Select remains an alias). Up/Down selects Move, Attack, Skills, Party,
 End Turn or Suspend; A confirms and B returns. Move opens the actual reachable
 map/cost preview. Attack chooses an available Key card. Skills opens the card
-selection submenu, with L/R or Left/Right to browse and A to use. Party switches
-the active member without renewing budgets. L+Select switches heroes directly; Start+Select suspends. Other field shortcuts remain.
+selection submenu, with L/R or Left/Right to browse and A to use. Party opens a deployed hero selector without renewing budgets. L+Select switches heroes directly; Start+Select suspends. Other field shortcuts remain.
 A lighter single-stroke 5x7 font replaces the bold debug glyphs.
 
 Rally's source is the approved `pink-ponytail/starter-sheet-v2.png` artwork.
@@ -113,3 +112,16 @@ Eight input-only native checks pass for confirmation/cancel safety, exactly
 one enemy phase and refreshed party resources. The10-check Jump regression
 passes on the same ROM; End Turn screen visually inspected. Direct Start
 remains the existing shortcut. No new reserved RAM or save format changes.
+
+Party now opens a dedicated deployed-hero selector rather than cycling
+immediately. Up/Down highlights, A switches directly while grounded, and B
+returns to Commands. Health, movement, action and KO status are shown for
+each deployed hero. Direct selection uses the same activation path as the
+L+Select shortcut and preserves positions, facing and independent budgets.
+The input-only selector fixture covers Sora/Goofy/Rally, cancellation, actual
+Goofy movement and retained resources across switches; Rally directional/menu/
+save regression is checked separately on the same ROM. Full campaign and
+standing-surface switch coverage remain unfinished.
+
+All12 input-only selector checks and26 Rally regression checks pass on the
+selector ROM. Native build/header/capacity checks pass; list rendering inspected.

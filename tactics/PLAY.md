@@ -287,3 +287,8 @@ landing tile. Stair-attached R retains its existing landing-floor toggle.
 Commands → End Turn shows each deployed hero's remaining movement and action
 (or KO), then asks for A to begin the enemy phase. B returns to Commands
 without advancing the turn. The direct Start shortcut remains immediate.
+
+Commands → Party opens the deployed hero list. Up/Down highlights a hero,
+showing HP, remaining movement/action or KO. A switches directly to a living
+hero while grounded; B returns without switching. L+Select remains the quick
+cycle shortcut. Switching preserves each hero's spent resources.
