@@ -1861,3 +1861,18 @@ The running input-only sweep recorded natural ALADDIN RECRUITED207953 and
 ALADDIN DEPLOYED212092, after earlier Cloud recruitment/deployment and suspend.
 Its full terminal coverage and frontend exit remain pending until process22497
 actually finishes.
+
+## Current full-run certificate (October 8)
+
+The six-hero/current clear-card build's complete native campaign passes314381;
+frontend session22497 finishes its 400000-frame bound and exits0. Frozen ROM and
+driver hashes match replay-metadata. Stable victory314261 ->314381 preserves
+terminal floor3 and SoraHP80. Exact terminal gate verifies masks4095/4095/4095
+(all36 rooms), nine chests, Cloud recruited/deployed, Aladdin recruited/deployed,
+completed native suspend/reset stage3 and one verified composed descent route.
+Input-only replay never writes emulated memory. No FAIL or DRIVER_ERROR records.
+
+Evidence: build/tactics-us/aladdin-clear-card-full-run-evidence. Current scoped
+mechanics count remains158 exact-ROM checks, plus strict sanitized host suite
+and read-only replay policy checks. Further multi-seed regression and release
+packaging/audit are still required before claiming fully polished completion.
