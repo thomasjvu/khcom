@@ -1304,7 +1304,8 @@ static void NativeJumpContacts(const FieldJumpPoint* point, NativeJumpContact* r
     FldWork* player=((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
     ListNode* node=((ListPool*)ColliderGetPool(6))->activeTail;
     Collider* other;
-    int radius, dx, dy, dz, penetration, angle;
+    int radius, dx, dy, dz, penetration, angle, platformZ;
+    platformZ=point->ground;
     result->ground=point->ground; result->pushX=result->pushY=0;
     result->colliding=result->standing=0;
     while (node) {
@@ -1321,17 +1322,18 @@ static void NativeJumpContacts(const FieldJumpPoint* point, NativeJumpContact* r
                         result->pushX=-(penetration*gSineTable[angle]>>8);
                         result->pushY=-(penetration*-gSineTable[angle+64]>>8);
                         result->colliding=1;
+                        if (other->flags & COLLIDER_FLAG_IS_PLATFORM) platformZ=other->z-other->height;
                     } else if ((other->flags & COLLIDER_FLAG_IS_PLATFORM) &&
                         other->z-other->height>=point->z) {
                         result->standing=1;
-                        if (other->z-other->height<point->ground)
-                            result->ground=other->z-other->height;
+                        platformZ=other->z-other->height;
                     }
                 }
             }
         }
         node=node->prev;
     }
+    if (result->standing) result->ground=platformZ<point->ground ? platformZ : point->ground;
 }
 static void NativeJumpPredict(void) {
     FieldJumpMotion motion;
