@@ -31,3 +31,10 @@ void FieldJumpMotionStep(FieldJumpMotion* m, int sine, int cosine,
         }
     }
 }
+
+void FieldJumpMotionWall(FieldJumpMotion* m, int previousX, int previousY,
+                         int ground) {
+    m->x=previousX; m->y=previousY;
+    /* Falling well above the floor probes a ledge without speed damping. */
+    if (m->phase!=2 || ground-m->z<=4095) m->speed=230*m->speed >> 8;
+}
