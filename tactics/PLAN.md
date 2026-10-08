@@ -487,3 +487,23 @@ as failed attempts with reasons; the final fixture waits until the native
 jump has settled before End Turn. No engine repair was needed or claimed.
 This is one support location, not all surfaces or hardware proof. The broader
 0.26 all-room/chest replay is separate and still has no terminal result.
+
+### All-room replay ledge failure and hero attack presentation
+
+The0.26 all-room/chest run endsFAIL300001 in Traverse Town room4 after its
+last jump at28686, with nativeBusy2 and actorState9 (LEDGE_HANG). Suspend26216/
+exact resume26546 passes. Final position65273,86089,11008, underlying
+ground16384;4kills/285commands. This is failed coverage. The replay returns
+early whenever busy, before issuing the Up/B controls that native ledge
+physics can accept during a jump; ledge-aware replay recovery needs explicit
+verification. The unchanged log, exact ROM/driver hashes and read-only process
+sample are retained in `command-menu-026-all-rooms-evidence`. No restart or
+frame-limit expansion was used to hide the failure.
+
+Hero Key confirmations now name the actual moves: Sora Keyblade, Donald Magic,
+Goofy Shield Spin, Cloud Sword and Rally Strike. Goofy shows area intent and
+the number of positive native damage previews rather than the misleading
+melee-facing instruction. Explicit Donald/Goofy combat and Goofy menu fixtures
+pass14 checks, including cancel safety and confirmed two-target native damage.
+Shield-spin menu screenshot inspected. This newer presentation build is
+separate from the packaged0.26 campaign/all-room evidence.

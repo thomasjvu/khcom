@@ -202,6 +202,7 @@ static void NativeCardIntentDraw(void);
 s16 gNativeFireTarget;
 s16 gNativeFireChoice;
 u16 gNativeFireDamage;
+extern u16 gNativeSkillDamage[6];
 u16 gNativeCureTarget;
 u16 gNativeCureHeal;
 s16 gNativeCureChoice;
@@ -1431,6 +1432,11 @@ static void NativeHud(void) {
         } else if (gNativeMenu >= 3) {
             char amount[] = "RECOVER 00";
             NativeLabel(0, 16, card < 0 ? "NO CARD" : names[gNativeDeck.kind[card]]);
+            if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY && gNativeDeck.stocked != 3) {
+                u8 hero = NativeHero(gNativeParty);
+                NativeLabel(0, 16, hero == FIELD_DONALD ? "DONALD MAGIC" : hero == FIELD_GOOFY ? "GOOFY SHIELD SPIN" :
+                    hero == FIELD_CLOUD ? "CLOUD SWORD" : hero == FIELD_RALLY ? "RALLY STRIKE" : "SORA KEYBLADE");
+            }
             if (gNativeDeck.stocked == 3 && FieldDeckSleightPreview(&gNativeDeck, &sleightKind, &sleightValue)) {
                 NativeLabel(0, 16, sleightKind == FIELD_CARD_CURE ? "PARTY CURE SLEIGHT" : sleightKind == FIELD_CARD_GUARD ? "PARTY GUARD SLEIGHT" : "AREA ATTACK SLEIGHT");
                 NativeLabel(0, 24, "PREVIEW VALUES ON MAP");
@@ -1441,6 +1447,13 @@ static void NativeHud(void) {
                     hero == FIELD_GOOFY ? "TARGET GOOFY" : hero == FIELD_RALLY ? "TARGET RALLY" : "TARGET CLOUD");
                 amount[8] += gNativeCureHeal / 10;amount[9] += gNativeCureHeal % 10;
                 NativeLabel(0, 32, amount);
+            } else if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY && NativeHero(gNativeParty) == FIELD_GOOFY) {
+                char targets[] = "TARGETS 0";
+                u8 target;
+                for (target = 0; target < 6; target++) if (gNativeSkillDamage[target]) targets[8]++;
+                NativeLabel(0, 0, "SHIELD SPIN  A CONFIRM");
+                NativeLabel(0, 24, "AREA DAMAGE ON MAP");
+                NativeLabel(0, 32, targets);
             } else if (card >= 0 && (gNativeDeck.kind[card] == FIELD_CARD_FIRE ||
                 (gNativeDeck.kind[card] == FIELD_CARD_KEY && (NativeHero(gNativeParty) == FIELD_DONALD || NativeHero(gNativeParty) == FIELD_CLOUD)))) {
                 char damage[] = "DAMAGE 00";

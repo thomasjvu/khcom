@@ -125,3 +125,11 @@ standing-surface switch coverage remain unfinished.
 
 All12 input-only selector checks and26 Rally regression checks pass on the
 selector ROM. Native build/header/capacity checks pass; list rendering inspected.
+
+Key confirmation names the selected hero's actual move. Goofy's Shield Spin
+shows area damage intent and the count of positive per-enemy native previews,
+rather than melee-facing instructions. Fourteen explicit combat/menu fixture
+checks and10 Rally Attack regression checks pass on this presentation ROM.
+Confirmed spin hits both previewed enemies; cancel preserves card/action and
+enemy health. Screen inspected. Packaged0.26 campaign proof remains tied to
+its earlier ROM hash, separate from this presentation update.
