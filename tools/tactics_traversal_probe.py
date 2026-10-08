@@ -22,7 +22,7 @@ p.add_argument('--recruit-cloud',action='store_true',help='fight optional Cloud,
 p.add_argument('--composed-descent',action='store_true',help='use and require a verified descent-to-walking route during each full run')
 p.add_argument('--suspend-room', type=int, choices=range(1,7), help='save and reset once in this Traverse Town room')
 a = p.parse_args()
-if not 180 <= a.frames <= (300000 if a.all_rooms else 120000)*a.runs:
+if not 180 <= a.frames <= (300000 if a.all_rooms else 180000)*a.runs:
     p.error('--frames exceeds the bounded per-run replay limit')
 if a.all_rooms and a.worlds!=3:
     p.error('--all-rooms requires --worlds 3')

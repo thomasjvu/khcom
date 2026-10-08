@@ -1284,3 +1284,25 @@ checks direction coverage and separate origins/heights; all13 policy tests
 pass. An independent explicit Agrabah room2 fixture is retained against the
 new Rally-card ROM. This is replay navigation, not altered game geometry or
 forced input/memory writes. Fresh campaign validation remains required.
+
+
+0.33 replay follow-up (2026-10-08): escape-jump two-seed job87983 terminal
+FAIL240001. First victory127398/stable127518; native retry127530. Second
+seed2658846982 now passes the prior Agrabah room2 obstruction at212878 and
+reaches room6 at224918 before shared bound. Failure remains retained. Main
+replay maximum is now180000 per run (all-room remains300000), making the
+fresh two-run bound360000 rather than assuming every route fits120000.
+Live job65844 uses this finite limit; do not infer its result from first-run
+or fixture success. All-room exploratory policy job38219 ends in genuine
+native party defeat135375, not a navigation timeout. Its failure is retained.
+Independent established all-room driver from9245e3140 is running on exact
+0.33 with identical36-room/nine-chest/Cloud/reset/descent requirements:
+job92124 at rally-card-baseline-all-rooms-evidence. ROM/ELF addresses are
+current, driver hash/source revision explicit. This tests presentation-only
+Rally-card integration while exploratory policy remains separately audited.
+
+Generated additional Rally hurt/casting/climb draft is saved unchanged as
+states-draft-v1.png; it incorrectly contains translucent haze and duplicate
+climb poses, so it is not imported. Built-in image edit is correcting alpha
+and alternate arms/knees (cell564). Runtime remains0.33 until actual asset
+validation and native integration are complete; no missing pose claim made.
