@@ -278,8 +278,8 @@ card. Cancel a movement preview with B before facing. Use this to aim Sora's
 Keyblade at a chest or nearby enemy without walking past it.
 
 Current source preserves each hero's facing when switching, benching, traveling
-between rooms, or resuming a format-11 suspend. Older saves migrate with each
-hero facing up; attached stair saves retain their recorded climb direction.
+between rooms, or resuming a format-12 suspend. Formats8–10 migrate with each
+hero facing up; format11 preserves facing for its four original roster entries; attached stair saves retain their recorded climb direction.
 The 0.20 development patch includes per-hero facing persistence; the earlier
 0.19 patch predates it.
 

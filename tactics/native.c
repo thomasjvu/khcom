@@ -1700,7 +1700,7 @@ static void NativeHud(void) {
                 NativeLabel(0, 32, damage);
             } else if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_KEY) {
                 NativeLabel(0, 0, "ATTACK  D PAD FACE  A USE");
-                NativeLabel(0, 24, "FACE ENEMY BEFORE CONFIRM");
+                NativeLabel(0, 24, "FACE ENEMY OR CHEST");
             } else if (card >= 0 && gNativeDeck.kind[card] == FIELD_CARD_GUARD) {
                 NativeLabel(0, 0, "GUARD  A CONFIRM");
                 NativeLabel(0, 16, "PARTY PROTECTION");
