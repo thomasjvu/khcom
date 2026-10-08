@@ -1,7 +1,10 @@
 # Current release audit
 
-Native ROM 0.32, SHA256
-`6f7a3b146689c71c1442566927fbe8ad30494e60ed19efa0af1192843057503d`.
+Current state-art ROM, SHA256
+`5f1a98008c3f8e9e6d27f12466fe4744de8035a34743cd7f543d9563bd3f846b`.
+Latest packaged development build is0.33, with complete campaigns on its own
+exact hash64bb02ac04b1e662fc839bbd5c4c3479a626f856cd02f28e752658364c661505.
+The new state-art ROM passes49 native checks; complete campaigns are live.
 This audit concerns the requested complete game, not merely a successful build.
 Historical entries in PLAN.md describe earlier versions; current evidence wins.
 

@@ -1331,3 +1331,13 @@ A second attempt mislabeled Fire as rear melee after draw advanced the hand;
 explicit Key selection now verifies all rear strike stages. Failed logs
 remain. Traversal generator also resolves the tactics input variable now.
 Complete0.33 proof does not prove this newer state-art ROM; run fresh campaigns.
+
+
+Fresh state-art ROM campaigns are live: job27303 at rally-states-two-runs-
+evidence (two native-retry seeds,360000 bound, current exploratory policy)
+and job36732 at rally-states-baseline-all-rooms-evidence (all36 rooms/nine
+chests,300000 bound, established9245e3140 policy with current ELF addresses).
+Both require actual Cloud recruit/deploy, exact suspend/reset, composed
+descent and stable terminal victory. Generated headers now resolve tactics
+sRawKeys rather than its vanilla duplicate. Observed positions and command
+logs progress; do not infer completion from any earlier ROM proof.
