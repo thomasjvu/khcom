@@ -95,3 +95,13 @@ covering deployment, menus, suspend/reset, party cycling, cardinal/diagonal
 animation banks, horizontal mirror flags and unchanged movement/action budgets.
 North/east screenshots were visually inspected. Dedicated action/air artwork
 still remains unfinished; directional walking is not a substitute for it.
+
+Move's grounded preview now offers R → Jump confirmation, with D-pad direction
+selection, explicit standing/moving costs, A commit and B back to Move.
+Confirmation uses the existing native jump controller and resource charging,
+without extra reserved RAM. No landing preview is claimed. Ten input-only
+checks pass for navigation/cancel safety, direction, actual jump travel and
+settling, exact movement/action costs and spent-action rejection. All26 Rally
+directional/menu/save/party checks pass on the same ROM; Jump screen inspected.
+Integrated walk/climb/jump destination planning and broader campaign proof
+remain unfinished.

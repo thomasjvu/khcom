@@ -1380,7 +1380,19 @@ static void NativeHud(void) {
         gWin0V = 64;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         NativeLabel(0, 0, gNativeMenu >= 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  UP DOWN A  B BACK");
-        if (gNativeMenu == 5) {
+        if (gNativeMenu == 6) {
+            NativeLabel(0, 0, "JUMP  D PAD DIRECTION");
+            NativeLabel(0, 16, gNativeDirection ? "MOVING JUMP" : "STANDING JUMP");
+            NativeLabel(0, 24, gNativeDirection ? "COST ONE MOVE AND ACTION" : "COST ONE ACTION");
+            NativeLabel(0, 32, "NO LANDING PREVIEW");
+            NativeLabel(0, 40, (gNativeDirection & DPAD_UP) ?
+                ((gNativeDirection & DPAD_LEFT) ? "NORTH WEST" : (gNativeDirection & DPAD_RIGHT) ? "NORTH EAST" : "NORTH") :
+                (gNativeDirection & DPAD_DOWN) ? ((gNativeDirection & DPAD_LEFT) ? "SOUTH WEST" :
+                (gNativeDirection & DPAD_RIGHT) ? "SOUTH EAST" : "SOUTH") :
+                (gNativeDirection & DPAD_LEFT) ? "WEST" : gNativeDirection ? "EAST" : "STRAIGHT UP");
+            NativeLabel(0, 48, !gNativeActionLeft ? "ACTION ALREADY SPENT" :
+                gNativeDirection && !gNativeMoveLeft ? "NO MOVE LEFT  B BACK" : "A JUMP  B BACK TO MOVE");
+        } else if (gNativeMenu == 5) {
             NativeLabel(0, 0, "RELOAD CARDS  A CONFIRM");
             NativeLabel(0, 16, "RETURN DISCARDED CARDS");
             NativeLabel(0, 24, "COST ONE ACTION");
@@ -1433,6 +1445,7 @@ static void NativeHud(void) {
             NativeLabel(104, 48, "SAVE AND RESUME");
         }
     }
+    if (gNativePreview == 1 && !gNativeMenu) NativeLabel(0, 32, "R JUMP  B BACK");
     sHudPending = 1;
 }
 static void NativeExit(void) {
@@ -2011,6 +2024,9 @@ static void NativePreviewInput(u16 pressed) {
         sCursorX = sCursorY = 0;
     }
     if (pressed & (B_BUTTON | SELECT_BUTTON)) {gNativePreview = 0; return;}
+    if ((pressed & R_BUTTON) && player->state == FLD_STATE_GROUND) {
+        gNativePreview = 0;gNativeMenu = 6;gNativeDirection = 0;return;
+    }
     if ((pressed & DPAD_LEFT) && sCursorX > -4) sCursorX--;
     if ((pressed & DPAD_RIGHT) && sCursorX < 4) sCursorX++;
     if ((pressed & DPAD_UP) && sCursorY > -4) sCursorY--;
@@ -2612,8 +2628,15 @@ static void NativeUpdate(void) {
             gNativeMenu = gNativeMenu ? 0 : 1;
             pressed = 0;
         } else if (gNativeMenu) {
-            if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 4 ? 1 : gNativeMenu >= 3 ? 2 : gNativeMenu == 2 ? 1 : 0;pressed = 0;}
-            else if (gNativeMenu == 5) {
+            if ((pressed & B_BUTTON) && gNativeMenu == 6) {
+                gNativeMenu = 0;NativePreviewInput(0);pressed = 0;
+            } else if (pressed & B_BUTTON) {gNativeMenu = gNativeMenu == 4 ? 1 : gNativeMenu >= 3 ? 2 : gNativeMenu == 2 ? 1 : 0;pressed = 0;}
+            else if (gNativeMenu == 6) {
+                if (pressed & DPAD_ANY) gNativeDirection = raw & DPAD_ANY;
+                if ((pressed & A_BUTTON) && gNativeActionLeft && (!gNativeDirection || gNativeMoveLeft)) {
+                    gNativeMenu = 0;raw = B_BUTTON | gNativeDirection;pressed = B_BUTTON;
+                } else pressed = 0;
+            } else if (gNativeMenu == 5) {
                 if ((pressed & A_BUTTON) && gNativeActionLeft && FieldDeckReload(&gNativeDeck)) {
                     gNativeActionLeft = 0;
                     gNativeMenu = 0;

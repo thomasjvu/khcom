@@ -277,3 +277,9 @@ prop ascent and descent are not yet combined into a single preview route.
 In Commands → Skills, Down opens Reload when no cards are stocked. Confirm
 with A to spend one action and return discarded cards, or B to cancel. Down
 with stocked cards clears the stock first.
+
+In Commands → Move, R opens Jump confirmation while grounded. The D-pad
+chooses a cardinal/diagonal direction; A commits and B returns to Move. A
+standing jump costs one action; a moving jump costs one movement plus one
+action. The panel shows the direction and cost. It does not yet predict a
+landing tile. Stair-attached R retains its existing landing-floor toggle.
