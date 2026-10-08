@@ -1472,15 +1472,20 @@ static void NativeHud(void) {
         } else if (gNativeMenu == 7) {
             NativeLabel(0, 0, "END PARTY TURN  A CONFIRM");
             for (i = 0; i < 3; i++) {
-                char budget[] = "MP 0 ACT 0";
+                char budget[] = "HP00 M0 A0 HIT00";
                 u8 hero = NativeHero(i);
-                budget[3] += i == gNativeParty ? gNativeMoveLeft : sPartyMove[i];
+                u16 damage = gNativeThreats[i] > 99 ? 99 : gNativeThreats[i];
+                budget[2] += gNativePartyHealth.hp[i] / 10;
+                budget[3] += gNativePartyHealth.hp[i] % 10;
+                budget[6] += i == gNativeParty ? gNativeMoveLeft : sPartyMove[i];
                 budget[9] += i == gNativeParty ? gNativeActionLeft : sPartyAction[i];
+                budget[14] += damage / 10;
+                budget[15] += damage % 10;
                 NativeLabel(0, 16 + i * 8, hero == FIELD_SORA ? "SORA" : hero == FIELD_DONALD ? "DONALD" :
                     hero == FIELD_GOOFY ? "GOOFY" : hero == FIELD_RALLY ? "RALLY" : "CLOUD");
                 NativeLabel(64, 16 + i * 8, gNativePartyHealth.hp[i] ? budget : "KO");
             }
-            NativeLabel(0, 40, "ENEMIES ACT NEXT");
+            NativeLabel(0, 40, "HIT IS EXPECTED DAMAGE");
             NativeLabel(0, 48, "A END TURN  B BACK");
         } else if (gNativeMenu == 6) {
             NativeLabel(0, 0, "JUMP  D PAD DIRECTION");

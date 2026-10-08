@@ -1099,3 +1099,25 @@ Cloud recruitment/deployment, composed descent, and TTroom3 suspend/reset,
 It has not reached a campaign verdict; preserve and poll this same live job
 before starting another. Source comment-only cleanup after generation does
 not change that driver's behavior; generated hash remains authoritative.
+
+End Turn menu polish (2026-10-07), development0.30: show HP, remaining
+movement/action, and expected next enemy damage per living hero. The HIT
+legend explains the forecast; KO heroes remain explicit. Uses the existing
+NativePreviewThreats result shared with map intent, includes current Guard,
+clamps displayed damage99, and allocates no persistent RAM (8140/8192).
+
+Input-only end-turn-forecast-corrected-evidence passes9/9: three rendered
+hero HP/threat values (including nonzero Sora damage), explanation, no
+resource spend while inspecting, cancel preserves turn, confirm advances
+one native turn. Initial evidence caught shifted damage digit indices;
+corrected screenshot and exact-ROM replay prove the fix. Independent
+forecast-compact-party-evidence passes14/14. Host suite/build/header/capacity
+pass; local development0.30 BPS applies byte-identically. ROM SHA256
+b50c5353cb229d1bdafd5e0826bbc146617a051f817391504683d2b3b1815833.
+No whole-campaign0.30 verdict is claimed.
+
+Existing session73273/PID62815 all-room controller job remains live on its
+immutable0.29 ROM. It has verified composed descent1217 and reached TT
+room1=8648, room2=11739, room3=14652, party HP80/32/72. No restart was
+performed. Keep following this same job for save/recruit/reserve/full-run
+evidence; new menu ROM and campaign ROM remain distinguished.
