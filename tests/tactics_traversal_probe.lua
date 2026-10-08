@@ -698,7 +698,7 @@ local function replayFrame()
    local tx,ty=stairGoal(dx,dy,dz)
    local key=(tx<x and 32 or 16)+(ty<y and 64 or 128)
    out:write('JUMP '..f..' '..x..' '..y..' '..z..'\n');out:flush()
-   emu:setKeys(key+2);commands=commands+1;visits[cell(x,y,z)]=0;phase='release';nextFrame=f+4;return
+   pressNative(key+2);commands=commands+1;visits[cell(x,y,z)]=0;phase='release';nextFrame=f+4;return
   end
  end
  local x0,y0,z0=pos()
@@ -718,7 +718,7 @@ local function replayFrame()
  local px,py=pos()
  if phase=='scan' and stair and math.abs(px-dx)<(stair~=64 and stair~=128 and 4096 or 2048) and math.abs(py-dy)<(stair~=64 and stair~=128 and 4096 or 4096) then
   if (stair&2)~=0 and emu:read16(gNativeActionLeft)==0 then requestTurn();return end
-  emu:setKeys(stair);commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
+  pressNative(stair);commands=commands+1;best=nil;index=1;phase='release';nextFrame=f+4;return
  end
  if phase=='scan' then
   if index==1 then

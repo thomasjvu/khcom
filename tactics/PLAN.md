@@ -1240,3 +1240,21 @@ execution next; do not enlarge bounds or describe two-run success. Player
 instructions now describe the compact ready-party/enemy strip and contextual
 End Turn health/damage forecast; current release audit enumerates actual
 requirements and missing proof/art/content without imposing hardware testing.
+
+
+Second-seed obstruction diagnostic (2026-10-08): snapshot save-state bytes
+are sSuspend from the earlier TTroom1 save, not current runtime. Production
+inspection rejects them because their cached enemies became stale; no save
+validator relaxed and no failing stale buffer used as exact terminal state.
+Added explicit tools/tactics_agrabah_room2_fixture.c using the actual valid
+second-seed SRAM, seed2658846982 floor1 room2 recorded positions/health,
+refreshed budgets and deliberately cleared encounter cache. Production
+encode/decode PASS. It differs in deck/hero identities and regenerates two
+enemies, so it is a diagnostic fixture. Initial captured terrain cells and
+props match terminal snapshot exactly. Baseline native input exits to room3
+PASS16491. Region planner points at connector77824,68608,0; same-height
+walking cannot approach around prop98304,118784 radius8192, hence jump/height
+execution is necessary. This proves a route exists, not why campaign stalled.
+Fallback jumps and region transitions now wait for native sample/update
+acknowledgement. All12 replay policy regressions pass; equivalent acknowledged
+jump fixture retains independent logs. No complete second-seed claim.
