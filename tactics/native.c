@@ -1400,6 +1400,8 @@ static void NativeJumpPredict(void) {
         gNativeJumpLanding.x=motion.x; gNativeJumpLanding.y=motion.y;
         gNativeJumpLanding.z=motion.z; gNativeJumpLanding.ground=point.ground;
         gNativeJumpPrediction=1;
+    } else {
+        gNativeJumpPrediction=2;
     }
 }
 static void NativeHud(void) {
@@ -1643,7 +1645,8 @@ static void NativeHud(void) {
             NativeLabel(0, 0, "JUMP  D PAD DIRECTION");
             NativeLabel(0, 16, gNativeDirection ? "MOVING JUMP" : "STANDING JUMP");
             NativeLabel(0, 24, gNativeDirection ? "COST ONE MOVE AND ACTION" : "COST ONE ACTION");
-            NativeLabel(0, 32, "NO LANDING PREVIEW");
+            NativeLabel(0, 32, gNativeJumpPrediction==1 ? "LANDING DIAMOND ON MAP" :
+                gNativeJumpPrediction==2 ? "LANDING UNRESOLVED" : "CHECKING LANDING");
             NativeLabel(0, 40, (gNativeDirection & DPAD_UP) ?
                 ((gNativeDirection & DPAD_LEFT) ? "NORTH WEST" : (gNativeDirection & DPAD_RIGHT) ? "NORTH EAST" : "NORTH") :
                 (gNativeDirection & DPAD_DOWN) ? ((gNativeDirection & DPAD_LEFT) ? "SOUTH WEST" :
@@ -3311,6 +3314,11 @@ static void NativeUpdate(void) {
     NativeIntentDraw();
     NativeCardIntentDraw();
     NativeSleightIntentDraw();
+    if (gNativeMenu==6 && gNativeJumpPrediction==1 && sReachTiles && sValuePalette) {
+        int jumpX=(gNativeJumpLanding.x-gFieldState->x)>>8;
+        int jumpY=(gNativeJumpLanding.y+gNativeJumpLanding.z-gFieldState->y)>>8;
+        DrawSprite(jumpX-12,jumpY-7,gCardValueDigitFrames[0],sReachTiles,sValuePalette,NULL,0x800,0);
+    }
     NativePreviewDraw();
     NativeHud();
     if (gNativeBusy) sFrames++;
