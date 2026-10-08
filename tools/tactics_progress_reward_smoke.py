@@ -1,5 +1,6 @@
 """Generate native encounter-clear upgrade and suspend fixtures."""
 import argparse
+import re
 import hashlib
 import json
 import subprocess
@@ -16,7 +17,8 @@ keys=('gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
  'gNativeEnemyHp','gNativeEnemyCharge','gNativeThreats','gNativePartyHealth',
  'sEnemyTasks','sPartyPos','gNativeSaveNotice','gNativeGuard','gNativeDeck',
  'sValueTiles','sValuePalette','sCardTiles','sCardPalettes','sProgressHero','sProgressKind')
-header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
+hero_count=int(re.search(r'#define FIELD_HEROES (\d+)',Path('tactics/field_roster.h').read_text())[1])
+header=f'local rosterClearedOffset={4+2*hero_count}\nlocal rosterPhaseOffset={6+2*hero_count}\nlocal rosterRewardOffset={7+2*hero_count}\nlocal rosterSleightOffset={4+hero_count}\n'+''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 script=header+Path('tests/tactics_reward_availability_smoke.lua' if a.availability else 'tests/tactics_progress_reward_smoke.lua').read_text().replace('@OUTPUT@',str(out))
 rom=Path(a.elf).resolve().with_suffix('.gba')
 if not rom.is_file():p.error('matching built ROM required beside ELF')

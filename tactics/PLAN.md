@@ -1895,3 +1895,20 @@ frontend exits0; hashes and counts verified. Current scoped native count290.
 Fresh input-only three-run sweep frontend72595 is live, requiring all36 rooms,
 nine chests, both recruit/deploy paths, suspend/reboot, composed descent and native
 seed retries per campaign. The manifest labels it running, not certified.
+
+## Current-build height, boss, UI and reward regression (October 8)
+
+365 additional exact-ROM scoped checks pass on 0.41, total655. Stair/climb/descent
+previews113; Guard Armor40 and Marluxia30; Rally cast/hurt/climb12; walking/refunds33;
+Reload11; personal reward14 and availability7; Sora/Rally eight-direction commands37;
+End Turn shortcut8 and rendered confirmation/phase13; Cloud recruit/power38; original
+jump-pad landing9. Actual bounded frontend exits0, expected counts and ROM/driver/log
+hashes verified. Reward fixtures now derive cleared/phase/reward/sleight offsets
+from six-hero count rather than overwriting prior five-hero fields. Card/palette
+restoration, original boss poses and exact rendered UI remain covered.
+
+The release audit now lists authoritative 0.41 requirement evidence ahead of
+explicitly historical sections. Manifest contains every current scoped folder.
+Three-seed session72595 is live: campaign1 PASS314381 with native retry seed
+2658846982; campaign2 Aladdin recruited545435/deployed547265. No terminal
+three-campaign or process-exit claim yet.

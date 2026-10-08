@@ -22,7 +22,7 @@ Apply to the US base SHA-1 `10729bd884f8fdca7a310b6d606c52e46657aa48` using
 `1f52bcd88993a08ef318a9ba72ea19b7c410e181a113d8911e1a040597ca519d`.
 Patch application matches the tested build byte for byte.
 
-290 scoped current-ROM native checks pass with verified frontend exits. These
+655 scoped current-ROM native checks pass with verified frontend exits. These
 include all six heroes' sleight area/height boundaries, Donald healing/revival,
 Goofy spin/Guard, party menus, Aladdin hit/miss/break/recovery caps, both Jafar
 reward paths, full-roster corrupt-save fallback and native legacy import. Focused

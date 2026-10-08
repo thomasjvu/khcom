@@ -17,7 +17,7 @@ callbacks:add('frame',function()
  if f==184 then emu:setKeys(0) end
  if f==210 then
   -- Explicit earlier-clear fixture; native attacks perform the next clear.
-  emu:write16(gNativeRoster+14,2);place();emu:write8(gNativeDeck+73,1);emu:setKeys(1)
+  emu:write16(gNativeRoster+rosterClearedOffset,2);place();emu:write8(gNativeDeck+73,1);emu:setKeys(1)
  end
  if f==214 then emu:setKeys(0) end
  if f==260 then emu:setKeys(516) end
@@ -27,15 +27,15 @@ callbacks:add('frame',function()
  if f==360 then
   check(emu:read16(gNativeEnemyHp)==0 and emu:read16(gNativeEnemyHp+2)==0,'native card attacks clear encounter')
   check(emu:read16(gNativeProgressReward)==1,'second new clear opens character reward')
-  check(emu:read8(gNativeRoster+16)==2 and emu:read8(gNativeRoster+17)==1,'pending upgrade is authoritative roster state')
-  check(emu:read16(gNativeRoster+14)==3,'clear records each room once')
+  check(emu:read8(gNativeRoster+rosterPhaseOffset)==2 and emu:read8(gNativeRoster+rosterRewardOffset)==1,'pending upgrade is authoritative roster state')
+  check(emu:read16(gNativeRoster+rosterClearedOffset)==3,'clear records each room once')
   emu:screenshot('@OUTPUT@/reward.png');emu:setKeys(12)
  end
  if f==364 then emu:setKeys(0) end
  if f==420 then check(emu:read16(gNativeSaveNotice)==1,'pending character reward suspends');emu:reset() end
  if f==750 then
   check(emu:read16(gNativeProgressReward)==1 and emu:read16(gNativeAssembly)==0,'resume restores reward without opening setup')
-  check(emu:read16(gNativeRoster+14)==3,'resume preserves cleared encounter mask')
+  check(emu:read16(gNativeRoster+rosterClearedOffset)==3,'resume preserves cleared encounter mask')
   emu:setKeys(256)
  end
  if f==754 then emu:setKeys(0) end
@@ -44,7 +44,7 @@ callbacks:add('frame',function()
  if f==830 then
   check(emu:read16(gNativeProgressReward)==0,'confirmation closes reward')
   check(emu:read8(gNativeRoster+5)==1 and emu:read8(gNativeRoster+4)==0,'power reward upgrades Donald only')
-  check(emu:read8(gNativeRoster+16)==0,'confirmed reward returns roster to assembly phase')
+  check(emu:read8(gNativeRoster+rosterPhaseOffset)==0,'confirmed reward returns roster to assembly phase')
   emu:setKeys(12)
  end
  if f==834 then emu:setKeys(0) end

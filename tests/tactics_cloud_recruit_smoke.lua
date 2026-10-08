@@ -67,7 +67,7 @@ callbacks:add('frame',function()
  end
  if f==1334 then emu:setKeys(0) end
  if f==1400 then
-  check(emu:read16(gNativeEnemyHp)==0 and emu:read16(gNativeProgressReward)==1 and emu:read8(gNativeRoster+17)==2,'native Fire defeats Cloud and offers boss reward')
+  check(emu:read16(gNativeEnemyHp)==0 and emu:read16(gNativeProgressReward)==1 and emu:read8(gNativeRoster+rosterRewardOffset)==2,'native Fire defeats Cloud and offers boss reward')
   check(emu:read32(sRecruitTiles)~=0 and emu:read32(sRecruitPalette)~=0,'original Cloud summon card allocates for recruit reward')
   emu:setKeys(64)
  end

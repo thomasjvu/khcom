@@ -1,6 +1,6 @@
 # KH Tactics
 
-Current patch: [0.41 Aladdin notes](tactics/ALADDIN-0.41.md). Original Aladdin sprites/card, Jafar recruit-or-power reward, skirmish movement recovery and backward-compatible six-hero saves. 290 current-build native checks and one complete all-room campaign pass; three-seed regression is running.
+Current patch: [0.41 Aladdin notes](tactics/ALADDIN-0.41.md). Original Aladdin sprites/card, Jafar recruit-or-power reward, skirmish movement recovery and backward-compatible six-hero saves. 655 current-build native checks and one complete all-room campaign pass; three-seed regression is running.
 
 A Kingdom Hearts: Chain of Memories roguelike tactics ROM hack, US version.
 The packaged **0.41 Aladdin development build** runs in the original 2.5D engine with full

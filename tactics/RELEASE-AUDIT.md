@@ -2,13 +2,35 @@
 
 The Aladdin package applies byte-identically to ROM SHA256
 `1f52bcd88993a08ef318a9ba72ea19b7c410e181a113d8911e1a040597ca519d`.
-290 scoped native checks pass, including original-party movesets, all six heroes'
+655 scoped native checks pass, including original-party movesets, all six heroes'
 sleights, Aladdin recruitment/recovery, whole-roster saves and actual format-12
 import/rewrite/reboot. One input-only all-room campaign passes314381 with all36
 rooms/nine chests, both recruits deployed, native suspend/reset and composed
 descent; frontend exit0 verified. Three-seed regression remains running.
 See [0.41 notes](ALADDIN-0.41.md) and the exact evidence manifest under build/release.
 Final completion remains unproven until remaining regression/audit gates pass.
+
+## Requested behavior: current 0.41 evidence
+
+| Requirement | Current proof | Remaining gate |
+| --- | --- | --- |
+| Fork, native GBA hack and usable patch | Fork/draft PR1; reproducible native target; 99,656-byte BPS applies byte-identically | Final audit and release designation |
+| Original 2.5D world and procedural biome maps | Native renderer/collision/height; original scene/sprite/card screenshots; all 36 rooms in one completed current campaign | Three-seed sweep running |
+| Controllable Sora/Donald/Goofy with distinct movesets | Independent HP/budgets; Donald magic/healing/revival17; Goofy spin/Guard26; Party menus17; six-hero recipes72 | Final combined audit |
+| Fight/recruit Cloud and broader boss reward choices | Natural Cloud fight/recruit/deploy; two Cloud choices38; Jafar recruit/power64; natural Aladdin recruit/deploy | Three-seed sweep running |
+| Rally integrated from custom assets | Native card/roster; current cast/hurt/climb12 and eight-direction commands19; native menus/save | Final visual audit |
+| Typical tactical menus and unobtrusive UI | Single-stroke font; 18+16 idle, 40+16 Commands, 56+16 details; Party17, End Turn8+13, eight-direction commands37 | Final visual audit |
+| Visible party/enemy phase order | Actual rendered spare-row checks during Party/Attack/End Turn; exhausted/KO filtering in native source | Final combined audit |
+| Movement tiles, ledges, heights, doors and chests | Projected costs/cancel/occupancy/stairs/descent113; route/refunds33; original pad landing9; current all-room/nine-chest campaign | Three-seed sweep running |
+| Original cards, stock/sleights/reload and personal rewards | Six-hero area recipes72; reload11; personal reward14 and capped/owned choices7 | Final combined audit |
+| Varied encounters and original bosses | Seeded role/height host checks; current Guard Armor40, Jafar64, Marluxia30, Cloud38; full campaign | Three-seed sweep running |
+| Suspend and compatibility | Whole six-hero alternating/corrupt-slot checks12; actual format-12 native import/rewrite/reboot7; Aladdin save14; campaign suspend/reset | Three-seed retry/reset coverage running |
+| Complete-run emulator verification | Current input-only all 36 rooms/nine chests/both recruits/suspend/descent PASS314381, actual frontend exit0 | Three-seed sweep running |
+
+Aerith/Tifa were optional suggestions. Aerith resources exist; no Tifa resources
+were found. Neither is implemented. Cloud and Aladdin provide verified recruitable
+allies beyond the starting party. Physical cartridge testing is optional. Focused
+fixtures do not establish universal physical reachability for every possible seed.
 
 The entries below describe predecessor builds and must retain their version scope.
 
@@ -52,29 +74,6 @@ Earlier0.34 two runs PASS288347 and its all-room defeats130336/134022 remain
 version-scoped. Earlier0.33 all-room PASS281892 is likewise historical.
 This audit concerns the requested complete game. Historical entries in PLAN.md
 describe earlier versions; current evidence wins.
-
-| Requested behavior | Current evidence | Remaining work |
-| --- | --- | --- |
-| Fork and native GBA ROM | Fork thomasjvu/khcom, draft PR1, tactics native target, byte-identical BPS apply | Final release packaging and reproducible instructions |
-| Original 2.5D scenes, actors, cards | Native field renderer/collision/animation; inspected native screenshots | Further visual review of each biome |
-| Procedural maps from town/castle assets | Seeded room/platform generation; all36 rooms and three seeds completed on0.36 | Wider seed physical reachability, especially stairs/props |
-| Controllable Sora/Donald/Goofy | Separate budgets/HP; menu and native party checks; Donald magic/Cure and Goofy spin/Guard | Current ROM Donald healing17 and Goofy spin/Guard26 checks pass; other hero/recipe combinations and visual review remain |
-| Fight/recruit Cloud; party assembly only at round start | Actual fresh-run fight/recruit/deploy; recruit and alternative-power fixtures; original character cards in setup | Cloud-only recruitment is verified; broader world-boss summon/recruit alternatives and recruit/reward balance remain |
-| Optional Aerith/Tifa suggestion | Aerith gEarF00/F01/B00/B01 idle/walk and gEarisPalette confirmed; no Tifa resources found | Inspect actual Aerith resources and feasibility; neither recruit is implemented |
-| Original Rally | Five-hero roster; menu/save/reset, walking/actions/air native tests and golden asset checks | Card and six hurt/climb/cast poses implemented and native captures inspected; further visual review |
-| Selectable Move/Attack/Skills/Party/End Turn | Compact single-stroke font, 18+16 idle, 40+16 Commands and 56+16 detailed windows; rendered native UI checks | Visual usability review of all submenus |
-| Turn order visible | Available party members then enemy phase; freely ordered party actions; forecast before ending | Six native VRAM checks cover ready, exhausted, KO, fully exhausted and enemy phases; wider combinations remain |
-| Movement tiles, heights, chests, doors | Native projected previews, costs, cancel, collision execution, composed descent; all-room nine chest campaign | Wider seeds and combined ledge/jump route discovery |
-| Card combat and sleights | Original artwork, draw/discard/reload, three-card sleights, targeted Fire/Cure/Guard; host/native tests | Current0.40 five-hero area recipes60 pass; remaining recipe/save/menu combinations need current-build review |
-| Bosses and roguelike rewards | TT Guard Armor, Agrabah Jafar, Castle Marluxia; completed campaigns; personal power/sleight rewards, Cloud summon-or-power choice | Current0.40 boss mechanics/resource/pose fixtures95 pass; visual review, balance and reward variety remain |
-| Suspend saves | Current native alternating slots/reset/corrupt-newest fallback12 checks, exact saves in both complete campaigns | Multi-seed replay with reset/retry |
-| Verified complete runs | Current0.40 three all36/nine-chest campaigns PASS892349; exact hashes and frontend exit0 | Final broader visual/content polish audit remains |
-
-Next priority: review remaining native combat
-and menus across heroes and worlds. Rally's original card and six extra states
-are implemented. Explicit fixture checks and host graph checks are not fresh
-full-run or universal physical reachability proof. Physical cartridge testing
-is optional validation, not a user-imposed completion requirement.
 
 ## 0.35 compact Commands development pass
 

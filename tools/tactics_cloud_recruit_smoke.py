@@ -1,5 +1,6 @@
 """Generate explicit Cloud sword presentation and recruitment fixtures."""
 import argparse
+import re
 import hashlib
 import json
 import subprocess
@@ -16,7 +17,8 @@ keys=('gFieldState','gMapRoomState','gMapFloorState','gNativeFloor',
  'gNativeRoster','gNativeAssembly','gNativeProgressReward','sRecruitTiles','sRecruitPalette','gNativeEnemyHp','gNativeEnemyCharge','gNativeThreats','gNativePartyHealth',
  'sEnemyTasks','sPartyPos','gNativeSaveNotice','gNativeGuard','gNativeDeck',
  'sValueTiles','sValuePalette','sCardTiles','sCardPalettes','gWin0V','gWin1V','sUiGlyphs')
-header=''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
+hero_count=int(re.search(r'#define FIELD_HEROES (\d+)',Path('tactics/field_roster.h').read_text())[1])
+header=f'local rosterRewardOffset={7+2*hero_count}\n'+''.join(f'local {k}=0x{names[k]:08x}\n' for k in keys)
 script=header+Path('tests/tactics_cloud_recruit_smoke.lua').read_text().replace('@OUTPUT@',str(out))
 if a.power:
  script=script.replace('emu:setKeys(64)','emu:setKeys(0)').replace('emu:read8(gNativeRoster)==31','emu:read8(gNativeRoster)==23 and emu:read8(gNativeRoster+4)==1')
