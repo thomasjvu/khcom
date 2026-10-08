@@ -34,8 +34,8 @@ callbacks:add('frame',function()
   resolved=emu:read16(gNativeJumpPrediction)
   x=emu:read32(gNativeJumpLanding);y=emu:read32(gNativeJumpLanding+4);z=emu:read32(gNativeJumpLanding+8)
   check(emu:read16(gNativeMenu)==6 and emu:read16(gNativeDirection)==@DIRECTION@,'native menu retains chosen direction')
-  check(resolved==1 or resolved==2,'terrain reports resolved or explicit unresolved route')
-  check(hudText(4,0,resolved==1 and 'LANDING DIAMOND ON MAP' or 'LANDING UNRESOLVED'),'native Jump HUD labels projected landing status')
+  check(resolved>=1 and resolved<=4,'terrain reports landing, attachment or explicit unresolved route')
+  check(hudText(4,0,resolved==1 and 'LANDING DIAMOND ON MAP' or resolved==3 and 'ATTACH TO STAIRS' or resolved==4 and 'CATCH LEDGE' or 'LANDING UNRESOLVED'),'native Jump HUD labels projected landing status')
   emu:screenshot('@OUTPUT@/landing-preview.png')
   check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'prediction preserves movement and action')
   output:write('PREDICTION '..resolved..' '..x..','..y..','..z..'\n');output:flush()
@@ -44,7 +44,7 @@ callbacks:add('frame',function()
   local field=emu:read32(gFieldState)
   if resolved==1 then
    check(emu:read16(gNativeBusy)==0 and emu:read32(field+0x18)==x and emu:read32(field+0x1c)==y and emu:read32(field+0x20)==z,'actual native landing matches resolved forecast exactly')
-  else check(resolved==2,'unresolved terrain withheld guaranteed landing') end
+  else check(resolved>=2 and resolved<=4,'attachment or unresolved terrain withheld guaranteed landing') end
   output:write('ACTUAL '..emu:read32(field+0x18)..','..emu:read32(field+0x1c)..','..emu:read32(field+0x20)..'\n');output:close()
  end
 end)

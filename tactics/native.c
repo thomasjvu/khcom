@@ -1382,15 +1382,15 @@ static void NativeJumpPredict(void) {
             point.x=oldX; point.y=oldY;
             attachment.x=oldX; attachment.y=oldY-1536;
             attachment.z=point.z; attachment.ground=point.ground;
-            if (GetFldPosClimbDir(&attachment)) { gNativeJumpPrediction=2; return; }
+            if (GetFldPosClimbDir(&attachment)) { gNativeJumpPrediction=3; return; }
             attachment.y=oldY+1536;
-            if (GetFldPosClimbDir(&attachment)) { gNativeJumpPrediction=2; return; }
+            if (GetFldPosClimbDir(&attachment)) { gNativeJumpPrediction=3; return; }
             if (motion.phase==2 && point.ground-motion.z>4095) {
                 overLedge=point; overLedge.y-=1024; overLedge.z-=12288;
                 underLedge=overLedge; underLedge.z+=768;
                 if (!FieldJumpTerrainCheck(&overLedge,NativeJumpGround,NativeJumpBlocked,NULL) &&
                     FieldJumpTerrainCheck(&underLedge,NativeJumpGround,NativeJumpBlocked,NULL)) {
-                    gNativeJumpPrediction=2; return;
+                    gNativeJumpPrediction=4; return;
                 }
             }
             FieldJumpMotionWall(&motion,oldX,oldY,point.ground);
@@ -1646,6 +1646,8 @@ static void NativeHud(void) {
             NativeLabel(0, 16, gNativeDirection ? "MOVING JUMP" : "STANDING JUMP");
             NativeLabel(0, 24, gNativeDirection ? "COST ONE MOVE AND ACTION" : "COST ONE ACTION");
             NativeLabel(0, 32, gNativeJumpPrediction==1 ? "LANDING DIAMOND ON MAP" :
+                gNativeJumpPrediction==3 ? "ATTACH TO STAIRS" :
+                gNativeJumpPrediction==4 ? "CATCH LEDGE" :
                 gNativeJumpPrediction==2 ? "LANDING UNRESOLVED" : "CHECKING LANDING");
             NativeLabel(0, 40, (gNativeDirection & DPAD_UP) ?
                 ((gNativeDirection & DPAD_LEFT) ? "NORTH WEST" : (gNativeDirection & DPAD_RIGHT) ? "NORTH EAST" : "NORTH") :

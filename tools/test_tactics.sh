@@ -26,3 +26,11 @@ build/tactics/field_enemy_test
 
 cc -std=c89 -pedantic -Wall -Wextra -Werror -fsanitize=address,undefined -I tactics tactics/field_roster.c tests/tactics_field_roster_test.c -o build/tactics/field_roster_test
 build/tactics/field_roster_test
+
+# Pure jump terrain and wall responses; native contacts use emulator fixtures.
+for jump_case in terrain wall; do
+  cc -std=c89 -pedantic -Wall -Wextra -Werror -fsanitize=address,undefined \
+    -I tactics tactics/field_jump.c "tests/tactics_jump_${jump_case}_test.c" \
+    -o "build/tactics/jump_${jump_case}_test"
+  "build/tactics/jump_${jump_case}_test"
+done
