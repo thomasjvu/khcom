@@ -1474,9 +1474,15 @@ static void NativeHud(void) {
             } else NativeLabel(0, 24, "CONFIRM SELECTED ACTION");
             NativeLabel(0, 48, gNativeActionLeft ? "B BACK WITHOUT SPENDING" : "ACTION ALREADY SPENT");
         } else if (gNativeMenu == 2) {
-            NativeLabel(0, 16, card < 0 ? "NO CARDS  DOWN RELOAD" : names[gNativeDeck.kind[card]]);
+            static const char* const skills[4] = {"KEYBLADE", "FIRE", "CURE", "GUARD"};
+            char detail[] = "VALUE 0   STOCK 0 OF 3";
+            detail[6] = card < 0 ? ' ' : '0' + gNativeDeck.value[card];
+            detail[16] += gNativeDeck.stocked;
+            NativeLabel(0, 16, card < 0 ? "NO CARDS  DOWN RELOAD" : skills[gNativeDeck.kind[card]]);
             NativeLabel(0, 24, gNativeDeck.stocked == 3 ? "THREE STOCKED  A SLEIGHT" : gNativeDeck.stocked ? "UP STOCK  DOWN CLEAR" : "UP STOCK  DOWN RELOAD");
             NativeLabel(0, 32, "B BACK  L R CARD");
+            NativeLabel(0, 40, detail);
+            NativeLabel(0, 48, gNativeActionLeft ? "PLAY COSTS ONE ACTION" : "ACTION ALREADY SPENT");
         } else {
             int hasKey = 0;
             u8 handIndex;

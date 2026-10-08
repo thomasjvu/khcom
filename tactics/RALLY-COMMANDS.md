@@ -150,3 +150,14 @@ coverage. Exact ROM hashes and logs are preserved in
 `build/tactics-us/ledge-command-{climb,drop}-fixed-evidence/metadata.json`.
 No reserved RAM or save-format change. The broader all-room replay runs on
 the earlier8f5584ea8 ROM and does not validate this newer menu/drop change.
+
+### Skills browsing details
+
+Skills browsing uses plain card names instead of A PLAY when A actually opens
+confirmation. It now shows selected card value, stock count out of three, and
+action cost or spent-action status. Original card artwork remains visible.
+No control, combat, reserved RAM or save change. All23 explicit health/card
+fixture checks pass for target cycling, cancellation, confirmed healing/ranged
+damage, costs and Rally Curaga. The rendered Skills screen was inspected.
+Exact ROM/driver hashes are in `skills-detail-target-evidence/metadata.json`.
+The running full campaign uses preceding b5b66489f, not this presentation change.

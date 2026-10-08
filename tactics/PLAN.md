@@ -561,3 +561,14 @@ the height0 door from height20480; it excludes jumps/stairs and is diagnostic
 only. No all-room success is claimed, and this earlier ROM does not validate
 the subsequent Climb/Drop menu. Next coverage is a current-ROM main-route
 regression, while optional-branch route efficiency remains unfinished.
+
+### Skills browsing details
+
+Skills browsing uses plain card names instead of A PLAY when A actually opens
+confirmation. It now shows selected card value, stock count out of three, and
+action cost or spent-action status. Original card artwork remains visible.
+No control, combat, reserved RAM or save change. All23 explicit health/card
+fixture checks pass for target cycling, cancellation, confirmed healing/ranged
+damage, costs and Rally Curaga. The rendered Skills screen was inspected.
+Exact ROM/driver hashes are in `skills-detail-target-evidence/metadata.json`.
+The running full campaign uses preceding b5b66489f, not this presentation change.
