@@ -44,7 +44,7 @@ callbacks:add('frame',function()
   check(paletteMatch,'Rally original card palette uploaded to allocated bank')
   check(emu:read8(gNativeRoster+2)==4,'Rally selected into companion slot');emu:screenshot('@OUTPUT@/setup.png');emu:setKeys(8) end
  if f==260 then check(emu:read32(sAssemblyTiles)==0 and emu:read32(sAssemblyPalette)==0,'deployment releases Rally setup card resources');check(emu:read16(gNativeParty)==1 and emu:read16(gNativeAssembly)==0,'deploy and control Rally');emu:setKeys(4) end
- if f==300 then check(emu:read16(gNativeMenu)==1,'open tactical commands');check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'opening menu preserves budgets');emu:screenshot('@OUTPUT@/menu.png');emu:setKeys(128) end
+ if f==300 then check(emu:read16(gWin0V)==40 and emu:read16(gWin1V)==37024,'commands leave 104 pixels of field unobscured');check(hudText(1,2,'MOVE') and hudText(1,17,'PARTY') and hudText(3,17,'SUSPEND'),'commands use compact two column layout');check(hudText(4,0,'SOR XRAL GOO THEN ENEMIES'),'commands retain party phase order');check(emu:read16(gNativeMenu)==1,'open tactical commands');check(emu:read16(gNativeMoveLeft)==3 and emu:read16(gNativeActionLeft)==1,'opening menu preserves budgets');emu:screenshot('@OUTPUT@/menu.png');emu:setKeys(128) end
  if f==340 then check(emu:read16(gNativeMenuChoice)==1,'navigate attack without moving');emu:setKeys(128) end
  if f==380 then check(emu:read16(gNativeMenuChoice)==2,'navigate skills');emu:setKeys(1) end
  if f==420 then check(emu:read16(gNativeMenu)==2,'skills submenu opens');emu:screenshot('@OUTPUT@/skills.png');emu:setKeys(2) end

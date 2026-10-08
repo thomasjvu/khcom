@@ -1362,3 +1362,21 @@ frames; its terminal result remains required. Aerith original resources are
 confirmed as gEarF00/F01/B00/B01 with gEarisPalette; these provide idle/walk
 only. No Tifa sprite resources found in this checkout. Neither added recruit
 is claimed implemented. Current release remains development, goal active.
+
+## Compact commands pass (0.35 development)
+
+Native Commands now uses a 40-pixel top panel, three rows in two columns,
+with the ready party followed by the enemy phase. Together with the 16-pixel
+bottom strip this leaves 104/160 pixels unobscured. Ordinary movement retains
+the 18-pixel header. Detailed menus remain contextual.
+
+ROM SHA256 `1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f`: input-only menu/assembly/preview/suspend/reset 26/26;
+explicit native Donald/Goofy moves fixtures 10/10 and Cloud deployment/sword
+fixture 9/9. Action poses play once; idle/walk loop normally. The first Cloud
+fixture observed too early for idle; the final fixture waits for native recovery.
+Evidence is in `build/tactics-us/compact-commands-*-final`. Header/capacity and
+Rally asset encoding checks pass. Earlier complete campaigns prove their
+recorded 0.34 ROM only; this build has no new complete campaign proof.
+
+The 0.34 companion-recovery all-room attempt also ended in native party defeat
+at frame134022 in Agrabah. This remains a failed campaign, not a completion.

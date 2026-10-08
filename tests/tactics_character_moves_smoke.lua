@@ -22,6 +22,7 @@ callbacks:add('frame',function()
  if f==230 then check(emu:read16(gNativeParty)==1,'Select controls Donald');place(64) end
  if f==250 then check(emu:read16(gNativeFireDamage)==14,'Donald attack card previews ranged magic');emu:setKeys(1) end
  if f==254 then emu:setKeys(0) end
+ if f==270 then check((emu:read16(sFriends+8)&1)==0,'Donald magic animation plays once')end
  if f==310 then
   check(emu:read16(gNativeEnemyHp)==16,'Donald attack card resolves magic without Sora melee')
   check(emu:read16(gNativeEnemyHp+2)==30,'Donald magic damages one target')
@@ -37,6 +38,7 @@ callbacks:add('frame',function()
   emu:setKeys(1)
  end
  if f==384 then emu:setKeys(0) end
+ if f==400 then check((emu:read16(sFriends+56+8)&1)==0,'Goofy spin animation plays once')end
  if f==450 then
   check(emu:read16(gNativeEnemyHp)==21 and emu:read16(gNativeEnemyHp+2)==21,'Goofy shield spin resolves both previewed hits')
   check(emu:read16(gNativeActionLeft)==0,'character attack spends selected member action')

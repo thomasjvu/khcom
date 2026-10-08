@@ -32,3 +32,12 @@ visual states and card, then review combat/rewards across all heroes. Explicit
 fixture checks and host graph checks must not be described as fresh full-run
 or universal physical reachability proof. Physical cartridge testing is useful
 optional validation, not an additional user-imposed completion requirement.
+
+## 0.35 compact Commands development pass
+
+Current native ROM `1667d8885c5db2c5e09592554b736ad27ffe955180ef597a557de34a162c7f9f` has 45 passing scoped native checks (26 input-only
+UI/save, 19 disclosed companion combat fixtures). Commands occupies 40 pixels
+at the top plus the 16-pixel bottom strip; phase order remains visible in the
+menu. This is a development build, without a full campaign replay on its exact
+ROM. The previously pending 0.34 recovery-policy all-room replay failed by
+native party defeat at134022. Full polish/release scope remains open.

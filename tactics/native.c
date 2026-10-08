@@ -140,7 +140,7 @@ static void NativePartyPose(u8 member) {
     friend->pose = 1;
     friend->timer = 48;
     AnimChangeWithDef(sFriendAnims[NativeHero(member) - 1], &friend->anim, 1,
-        NativeHero(member) == FIELD_RALLY ? 0 : ANIM_FLAG_LOOP, friend->tiles);
+        0, friend->tiles);
 }
 u16 gNativeProgressReward;
 static u16 sProgressHero, sProgressKind;
@@ -860,7 +860,7 @@ static void NativePartyDraw(void) {
         } else if (sFriends[i].pose != pose) {
             sFriends[i].pose = pose;
             AnimChangeWithDef(sFriendAnims[NativeHero(i + 1) - 1], &sFriends[i].anim, pose,
-                pose >= 3 ? 0 : ANIM_FLAG_LOOP, sFriends[i].tiles);
+                pose == 0 || pose == 2 ? ANIM_FLAG_LOOP : 0, sFriends[i].tiles);
         }
         gNativeFriendPose[i] = pose;
         /* Skip the original scripted jump windup: native physics already
@@ -1313,7 +1313,7 @@ static void NativeHud(void) {
     gWin0H = gWin1H = 240;
     /* VBlank can occur while labels are being built. Never publish a
      * provisional large window during ordinary movement. */
-    gWin0V = gNativeMenu || gNativeProgressReward || gNativeAssembly ? 56 :
+    gWin0V = gNativeMenu == 1 ? 40 : gNativeMenu || gNativeProgressReward || gNativeAssembly ? 56 :
         !gNativeReward && !gNativePreview && !gNativeResult &&
         !gNativeClimbing && gNativeBusy != 2 ? 18 : 26;
     gWin1V = ((gNativeMenu || gNativeProgressReward || gNativeAssembly || gWin0V == 18 ? 144 : 128) << 8) | 160;
@@ -1477,7 +1477,7 @@ static void NativeHud(void) {
         NativeLabel(0, 32, "SELECT COMMANDS");
     if (gNativeMenu) {
         static const char* const commands[6] = {"MOVE", "ATTACK", "SKILLS", "PARTY", "END TURN", "SUSPEND"};
-        gWin0V = 56;
+        gWin0V = gNativeMenu == 1 ? 40 : 56;
         for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
         NativeLabel(0, 0, gNativeMenu >= 3 ? "TARGET  UP DOWN  A CONFIRM" : gNativeMenu == 2 ? "SKILLS  L R CHOOSE  A NEXT" : "COMMANDS  UP DOWN A  B BACK");
         if (gNativeMenu == 9) {
@@ -1611,23 +1611,12 @@ static void NativeHud(void) {
             NativeLabel(0, 40, detail);
             NativeLabel(0, 48, gNativeActionLeft ? "PLAY COSTS ONE ACTION" : "ACTION ALREADY SPENT");
         } else {
-            int hasKey = 0;
-            u8 handIndex;
-            for (handIndex = 0; handIndex < 5; handIndex++) {
-                int handCard = FieldDeckHand(&gNativeDeck, handIndex);
-                if (handCard >= 0 && gNativeDeck.kind[handCard] == FIELD_CARD_KEY) hasKey = 1;
-            }
             for (i = 0; i < 6; i++) {
-                NativeLabel(0, (i + 1) * 8, i == gNativeMenuChoice ? "X" : " ");
-                NativeLabel(16, (i + 1) * 8, commands[i]);
+                int x = (i / 3) * 120;
+                int y = (i % 3 + 1) * 8;
+                NativeLabel(x, y, i == gNativeMenuChoice ? "X" : " ");
+                NativeLabel(x + 16, y, commands[i]);
             }
-            NativeLabel(104, 8, gNativeMoveLeft ? "CHOOSE TILE" : "NO MOVE LEFT");
-            NativeLabel(104, 16, !gNativeActionLeft ? "ACTION SPENT" :
-                gNativeDeck.stocked ? "STOCKED HAND" : hasKey ? "CHOOSE FACING" : "NO KEY CARD");
-            NativeLabel(104, 24, gNativeActionLeft ? "CARDS AND COMBOS" : "ACTION SPENT");
-            NativeLabel(104, 32, "SWITCH HERO");
-            NativeLabel(104, 40, "ENEMIES ACT");
-            NativeLabel(104, 48, "SAVE AND RESUME");
         }
     }
     if (gNativePreview == 1 && !gNativeMenu) NativeLabel(0, 32, "R JUMP  B BACK");
@@ -1638,14 +1627,16 @@ static void NativeHud(void) {
             NativeLabel(0, 32, player->state == FLD_STATE_LEDGE_HANG ? "SELECT LEDGE COMMANDS" : "CATCHING LEDGE");
         }
     }
-    if (!gNativeMenu && !gNativeAssembly && !gNativeProgressReward && !gNativeReward &&
+    if ((gNativeMenu == 1 || !gNativeMenu) && !gNativeAssembly && !gNativeProgressReward && !gNativeReward &&
         !gNativePreview && !gNativeResult && !gNativeClimbing && gNativeBusy != 2) {
-        for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
-        gWin0V = 18;
-        gWin1V = (144 << 8) | 160;
-        NativeLabel(0, 0, line);
-        NativeLabel(168, 0, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" :
-            NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : "CLOUD");
+        if (!gNativeMenu) {
+            for (i = 0; i < 1024; i++) sHudScreen[i] = 0xf000;
+            gWin0V = 18;
+            gWin1V = (144 << 8) | 160;
+            NativeLabel(0, 0, line);
+            NativeLabel(168, 0, NativeHero(gNativeParty) == FIELD_SORA ? "SORA" : NativeHero(gNativeParty) == FIELD_DONALD ? "DONALD" :
+                NativeHero(gNativeParty) == FIELD_GOOFY ? "GOOFY" : NativeHero(gNativeParty) == FIELD_RALLY ? "RALLY" : "CLOUD");
+        }
         /* Party actions are freely ordered. Show eligible members together,
          * followed by the enemy phase, rather than implying initiative. */
         turnLength = 0;
@@ -1668,7 +1659,7 @@ static void NativeHud(void) {
             while (*turnName) turns[turnLength++] = *turnName++;
         }
         turns[turnLength] = 0;
-        NativeLabel(0, 8, gNativeSaveNotice ? (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") : turns);
+        NativeLabel(0, gNativeMenu ? 32 : 8, gNativeSaveNotice ? (gNativeSaveNotice == 1 ? "SAVED" : "SAVE FAILED") : turns);
     }
     sHudPending = 1;
 }
