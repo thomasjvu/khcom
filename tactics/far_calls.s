@@ -788,3 +788,11 @@ TacFar__call_via_r7:
 .thumb_func
 TacFar__call_via_r4:
  bx r4
+.balign 4
+.global TacFar_MapSnapCamera
+.thumb_func
+TacFar_MapSnapCamera:
+ ldr r3, 1f
+ bx r3
+.balign 4
+1: .word MapSnapCamera + 1

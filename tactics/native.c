@@ -61,6 +61,7 @@ extern s32 MapEnmCheckAttacked(MapEnmWork* work);
 extern void ColliderUpdateAll();
 extern void* ColliderGetPool(u32 type);
 extern void ColliderSetDisabled(Collider* collider, u8 disabled);
+extern void MapSnapCamera(void);
 extern TaskDesc gTaskDescMapGmkDmy;
 extern TaskDesc gTaskDescMapSpark;
 
@@ -1460,6 +1461,34 @@ static void NativeInit(s32 arg) {
         gNativeGuard = sSuspend.guard;
         if (gNativeGuard == 2) NativeGuardPose();
         gFieldState->actor.fieldPosition = sPartyPos[gNativeParty];
+        /* Scenery collision is culled against the camera. Restore the view
+         * before rebuilding contacts, or a saved prop top appears unsupported
+         * for the first player updates while the entrance camera catches up. */
+        gFieldState->x2 = gFieldState->actor.fieldPosition.x;
+        gFieldState->y2 = gFieldState->actor.fieldPosition.y + gFieldState->actor.fieldPosition.z;
+        MapSnapCamera();
+        TaskPoolUpdate(&gFieldState->tasks);
+        {
+            FldWork* player = ((Task*)gFieldState->tasks2.head.activeHead->owner)->work;
+            ListNode* support = ((ListPool*)ColliderGetPool(6))->activeHead;
+            /* Prop updates are paused during the room fade. A regenerated
+             * platform may still carry its entrance-view culling flag. */
+            while (support) {
+                Collider* collider = support->owner;
+                s32 dx = (gFieldState->actor.fieldPosition.x - collider->x) >> 4;
+                s32 dy = (gFieldState->actor.fieldPosition.y * 2 - collider->y) >> 4;
+                s32 radius = collider->radius >> 4;
+                if ((collider->flags & COLLIDER_FLAG_IS_PLATFORM) &&
+                    collider->z - collider->height == gFieldState->actor.fieldPosition.z &&
+                    dx > -radius && dx < radius && dy > -radius && dy < radius &&
+                    dx * dx + dy * dy < radius * radius)
+                    ColliderSetDisabled(collider, 0);
+                support = support->next;
+            }
+            ColliderSetPosition(&player->collider, gFieldState->actor.fieldPosition.x,
+                gFieldState->actor.fieldPosition.y, gFieldState->actor.fieldPosition.z);
+            ColliderUpdateAll();
+        }
         gNativeMoveLeft = sPartyMove[gNativeParty];
         gNativeActionLeft = sPartyAction[gNativeParty];
         if (sSuspend.climbing) {

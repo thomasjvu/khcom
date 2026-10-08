@@ -9,11 +9,26 @@ callbacks:add('frame',function()
  f=f+1
  local actual=f
  if testResume and resetDone and actual<900 then
-  if actual%10==0 then
+  if actual%10==0 and emu:read32(gCurrentMode)==sNativeMode and
+     (emu:read32(gCurrentModeUpdate)&0xfffffffe)==NativeUpdate then
    local p=emu:read32(gFieldState)
-   if p~=0 then
-    local t=emu:read32(emu:read32(p+0x94));local w=t~=0 and emu:read32(t+4) or 0
-    out:write('RESUME TRACE frame='..actual..' x='..emu:read32(p+0x18)..' y='..emu:read32(p+0x1c)..' z='..emu:read32(p+0x20)..' ground='..emu:read32(p+0x24)..' state='..(w~=0 and emu:read32(w+0x94) or -1)..'\n');out:flush()
+   if p>=0x02000000 and p<0x02040000 then
+    local head=emu:read32(p+0x94)
+    local t=head>=0x02000000 and head<0x02040000 and emu:read32(head) or 0
+    local w=t>=0x02000000 and t<0x02040000 and emu:read32(t+4) or 0
+    if w>=0x02000000 and w<0x02040000 then
+     local c=w+0x38
+     out:write('RESUME TRACE frame='..actual..' x='..emu:read32(p+0x18)..' y='..emu:read32(p+0x1c)..' z='..emu:read32(p+0x20)..' ground='..emu:read32(p+0x24)..' state='..emu:read32(w+0x94)..' collider='..emu:read32(c+4)..','..emu:read32(c+8)..','..emu:read32(c+12)..' stand='..emu:read16(c+46)..' flags='..emu:read16(c+48)..' node='..emu:read16(c+36)..' platform='..emu:read32(c+64)..'\n')
+     local n=emu:read32(sColliderPoolObstacle+8)
+     while n>=0x02000000 and n<0x02040000 do
+      local prop=emu:read32(n)
+      if emu:read32(prop+16)==8192 then
+       out:write('PROP TRACE frame='..actual..' x='..emu:read32(prop+4)..' y='..emu:read32(prop+8)..' z='..emu:read32(prop+12)..' flags='..emu:read16(prop+48)..' node='..emu:read16(n+12)..'\n')
+      end
+      n=emu:read32(n+8)
+     end
+     out:flush()
+    end
    end
   end
   return
@@ -104,6 +119,10 @@ callbacks:add('frame',function()
   if collider then out:write('RESTORED PROP x='..emu:read32(collider+4)..' y='..emu:read32(collider+8)..' z='..emu:read32(collider+12)..' radius='..emu:read32(collider+16)..' height='..emu:read32(collider+20)..'\n');out:flush() end
   emu:screenshot('@OUTPUT@/resumed-top.png')
  end
+ -- The empty-room fixture was already cleared before suspension; its next
+ -- round resumes at assembly. Deploy through native input before walking.
+ if testResume and actual==910 then emu:setKeys(1) end
+ if testResume and actual==914 then emu:setKeys(0) end
  if (not testResume or resetDone) and (f==560 or f==620) then emu:setKeys(32) end
  if f==444 or f==564 or f==624 then emu:setKeys(0) end
  if f==740 then
@@ -111,6 +130,7 @@ callbacks:add('frame',function()
   out:write('FAR SIDE x='..emu:read32(p+0x18)..' y='..emu:read32(p+0x1c)..' z='..emu:read32(p+0x20)..' ground='..emu:read32(p+0x24)..' move='..emu:read16(gNativeMoveLeft)..' action='..emu:read16(gNativeActionLeft)..'\n');out:flush()
   check(emu:read32(p+0x18)<emu:read32(collider+4)-emu:read32(collider+16),'native movement crosses beyond the pillar footprint')
   check(emu:read32(p+0x20)==emu:read32(collider+12),'native descent returns to the supporting floor')
+  if testResume then check(emu:read16(gNativeMoveLeft)==0 and emu:read16(gNativeActionLeft)==1,'resumed crossing spends two movement and preserves action') end
   emu:screenshot('@OUTPUT@/far-side.png');out:close()
  end
  f=actual

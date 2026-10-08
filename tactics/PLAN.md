@@ -308,3 +308,37 @@ A one-time collision refresh and a 32-update bounded contact-refresh experiment
 both fail. Native edits were reverted, and failed exact-ROM logs retained.
 Next inspect player/prop collider flags and support contacts during the first
 live field updates rather than assuming a contact refresh repairs the handoff.
+
+### Prop-top suspend support restored
+
+The readiness-guarded player/prop trace identifies the initial support loss:
+Sora loads at the saved top x33797/y83968/z0/ground8192, but the original
+pillar initially has node flags3 (active and skipped) while the player has no
+standing contact. The entrance camera culls the regenerated platform. Native
+prop updates pause during the room fade, so contacts alone cannot repair it.
+The pillar becomes active too late, after native falling has begun.
+
+Suspend initialization now snaps the original camera to the restored active
+hero, refreshes scenery, enables only original platform colliders supporting
+the exact saved surface/footprint, sets the player collider position and
+rebuilds native contacts before player updates. No save-format or reserved-RAM
+change is needed (8132/8192 bytes). A nearby floor or different prop top is not
+substituted for the saved position.
+
+`pillar-resume-final-evidence` passes all17 native checks on ROM SHA256
+b389aef49f4e30e9f04c058faf9eaa85d000c3191b8b5b241ebc0bc6b8cb8759:
+original pillar identity, native jump and top walking, exact x/y/z/ground and
+budgets after reset, assembly deployment, far-side floor landing and two-step
+movement cost with action preserved. Live support traces remain stateGROUND,
+standFlags1 and active pillar node throughout. The approach/card/save fixtures
+are explicit; this is not a full campaign replay. The driver deploys with A
+because the empty room was cleared before saving and resumes at round setup.
+Earlier apparent far-side passes while already fallen did not prove crossing.
+
+Twenty-seven composed stair/descent/save/reset/party checks also pass on this
+exact ROM (`pillar-resume-descent-regression-evidence`), alongside the native
+build/header/capacity checks and complete host sanitizer suite. Failed patch
+experiments are retained in metadata, including two patches accidentally
+placed in the carry-turn branch instead of suspend initialization. The
+second-seed campaign's navigator still lacks prop-top connections; its prior
+Castle stall is not claimed fixed by this suspend repair.
